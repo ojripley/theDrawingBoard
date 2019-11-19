@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import './App.scss';
+import Box from '@material-ui/core/Box';
 
-function App() {
+import TabBar from './TabBar';
+
+export default function App() {
+  // const LOGIN = 'LOGIN';
+  const DASHBOARD = 'DASHBOARD';
+  const HISTORY = 'HISTORY';
+  const CONTACTS = 'CONTACTS';
+  const ACTIVE = 'ACTIVE';
+
+  const [mode, setMode] = useState(DASHBOARD);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    //top nav
+    //login page if not logged in
+    //dashboard if logged in
+    <Box>
+      <TabBar />
+    </Box>
   );
 }
-
-export default App;
