@@ -9,7 +9,7 @@ export default function App() {
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
-  const ACTIVE = 'ACTIVE'
+  const ACTIVE = 'ACTIVE';
 
   const [mode, setMode] = useState(DASHBOARD);
 
