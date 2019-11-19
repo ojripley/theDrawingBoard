@@ -11,9 +11,6 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-session');
 
-// this is the object used to manage all running games on the server
-// const { activeGames, activePlayers } = require('./objects/managers.js');
-
 // db related operations
 // const db = require('../db/queries/queries');
 
@@ -25,16 +22,6 @@ app.use(morgan('dev'));
 app.use(cookieParser({ signed: false }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// page routes --> these will be replaced with routes for the documents
-// const loginRoutes = require('../routes/loginRoutes');
-// const registerRoutes = require('../routes/registerRoutes');
-// const logoutRoutes = require('../routes/logoutRoutes');
-
-// mount above query routes to db
-// app.use('/', loginRoutes(db));
-// app.use('/', registerRoutes(db));
-// app.use('/', logoutRoutes());
 
 // Home page
 app.get("/", (req, res) => {
