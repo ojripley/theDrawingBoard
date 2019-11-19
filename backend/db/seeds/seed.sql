@@ -16,11 +16,13 @@ VALUES
 INSERT INTO meetings (owner_id, name, status)
 VALUES
 (3, 'test1', 'past'),
-(2, 'test2', 'active'),
-(1, 'test3', 'scheduled');
+(2, 'test2', 'past'),
+(1, 'test3', 'past'),
+(2, 'test4', 'past');
 
-INSERT INTO users-meetings (user_id, meeting_id, attendance)
-(1, 1, 'accepted'),
+
+INSERT INTO users_meetings (user_id, meeting_id, attendance)
+values (1, 1, 'accepted'),
 (1, 2, 'rejected'),
 (1, 3, 'invited'),
 (2, 1, 'rejected'),
@@ -28,4 +30,6 @@ INSERT INTO users-meetings (user_id, meeting_id, attendance)
 (2, 3, 'invited'),
 (3, 1, 'accepted'),
 (3, 2, 'accepted'),
-(3, 3, 'rejected');
+(3, 3, 'rejected'),
+(1, 4, 'accepted'),
+(2, 4, 'accepted');
