@@ -1,26 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  // const LOGIN = 'LOGIN';
+  const DASHBOARD = 'DASHBOARD';
+  const HISTORY = 'HISTORY';
+  const CONTACTS = 'CONTACTS';
+  const ACTIVE = 'ACTIVE'
+
+  const [mode, setMode] = useState(DASHBOARD);
+
+  // return (
+    //top nav
+    //login page if not logged in
+    //dashboard if logged in
+    //tab-bar if logged in
+  // );
 }
 
 export default App;
