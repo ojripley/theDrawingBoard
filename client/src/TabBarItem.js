@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TabBar(props) {
+export default function TabBarItem(props) {
   return (
     <div />
   );
