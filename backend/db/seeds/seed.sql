@@ -4,12 +4,14 @@ VALUES ('oj', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'o
 ('tc', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'tc@mail.com'),
 ('town bicycle', '3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'tb@mail.com');
 
-INSERT INTO contacts (user1_id, user2_id, user1_status, user2_status)
+INSERT INTO friends (user_id, friend_id, user_status)
 VALUES
-(1, 2, 'accepted', 'accepted'),
-(1, 3, 'accepted', 'accepted'),
-(2, 3, 'pending', 'accepted');
-
+(1, 2, 'requested'),
+(1, 3, 'accepted'),
+(2, 1, 'pending'),
+(2, 3, 'accepted'),
+(3, 1, 'accepted'),
+(3, 3, 'accepted');
 
 INSERT INTO meetings (owner_id, name, status)
 VALUES
