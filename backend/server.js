@@ -59,4 +59,5 @@ io.on('connection', (client) => {
   activeUsers.addUser(user, client);
 
   console.log(activeUsers);
+  io.emit('msg', "Hello from server");
 });
