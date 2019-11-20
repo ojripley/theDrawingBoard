@@ -3,6 +3,6 @@ CREATE TABLE users_meetings (
   id SERIAL PRIMARY KEY NOT NULL,
   meeting_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
-  notes VARCHAR(255),
+  notes text,
   attendance VARCHAR(255)
 );
