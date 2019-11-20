@@ -26,7 +26,6 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      //Define socket events here, modify the state as needed
       socket.on(
         'msg', data => {
           console.log(data);
@@ -34,13 +33,8 @@ export default function App() {
     }
   }, [socket, socketOpen]);
 
-  //top nav
-  //login page if not logged in
-  //dashboard if logged in
-
   if (loggedIn) {
     return (
-      //If logged in show dashboard
       <Box>
         <NavBar />
         {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
