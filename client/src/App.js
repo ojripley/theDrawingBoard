@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.scss';
 import Box from '@material-ui/core/Box';
 
@@ -10,6 +10,9 @@ import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 
+//Custom hooks
+import io from 'socket.io-client';
+
 export default function App() {
   // const LOGIN = 'LOGIN';
   const loggedIn = true;//Change this :)
@@ -18,7 +21,17 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const ACTIVE = 'ACTIVE';
 
+
   const [mode, setMode] = useState(DASHBOARD);
+
+  useEffect(() => {
+    const socket = io("localhost:8080");
+    socket.on(
+      'msg', data => {
+        console.log(data);
+      })
+  }, [])
+
   //top nav
   //login page if not logged in
   //dashboard if logged in
@@ -27,7 +40,7 @@ export default function App() {
     return (
       //If logged in show dashboard
       <Box>
-      <NavBar />
+        <NavBar />
         {mode === DASHBOARD && <Dashboard />}
         {mode === HISTORY && <History />}
         {mode === CONTACTS && <Contacts />}
