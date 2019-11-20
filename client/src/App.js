@@ -11,7 +11,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 
 //Custom hooks
-import io from 'socket.io-client';
+import { useSocket } from './hooks/useSocket'
 
 export default function App() {
   // const LOGIN = 'LOGIN';
@@ -21,16 +21,18 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const ACTIVE = 'ACTIVE';
 
-
+  const { socket, socketOpen } = useSocket();
   const [mode, setMode] = useState(DASHBOARD);
 
   useEffect(() => {
-    const socket = io("localhost:8080");
-    socket.on(
-      'msg', data => {
-        console.log(data);
-      })
-  }, [])
+    if (socketOpen) {
+      //Define socket events here, modify the state as needed
+      socket.on(
+        'msg', data => {
+          console.log(data);
+        });
+    }
+  }, [socket, socketOpen]);
 
   //top nav
   //login page if not logged in
@@ -41,10 +43,10 @@ export default function App() {
       //If logged in show dashboard
       <Box>
         <NavBar />
-        {mode === DASHBOARD && <Dashboard />}
-        {mode === HISTORY && <History />}
-        {mode === CONTACTS && <Contacts />}
-        {mode === ACTIVE && <Active />}
+        {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
+        {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} />}
+        {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} />}
+        {mode === ACTIVE && <Active socket={socket} socketOpen={socketOpen} />}
         <TabBar mode={mode} setMode={setMode} />
       </Box >
 
