@@ -4,7 +4,8 @@ import './Dashboard.scss';
 
 // import CollapsedView from './CollapsedView';
 import AttendeeView from './AttendeeView';
-import OwnerView from './OwnerView';
+import MeetingCard from './MeetingCard';
+import { truncateSync } from 'fs';
 
 const currentUser = {
   id: 1,
@@ -20,6 +21,7 @@ const meetings = [
     name: 'test1',
     owner_username: 'John Smith',
     status: 'scheduled',
+    description: 'blah',
     notes: 'blahblahblahblahblah',
     invited_users: ['tc', 'ta', 'oj']
   },
@@ -30,6 +32,7 @@ const meetings = [
     name: 'test2',
     owner_username: 'John Smith',
     status: 'scheduled',
+    description: 'blah',
     notes: 'blahblahblahblahblah',
     invited_users: ['tc', 'ta', 'oj']
   },
@@ -40,6 +43,7 @@ const meetings = [
     name: 'test3',
     owner_username: 'John Smith',
     status: 'scheduled',
+    description: 'blah',
     notes: 'blahblahblahblahblah',
     invited_users: ['tc', 'ta']
   }
@@ -48,31 +52,27 @@ const meetings = [
 export default function Dashboard() {
 
   const list = meetings.map(meeting => {
-    if (meeting.owner_username === currentUser.username) {
-      return (
-        <li className='meeting-list-item' key={meeting.id}>
-          <AttendeeView
-            startTime={meeting.start_time}
-            name={meeting.name}
-            owner={meeting.owner_username}
-            attendees={meeting.invited_users}
-            notes={meeting.notes}
-          />
-        </li>
-      )
-    } else {
-      return (
-        <li className='meeting-list-item' key={meeting.id}>
-          <OwnerView
-            startTime={meeting.start_time}
-            name={meeting.name}
-            owner={meeting.owner_username}
-            attendees={meeting.invited_users}
-            notes={meeting.notes}
-          />
-        </li>
-      )
+
+    const isOwner = () => {
+      if (meeting.owner_username === currentUser.username) {
+        return true;
+      } else {
+        return false;
+      }
     }
+
+      return (
+        <li className='meeting-list-item' key={meeting.id}>
+          <MeetingCard
+            startTime={meeting.start_time}
+            name={meeting.name}
+            owner={meeting.owner_username}
+            attendees={meeting.invited_users}
+            description={meeting.description}
+            isOwner={isOwner}
+          />
+        </li>
+      )
   })
 
   return (
