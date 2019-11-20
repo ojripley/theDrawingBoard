@@ -22,14 +22,10 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 
-// Material UI - Button
-import Button from '@material-ui/core/Button';
-
 const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
-    border: 'solid 1px black'
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -174,7 +170,6 @@ export default function Form() {
           </Select>
         </FormControl>
       </div>
-      <Button className={classes.button} variant='contained' color='primary'>Submit</Button>
     </form>
   );
 }

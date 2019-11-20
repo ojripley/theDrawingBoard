@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './Dashboard.scss';
 
 import MeetingCard from './MeetingCard';
-import Form from './Form';
+import FormDialog from './FormDialog';
 
 const currentUser = {
   id: 1,
@@ -80,7 +80,7 @@ export default function Dashboard(props) {
   return (
     <div>
       <h1>Upcoming Meetings</h1>
-      <Form />
+      <FormDialog />
       <ul className='meeting-list'>
         {list}
       </ul>
