@@ -55,7 +55,6 @@ export default function Dashboard(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', {id: currentUser.username, meetingStatus: 'past'});
       props.socket.on('meetings', data => {
-        console.log(data)
         setMeetings(data);
       })
     }
@@ -80,7 +79,11 @@ export default function Dashboard(props) {
   return (
     <div>
       <h1>Upcoming Meetings</h1>
-      <FormDialog />
+      <FormDialog
+        socket={props.socket}
+        socketOpen={props.socketOpen}
+        user={currentUser}
+      />
       <ul className='meeting-list'>
         {list}
       </ul>

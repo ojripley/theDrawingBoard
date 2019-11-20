@@ -7,7 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 import Form from './Form';
 
-export default function FormDialog() {
+export default function FormDialog(props) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -26,7 +26,11 @@ export default function FormDialog() {
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">New Meeting</DialogTitle>
         <DialogContent>
-          <Form />
+          <Form
+            socket={props.socket}
+            socketOpen={props.socketOpen}
+            user={props.user.id}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">

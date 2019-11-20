@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Material UI - Text Inputs
 import TextField from '@material-ui/core/TextField';
@@ -61,44 +61,53 @@ const MenuProps = {
   },
 };
 
-function getStyles(name, personName, theme) {
+function getStyles(name, contactName, theme) {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      contactName.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
 }
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
+// const names = [
+//   'Oliver Hansen',
+//   'Van Henry',
+//   'April Tucker',
+//   'Ralph Hubbard',
+//   'Omar Alexander',
+//   'Carlos Abbott',
+//   'Miriam Wagner',
+//   'Bradley Wilkerson',
+//   'Virginia Andrews',
+//   'Kelly Snyder',
+// ];
 
 
-export default function Form() {
+export default function Form(props) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-
-  const [personName, setPersonName] = React.useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [contactName, setContactName] = useState([]);
+  const [contacts, setContacts] = useState([]);
 
   const handleChange = event => {
-    setPersonName(event.target.value);
+    setContactName(event.target.value);
   };
 
   const handleDateChange = date => {
     setSelectedDate(date);
   };
+
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.emit('fetchContacts', {id: props.user});
+      props.socket.on('contacts', data => {
+        setContacts(data);
+      })
+    }
+  }, [props.socket, props.socketOpen, props.user]);
 
   return (
     <form className={classes.container} noValidate autoComplete="off">
@@ -150,7 +159,7 @@ export default function Form() {
             labelId="demo-mutiple-chip-label"
             id="demo-mutiple-chip"
             multiple
-            value={personName}
+            value={contactName}
             onChange={handleChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
@@ -162,9 +171,9 @@ export default function Form() {
             )}
             MenuProps={MenuProps}
           >
-            {names.map(name => (
-              <MenuItem key={name} value={name} style={getStyles(name, personName, theme)}>
-                {name}
+            {contacts.map(contact => (
+              <MenuItem key={contact.id} value={contact.username} style={getStyles(contact.username, contactName, theme)}>
+                {contact.username}
               </MenuItem>
             ))}
           </Select>

@@ -86,7 +86,7 @@ io.on('connection', (client) => {
   });
 
   client.on('fetchContacts', (data) => {
-    db.fetchContactsById(data.id)
+    db.fetchContactsByUserId(data.id)
       .then(res => {
         client.emit('contacts', res);
       });
