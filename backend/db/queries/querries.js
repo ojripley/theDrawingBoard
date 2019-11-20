@@ -1,6 +1,3 @@
-// querries go here
-// export as db
-
 const db = require('./poolSetup');
 
 const fetchUserByEmail = function(email) {
@@ -155,3 +152,5 @@ const updateUsersMeetingsStatus = function (user_id, status) {
       console.error('Query Error', error);
     });
 };
+
+module.exports = { fetchUserByEmail, fetchFriendsByUserId, fetchMeetingsByUserId, fetchMeetingById, insertMeeting, insertFriend, insertFriend, updateFriendStatus, updateUsersMeetingsStatus };
