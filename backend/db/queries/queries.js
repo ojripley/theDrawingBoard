@@ -38,11 +38,11 @@ const fetchMeetingsByUserId = function (user_id, meeting_status) {
   const vars = [user_id, meeting_status];
 
   return (`
-    SELECT start_time, end_time, name, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.link_to_notes, array_agg(users.username) AS invited_users FROM meetings
+    SELECT start_time, end_time, name, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
-    GROUP BY meetings.id, users_meetings.link_to_notes
+    GROUP BY meetings.id, users_meetings.notes
     HAVING $1 = any(array_agg(users.username))
     ORDER BY start_time
     LIMIT 20;
@@ -103,6 +103,21 @@ const insertMeeting = function (start_time, owner_id, name, status, link_to_init
     });
 };
 
+const insertUsersMeeting = function (user_id, meeting_id) {
+  const vars = [user_id, meeting_id, 'invited'];
+
+  return (`
+    INSERT INTO users_meetings (user_id, meeting_id, status)
+    VALUES($1, $2, $3)
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+};
+
 const insertFriend = function (user_id, friend_id, status) {
 
   const vars = [user_id, friend_id, status];
@@ -153,4 +168,19 @@ const updateUsersMeetingsStatus = function (user_id, status) {
     });
 };
 
-module.exports = { fetchUserByEmail, fetchFriendsByUserId, fetchMeetingsByUserId, fetchMeetingById, insertMeeting, insertFriend, insertFriend, updateFriendStatus, updateUsersMeetingsStatus };
+const updateUsersMeetingNotes = function (user_id, meeting_id) {
+  const vars = [user_id, meeting_id, 'invited'];
+
+  return (`
+    INSERT INTO users_meetings (user_id, meeting_id, status)
+    VALUES($1, $2, $3)
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+};
+
+module.exports = { fetchUserByEmail, fetchFriendsByUserId, fetchMeetingsByUserId, fetchMeetingById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes };
