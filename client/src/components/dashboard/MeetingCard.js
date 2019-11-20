@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -25,6 +25,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MeetingCard(props) {
+
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -53,7 +54,7 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.isOwner ? <Owner /> : <Attendee />}
+          {props.user === props.owner ? <Owner /> : <Attendee />}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>

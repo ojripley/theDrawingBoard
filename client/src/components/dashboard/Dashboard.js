@@ -50,26 +50,18 @@ export default function Dashboard() {
 
   const list = meetings.map(meeting => {
 
-    const isOwner = () => {
-      if (meeting.owner_username === currentUser.username) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-      return (
-        <li className='meeting-list-item' key={meeting.id}>
-          <MeetingCard
-            startTime={meeting.start_time}
-            name={meeting.name}
-            owner={meeting.owner_username}
-            attendees={meeting.invited_users}
-            description={meeting.description}
-            isOwner={isOwner}
-          />
-        </li>
-      )
+    return (
+      <li className='meeting-list-item' key={meeting.id}>
+        <MeetingCard
+          startTime={meeting.start_time}
+          name={meeting.name}
+          owner={meeting.owner_username}
+          attendees={meeting.invited_users}
+          description={meeting.description}
+          user={currentUser.username}
+        />
+      </li>
+    )
   })
 
   return (
