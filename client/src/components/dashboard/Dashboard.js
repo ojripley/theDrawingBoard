@@ -65,6 +65,7 @@ export default function Dashboard(props) {
     return (
       <li className='meeting-list-item' key={meeting.id}>
         <MeetingCard
+          id={meeting.id}
           startTime={meeting.start_time}
           name={meeting.name}
           owner={meeting.owner_username}

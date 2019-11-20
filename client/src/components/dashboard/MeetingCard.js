@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -27,19 +27,20 @@ const useStyles = makeStyles(theme => ({
 export default function MeetingCard(props) {
 
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleChange = panel => (event, isExpanded) => {
+    console.log(panel);
     setExpanded(isExpanded ? panel : false);
   };
 
   return (
     <div className={classes.root}>
-      <ExpansionPanel expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+      <ExpansionPanel expanded={expanded === `panel${props.id}`} onChange={handleChange(`panel${props.id}`)}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1bh-content"
-          id="panel1bh-header"
+          aria-controls={`panel${props.id}bh-content`}
+          id={`panel${props.id}bh-header`}
         >
           <Typography className={classes.heading}>{props.startTime}</Typography>
           <Typography className={classes.secondaryHeading}>{props.name}</Typography>
