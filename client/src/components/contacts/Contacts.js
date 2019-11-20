@@ -6,7 +6,7 @@ import Contact from './Contact';
 
 // boiled data
 // will be replaced with an axios call
-friends = [
+const friends = [
   {
     id: 2,
     username: 'ta',
@@ -17,19 +17,19 @@ friends = [
     username: 'tc',
     email: 'tc@mail.com'
   },
-]
+];
 
 
 
 export default function Contacts(props) {
 
-  const contacts = friends.map(friend => {
+  const contacts = friends.map(friend =>
     <Contact
       key={friend.id}
       username={friend.username}
       email={friend.email}
     />
-  });
+  );
 
   return (
     <>
