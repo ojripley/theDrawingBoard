@@ -1,8 +1,16 @@
 import React from 'react';
 
-import CollapsedView from './CollapsedView';
+import './Dashboard.scss';
+
+// import CollapsedView from './CollapsedView';
 import AttendeeView from './AttendeeView';
 import OwnerView from './OwnerView';
+
+const currentUser = {
+  id: 1,
+  username: 'John Smith',
+  email: 'j@smith.com'
+}
 
 const meetings = [
   {
@@ -39,44 +47,40 @@ const meetings = [
 
 export default function Dashboard() {
 
-  const [expand, setExpand] = React.useState(false);
-
-  const expandHandler = (id) => {
-    if (expand === false) {
-      setExpand(true)
-    } else {
-      setExpand(false);
-    }
-  }
-
   const list = meetings.map(meeting => {
-    return (
-      <>
-        {!expand && <CollapsedView
-          key={meeting.id}
-          startTime={meeting.start_time}
-          name={meeting.name}
-          owner={meeting.owner_username}
-          attendees={meeting.invited_users}
-          onClick={expandHandler}
-        />}
-        {expand && <AttendeeView
-          key={meeting.id}
-          startTime={meeting.start_time}
-          name={meeting.name}
-          owner={meeting.owner_username}
-          attendees={meeting.invited_users}
-          notes={meeting.notes}
-          onClick={expandHandler}
-        />}
-      </>
-    )
+    if (meeting.owner_username === currentUser.username) {
+      return (
+        <li className='meeting-list-item' key={meeting.id}>
+          <AttendeeView
+            startTime={meeting.start_time}
+            name={meeting.name}
+            owner={meeting.owner_username}
+            attendees={meeting.invited_users}
+            notes={meeting.notes}
+          />
+        </li>
+      )
+    } else {
+      return (
+        <li className='meeting-list-item' key={meeting.id}>
+          <OwnerView
+            startTime={meeting.start_time}
+            name={meeting.name}
+            owner={meeting.owner_username}
+            attendees={meeting.invited_users}
+            notes={meeting.notes}
+          />
+        </li>
+      )
+    }
   })
 
   return (
     <div>
       <h1>Upcoming Meetings</h1>
-      {list}
+      <ul className='meeting-list'>
+        {list}
+      </ul>
     </div>
   );
 }
