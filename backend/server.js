@@ -35,16 +35,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send('testing purposes only');
-
-  // user = {
-  //   username: 'testee mctester'
-  // }
-
-  // client = 'client';
-
-  // activeUsers.addUser(user, client);
-
-  // console.log(activeUsers);
 });
 
 
