@@ -97,7 +97,7 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('addUser', (data) => {
-    db
-  })
+  // client.on('addUser', (data) => {
+  //   db
+  // })
 });
