@@ -10,20 +10,19 @@ const useStyles = makeStyles({
   },
 });
 
-export default function TabBar() {
+export default function TabBar({ mode, setMode }) {
   const classes = useStyles();
-  const [value, setValue] = React.useState('contacts');
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleChange = (event, newmode) => {
+    setMode(newmode);
   };
 
   return (
-    <BottomNavigation value={value} onChange={handleChange} className={classes.root} showLabels>
-      <BottomNavigationAction label="Contacts" value="contacts" icon={<FolderIcon />} />
-      <BottomNavigationAction label="Dashboard" value="dashboard" icon={<FolderIcon />} />
-      <BottomNavigationAction label="History" value="history" icon={<FolderIcon />} />
-      <BottomNavigationAction label="Active" value="active" icon={<FolderIcon />} />
+    <BottomNavigation value={mode} onChange={handleChange} className={classes.root} showLabels>
+      <BottomNavigationAction label="Contacts" value="CONTACTS" icon={<FolderIcon />} />
+      <BottomNavigationAction label="Dashboard" value="DASHBOARD" icon={<FolderIcon />} />
+      <BottomNavigationAction label="History" value="HISTORY" icon={<FolderIcon />} />
+      <BottomNavigationAction label="Active" value="ACTIVE" icon={<FolderIcon />} />
     </BottomNavigation>
   );
 }
