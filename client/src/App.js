@@ -4,6 +4,7 @@ import Box from '@material-ui/core/Box';
 
 // COMPONENTS
 import TabBar from './TabBar';
+import NavBar from './NavBar';
 import Active from './components/active/Active';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
@@ -26,6 +27,7 @@ export default function App() {
     return (
       //If logged in show dashboard
       <Box>
+      <NavBar />
         {mode === DASHBOARD && <Dashboard />}
         {mode === HISTORY && <History />}
         {mode === CONTACTS && <Contacts />}
