@@ -13,12 +13,12 @@ VALUES
 (3, 1, 'accepted'),
 (3, 3, 'accepted');
 
-INSERT INTO meetings (owner_id, name, status)
+INSERT INTO meetings (owner_id, name, description, status)
 VALUES
-(3, 'test1', 'past'),
-(2, 'test2', 'past'),
-(1, 'test3', 'past'),
-(2, 'test4', 'past');
+(3, 'test1', 'this is meeting number one', 'past'),
+(2, 'test2', null, 'past'),
+(1, 'test3', 'this is meeting number three', 'past'),
+(2, 'test4', null, 'past');
 
 
 INSERT INTO users_meetings (user_id, meeting_id, attendance)

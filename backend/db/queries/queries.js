@@ -38,7 +38,7 @@ const fetchMeetingsByUserId = function (user_id, meeting_status) {
   const vars = [user_id, meeting_status];
 
   return (`
-    SELECT start_time, end_time, name, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
+    SELECT start_time, end_time, name, description, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
