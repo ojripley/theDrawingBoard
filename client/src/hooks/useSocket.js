@@ -6,16 +6,15 @@ export const useSocket = (server = "localhost:8080") => {
   const [socketOpen, setSocketOpen] = useState(false);
 
   useEffect(() => {
-    setSocket(io(server));
-  }, [server]);
+    const s = io(server);
 
-  useEffect(() => {
-    if (socket) {
-      setSocketOpen(true);
+    setSocket(s);
+    setSocketOpen(true);
+
+    return () => {
+      s.close();
     }
-  }, [socket]);
-
-
+  }, [server]);
 
   return {
     socket,
