@@ -2,12 +2,11 @@ import React from 'react';
 
 import './Dashboard.scss';
 
-// import CollapsedView from './CollapsedView';
 import MeetingCard from './MeetingCard';
 
 const currentUser = {
   id: 1,
-  username: 'Bob Smith',
+  username: 'John Smith',
   email: 'j@smith.com'
 }
 

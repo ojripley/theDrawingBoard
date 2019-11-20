@@ -5,8 +5,9 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
+
+import Owner from './Owner';
+import Attendee from './Attendee';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -52,14 +53,7 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.isOwner && (
-            <div>
-              <EditIcon />
-              <DeleteIcon />
-            </div>
-            )
-          }
-          {!props.isOwner && <p>response bar</p>}
+          {props.isOwner ? <Owner /> : <Attendee />}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>
