@@ -21,15 +21,15 @@ export default function Image(props) {
 
   useEffect(() => {
     // define canvas
-    imageCtxRef.current.width = "100px";//window.innerWidth;
-    imageCtxRef.current.height = "100px";// window.innerHeight;
+    imageCtxRef.current.width = window.innerWidth;
+    imageCtxRef.current.height = window.innerHeight;
     setCtx(prev => {
       console.log("imageEl", imageEl);
       prev = imageCtxRef.current.getContext('2d')
       prev.drawImage(imageEl, 0, 0, 1920, 1080);
     });
     console.log(ctx);
-  }, [ctx, isLoaded]);
+  }, [ctx, isLoaded, imageEl]);
 
 
   return (

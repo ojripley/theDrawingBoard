@@ -29,6 +29,7 @@ export default function Canvas(props) {
   };
 
   const redraw = () => {
+    console.log("redrawing");
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
     // debugger;
     ctx.lineJoin = "round";
@@ -50,16 +51,72 @@ export default function Canvas(props) {
   }
 
   const handleMouseDown = e => {
+    console.log("MOUSE DOWN")
     let mouseX = e.pageX - canvasRef.current.offsetLeft;
     let mouseY = e.pageY - canvasRef.current.offsetTop;
-    // console.log(mouseX, mouseY);
+    console.log(mouseX, mouseY);
     setPaint(true);
     addClick(mouseX, mouseY);
     redraw();
   }
 
-  const handleMouseMove = e => {
+  const handleTouchStart = e => {
+    let touch = e.touches[0];
+    // handleMouseDown(e);
+    // setPaint(true);
+
+    // let mouseEvent = new MouseEvent("mousedown", {
+    //   clientX: touch.clientX,
+    //   clientY: touch.clientY,
+    //   pageX: touch.pageX,
+    //   pageY: touch.pageY
+    // });
+
+    let mouseX = touch.pageX - canvasRef.current.offsetLeft;
+    let mouseY = touch.pageY - canvasRef.current.offsetTop;
+
+    setPaint(true);
+    addClick(mouseX, mouseY);
+    redraw();
+    // canvasRef.current.dispatchEvent(mouseEvent);
+    // let mouseX = e.pageX - canvasRef.current.offsetLeft;
+    // let mouseY = e.pageY - canvasRef.current.offsetTop;
+    // console.log(mouseX, mouseY);
+    // setPaint(true);
+    // addClick(mouseX, mouseY);
+    // redraw();
+  }
+
+  const handleTouchMove = e => {
+    console.log("TOUCH MOVE")
+    let touch = e.touches[0];
+    // setPaint(true);
+    // console.log(touch);
+    // handleMouseDown(e);
+    // let mouseEvent = new MouseEvent("mousemove", {
+    //   isTrusted: true,
+    //   clientX: touch.clientX,
+    //   clientY: touch.clientY,
+    //   pageX: touch.pageX,
+    //   pageY: touch.pageY
+    // });
+    // console.log(mouseEvent);
+    // canvasRef.current.dispatchEvent(mouseEvent);
+
     if (paint) {
+      console.log("actually moving")
+      addClick(touch.pageX - canvasRef.current.offsetLeft, touch.pageY - canvasRef.current.offsetTop, true);
+      // console.log(e.pageX);
+      redraw();
+      // debugger;
+    }
+
+  }
+
+  const handleMouseMove = e => {
+    console.log("trying to move")
+    if (paint) {
+      console.log("actually moving")
       addClick(e.pageX - canvasRef.current.offsetLeft, e.pageY - canvasRef.current.offsetTop, true);
       // console.log(e.pageX);
       redraw();
@@ -83,6 +140,9 @@ export default function Canvas(props) {
       onMouseMove={e => handleMouseMove(e.nativeEvent)}
       onMouseUp={e => setPaint(false)}
       onMouseLeave={e => setPaint(false)}
+      onTouchStart={e => handleTouchStart(e.nativeEvent)}
+      onTouchMove={e => handleTouchMove(e.nativeEvent)}
+      onTouchEnd={e => setPaint(false)}
     >
     </canvas>
   );
