@@ -96,7 +96,8 @@ io.on('connection', (client) => {
   client.on('fetchMeetings', (data) => {
     db.fetchMeetingsByUserId(data.id, data.meetingStatus)
       .then(res => {
-        socket.emit('meetings', res);
+        client.emit('meetings', res);
+        console.log(res)
       });
   });
 

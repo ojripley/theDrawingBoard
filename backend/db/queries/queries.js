@@ -33,11 +33,12 @@ const fetchFriendsByUserId = function(user_id) {
     });
 };
 
-const fetchMeetingsByUserId = function (user_id, meeting_status) {
+const fetchMeetingsByUserId = function (username, meeting_status) {
 
-  const vars = [user_id, meeting_status];
+  const vars = [username, meeting_status];
+  console.log(vars);
 
-  return (`
+  return db.query(`
     SELECT start_time, end_time, name, description, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
@@ -48,6 +49,7 @@ const fetchMeetingsByUserId = function (user_id, meeting_status) {
     LIMIT 20;
   `, vars)
     .then(res => {
+      console.log(res)
       return res.rows;
     })
     .catch(error => {
