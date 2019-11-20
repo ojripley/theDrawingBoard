@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import './App.scss';
 import Box from '@material-ui/core/Box';
 
+// COMPONENTS
 import TabBar from './TabBar';
+import Active from './components/active/Active';
+import Contacts from './components/contacts/Contacts';
+import Dashboard from './components/dashboard/Dashboard';
+import History from './components/history/History';
 
 export default function App() {
   // const LOGIN = 'LOGIN';
