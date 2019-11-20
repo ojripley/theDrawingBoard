@@ -11,6 +11,10 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-session');
 
+const { ActiveUsers } = require('./userObjects/activeUsers');
+
+activeUsers = new ActiveUsers();
+
 // db related operations
 // const db = require('../db/queries/queries');
 
@@ -23,10 +27,18 @@ app.use(cookieParser({ signed: false }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Home page
 app.get("/", (req, res) => {
-
   res.send('testing purposes only');
+
+  // user = {
+  //   username: 'testee mctester'
+  // }
+
+  // client = 'client';
+
+  // activeUsers.addUser(user, client);
+
+  // console.log(activeUsers);
 });
 
 server.listen(PORT, () => {
@@ -38,5 +50,13 @@ server.listen(PORT, () => {
 io.on('connection', (client) => {
   console.log('new client has connected');
 
+  user = {
+    username: 'testee mctester'
+  }
 
+  client = 'client';
+
+  activeUsers.addUser(user, client);
+
+  console.log(activeUsers);
 });
