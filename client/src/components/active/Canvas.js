@@ -24,7 +24,6 @@ export default function Canvas(props) {
   };
 
   const redraw = () => {
-    console.log("redrawing");
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
     ctx.lineJoin = "round";
     ctx.lineWidth = 2;
