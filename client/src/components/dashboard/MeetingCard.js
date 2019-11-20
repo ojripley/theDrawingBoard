@@ -31,23 +31,6 @@ export default function MeetingCard(props) {
     setExpanded(isExpanded ? panel : false);
   };
 
-  const editOptions = () => {
-    if (props.isOwner) {
-      return (
-        <div>
-          <EditIcon />
-          <DeleteIcon />
-        </div>
-      )
-    } else {
-      return (
-        <div>
-
-        </div>
-      )
-    }
-  }
-
   return (
     <div className={classes.root}>
       <ExpansionPanel expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
@@ -69,7 +52,14 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {editOptions}
+          {props.isOwner && (
+            <div>
+              <EditIcon />
+              <DeleteIcon />
+            </div>
+            )
+          }
+          {!props.isOwner && <p>response bar</p>}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>

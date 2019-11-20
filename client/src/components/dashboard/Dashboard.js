@@ -3,13 +3,11 @@ import React from 'react';
 import './Dashboard.scss';
 
 // import CollapsedView from './CollapsedView';
-import AttendeeView from './AttendeeView';
 import MeetingCard from './MeetingCard';
-import { truncateSync } from 'fs';
 
 const currentUser = {
   id: 1,
-  username: 'John Smith',
+  username: 'Bob Smith',
   email: 'j@smith.com'
 }
 
