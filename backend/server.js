@@ -76,7 +76,7 @@ io.on('connection', (client) => {
 
   client.on('msg', (data) => {
     console.log(data);
-  })
+  });
 
   client.on('fetchUser', (data) => {
     db.fetchUserByEmail(data.email)
@@ -96,14 +96,14 @@ io.on('connection', (client) => {
   client.on('fetchMeetings', (data) => {
     db.fetchMeetingsByUserId(data.id, data.meetingStatus)
       .then(res => {
-        socket.emit('meetings', res);
+        client.emit('meetings', res);
       });
   });
 
   client.on('fetchMeeting', (data) => {
     db.fetchMeetingsByUserId(data.id)
       .then(res => {
-        socket.emit('meeting', res);
+        client.emit('meeting', res);
       });
   });
 
@@ -117,7 +117,7 @@ io.on('connection', (client) => {
 
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
-        socket.emit('loginAttempt', credentials.username);
+        client.emit('loginAttempt', credentials.username);
       });
   });
 });
