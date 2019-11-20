@@ -168,12 +168,13 @@ const updateUsersMeetingsStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingNotes = function (user_id, meeting_id) {
-  const vars = [user_id, meeting_id, 'invited'];
+const updateUsersMeetingNotes = function (user_id, notes) {
+  const vars = [user_id, meeting_id, notes];
 
   return (`
-    INSERT INTO users_meetings (user_id, meeting_id, status)
-    VALUES($1, $2, $3)
+    UPDATE users_meetings
+    SET notes = $2
+    WHERE user_id = $1;
   `, vars)
     .then(res => {
       return res.rows;
