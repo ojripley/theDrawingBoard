@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Contact from './Contact';
 
@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 // boiled data
 // will be replaced with an axios call
-const friends = [
+let friends = [
   {
     id: 2,
     username: 'ta',
@@ -38,13 +38,29 @@ const useStyles = makeStyles(theme => ({
 export default function Contacts(props) {
   const classes = useStyles();
 
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [contactsList, setContactsList] = useState([]);
+
+
 
   const handleSearchTermChange = event => {
-    setSearchTerm = (event.target.value);
-  }
+    console.log('event target value:', event.target.value);
+    setSearchTerm(event.target.value);
+  };
 
-  const contacts = friends.map(friend =>
+  useEffect(() => {
+    setTimeout(() => {
+      if(props.socketOpen) {
+        props.socket.emit('fetchContacts', {id: 1});
+        props.socket.on('contacts', (data) => {
+          console.log(data);
+          setContactsList(data);
+        });
+      }
+    }, 1000);
+  }, [searchTerm]);
+
+  const contacts = contactsList.map(friend =>
     <Contact
       key={friend.id}
       username={friend.username}
