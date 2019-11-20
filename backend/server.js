@@ -55,18 +55,28 @@ server.listen(PORT, () => {
 
 io.on('connection', (client) => {
   console.log('new client has connected');
+  client.emit('msg', "there's a snake in my boot!");
 
+
+
+
+  // active users test code
   user = {
     username: 'testee mctester'
   }
-
-  client = 'client';
 
   activeUsers.addUser(user, client);
 
   console.log(activeUsers);
 
-  client.emit('msg', "there's a snake in my boot!");
+
+
+
+
+
+  client.on('msg', (data) => {
+    console.log(data);
+  })
 
   client.on('fetchUser', (data) => {
     db.fetchUserByEmail(data.email)
@@ -97,7 +107,17 @@ io.on('connection', (client) => {
       });
   });
 
-  // client.on('addUser', (data) => {
-  //   db
-  // })
+  client.on('addUser', (data) => {
+
+    const credentials = {
+      ...data
+    };
+
+    // if (authenticator.registerUser(credentials))
+
+    db.insertUser(credentials.username, credentials.email, credentials.password)
+      .then(res => {
+        socket.emit('loginAttempt', credentials.username);
+      });
+  });
 });
