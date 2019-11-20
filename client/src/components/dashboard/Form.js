@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Material UI - Text Inputs
 import TextField from '@material-ui/core/TextField';
@@ -22,14 +22,10 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 
-// Material UI - Button
-import Button from '@material-ui/core/Button';
-
 const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
-    border: 'solid 1px black'
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -65,44 +61,53 @@ const MenuProps = {
   },
 };
 
-function getStyles(name, personName, theme) {
+function getStyles(name, contactName, theme) {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      contactName.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
 }
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
+// const names = [
+//   'Oliver Hansen',
+//   'Van Henry',
+//   'April Tucker',
+//   'Ralph Hubbard',
+//   'Omar Alexander',
+//   'Carlos Abbott',
+//   'Miriam Wagner',
+//   'Bradley Wilkerson',
+//   'Virginia Andrews',
+//   'Kelly Snyder',
+// ];
 
 
-export default function Form() {
+export default function Form(props) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-
-  const [personName, setPersonName] = React.useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [contactName, setContactName] = useState([]);
+  const [contacts, setContacts] = useState([]);
 
   const handleChange = event => {
-    setPersonName(event.target.value);
+    setContactName(event.target.value);
   };
 
   const handleDateChange = date => {
     setSelectedDate(date);
   };
+
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.emit('fetchContacts', {id: props.user});
+      props.socket.on('contacts', data => {
+        setContacts(data);
+      })
+    }
+  }, [props.socket, props.socketOpen, props.user]);
 
   return (
     <form className={classes.container} noValidate autoComplete="off">
@@ -154,7 +159,7 @@ export default function Form() {
             labelId="demo-mutiple-chip-label"
             id="demo-mutiple-chip"
             multiple
-            value={personName}
+            value={contactName}
             onChange={handleChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
@@ -166,15 +171,14 @@ export default function Form() {
             )}
             MenuProps={MenuProps}
           >
-            {names.map(name => (
-              <MenuItem key={name} value={name} style={getStyles(name, personName, theme)}>
-                {name}
+            {contacts.map(contact => (
+              <MenuItem key={contact.id} value={contact.username} style={getStyles(contact.username, contactName, theme)}>
+                {contact.username}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </div>
-      <Button className={classes.button} variant='contained' color='primary'>Submit</Button>
     </form>
   );
 }

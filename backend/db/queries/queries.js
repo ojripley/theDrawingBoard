@@ -16,7 +16,7 @@ const fetchUserByEmail = function(email) {
     });
 };
 
-const fetchFriendsByUserId = function(user_id) {
+const fetchContactsByUserId = function(user_id) {
 
   const vars = [user_id];
 
@@ -186,4 +186,4 @@ const updateUsersMeetingNotes = function (user_id, notes) {
     });
 };
 
-module.exports = { fetchUserByEmail, fetchFriendsByUserId, fetchMeetingsByUserId, fetchMeetingById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes };
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchMeetingsByUserId, fetchMeetingById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes };
