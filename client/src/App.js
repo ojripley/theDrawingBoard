@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.scss';
 import Box from '@material-ui/core/Box';
 
@@ -10,6 +10,9 @@ import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 
+//Custom hooks
+import { useSocket } from './hooks/useSocket'
+
 export default function App() {
   // const LOGIN = 'LOGIN';
   const loggedIn = true;//Change this :)
@@ -18,20 +21,26 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const ACTIVE = 'ACTIVE';
 
+  const { socket, socketOpen } = useSocket();
   const [mode, setMode] = useState(DASHBOARD);
-  //top nav
-  //login page if not logged in
-  //dashboard if logged in
+
+  useEffect(() => {
+    if (socketOpen) {
+      socket.on(
+        'msg', data => {
+          console.log(data);
+        });
+    }
+  }, [socket, socketOpen]);
 
   if (loggedIn) {
     return (
-      //If logged in show dashboard
       <Box>
-      <NavBar />
-        {mode === DASHBOARD && <Dashboard />}
-        {mode === HISTORY && <History />}
-        {mode === CONTACTS && <Contacts />}
-        {mode === ACTIVE && <Active />}
+        <NavBar />
+        {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
+        {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} />}
+        {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} />}
+        {mode === ACTIVE && <Active socket={socket} socketOpen={socketOpen} />}
         <TabBar mode={mode} setMode={setMode} />
       </Box >
 
