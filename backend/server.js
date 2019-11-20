@@ -113,7 +113,7 @@ io.on('connection', (client) => {
       ...data
     };
 
-    if (authenticator.registerUser(credentials))
+    // if (authenticator.registerUser(credentials))
 
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
