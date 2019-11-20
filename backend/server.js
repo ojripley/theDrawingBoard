@@ -66,6 +66,15 @@ io.on('connection', (client) => {
 
   console.log(activeUsers);
 
+  client.emit('msg', "there's a snake in my boot!");
+
+  client.on('fetchUser', (data) => {
+    db.fetchUserByEmail(data.email)
+      .then(res => {
+        client.emit('user', res);
+      });
+  });
+
   client.on('fetchContacts', (data) => {
     db.fetchContactsById(data.id)
       .then(res => {
@@ -73,10 +82,22 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('fetchUser', (data) => {
-    db.fetchUserByEmail(data.email)
+
+  client.on('fetchMeetings', (data) => {
+    db.fetchMeetingsByUserId(data.id, data.meetingStatus)
       .then(res => {
-        client.emit('user', res);
+        socket.emit('meetings', res);
       });
+  });
+
+  client.on('fetchMeeting', (data) => {
+    db.fetchMeetingsByUserId(data.id)
+      .then(res => {
+        socket.emit('meeting', res);
+      });
+  });
+
+  client.on('addUser', (data) => {
+    db
   })
 });
