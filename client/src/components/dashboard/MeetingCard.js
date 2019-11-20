@@ -31,7 +31,7 @@ export default function MeetingCard(props) {
 
   const handleChange = panel => (event, isExpanded) => {
     console.log(panel);
-    setExpanded(panel);
+    setExpanded(isExpanded ? panel : false);
   };
 
   return (
