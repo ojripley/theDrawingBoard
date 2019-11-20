@@ -15,8 +15,8 @@ const { ActiveUsers } = require('./userObjects/activeUsers');
 
 activeUsers = new ActiveUsers();
 
-// db related operations
-// const db = require('../db/queries/queries');
+// db operations
+const db = require('./db/queries/queries');
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
@@ -40,6 +40,7 @@ app.get("/", (req, res) => {
 
   // console.log(activeUsers);
 });
+
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
