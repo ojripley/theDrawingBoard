@@ -31,6 +31,7 @@ export default function Dashboard() {
 
   return (
     <div className={classes.root}>
+      <h1>Upcoming Meetings</h1>
       <ExpansionPanel expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
