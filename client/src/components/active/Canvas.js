@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Canvas.scss';
 
-export default function Canvas(props) {
+export default function Canvas({ctx, setCtx}) {
 
   const canvasRef = useRef(null);
 
-  let [ctx, setCtx] = useState();
   let [paint, setPaint] = useState(false);
   let [clickX, setClickX] = useState([]);
   let [clickY, setClickY] = useState([]);

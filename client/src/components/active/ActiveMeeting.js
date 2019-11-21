@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import theImage from './tmp.jpg';
 import Canvas from './Canvas';
 import ImageCanvas from './Image';
@@ -59,6 +59,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
+  const backgroundCanvas = useRef(null);
+  const [ctx, setCtx] = useState(); //Writing screen context
+
 
   const classes = useStyles();
 
@@ -75,6 +78,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
   const handleInput = (e) => {
     setMeetingNotes(e.target.value);
     setSaving(true);
+    //These line is temporary:
   }
 
   useEffect(() => {
@@ -92,8 +96,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
   return (
     <>
       <div id='canvas-container'>
-        <ImageCanvas myImage={myImage} isLoaded={isLoaded} />
-        <Canvas />
+        <ImageCanvas myImage={myImage} isLoaded={isLoaded} useRef={backgroundCanvas} />
+        <Canvas imgCanvas={backgroundCanvas} ctx={ctx} setCtx={setCtx} />
         <Fab
           aria-label='edit'
           color='secondary'
