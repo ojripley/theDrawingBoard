@@ -6,15 +6,25 @@ import ImageCanvas from './Image';
 import { makeStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+
 
 const useStyles = makeStyles(theme => ({
   fab: {
     margin: theme.spacing(1),
-    float: 'right'
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    margin: "10px"
   },
   extendedIcon: {
     marginRight: theme.spacing(1),
   },
+  textareaAutosize: {
+    position: "absolute",
+    bottom: 0,
+    width: '100%'
+  }
 }));
 
 export default function Active({ socket, socketOpen, initialNotes }) {
@@ -45,6 +55,7 @@ export default function Active({ socket, socketOpen, initialNotes }) {
       <Fab color="secondary" aria-label="edit" className={classes.fab}>
         <EditIcon onClick={() => console.log("click")} />
       </Fab>
+      <TextareaAutosize aria-label="empty textarea" placeholder="Empty" />
     </div>
   )
 
