@@ -70,7 +70,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
     LIMIT 20;
   `, vars)
     .then(res => {
-      console.log(res)
+      // console.log(res)
       return res.rows;
     })
     .catch(error => {
