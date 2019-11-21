@@ -35,16 +35,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send('testing purposes only');
-
-  // user = {
-  //   username: 'testee mctester'
-  // }
-
-  // client = 'client';
-
-  // activeUsers.addUser(user, client);
-
-  // console.log(activeUsers);
 });
 
 
@@ -56,6 +46,23 @@ server.listen(PORT, () => {
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
+
+  // handles logging in and activeUsers
+  client.on('loginAttempt', (data) => {
+    if (authenticator.authenticate(data.email, data.password)) {
+      activeUsers.addUser(data.username, socket)
+
+      client.on('disconnect', () => {
+        activeUsers.removeUser(data.username);
+      })
+    }
+  });
+
+
+
+
+
+
 
 
 
@@ -85,13 +92,19 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('fetchContacts', (data) => {
-    db.fetchContactsById(data.id)
+  client.on('fetchContactsByUserId', (data) => {
+    db.fetchContactsByUserId(data.id, data.username)
       .then(res => {
-        client.emit('contacts', res);
+        client.emit('contactsByUserId', res);
       });
   });
 
+  client.on('fetchContactsGlobal', (data) => {
+    db.fetchUsersByUsername(data.username)
+      .then(res => {
+        client.emit('contactsGlobal', res);
+      });
+  })
 
   client.on('fetchMeetings', (data) => {
     db.fetchMeetingsByUserId(data.id, data.meetingStatus)

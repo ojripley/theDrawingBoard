@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './Dashboard.scss';
 
 import MeetingCard from './MeetingCard';
-import Form from './Form';
+import FormDialog from './FormDialog';
 
 const currentUser = {
   id: 1,
@@ -55,17 +55,19 @@ export default function Dashboard(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', {id: currentUser.username, meetingStatus: 'past'});
       props.socket.on('meetings', data => {
-        console.log(data)
-        setMeetings(data);
-      })
+        setMeetings(data)
+      });
+      return () => props.socket.off('meetings');
     }
   }, [props.socket, props.socketOpen]);
+
 
   const list = meetings.map(meeting => {
 
     return (
       <li className='meeting-list-item' key={meeting.id}>
         <MeetingCard
+          id={meeting.id}
           startTime={meeting.start_time}
           name={meeting.name}
           owner={meeting.owner_username}
@@ -80,7 +82,11 @@ export default function Dashboard(props) {
   return (
     <div>
       <h1>Upcoming Meetings</h1>
-      <Form />
+      <FormDialog
+        socket={props.socket}
+        socketOpen={props.socketOpen}
+        user={currentUser}
+      />
       <ul className='meeting-list'>
         {list}
       </ul>
