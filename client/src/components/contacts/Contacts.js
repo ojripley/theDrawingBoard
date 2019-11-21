@@ -70,7 +70,7 @@ export default function Contacts(props) {
         return () => props.socket.off('contactsByUserId');
       }
     }
-  }, [searchTerm, globalSearch, props.socket, props.socketOpen]);
+  }, [searchTerm, globalSearch, props.socket, props.socketOpen, props.user.id]);
 
   const contacts = contactsList.map(friend =>
     (<Contact
