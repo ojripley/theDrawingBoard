@@ -60,7 +60,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
   console.log(vars);
 
   return db.query(`
-    SELECT start_time, end_time, name, description, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
+    SELECT start_time, end_time, name, description, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
@@ -83,7 +83,10 @@ const fetchMeetingById = function (meeting_id) {
   const vars = [meeting_id];
 
   return db.query(`
-    SELECT * FROM meetings WHERE meetings.id = $1;
+    SELECT start_time, end_time, name, description, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
+    JOIN users_meetings ON users_meetings.meeting_id = meetings.id
+    JOIN users ON users.id = users_meetings.user_id
+    WHERE meetings.id = $1
   `, vars)
     .then(res => {
       return res.rows;

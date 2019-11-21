@@ -22,9 +22,18 @@ export default function Owner(props) {
     console.log('edit')
   };
 
+  const startMeeting = () => {
+
+  };
+
   return (
     <div>
-      <Button variant="contained" color="secondary" className={classes.button}>
+      <Button
+        variant="contained"
+        color="secondary"
+        className={classes.button}
+        onClick={startMeeting}
+      >
         Start Meeting
       </Button>
       <EditIcon onClick={onEdit}/>

@@ -16,7 +16,7 @@ export default function Dashboard(props) {
   const handleMeetings = () => {
     props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
     props.socket.on('meetings', data => {
-      console.log(data)
+      console.log('handling')
       setMeetings(data)
     });
   };
@@ -26,14 +26,14 @@ export default function Dashboard(props) {
       handleMeetings();
       return () => props.socket.off('meetings');
     }
-  }, [props.socket, props.socketOpen]);
+  }, []);
 
   useEffect(() => {
     props.socket.on('invitedUsers', () => {
       handleMeetings();
     });
     return () => props.socket.off('invitedUsers');
-  })
+  }, [])
 
 
   const list = meetings.map(meeting => {
