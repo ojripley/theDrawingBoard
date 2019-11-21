@@ -47,10 +47,10 @@ export default function App() {
     return (
       <Box>
         <NavBar />
-        {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
-        {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} />}
-        {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} />}
-        {mode === ACTIVE && <Active socket={socket} socketOpen={socketOpen} />}
+        {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} user={user} />}
+        {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+        {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+        {mode === ACTIVE && <Active socket={socket} socketOpen={socketOpen} user={user} />}
         <TabBar mode={mode} setMode={setMode} />
       </Box >
 
