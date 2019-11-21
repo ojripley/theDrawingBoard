@@ -36,7 +36,7 @@ export default function App() {
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
         setInMeeting(data.inMeeting); //Can be changed by user on login
-        setInMeeting(data.notes); //notes for the current meeting
+        setMeetingNotes(data.notes); //notes for the current meeting
       });
     }
   }, [socket, socketOpen]);
@@ -46,8 +46,7 @@ export default function App() {
       return (
         <ActiveMeeting socket={socket}
           socketOpen={socketOpen}
-          notes={meetingNotes}
-          notes={meetingNotes}
+          initialNotes={meetingNotes}
         />
       );
     } else {
