@@ -157,7 +157,7 @@ io.on('connection', (client) => {
   client.on('insertUsersMeeting', data => {
     db.insertUsersMeeting(data.userId, data.meetingId)
       .then(() => {
-        console.log('users have been invited');
+        client.emit('invitedUsers');
       });
   });
 
