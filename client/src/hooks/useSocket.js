@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import io from 'socket.io-client';
 
-export const useSocket = (server = "localhost:8080") => {
+export const useSocket = () => {
   const [socket, setSocket] = useState(null);
   const [socketOpen, setSocketOpen] = useState(false);
+
+  const server = 'localhost:8080'
 
   useEffect(() => {
     const s = io(server);
@@ -11,10 +13,8 @@ export const useSocket = (server = "localhost:8080") => {
     setSocket(s);
     setSocketOpen(true);
 
-    s.emit('loginAttempt', {email: 'ta@mail.com', password: 'p'});
-
     return () => {
-      s.close();
+      s.close(server);
     }
   }, [server]);
 
