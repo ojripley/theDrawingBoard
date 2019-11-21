@@ -56,7 +56,7 @@ export default function Dashboard(props) {
       props.socket.emit('fetchMeetings', {id: currentUser.username, meetingStatus: 'past'});
       props.socket.on('meetings', data => {
         setMeetings(data)
-      })
+      });
       return () => props.socket.off('meetings');
     }
   }, [props.socket, props.socketOpen]);

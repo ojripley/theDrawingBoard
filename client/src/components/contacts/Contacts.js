@@ -33,7 +33,6 @@ export default function Contacts(props) {
   const [globalSearch, setGlobalSearch] = useState(false);
 
   const handleSearchTermChange = event => {
-    console.log('event target value:', event.target.value);
     setSearchTerm(event.target.value);
   };
 
@@ -46,28 +45,32 @@ export default function Contacts(props) {
   };
 
   useEffect(() => {
+
+    // socket check
     if (props.socketOpen) {
       if (globalSearch) {
+
+        // emit global search
         props.socket.emit('fetchContactsGlobal', { username: searchTerm });
+        props.socket.on('contactsGlobal', (data) => {
+          setContactsList(data);
+        });
+
+        // close event after receiving data. Prevents multiple events
+        return () => props.socket.off('contactsGlobal');
       } else {
+
+        // emit contact search
         props.socket.emit('fetchContactsByUserId', { id: 1, username: searchTerm});
+        props.socket.on('contactsByUserId', (data) => {
+          setContactsList(data);
+        });
+
+        // close event after recieving data. Prevents multiple events
+        return () => props.socket.off('contactsByUserId');
       }
     }
   }, [searchTerm, globalSearch]);
-
-  useEffect(() => {
-    props.socket.on('contactsByUserId', (data) => {
-      console.log(data);
-      setContactsList(data);
-    });
-  }, []);
-
-  useEffect(() => {
-    props.socket.on('contactsGlobal', (data) => {
-      console.log(data);
-      setContactsList(data);
-    });
-  }, []);
 
   const contacts = contactsList.map(friend =>
     (<Contact

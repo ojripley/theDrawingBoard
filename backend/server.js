@@ -76,7 +76,6 @@ io.on('connection', (client) => {
   });
 
   client.on('fetchContactsByUserId', (data) => {
-    console.log('search for username:', data.username);
     db.fetchContactsByUserId(data.id, data.username)
       .then(res => {
         client.emit('contactsByUserId', res);
