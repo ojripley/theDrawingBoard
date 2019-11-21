@@ -46,7 +46,7 @@ export default function App() {
   if (user) {
     return (
       <Box>
-        <NavBar />
+        <NavBar user={user}/>
         {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} user={user} />}
         {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
         {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
