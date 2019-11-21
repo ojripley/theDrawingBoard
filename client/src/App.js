@@ -9,7 +9,6 @@ import ActiveMeeting from './components/active/ActiveMeeting';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 //Custom hooks
 import { useSocket } from './hooks/useSocket'
@@ -23,7 +22,7 @@ export default function App() {
   const { socket, socketOpen } = useSocket();
 
   //State required for meetings (to support auto-reconnect to meetings):
-  const [inMeeting, setInMeeting] = useState(true);
+  const [inMeeting, setInMeeting] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState("");
   const [user, setUser] = useState(null);
 
