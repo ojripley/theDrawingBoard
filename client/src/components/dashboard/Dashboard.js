@@ -5,27 +5,35 @@ import './Dashboard.scss';
 import MeetingCard from './MeetingCard';
 import FormDialog from './FormDialog';
 
-const currentUser = {
-  id: 1,
-  username: 'oj',
-  email: 'oj@mail.com'
-}
 
 export default function Dashboard(props) {
+
+  const currentUser = props.user;
 
   const [meetings, setMeetings] = useState([]);
   const [expanded, setExpanded] = useState(false);
 
+  const handleMeetings = () => {
+    props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
+    props.socket.on('meetings', data => {
+      console.log(data)
+      setMeetings(data)
+    });
+  };
+
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
-      props.socket.on('meetings', data => {
-        console.log(data)
-        setMeetings(data)
-      });
+      handleMeetings();
       return () => props.socket.off('meetings');
     }
   }, [props.socket, props.socketOpen]);
+
+  useEffect(() => {
+    props.socket.on('invitedUsers', () => {
+      handleMeetings();
+    });
+    return () => props.socket.off('invitedUsers');
+  })
 
 
   const list = meetings.map(meeting => {
