@@ -16,14 +16,35 @@ const fetchUserByEmail = function(email) {
     });
 };
 
-const fetchContactsByUserId = function(user_id) {
+const fetchContactsByUserId = function(user_id, username = '') {
 
-  const vars = [user_id];
+  const vars = [user_id, `%${username}%`];
+
+
+  console.log('finding with:', user_id);
 
   return db.query(`
     SELECT username, id, email FROM users
     JOIN friends ON friends.friend_id = users.id
-    WHERE friends.user_id = $1;
+    WHERE friends.user_id = $1
+    AND username ILIKE $2;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+};
+
+const fetchUsersByUsername = function (username = '') {
+
+  const vars = [`%${username}%`];
+
+  return db.query(`
+    SELECT username, email, id
+    FROM users
+    WHERE username ILIKE $1;
   `, vars)
     .then(res => {
       return res.rows;
@@ -186,4 +207,4 @@ const updateUsersMeetingNotes = function (user_id, notes) {
     });
 };
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchMeetingsByUserId, fetchMeetingById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes };
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes };

@@ -75,13 +75,20 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('fetchContacts', (data) => {
-    db.fetchContactsByUserId(data.id)
+  client.on('fetchContactsByUserId', (data) => {
+    console.log('search for username:', data.username);
+    db.fetchContactsByUserId(data.id, data.username)
       .then(res => {
-        client.emit('contacts', res);
+        client.emit('contactsByUserId', res);
       });
   });
 
+  client.on('fetchContactsGlobal', (data) => {
+    db.fetchUsersByUsername(data.username)
+      .then(res => {
+        client.emit('contactsGlobal', res);
+      });
+  })
 
   client.on('fetchMeetings', (data) => {
     db.fetchMeetingsByUserId(data.id, data.meetingStatus)

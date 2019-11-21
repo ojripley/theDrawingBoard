@@ -4,23 +4,14 @@ import Contact from './Contact';
 
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 
 
 
 // boiled data
 // will be replaced with an axios call
-let friends = [
-  {
-    id: 2,
-    username: 'ta',
-    email: 'ta@mail.com'
-  },
-  {
-    id: 3,
-    username: 'tc',
-    email: 'tc@mail.com'
-  },
-];
+
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -34,38 +25,56 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-
 export default function Contacts(props) {
   const classes = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [contactsList, setContactsList] = useState([]);
-
-
+  const [globalSearch, setGlobalSearch] = useState(false);
 
   const handleSearchTermChange = event => {
     console.log('event target value:', event.target.value);
     setSearchTerm(event.target.value);
   };
 
+  const handleGlobalSearchChange = () => {
+    if (globalSearch) {
+      setGlobalSearch(false);
+    } else {
+      setGlobalSearch(true);
+    }
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      if(props.socketOpen) {
-        props.socket.emit('fetchContacts', {id: 1});
-        props.socket.on('contacts', (data) => {
-          console.log(data);
-          setContactsList(data);
-        });
+    if (props.socketOpen) {
+      if (globalSearch) {
+        props.socket.emit('fetchContactsGlobal', { username: searchTerm });
+      } else {
+        props.socket.emit('fetchContactsByUserId', { id: 1, username: searchTerm});
       }
-    }, 1000);
-  }, [searchTerm]);
+    }
+  }, [searchTerm, globalSearch]);
+
+  useEffect(() => {
+    props.socket.on('contactsByUserId', (data) => {
+      console.log(data);
+      setContactsList(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    props.socket.on('contactsGlobal', (data) => {
+      console.log(data);
+      setContactsList(data);
+    });
+  }, []);
 
   const contacts = contactsList.map(friend =>
-    <Contact
+    (<Contact
       key={friend.id}
       username={friend.username}
       email={friend.email}
-    />
+    />)
   );
 
   return (
@@ -80,6 +89,17 @@ export default function Contacts(props) {
           margin="normal"
           variant="outlined"
         />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={globalSearch}
+              onChange={handleGlobalSearchChange}
+              value="checked"
+              color="primary"
+            />
+          }
+        label={globalSearch ? 'Search: All Users' : 'Search: My Contacts'}
+      />
       <ul>
         {contacts}
       </ul>
