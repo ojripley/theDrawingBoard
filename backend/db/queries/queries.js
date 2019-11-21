@@ -20,9 +20,6 @@ const fetchContactsByUserId = function(user_id, username = '') {
 
   const vars = [user_id, `%${username}%`];
 
-
-  console.log('finding with:', user_id);
-
   return db.query(`
     SELECT username, id, email FROM users
     JOIN friends ON friends.friend_id = users.id
@@ -60,7 +57,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
   console.log(vars);
 
   return db.query(`
-    SELECT start_time, end_time, name, description, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, users_meetings.notes, array_agg(users.username) AS invited_users FROM meetings
+    SELECT start_time, end_time, name, description, active, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
@@ -70,7 +67,6 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
     LIMIT 20;
   `, vars)
     .then(res => {
-      // console.log(res)
       return res.rows;
     })
     .catch(error => {
@@ -83,7 +79,10 @@ const fetchMeetingById = function (meeting_id) {
   const vars = [meeting_id];
 
   return db.query(`
-    SELECT * FROM meetings WHERE meetings.id = $1;
+    SELECT meetings.*, array_agg(users_meetings.user_id) as invited_users FROM meetings
+    JOIN users_meetings on meetings.id = users_meetings.meeting_id
+    WHERE meetings.id = $1
+    GROUP BY meetings.id;
   `, vars)
     .then(res => {
       return res.rows;
@@ -92,6 +91,23 @@ const fetchMeetingById = function (meeting_id) {
       console.error('Query Error', error);
     });
 };
+
+const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
+  const vars = [user_id, meeting_id];
+
+  return db.query(`
+    SELECT users_meetings.*, username FROM users_meetings
+    JOIN users on users.id = users_meetings.user_id
+    WHERE user_id = $1
+    AND meeting_id = $2;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+}
 
 const insertUser = function (username, email, password) {
 
@@ -207,4 +223,20 @@ const updateUsersMeetingNotes = function (user_id, notes) {
     });
 };
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes };
+const updateMeetingActiveState = function(meeting_id, status) {
+  const vars = [meeting_id, status];
+
+  return db.query(`
+    UPDATE meetings
+    SET active = $2
+    WHERE id = $1;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+}
+
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes, updateMeetingActiveState };

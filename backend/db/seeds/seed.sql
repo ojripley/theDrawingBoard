@@ -11,7 +11,7 @@ VALUES
 (2, 1, 'pending'),
 (2, 3, 'accepted'),
 (3, 1, 'accepted'),
-(3, 3, 'accepted');
+(3, 2, 'accepted');
 
 INSERT INTO meetings (owner_id, name, description, status)
 VALUES

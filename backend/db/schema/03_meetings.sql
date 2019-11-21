@@ -7,6 +7,7 @@ CREATE TABLE meetings (
   start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   status VARCHAR(255),
+  active BOOLEAN NOT NULL DEFAULT FALSE,
   link_to_initial_doc VARCHAR(255),
   link_to_final_doc VARCHAR(255)
 );

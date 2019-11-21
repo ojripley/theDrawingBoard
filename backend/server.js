@@ -13,9 +13,11 @@ const cookieParser = require('cookie-session');
 
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
+const { ActiveMeeting } = require('./objects/activeMeetings');
 
 activeUsers = new ActiveUsers();
 authenticator = new Authenticator();
+activeMeetings = new ActiveMeeting();
 
 // db operations
 const db = require('./db/queries/queries');
@@ -45,54 +47,74 @@ server.listen(PORT, () => {
 });
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
   // handles logging in and activeUsers
   client.on('loginAttempt', (data) => {
-    console.log('initiating login attempt');
     authenticator.authenticate(data.email, data.password)
       .then(res => {
         const authenticateAttempt = res;
 
         if (authenticateAttempt) {
-          console.log('attempted login: successful');
-          console.log(authenticateAttempt);
           activeUsers.addUser(authenticateAttempt.username, client)
 
-          // client.on('disconnect', () => {
-          //   activeUsers.removeUser(data.username);
-          // })
+          client.on('disconnect', () => {
+            activeUsers.removeUser(data.username);
+          });
         } else {
           console.log('attempted login: failed');
         }
         client.emit('loginResponse', authenticateAttempt);
       })
   });
-
-
-
-
-
-
-
-
-
-
-  // active users test code
-  // user = {
-  //   username: 'testee mctester'
-  // }
-
-  // activeUsers.addUser(user, client);
-
-  // console.log(activeUsers);
-
-
-
-
-
 
   client.on('msg', (data) => {
     console.log(data);
@@ -161,5 +183,34 @@ io.on('connection', (client) => {
       });
   });
 
+  client.on('startMeeting', (data) => {
+
+    db.updateMeetingActiveState(data.id, true)
+      .then(() => { // meeting status has been updated
+
+        db.fetchMeetingById(data.id)
+          .then(res => { // meeting has been retrieved
+            const meeting = res[0];
+            const attendeeIds = meeting.invited_users;
+
+            // keep track of active meetings
+            activeMeetings.addMeeting(meeting);
+
+            console.log('\n\n\n\n\n\n\nactive meeting check follows:')
+            console.log(activeMeetings[meeting.id]);
+
+            for (let id of attendeeIds) {
+              db.fetchUsersMeetingsByIds(id, meeting.id)
+                .then(res => { // users have been identified
+                  const user = res[0];
+                  if (activeUsers[user.username]) {
+                    const userClient = activeUsers[user.username].socket
+                    userClient.emit('meetingStarted', meeting.id);
+                  }
+                });
+            }
+          });
+      });
+  });
 });
 

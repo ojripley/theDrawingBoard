@@ -7,11 +7,11 @@ class ActiveUsers {
   // methods           //
 
   addUser(username, client) {
-    this[username] = [username, client];
+    this[username] = {username: username, socket: client};
   }
 
-  deleteUser(user) {
-    delete this[user.username];
+  removeUser(username) {
+    delete this[username];
   }
 };
 
