@@ -13,7 +13,7 @@ export default function Canvas(props) {
 
   useEffect(() => {
     canvasRef.current.width = window.innerWidth;
-    canvasRef.current.height = window.innerHeight * 0.8;
+    canvasRef.current.height = window.innerHeight;
     setCtx(canvasRef.current.getContext('2d'));
   }, []);
 

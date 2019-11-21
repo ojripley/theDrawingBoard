@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import Contact from './Contact';
+import useDebounce from "../../hooks/useDebounce";
 
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
@@ -31,6 +32,7 @@ export default function Contacts(props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [contactsList, setContactsList] = useState([]);
   const [globalSearch, setGlobalSearch] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
 
   const handleSearchTermChange = event => {
     setSearchTerm(event.target.value);
@@ -45,13 +47,13 @@ export default function Contacts(props) {
   };
 
   useEffect(() => {
-
+    console.log(debouncedSearchTerm);
     // socket check
     if (props.socketOpen) {
       if (globalSearch) {
 
         // emit global search
-        props.socket.emit('fetchContactsGlobal', { username: searchTerm });
+        props.socket.emit('fetchContactsGlobal', { username: debouncedSearchTerm });
         props.socket.on('contactsGlobal', (data) => {
           setContactsList(data);
         });
@@ -61,7 +63,7 @@ export default function Contacts(props) {
       } else {
 
         // emit contact search
-        props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: searchTerm});
+        props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: debouncedSearchTerm });
         props.socket.on('contactsByUserId', (data) => {
           setContactsList(data);
         });
@@ -70,7 +72,7 @@ export default function Contacts(props) {
         return () => props.socket.off('contactsByUserId');
       }
     }
-  }, [searchTerm, globalSearch, props.socket, props.socketOpen, props.user.id]);
+  }, [debouncedSearchTerm, globalSearch, props.socket, props.socketOpen, props.user.id]);
 
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {
@@ -89,24 +91,24 @@ export default function Contacts(props) {
   return (
     <>
       <h1>Contacts</h1>
-        <TextField
-          id="outlined-name"
-          label="Contacts"
-          className={classes.textField}
-          value={searchTerm}
-          onChange={handleSearchTermChange}
-          margin="normal"
-          variant="outlined"
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={globalSearch}
-              onChange={handleGlobalSearchChange}
-              value="checked"
-              color="primary"
-            />
-          }
+      <TextField
+        id="outlined-name"
+        label="Contacts"
+        className={classes.textField}
+        value={searchTerm}
+        onChange={handleSearchTermChange}
+        margin="normal"
+        variant="outlined"
+      />
+      <FormControlLabel
+        control={
+          <Switch
+            checked={globalSearch}
+            onChange={handleGlobalSearchChange}
+            value="checked"
+            color="primary"
+          />
+        }
         label={globalSearch ? 'Search: All Users' : 'Search: My Contacts'}
       />
       <ul>

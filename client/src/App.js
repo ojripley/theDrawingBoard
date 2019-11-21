@@ -14,7 +14,6 @@ import History from './components/history/History';
 import { useSocket } from './hooks/useSocket'
 
 export default function App() {
-  // const LOGIN = 'LOGIN';
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
@@ -53,7 +52,9 @@ export default function App() {
   if (user) {
     if (inMeeting) {
       return (
-        <ActiveMeeting socket={socket}
+        <ActiveMeeting
+          user={user}
+          socket={socket}
           socketOpen={socketOpen}
           initialNotes={meetingNotes}
         />
