@@ -11,45 +11,10 @@ const currentUser = {
   email: 'oj@mail.com'
 }
 
-// const meetings = [
-//   {
-//     id: 1,
-//     start_time: 'January 8 04:05:06 2020 PST',
-//     end_time: null,
-//     name: 'test1',
-//     owner_username: 'John Smith',
-//     status: 'scheduled',
-//     description: 'blah',
-//     notes: 'blahblahblahblahblah',
-//     invited_users: ['tc', 'ta', 'oj']
-//   },
-//   {
-//     id: 2,
-//     start_time: 'January 9 04:05:06 2020 PST',
-//     end_time: null,
-//     name: 'test2',
-//     owner_username: 'John Smith',
-//     status: 'scheduled',
-//     description: 'blah',
-//     notes: 'blahblahblahblahblah',
-//     invited_users: ['tc', 'ta', 'oj']
-//   },
-//   {
-//     id: 3,
-//     start_time: 'January 10 04:05:06 2020 PST',
-//     end_time: null,
-//     name: 'test3',
-//     owner_username: 'John Smith',
-//     status: 'scheduled',
-//     description: 'blah',
-//     notes: 'blahblahblahblahblah',
-//     invited_users: ['tc', 'ta']
-//   }
-// ];
-
 export default function Dashboard(props) {
 
   const [meetings, setMeetings] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -74,6 +39,8 @@ export default function Dashboard(props) {
           attendees={meeting.invited_users}
           description={meeting.description}
           user={currentUser.username}
+          expanded={expanded}
+          setExpanded={setExpanded}
         />
       </li>
     )
