@@ -9,9 +9,10 @@ class Authenticator {
 
         console.log(password);
 
-        console.log(user);
+        console.log(user[0]);
 
         if (user && bcrypt.compareSync(password, user[0].password)) {
+          console.log('login attempt: success');
           return {
             id: user[0].id,
             email: user[0].email,

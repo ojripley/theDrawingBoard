@@ -58,6 +58,7 @@ io.on('connection', (client) => {
 
         if (authenticateAttempt) {
           console.log('attempted login: successful');
+          console.log(authenticateAttempt);
           activeUsers.addUser(authenticateAttempt.username, client)
 
           // client.on('disconnect', () => {
