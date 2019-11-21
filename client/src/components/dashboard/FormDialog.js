@@ -33,6 +33,7 @@ export default function FormDialog(props) {
       linkToInitialDoc: null
     })
     props.socket.on('newMeeting', res => {
+      props.socket.emit('insertUsersMeeting', { userId: props.user.id, meetingId: res[0].id})
       for (let contact of selectedContacts) {
         props.socket.emit('insertUsersMeeting', { userId: contact.id, meetingId: res[0].id})
       }
