@@ -95,8 +95,9 @@ export default function Form(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchContactsByUserId', {id: props.user});
+      props.socket.emit('fetchContactsByUserId', {id: props.user.id});
       props.socket.on('contactsByUserId', data => {
+        console.log(data)
         setContacts(data);
       })
       return () => props.socket.off('contactsByUserId');

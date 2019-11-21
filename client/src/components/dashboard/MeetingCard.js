@@ -22,6 +22,12 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(15),
     color: theme.palette.text.secondary,
   },
+  active: {
+    backgroundColor: 'orange'
+  },
+  scheduled: {
+    backgroundColor: 'white'
+  }
 }));
 
 export default function MeetingCard(props) {
@@ -34,7 +40,7 @@ export default function MeetingCard(props) {
 
   return (
     <div className={classes.root}>
-      <ExpansionPanel expanded={props.expanded === `panel${props.id}`} onChange={handleChange(`panel${props.id}`)}>
+      <ExpansionPanel className={props.active ? classes.active : classes.scheduled} expanded={props.expanded === `panel${props.id}`} onChange={handleChange(`panel${props.id}`)}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls={`panel${props.id}bh-content`}
@@ -53,7 +59,7 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.user === props.owner ? <Owner /> : <Attendee />}
+          {props.user === props.owner ? <Owner id={props.id} socket={props.socket} /> : <Attendee />}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>

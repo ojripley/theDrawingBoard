@@ -51,7 +51,7 @@ export default function FormDialog(props) {
           <Form
             socket={props.socket}
             socketOpen={props.socketOpen}
-            user={props.user.id}
+            user={props.user}
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             selectedContacts={selectedContacts}

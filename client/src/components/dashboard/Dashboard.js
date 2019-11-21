@@ -33,7 +33,15 @@ export default function Dashboard(props) {
       handleMeetings();
     });
     return () => props.socket.off('invitedUsers');
-  }, [])
+  }, [props.socket]);
+
+  useEffect(() => {
+    props.socket.on('meetingStarted', () => {
+      console.log('meeting Started!');
+      handleMeetings();
+    });
+    return () => props.socket.off('meetingStarted');
+  }, [props.socket]);
 
 
   const list = meetings.map(meeting => {
@@ -47,9 +55,11 @@ export default function Dashboard(props) {
           owner={meeting.owner_username}
           attendees={meeting.invited_users}
           description={meeting.description}
+          active={meeting.active}
           user={currentUser.username}
           expanded={expanded}
           setExpanded={setExpanded}
+          socket={props.socket}
         />
       </li>
     )

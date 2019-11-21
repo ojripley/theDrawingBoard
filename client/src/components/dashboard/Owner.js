@@ -23,7 +23,7 @@ export default function Owner(props) {
   };
 
   const startMeeting = () => {
-
+    props.socket.emit('startMeeting', {id: props.id});
   };
 
   return (
