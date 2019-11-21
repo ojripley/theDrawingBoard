@@ -120,14 +120,14 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
-    db.fetchMeetingsByUserId(data.id, data.meetingStatus)
+    db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
       });
   });
 
   client.on('fetchMeeting', (data) => {
-    db.fetchMeetingsByUserId(data.id)
+    db.fetchMeetingById(data.id)
       .then(res => {
         client.emit('meeting', res);
       });
@@ -146,4 +146,20 @@ io.on('connection', (client) => {
         client.emit('loginAttempt', credentials.username);
       });
   });
+
+  client.on('insertMeeting', data => {
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
+      .then(res => {
+        client.emit('newMeeting', res);
+      });
+  });
+
+  client.on('insertUsersMeeting', data => {
+    db.insertUsersMeeting(data.userId, data.meetingId)
+      .then(() => {
+        console.log('users have been invited');
+      });
+  });
+
 });
+
