@@ -106,6 +106,7 @@ export default function Form(props) {
       props.socket.on('contacts', data => {
         setContacts(data);
       })
+      return () => props.socket.off('contacts');
     }
   }, [props.socket, props.socketOpen, props.user]);
 
