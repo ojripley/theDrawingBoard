@@ -18,8 +18,9 @@ export default function Dashboard(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchMeetings', {id: currentUser.username, meetingStatus: 'past'});
+      props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
       props.socket.on('meetings', data => {
+        console.log(data)
         setMeetings(data)
       });
       return () => props.socket.off('meetings');

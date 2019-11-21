@@ -107,14 +107,14 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
-    db.fetchMeetingsByUserId(data.id, data.meetingStatus)
+    db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
       });
   });
 
   client.on('fetchMeeting', (data) => {
-    db.fetchMeetingsByUserId(data.id)
+    db.fetchMeetingById(data.id)
       .then(res => {
         client.emit('meeting', res);
       });
