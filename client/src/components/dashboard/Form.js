@@ -69,33 +69,28 @@ function getStyles(name, selectedContacts, theme) {
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
-}
-
+};
 
 export default function Form(props) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedContacts, setSelectedContacts] = useState([]);
   const [contacts, setContacts] = useState([]);
-  const [meetingName, setMeetingName] = useState('');
-  const [meetingDesc, setMeetingDesc] = useState('');
 
   const handleContactChange = event => {
-    setSelectedContacts(event.target.value);
+    props.setSelectedContacts(event.target.value);
   };
 
   const handleDateChange = date => {
-    setSelectedDate(date);
+    props.setSelectedDate(date);
   };
 
   const handleMeetingNameChange = event => {
-    setMeetingName(event.target.value);
+    props.setMeetingName(event.target.value);
   }
 
   const handleMeetingDescChange = event => {
-    setMeetingDesc(event.target.value);
+    props.setMeetingDesc(event.target.value);
   }
 
   useEffect(() => {
@@ -113,14 +108,14 @@ export default function Form(props) {
       <div>
         <TextField
           label="Name"
-          defaultValue="Meeting Name"
+          placeholder='Meeting Name'
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingNameChange}
         />
         <TextField
           label="Description"
-          defaultValue="Agenda"
+          placeholder='Meeting Description'
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingDescChange}
@@ -134,7 +129,7 @@ export default function Form(props) {
               id="date-picker-dialog"
               label="date"
               format="MM/dd/yyyy"
-              value={selectedDate}
+              value={props.selectedDate}
               onChange={handleDateChange}
               KeyboardButtonProps={{
                 'aria-label': 'change date',
@@ -144,7 +139,7 @@ export default function Form(props) {
               margin="normal"
               id="time-picker"
               label="Time"
-              value={selectedDate}
+              value={props.selectedDate}
               onChange={handleDateChange}
               KeyboardButtonProps={{
                 'aria-label': 'change time',
@@ -160,20 +155,20 @@ export default function Form(props) {
             labelId="demo-mutiple-chip-label"
             id="demo-mutiple-chip"
             multiple
-            value={selectedContacts}
+            value={props.selectedContacts}
             onChange={handleContactChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
               <div className={classes.chips}>
                 {selected.map(value => (
-                  <Chip key={value} label={value} className={classes.chip} />
+                  <Chip key={value.id} label={value.username} className={classes.chip} />
                 ))}
               </div>
             )}
             MenuProps={MenuProps}
           >
             {contacts.map(contact => (
-              <MenuItem key={contact.id} value={contact.username} style={getStyles(contact.username, selectedContacts, theme)}>
+              <MenuItem key={contact.id} value={contact} style={getStyles(contact.username, props.selectedContacts, theme)}>
                 {contact.username}
               </MenuItem>
             ))}
