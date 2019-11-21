@@ -22,8 +22,10 @@ const useStyles = makeStyles(theme => ({
   },
   textareaAutosize: {
     position: "absolute",
-    bottom: 0,
-    width: '100%'
+    zIndex: 100,
+    bottom: 20,
+    right: 100,
+    width: 200
   }
 }));
 
@@ -49,14 +51,16 @@ export default function Active({ socket, socketOpen, initialNotes }) {
   myImage.src = theImage;
 
   return (
-    <div id="canvas-container">
-      <ImageCanvas myImage={myImage} isLoaded={isLoaded} />
-      <Canvas />
-      <Fab color="secondary" aria-label="edit" className={classes.fab}>
-        <EditIcon onClick={() => console.log("click")} />
-      </Fab>
-      <TextareaAutosize aria-label="empty textarea" placeholder="Empty" />
-    </div>
+    <>
+      <div id="canvas-container">
+        <ImageCanvas myImage={myImage} isLoaded={isLoaded} />
+        <Canvas />
+        <Fab color="secondary" aria-label="edit" className={classes.fab}>
+          <EditIcon onClick={() => console.log("click")} />
+        </Fab>
+      </div>
+      <TextareaAutosize aria-label="empty textarea" placeholder="Empty" className={classes.textareaAutosize} />
+    </>
   )
 
 }

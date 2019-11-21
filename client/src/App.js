@@ -23,7 +23,7 @@ export default function App() {
   const { socket, socketOpen } = useSocket();
 
   //State required for meetings (to support auto-reconnect to meetings):
-  const [inMeeting, setInMeeting] = useState(false);
+  const [inMeeting, setInMeeting] = useState(true);
   const [meetingNotes, setMeetingNotes] = useState("");
   const [user, setUser] = useState(null);
 
