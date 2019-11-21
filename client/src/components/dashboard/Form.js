@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // Material UI - Text Inputs
+import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
@@ -61,27 +62,14 @@ const MenuProps = {
   },
 };
 
-function getStyles(name, contactName, theme) {
+function getStyles(name, selectedContacts, theme) {
   return {
     fontWeight:
-      contactName.indexOf(name) === -1
+      selectedContacts.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
 }
-
-// const names = [
-//   'Oliver Hansen',
-//   'Van Henry',
-//   'April Tucker',
-//   'Ralph Hubbard',
-//   'Omar Alexander',
-//   'Carlos Abbott',
-//   'Miriam Wagner',
-//   'Bradley Wilkerson',
-//   'Virginia Andrews',
-//   'Kelly Snyder',
-// ];
 
 
 export default function Form(props) {
@@ -89,41 +77,53 @@ export default function Form(props) {
   const theme = useTheme();
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [contactName, setContactName] = useState([]);
+  const [selectedContacts, setSelectedContacts] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [meetingName, setMeetingName] = useState('');
+  const [meetingDesc, setMeetingDesc] = useState('');
 
-  const handleChange = event => {
-    setContactName(event.target.value);
+  const handleContactChange = event => {
+    setSelectedContacts(event.target.value);
   };
 
   const handleDateChange = date => {
     setSelectedDate(date);
   };
 
+  const handleMeetingNameChange = event => {
+    setMeetingName(event.target.value);
+  }
+
+  const handleMeetingDescChange = event => {
+    setMeetingDesc(event.target.value);
+  }
+
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchContacts', {id: props.user});
-      props.socket.on('contacts', data => {
+      props.socket.emit('fetchContactsByUserId', {id: props.user});
+      props.socket.on('contactsByUserId', data => {
         setContacts(data);
       })
-      return () => props.socket.off('contacts');
+      return () => props.socket.off('contactsByUserId');
     }
   }, [props.socket, props.socketOpen, props.user]);
 
   return (
-    <form className={classes.container} noValidate autoComplete="off">
+    <Box className={classes.container} noValidate autoComplete="off">
       <div>
         <TextField
           label="Name"
           defaultValue="Meeting Name"
           className={classes.textField}
           margin="normal"
+          onChange={handleMeetingNameChange}
         />
         <TextField
           label="Description"
           defaultValue="Agenda"
           className={classes.textField}
           margin="normal"
+          onChange={handleMeetingDescChange}
         />
       </div>
       <div>
@@ -160,8 +160,8 @@ export default function Form(props) {
             labelId="demo-mutiple-chip-label"
             id="demo-mutiple-chip"
             multiple
-            value={contactName}
-            onChange={handleChange}
+            value={selectedContacts}
+            onChange={handleContactChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
               <div className={classes.chips}>
@@ -173,13 +173,13 @@ export default function Form(props) {
             MenuProps={MenuProps}
           >
             {contacts.map(contact => (
-              <MenuItem key={contact.id} value={contact.username} style={getStyles(contact.username, contactName, theme)}>
+              <MenuItem key={contact.id} value={contact.username} style={getStyles(contact.username, selectedContacts, theme)}>
                 {contact.username}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </div>
-    </form>
+    </Box>
   );
 }
