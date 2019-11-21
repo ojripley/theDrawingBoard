@@ -15,7 +15,6 @@ import { useSocket } from './hooks/useSocket'
 
 export default function App() {
   // const LOGIN = 'LOGIN';
-  const loggedIn = true;//Change this :)
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
