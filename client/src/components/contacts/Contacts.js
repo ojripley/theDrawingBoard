@@ -61,7 +61,7 @@ export default function Contacts(props) {
       } else {
 
         // emit contact search
-        props.socket.emit('fetchContactsByUserId', { id: 1, username: searchTerm});
+        props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: searchTerm});
         props.socket.on('contactsByUserId', (data) => {
           setContactsList(data);
         });
