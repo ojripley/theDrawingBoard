@@ -47,16 +47,16 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
-  // handles logging in and activeUsers
-  client.on('loginAttempt', (data) => {
-    if (authenticator.authenticate(data.email, data.password)) {
-      activeUsers.addUser(data.username, socket)
+  // // handles logging in and activeUsers
+  // client.on('loginAttempt', (data) => {
+  //   if (authenticator.authenticate(data.email, data.password)) {
+  //     activeUsers.addUser(data.username, socket)
 
-      client.on('disconnect', () => {
-        activeUsers.removeUser(data.username);
-      })
-    }
-  });
+  //     client.on('disconnect', () => {
+  //       activeUsers.removeUser(data.username);
+  //     })
+  //   }
+  // });
 
 
 
