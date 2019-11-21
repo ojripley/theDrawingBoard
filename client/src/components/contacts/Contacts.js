@@ -72,12 +72,17 @@ export default function Contacts(props) {
     }
   }, [searchTerm, globalSearch, props.socket, props.socketOpen, props.user.id]);
 
-  const contacts = contactsList.map(friend =>
-    (<Contact
-      key={friend.id}
-      username={friend.username}
-      email={friend.email}
-    />)
+  const contacts = contactsList.map(friend => {
+    if (friend.username !== props.user.username) {
+      return (<Contact
+        key={friend.id}
+        username={friend.username}
+        email={friend.email}
+      />);
+    }
+  }
+
+
   );
 
   return (
