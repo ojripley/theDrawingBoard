@@ -6,7 +6,7 @@ import FolderIcon from '@material-ui/icons/Folder';
 
 const useStyles = makeStyles({
   root: {
-    width: 500,
+    width: "100%",
   },
 });
 
