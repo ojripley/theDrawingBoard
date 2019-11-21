@@ -11,6 +11,8 @@ export const useSocket = (server = "localhost:8080") => {
     setSocket(s);
     setSocketOpen(true);
 
+    s.emit('loginAttempt', {email: 'ta@mail.com', password: 'p'});
+
     return () => {
       s.close();
     }
