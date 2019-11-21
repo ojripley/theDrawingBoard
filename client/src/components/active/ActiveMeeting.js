@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import theImage from './tmp.jpg';
 import Canvas from './Canvas';
 import ImageCanvas from './Image';
-import useDebounce from "../../hooks/useDebounce";
+import useDebounce from '../../hooks/useDebounce';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
@@ -15,7 +15,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 const useStyles = makeStyles(theme => ({
   fab: {
     margin: theme.spacing(1),
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     zIndex: 3
@@ -24,20 +24,31 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
   },
   textareaAutosize: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 2,
     bottom: 20,
-    right: 100,
-    width: 200
+    width: "50%"
+  },
+  center: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    bottom: 0,
+    height: 100,
+    width: "100%"
   },
   root: {
-    position: "absolute",
+    position: 'absolute',
+    width: 100,
+    height: 100,
     bottom: 20,
-    right: 50,
+    left: 50,
     zIndex: 3,
     display: 'flex',
     '& > * + *': {
       marginLeft: theme.spacing(1),
+      width: 100,
+      height: 100
     }
   }
 }));
@@ -61,9 +72,16 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
     }
   }, [socket, socketOpen]);
 
+  const handleInput = (e) => {
+    setMeetingNotes(e.target.value);
+    setSaving(true);
+  }
+
   useEffect(() => {
     console.log(debouncedNotes);
-    socket.emit('updated notes', { user, note: debouncedNotes });
+    socket.emit('saveNotes', { user, note: debouncedNotes });
+    // socket.on('receiveOkay') //can have a socket on when received
+    setSaving(false);
   }, [socket, debouncedNotes])
 
 
@@ -73,12 +91,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
 
   return (
     <>
-      <div id="canvas-container">
+      <div id='canvas-container'>
         <ImageCanvas myImage={myImage} isLoaded={isLoaded} />
         <Canvas />
         <Fab
-          aria-label="edit"
-          color="secondary"
+          aria-label='edit'
+          color='secondary'
           className={classes.fab}
           onClick={() => setWriteMode(prev => !prev)} >
           <EditIcon />
@@ -86,13 +104,15 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
       </div>
 
       {writeMode &&
-        <TextareaAutosize
-          aria-label="empty textarea"
-          placeholder="Empty"
-          defaultValue={meetingNotes}
-          className={classes.textareaAutosize}
-          onChange={event => setMeetingNotes(event.target.value)}
-        />
+        <div className={classes.center}>
+          <TextareaAutosize
+            aria-label='empty textarea'
+            placeholder='Empty'
+            defaultValue={meetingNotes}
+            className={classes.textareaAutosize}
+            onChange={event => handleInput(event)}
+          />
+        </div>
       }
       {saving &&
         <div className={classes.root}>
