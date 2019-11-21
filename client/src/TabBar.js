@@ -22,7 +22,6 @@ export default function TabBar({ mode, setMode }) {
       <BottomNavigationAction label="Contacts" value="CONTACTS" icon={<FolderIcon />} />
       <BottomNavigationAction label="Dashboard" value="DASHBOARD" icon={<FolderIcon />} />
       <BottomNavigationAction label="History" value="HISTORY" icon={<FolderIcon />} />
-      <BottomNavigationAction label="Active" value="ACTIVE" icon={<FolderIcon />} />
     </BottomNavigation>
   );
 }
