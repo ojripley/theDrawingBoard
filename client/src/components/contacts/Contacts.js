@@ -80,6 +80,7 @@ export default function Contacts(props) {
         email={friend.email}
       />);
     }
+    return null;
   }
 
 
