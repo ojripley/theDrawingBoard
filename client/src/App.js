@@ -5,7 +5,7 @@ import Box from '@material-ui/core/Box';
 // COMPONENTS
 import TabBar from './TabBar';
 import NavBar from './NavBar';
-import Active from './components/active/Active';
+import ActiveMeeting from './components/active/ActiveMeeting';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
@@ -19,10 +19,13 @@ export default function App() {
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
-  const ACTIVE = 'ACTIVE';
+  const [mode, setMode] = useState(DASHBOARD);
 
   const { socket, socketOpen } = useSocket();
-  const [mode, setMode] = useState(DASHBOARD);
+
+  //State required for meetings (to support auto-reconnect to meetings):
+  const [inMeeting, setInMeeting] = useState(true);
+  const [meetingNotes, setMeetingNotes] = useState("");
 
   useEffect(() => {
     if (socketOpen) {
@@ -30,21 +33,34 @@ export default function App() {
         'msg', data => {
           console.log(data);
         });
+      //Server says client is in a meeting:
+      socket.on('meeting', data => {//Could be on connect
+        setInMeeting(data.inMeeting); //Can be changed by user on login
+        setInMeeting(data.notes); //notes for the current meeting
+      });
     }
   }, [socket, socketOpen]);
 
   if (loggedIn) {
-    return (
-      <Box>
-        <NavBar />
-        {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
-        {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} />}
-        {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} />}
-        {mode === ACTIVE && <Active socket={socket} socketOpen={socketOpen} />}
-        <TabBar mode={mode} setMode={setMode} />
-      </Box >
-
-    );
+    if (inMeeting) {
+      return (
+        <ActiveMeeting socket={socket}
+          socketOpen={socketOpen}
+          notes={meetingNotes}
+          notes={meetingNotes}
+        />
+      );
+    } else {
+      return (
+        <Box>
+          <NavBar />
+          {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
+          {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} />}
+          {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} />}
+          <TabBar mode={mode} setMode={setMode} />
+        </Box >
+      );
+    }
   } else {
     return (
       <h1> Replace with login page </h1>
