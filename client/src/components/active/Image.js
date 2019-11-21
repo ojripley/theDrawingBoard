@@ -9,10 +9,10 @@ export default function Image(props) {
 
   useEffect(() => {
     imageCtxRef.current.width = window.innerWidth;
-    imageCtxRef.current.height = window.innerHeight;
+    imageCtxRef.current.height = window.innerHeight * 0.8;
     setCtx(prev => {
       prev = imageCtxRef.current.getContext('2d')
-      prev.drawImage(imageEl, 0, 0, window.innerWidth, window.innerHeight - 100);
+      prev.drawImage(imageEl, 0, 0, window.innerWidth, window.innerHeight * 0.8);
     });
   }, [ctx, isLoaded, imageEl]);
 

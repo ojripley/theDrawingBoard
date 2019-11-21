@@ -20,9 +20,11 @@ export default function Active({ socket, socketOpen }) {
   myImage.src = theImage;
 
   return (
-    <>
+
+    <div id="blah">
       <ImageCanvas myImage={myImage} isLoaded={isLoaded} />
       <Canvas />
-    </>
+    </div>
+
   );
 }
