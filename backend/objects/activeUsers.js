@@ -6,8 +6,8 @@ class ActiveUsers {
   // -- -- -- -- -- -- //
   // methods           //
 
-  addUser(user, client) {
-    this[user.username] = [user, client];
+  addUser(username, client) {
+    this[username] = [username, client];
   }
 
   deleteUser(user) {

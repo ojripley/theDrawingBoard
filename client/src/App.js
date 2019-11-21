@@ -23,9 +23,16 @@ export default function App() {
 
   const { socket, socketOpen } = useSocket();
   const [mode, setMode] = useState(DASHBOARD);
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     if (socketOpen) {
+      socket.emit('loginAttempt', { email: 'ta@mail.com', password: 'p' });
+      socket.on('loginResponse', (data) => {
+        if (data) {
+          setUser(data);
+        }
+      });
       socket.on(
         'msg', data => {
           console.log(data);
