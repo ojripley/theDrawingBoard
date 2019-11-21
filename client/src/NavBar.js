@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import { datePickerDefaultProps } from '@material-ui/pickers/constants/prop-types';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -19,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function NavBar() {
+export default function NavBar(props) {
   const classes = useStyles();
 
   return (
@@ -32,6 +33,7 @@ export default function NavBar() {
           <Typography variant="h6" className={classes.title}>
             News
           </Typography>
+          <h2>{props.user.username}</h2>
           <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>

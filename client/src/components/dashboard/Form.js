@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // Material UI - Text Inputs
+import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
@@ -61,69 +62,63 @@ const MenuProps = {
   },
 };
 
-function getStyles(name, contactName, theme) {
+function getStyles(name, selectedContacts, theme) {
   return {
     fontWeight:
-      contactName.indexOf(name) === -1
+      selectedContacts.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
-}
-
-// const names = [
-//   'Oliver Hansen',
-//   'Van Henry',
-//   'April Tucker',
-//   'Ralph Hubbard',
-//   'Omar Alexander',
-//   'Carlos Abbott',
-//   'Miriam Wagner',
-//   'Bradley Wilkerson',
-//   'Virginia Andrews',
-//   'Kelly Snyder',
-// ];
-
+};
 
 export default function Form(props) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [contactName, setContactName] = useState([]);
   const [contacts, setContacts] = useState([]);
 
-  const handleChange = event => {
-    setContactName(event.target.value);
+  const handleContactChange = event => {
+    props.setSelectedContacts(event.target.value);
   };
 
   const handleDateChange = date => {
-    setSelectedDate(date);
+    props.setSelectedDate(date);
   };
+
+  const handleMeetingNameChange = event => {
+    props.setMeetingName(event.target.value);
+  }
+
+  const handleMeetingDescChange = event => {
+    props.setMeetingDesc(event.target.value);
+  }
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchContacts', {id: props.user});
-      props.socket.on('contacts', data => {
+      props.socket.emit('fetchContactsByUserId', {id: props.user});
+      props.socket.on('contactsByUserId', data => {
         setContacts(data);
       })
-      return () => props.socket.off('contacts');
+      return () => props.socket.off('contactsByUserId');
     }
   }, [props.socket, props.socketOpen, props.user]);
 
   return (
-    <form className={classes.container} noValidate autoComplete="off">
+    <Box className={classes.container} noValidate autoComplete="off">
       <div>
         <TextField
           label="Name"
-          defaultValue="Meeting Name"
+          placeholder='Meeting Name'
           className={classes.textField}
           margin="normal"
+          onChange={handleMeetingNameChange}
         />
         <TextField
           label="Description"
-          defaultValue="Agenda"
+          placeholder='Meeting Description'
           className={classes.textField}
           margin="normal"
+          onChange={handleMeetingDescChange}
         />
       </div>
       <div>
@@ -134,7 +129,7 @@ export default function Form(props) {
               id="date-picker-dialog"
               label="date"
               format="MM/dd/yyyy"
-              value={selectedDate}
+              value={props.selectedDate}
               onChange={handleDateChange}
               KeyboardButtonProps={{
                 'aria-label': 'change date',
@@ -144,7 +139,7 @@ export default function Form(props) {
               margin="normal"
               id="time-picker"
               label="Time"
-              value={selectedDate}
+              value={props.selectedDate}
               onChange={handleDateChange}
               KeyboardButtonProps={{
                 'aria-label': 'change time',
@@ -160,26 +155,26 @@ export default function Form(props) {
             labelId="demo-mutiple-chip-label"
             id="demo-mutiple-chip"
             multiple
-            value={contactName}
-            onChange={handleChange}
+            value={props.selectedContacts}
+            onChange={handleContactChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
               <div className={classes.chips}>
                 {selected.map(value => (
-                  <Chip key={value} label={value} className={classes.chip} />
+                  <Chip key={value.id} label={value.username} className={classes.chip} />
                 ))}
               </div>
             )}
             MenuProps={MenuProps}
           >
             {contacts.map(contact => (
-              <MenuItem key={contact.id} value={contact.username} style={getStyles(contact.username, contactName, theme)}>
+              <MenuItem key={contact.id} value={contact} style={getStyles(contact.username, props.selectedContacts, theme)}>
                 {contact.username}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </div>
-    </form>
+    </Box>
   );
 }

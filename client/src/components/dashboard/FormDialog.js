@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -8,7 +8,12 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Form from './Form';
 
 export default function FormDialog(props) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [meetingName, setMeetingName] = useState('');
+  const [meetingDesc, setMeetingDesc] = useState('');
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -17,6 +22,23 @@ export default function FormDialog(props) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleSubmit = () => {
+    props.socket.emit('insertMeeting', {
+      startTime: selectedDate,
+      ownerId: props.user.id,
+      name: meetingName,
+      description: meetingDesc,
+      status: 'scheduled',
+      linkToInitialDoc: null
+    })
+    props.socket.on('newMeeting', res => {
+      props.socket.emit('insertUsersMeeting', { userId: props.user.id, meetingId: res[0].id})
+      for (let contact of selectedContacts) {
+        props.socket.emit('insertUsersMeeting', { userId: contact.id, meetingId: res[0].id})
+      }
+    })
+  }
 
   return (
     <div>
@@ -30,13 +52,27 @@ export default function FormDialog(props) {
             socket={props.socket}
             socketOpen={props.socketOpen}
             user={props.user.id}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            selectedContacts={selectedContacts}
+            setSelectedContacts={setSelectedContacts}
+            meetingName={meetingName}
+            setMeetingName={setMeetingName}
+            meetingDesc={meetingDesc}
+            setMeetingDesc={setMeetingDesc}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button
+            onClick={() => {
+              handleSubmit();
+              handleClose();
+            }}
+            color="primary"
+          >
             Submit
           </Button>
         </DialogActions>

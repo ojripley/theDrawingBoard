@@ -15,7 +15,6 @@ import { useSocket } from './hooks/useSocket'
 
 export default function App() {
   // const LOGIN = 'LOGIN';
-  const loggedIn = true;//Change this :)
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
@@ -24,11 +23,19 @@ export default function App() {
   const { socket, socketOpen } = useSocket();
 
   //State required for meetings (to support auto-reconnect to meetings):
-  const [inMeeting, setInMeeting] = useState(true);
+  const [inMeeting, setInMeeting] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (socketOpen) {
+      socket.emit('loginAttempt', { email: 'ta@mail.com', password: 'p' });
+      socket.on('loginResponse', (data) => {
+        if (data.id) {
+          // console.log(data);
+          setUser(data);
+        }
+      });
       socket.on(
         'msg', data => {
           console.log(data);
@@ -41,7 +48,9 @@ export default function App() {
     }
   }, [socket, socketOpen]);
 
-  if (loggedIn) {
+  console.log(user);
+
+  if (user) {
     if (inMeeting) {
       return (
         <ActiveMeeting socket={socket}
@@ -52,12 +61,13 @@ export default function App() {
     } else {
       return (
         <Box>
-          <NavBar />
-          {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} />}
-          {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} />}
-          {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} />}
+          <NavBar user={user} />
+          {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} user={user} />}
+          {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+          {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
           <TabBar mode={mode} setMode={setMode} />
         </Box >
+
       );
     }
   } else {

@@ -70,7 +70,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
     LIMIT 20;
   `, vars)
     .then(res => {
-      console.log(res)
+      // console.log(res)
       return res.rows;
     })
     .catch(error => {
@@ -109,13 +109,13 @@ const insertUser = function (username, email, password) {
     });
 };
 
-const insertMeeting = function (start_time, owner_id, name, status, link_to_inital_doc) {
+const insertMeeting = function (start_time, owner_id, name, description, status, link_to_initial_doc) {
 
-  const vars = [start_time, owner_id, name, status, link_to_inital_doc];
+  const vars = [start_time, owner_id, name, description, status, link_to_initial_doc];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, status, link_to_inital_doc)
-    VALUES($1, $2, $3, $4, $5)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_doc)
+    VALUES($1, $2, $3, $4, $5, $6)
     RETURNING id;
   `, vars)
     .then(res => {
@@ -130,7 +130,7 @@ const insertUsersMeeting = function (user_id, meeting_id) {
   const vars = [user_id, meeting_id, 'invited'];
 
   return db.query(`
-    INSERT INTO users_meetings (user_id, meeting_id, status)
+    INSERT INTO users_meetings (user_id, meeting_id, attendance)
     VALUES($1, $2, $3)
   `, vars)
     .then(res => {

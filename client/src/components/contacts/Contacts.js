@@ -61,7 +61,7 @@ export default function Contacts(props) {
       } else {
 
         // emit contact search
-        props.socket.emit('fetchContactsByUserId', { id: 1, username: searchTerm});
+        props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: searchTerm});
         props.socket.on('contactsByUserId', (data) => {
           setContactsList(data);
         });
@@ -70,14 +70,20 @@ export default function Contacts(props) {
         return () => props.socket.off('contactsByUserId');
       }
     }
-  }, [searchTerm, globalSearch, props.socket, props.socketOpen]);
+  }, [searchTerm, globalSearch, props.socket, props.socketOpen, props.user.id]);
 
-  const contacts = contactsList.map(friend =>
-    (<Contact
-      key={friend.id}
-      username={friend.username}
-      email={friend.email}
-    />)
+  const contacts = contactsList.map(friend => {
+    if (friend.username !== props.user.username) {
+      return (<Contact
+        key={friend.id}
+        username={friend.username}
+        email={friend.email}
+      />);
+    }
+    return null;
+  }
+
+
   );
 
   return (

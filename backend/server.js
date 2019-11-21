@@ -11,9 +11,11 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-session');
 
-const { ActiveUsers } = require('./userObjects/activeUsers');
+const { ActiveUsers } = require('./objects/activeUsers');
+const { Authenticator } = require('./objects/authenticator');
 
 activeUsers = new ActiveUsers();
+authenticator = new Authenticator();
 
 // db operations
 const db = require('./db/queries/queries');
@@ -47,16 +49,27 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
-  // // handles logging in and activeUsers
-  // client.on('loginAttempt', (data) => {
-  //   if (authenticator.authenticate(data.email, data.password)) {
-  //     activeUsers.addUser(data.username, socket)
+  // handles logging in and activeUsers
+  client.on('loginAttempt', (data) => {
+    console.log('initiating login attempt');
+    authenticator.authenticate(data.email, data.password)
+      .then(res => {
+        const authenticateAttempt = res;
 
-  //     client.on('disconnect', () => {
-  //       activeUsers.removeUser(data.username);
-  //     })
-  //   }
-  // });
+        if (authenticateAttempt) {
+          console.log('attempted login: successful');
+          console.log(authenticateAttempt);
+          activeUsers.addUser(authenticateAttempt.username, client)
+
+          // client.on('disconnect', () => {
+          //   activeUsers.removeUser(data.username);
+          // })
+        } else {
+          console.log('attempted login: failed');
+        }
+        client.emit('loginResponse', authenticateAttempt);
+      })
+  });
 
 
 
@@ -68,13 +81,13 @@ io.on('connection', (client) => {
 
 
   // active users test code
-  user = {
-    username: 'testee mctester'
-  }
+  // user = {
+  //   username: 'testee mctester'
+  // }
 
-  activeUsers.addUser(user, client);
+  // activeUsers.addUser(user, client);
 
-  console.log(activeUsers);
+  // console.log(activeUsers);
 
 
 
@@ -107,14 +120,14 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
-    db.fetchMeetingsByUserId(data.id, data.meetingStatus)
+    db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
       });
   });
 
   client.on('fetchMeeting', (data) => {
-    db.fetchMeetingsByUserId(data.id)
+    db.fetchMeetingById(data.id)
       .then(res => {
         client.emit('meeting', res);
       });
@@ -133,4 +146,20 @@ io.on('connection', (client) => {
         client.emit('loginAttempt', credentials.username);
       });
   });
+
+  client.on('insertMeeting', data => {
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
+      .then(res => {
+        client.emit('newMeeting', res);
+      });
+  });
+
+  client.on('insertUsersMeeting', data => {
+    db.insertUsersMeeting(data.userId, data.meetingId)
+      .then(() => {
+        console.log('users have been invited');
+      });
+  });
+
 });
+
