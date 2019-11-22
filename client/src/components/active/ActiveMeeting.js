@@ -131,13 +131,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
-      <Fab
+      {user.id === ownerId && <Fab
         aria-label='end'
         color='primary'
         className={classes.endFab}
         onClick={endMeeting} >
         <CloseIcon />
-      </Fab>
+      </Fab>}
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
