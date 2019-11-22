@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId }) {
   const [isLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes);
   const [writeMode, setWriteMode] = useState(false);
@@ -124,13 +124,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
-      <Fab
+      {ownerId === user.id && <Fab
         aria-label='end'
         color='primary'
         className={classes.endFab}
         onClick={endMeeting} >
         <CloseIcon />
-      </Fab>
+      </Fab>}
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
