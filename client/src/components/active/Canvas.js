@@ -15,11 +15,12 @@ function reducer(state, action) {
       return { ...state, clickY: { ...state.clickY, [action.payload.user]: action.payload.y } };
     // return { ...state, clickY: [...state.clickY, action.payload.y] };
     case SET_DRAG:
-      return { ...state, clickDrag: { ...state.clickX, [action.payload.user]: action.payload.drag } };
+      return { ...state, clickDrag: { ...state.clickX, [action.payload.user]: action.payload.dragging } };
     // return { ...state, clickDrag: [...state.clickDrag, action.payload.drag] };
     case SET_CTX:
       return { ...state, ctx: action.payload };
     case REDRAW: {
+      console.log("clickX")
       console.log(state.clickX)
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
       state.ctx.lineJoin = "round";
@@ -44,7 +45,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId }) {
 
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
@@ -52,9 +53,13 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
   const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   const [drawingState, dispatch] = useReducer(reducer, {
-    clickX: { [myCode]: [] },
-    clickY: { [myCode]: [] },
-    clickDrag: { [myCode]: [] },
+    [myCode]: [],
+    []: [],
+
+    // clickX: { [myCode]: [] },
+    // clickY: { [myCode]: [] },
+    // clickDrag: { [myCode]: [] },
+    // [myCode] :
     ctx: undefined
   });
 
@@ -92,9 +97,9 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
         console.log(user);
         console.log(data.code);
         if (myCode.current !== data.code) {
-          dispatch({ type: SET_X, payload: data.pixel.x });
-          dispatch({ type: SET_Y, payload: data.pixel.y });
-          dispatch({ type: SET_DRAG, payload: data.pixel.dragging });
+          dispatch({ type: SET_X, payload: { user: myCode, x: data.pixel.x } });
+          dispatch({ type: SET_Y, payload: { user: myCode, y: data.pixel.y } });
+          dispatch({ type: SET_DRAG, payload: { user: myCode, dragging: data.pixel.dragging } });
           dispatch({ type: REDRAW });
           /*
           dispatch({ type: SET_X, payload: { user: myCode, x: data.mouse.x } });
@@ -137,9 +142,9 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
-    dispatch({ type: SET_X, payload: x });
-    dispatch({ type: SET_Y, payload: y });
-    dispatch({ type: SET_DRAG, payload: dragging });
+    dispatch({ type: SET_X, payload: { user: myCode, x: x } });
+    dispatch({ type: SET_Y, payload: { user: myCode, y: y } });
+    dispatch({ type: SET_DRAG, payload: { user: myCode, dragging: dragging } });
     dispatch({ type: REDRAW });
   };
 
@@ -149,7 +154,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     setPaint(true);
     addClick(mouseX, mouseY);
-    socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: false }, code: myCode.current });
+    socket.emit('addClick', { user: user, pixel: { x: mouseX, y: mouseY, dragging: false }, meetingId: meetingId, code: myCode.current });
 
     // redraw();
   }
@@ -159,7 +164,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: true }, code: myCode.current });
+      socket.emit('addClick', { user: user, pixel: { x: mouseX, y: mouseY, dragging: true }, meetingId: meetingId, code: myCode.current });
       // redraw();
     }
   }

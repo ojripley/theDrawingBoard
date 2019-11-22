@@ -94,12 +94,12 @@ io.on('connection', (client) => {
   });
 
   //These lines are for testing purposes
-  client.join('theOneRoomToRuleThemAll');
+  // client.join('theOneRoomToRuleThemAll');
 
   client.on('addClick', data => {
     console.log("message received");
-    console.log(data.mouse.x);
-    io.to('theOneRoomToRuleThemAll').emit('drawClick', data);//pass message along
+    console.log(data.pixel.x);
+    io.to(data.meetingId).emit('drawClick', data);//pass message along
   })
 
   //End of test
