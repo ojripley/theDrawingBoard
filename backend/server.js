@@ -185,7 +185,7 @@ io.on('connection', (client) => {
             console.log(res);
             client.emit('test', res[0]);
           });
-        }, 200);
+        }, 400);
       });
   });
 
