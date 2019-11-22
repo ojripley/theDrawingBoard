@@ -26,17 +26,13 @@ export default function FormDialog(props) {
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('newMeeting', res => {
-        props.socket.emit('insertUsersMeeting', { userId: props.user.id, meetingId: res.id})
-        for (let contact of selectedContacts) {
-          props.socket.emit('insertUsersMeeting', { userId: contact.id, meetingId: res.id})
-        }
         setSelectedContacts([]);
       });
       return () => {
         props.socket.off('newMeeting');
       };
     }
-  }, [props.socketOpen, props.socket, props.user.id, selectedContacts, setSelectedContacts]);
+  }, [props.socketOpen, props.socket, setSelectedContacts]);
 
   const handleSubmit = () => {
     props.socket.emit('insertMeeting', {
@@ -45,7 +41,8 @@ export default function FormDialog(props) {
       name: meetingName,
       description: meetingDesc,
       status: 'scheduled',
-      linkToInitialDoc: null
+      linkToInitialDoc: null,
+      selectedContacts: [...selectedContacts, props.user]
     });
 
     setOpen(false);
