@@ -131,6 +131,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
+      {console.log(`user is ${user.id}, owner is ${ownerId}`)}
       {user.id === ownerId && <Fab
         aria-label='end'
         color='primary'
