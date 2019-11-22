@@ -10,11 +10,13 @@ const REDRAW = "REDRAW";
 function reducer(state, action) {
   switch (action.type) {
     case SET_X:
-      return { ...state, clickX: [...state.clickX, action.payload] };
+      return { ...state, clickX: { ...state.clickX, [action.payload.user]: action.payload.x } };
     case SET_Y:
-      return { ...state, clickY: [...state.clickY, action.payload] };
+      return { ...state, clickY: { ...state.clickY, [action.payload.user]: action.payload.y } };
+    // return { ...state, clickY: [...state.clickY, action.payload.y] };
     case SET_DRAG:
-      return { ...state, clickDrag: [...state.clickDrag, action.payload] };
+      return { ...state, clickDrag: { ...state.clickX, [action.payload.user]: action.payload.drag } };
+    // return { ...state, clickDrag: [...state.clickDrag, action.payload.drag] };
     case SET_CTX:
       return { ...state, ctx: action.payload };
     case REDRAW: {
@@ -47,42 +49,41 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
   let [paint, setPaint] = useState(false);
+  const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   const [drawingState, dispatch] = useReducer(reducer, {
-    clickX: [],
-    clickY: [],
-    clickDrag: [],
+    clickX: { [myCode]: [] },
+    clickY: { [myCode]: [] },
+    clickDrag: { [myCode]: [] },
     ctx: undefined
   });
 
-  const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
 
 
-  const redraw = () => {
-    console.log(drawingState.clickX)
-    drawingState.ctx.clearRect(0, 0, drawingState.ctx.canvas.width, drawingState.ctx.canvas.height); // Clears the drawCanvas
-    drawingState.ctx.lineJoin = "round";
-    drawingState.ctx.lineWidth = 2;
-    drawingState.ctx.strokeStyle = '#00000';
+  // const redraw = () => {
+  //   console.log(drawingState.clickX)
+  //   drawingState.ctx.clearRect(0, 0, drawingState.ctx.canvas.width, drawingState.ctx.canvas.height); // Clears the drawCanvas
+  //   drawingState.ctx.lineJoin = "round";
+  //   drawingState.ctx.lineWidth = 2;
+  //   drawingState.ctx.strokeStyle = '#00000';
 
-    for (let i = 0; i < drawingState.clickX.length; i++) {
-      drawingState.ctx.beginPath();
-      if (drawingState.clickDrag[i] && i) {
-        drawingState.ctx.moveTo(drawingState.clickX[i - 1], drawingState.clickY[i - 1]);
-      } else {
-        drawingState.ctx.moveTo(drawingState.clickX[i] - 1, drawingState.clickY[i]);
-      }
-      drawingState.ctx.lineTo(drawingState.clickX[i], drawingState.clickY[i]);
-      drawingState.ctx.closePath();
-      drawingState.ctx.stroke();
-    }
-  };
+  //   for (let i = 0; i < drawingState.clickX.length; i++) {
+  //     drawingState.ctx.beginPath();
+  //     if (drawingState.clickDrag[i] && i) {
+  //       drawingState.ctx.moveTo(drawingState.clickX[i - 1], drawingState.clickY[i - 1]);
+  //     } else {
+  //       drawingState.ctx.moveTo(drawingState.clickX[i] - 1, drawingState.clickY[i]);
+  //     }
+  //     drawingState.ctx.lineTo(drawingState.clickX[i], drawingState.clickY[i]);
+  //     drawingState.ctx.closePath();
+  //     drawingState.ctx.stroke();
+  //   }
+  // };
 
-  // Sample request
   useEffect(() => {
     if (socketOpen) {
       // socket.emit('fetchMeetings', { username: user.username, meetingStatus: 'scheduled' });
@@ -91,9 +92,9 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
         console.log(user);
         console.log(data.code);
         if (myCode.current !== data.code) {
-          dispatch({ type: SET_X, payload: data.mouse.x });
-          dispatch({ type: SET_Y, payload: data.mouse.y });
-          dispatch({ type: SET_DRAG, payload: data.mouse.dragging });
+          dispatch({ type: SET_X, payload: { user: myCode, x: data.mouse.x } });
+          dispatch({ type: SET_Y, payload: { user: myCode, y: data.mouse.y } });
+          dispatch({ type: SET_DRAG, payload: { user: myCode, drag: data.mouse.dragging } });
           dispatch({ type: REDRAW });
         }
       });
