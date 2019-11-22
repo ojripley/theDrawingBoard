@@ -48,7 +48,9 @@ export default function MeetingCard({
   setExpanded,
   socket,
   socketOpen,
-  setInMeeting
+  setInMeeting,
+  setMeetingId,
+  setOwnerId
 }) {
 
   const classes = useStyles();
@@ -64,27 +66,49 @@ export default function MeetingCard({
   };
 
   const enterMeeting = () => {
-    socket.emit('enterMeeting', {userId: user.id, meetingId: id, attendeeIds: attendeeIds})
+    socket.emit('enterMeeting', {user: user, meetingId: id, attendeeIds: attendeeIds})
   }
 
   useEffect(() => {
     if (socketOpen) {
-      socket.on('meetingStarted', res => {
-        if (id === res) {
-          setActiveMeeting(true);
-        }
-      })
+      // socket.on('meetingStarted', res => {
+      //   console.log(res)
+      //   if (id === res) {
+      //     setActiveMeeting(true);
+      //     setMeetingId(id);
+      //   }
+      // })
 
       socket.on('enteredMeeting', res => {
-        console.log('Meeting is: ', res);
+        // console.log('Meeting is: ', res);
+        // console.log('current user entered the room', user);
         setInMeeting(true)
+        setOwnerId(res.owner_id);
+        setMeetingId(res.id);
       })
 
       return () => {
+        // console.log('closing listeners')
+        // socket.off('meetingStarted');
         socket.off('enteredMeeting');
       };
     }
-  }, [id, socket, socketOpen, setInMeeting, activeMeeting]);
+  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId]);
+
+  useEffect(() => {
+    socket.on('meetingStarted', res => {
+      // console.log('res', res)
+      if (id === res.meetingId) {
+        // console.log('starting meeting', res)
+        // console.log('ownerId', res.ownerId)
+        setActiveMeeting(true);
+      }
+    })
+
+    return () => {
+      socket.off('meetingStarted');
+    };
+  }, [socket, id, activeMeeting, setMeetingId, setOwnerId])
 
   return (
     <div className={classes.root}>

@@ -21,7 +21,7 @@ export default function Dashboard(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
       props.socket.on('meetings', data => {
-        console.log('handling')
+        // console.log('handling')
         setMeetings(data)
       });
 
@@ -63,6 +63,8 @@ export default function Dashboard(props) {
           socket={props.socket}
           socketOpen={props.socketOpen}
           setInMeeting={props.setInMeeting}
+          setMeetingId={props.setMeetingId}
+          setOwnerId={props.setOwnerId}
         />
       </li>
     )

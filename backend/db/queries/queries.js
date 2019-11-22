@@ -226,13 +226,14 @@ const updateUsersMeetingsStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingNotes = function (user_id, notes) {
+const updateUsersMeetingsNotes = function (user_id, meeting_id, notes) {
   const vars = [user_id, meeting_id, notes];
 
   return db.query(`
     UPDATE users_meetings
-    SET notes = $2
-    WHERE user_id = $1;
+    SET notes = $3
+    WHERE meeting_id = $2
+    AND user_id = $1;
   `, vars)
     .then(res => {
       return res.rows;
@@ -242,8 +243,8 @@ const updateUsersMeetingNotes = function (user_id, notes) {
     });
 };
 
-const updateMeetingActiveState = function(meeting_id, status) {
-  const vars = [meeting_id, status];
+const updateMeetingActiveState = function(meeting_id, active) {
+  const vars = [meeting_id, active];
 
   return db.query(`
     UPDATE meetings
@@ -258,4 +259,23 @@ const updateMeetingActiveState = function(meeting_id, status) {
     });
 }
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes, updateMeetingActiveState };
+const updateMeetingById = function (meeting_id, end_time, active, status) {
+  const vars = [meeting_id, end_time, active, status];
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      end_time = $2,
+      active = $3,
+      status = $4
+    WHERE id = $1;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+}
+
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById };

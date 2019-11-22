@@ -6,6 +6,7 @@ export const useSocket = () => {
   const [socketOpen, setSocketOpen] = useState(false);
 
   const server = '172.46.3.253:8080'
+  // const server = 'localhost:8080'
 
   useEffect(() => {
     const s = io(server);
