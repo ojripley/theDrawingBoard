@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import FileUpload from './FileUpload';
+
 // Material UI - Text Inputs
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
@@ -47,7 +49,7 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     margin: theme.spacing(1),
-  },
+  }
 }));
 
 const ITEM_HEIGHT = 48;
@@ -181,6 +183,9 @@ export default function Form(props) {
           >
             {contactsList}
           </Select>
+          <FileUpload>
+            Upload Meeting Document
+          </FileUpload>
         </FormControl>
       </div>
     </Box>
