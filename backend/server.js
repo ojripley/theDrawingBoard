@@ -1,3 +1,19 @@
+
+//          ####   ######   ######   #   #   #####
+//         #       #         #      #   #   #   #
+//          ###    #####      #      #   #   ####
+//             #   #          #      #   #   #
+//         ####    ######     #       ###    #
+//
+//
+//
+//
+//
+//
+//
+
+
+
 // load .env data into process.env
 require('dotenv').config();
 
@@ -132,8 +148,6 @@ io.on('connection', (client) => {
       ...data
     };
 
-    // if (authenticator.registerUser(credentials))
-
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
         client.emit('loginAttempt', credentials.username);
@@ -199,7 +213,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId:meeting.owner_id});
+                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId: meeting.owner_id});
               }
             }
           });
