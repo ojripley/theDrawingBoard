@@ -5,9 +5,12 @@ export default function History(props) {
 
   const [viewMeeting, setViewMeeting] = useState('all');
 
+  const meetingList;
+
   return (
     <Box>
       <h1>History</h1>
+      {viewMeeting === 'all' && meetingList}
     </Box>
 
   );
