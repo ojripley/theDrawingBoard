@@ -28,7 +28,7 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      socket.emit('loginAttempt', { email: 'tc@mail.com', password: 'p' });
+      socket.emit('loginAttempt', { email: 'ta@mail.com', password: 'p' });
       socket.on('loginResponse', (data) => {
         if (data.id) {
           // console.log(data);
@@ -63,7 +63,7 @@ export default function App() {
       return (
         <Box>
           <NavBar user={user} />
-          {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} user={user} />}
+          {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} user={user} setInMeeting={setInMeeting}/>}
           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
           <TabBar mode={mode} setMode={setMode} />
