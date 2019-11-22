@@ -262,27 +262,29 @@ io.on('connection', (client) => {
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
+      // todo: figure out document saving
 
-      // db.updateMeetingById(data.meeting.id, false, 'past');
-      // io.to(data.meeting.id).emit('meetingConcluded', (data.meeting.id));
+      // data needs to be:
+      // the document -> talk to T
+      // end time (not strictly needed)
 
-      // .then((res) => {
-      //   for (let user in data.meeting.selectedUsers)
-      //     db.updateUsersMeetings
-      // })
-      //
-
+      db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
+      io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
 
-      activeMeetings.removeMeeting(data.meeting.id);
+
+      activeMeetings.removeMeeting(data.meetingId);
+
+  });
+
+    client.on('notes', (data) => {
+    console.log('attempting to write notes');
+    console.log(data.notes);
+    db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
+      .then(() => {
+        client.emit('concludedMeetingId', data.meetingId);
+      });
     });
-
-    // client.on('notes', (data) => {
-    // db.updateUsersMeetingsNotes(data.user.id, data.meeting_id, data.notes)
-    //   .then(() => {
-    //     client.emit('concludedMeetingData');
-    //   })
-    // })
 
 });
 
