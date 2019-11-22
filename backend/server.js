@@ -116,6 +116,14 @@ io.on('connection', (client) => {
       })
   });
 
+  //These lines are for testing purposes
+  client.join('theOneRoomToRuleThemAll');
+
+  client.on('addClick', data => {
+    console.log("message received");
+    console.log(data.mouse.x);
+    io.to('theOneRoomToRuleThemAll').emit('drawClick', data);//pass message along
+  })
 
 
 
@@ -141,17 +149,7 @@ io.on('connection', (client) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+  //End of test
 
 
 
@@ -231,15 +229,15 @@ io.on('connection', (client) => {
 
 
 
-          // setTimeout(() => {
-            //   console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
-            //   console.log(id);
-            //   db.fetchMeetingWithUsersById(id)
-            //   .then(res => {
-              //     console.log(res);
-              //     client.emit('test', res[0]);
-              //   });
-              // }, 400);
+        // setTimeout(() => {
+        //   console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
+        //   console.log(id);
+        //   db.fetchMeetingWithUsersById(id)
+        //   .then(res => {
+        //     console.log(res);
+        //     client.emit('test', res[0]);
+        //   });
+        // }, 400);
       })
       .then((id) => {
         db.fetchMeetingWithUsersById(id)
