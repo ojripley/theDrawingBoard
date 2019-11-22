@@ -46,16 +46,18 @@ export default function MeetingCard(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.on('meetingStarted', () => {
-        console.log(activeMeeting);
-        setActiveMeeting(true);
+      props.socket.on('meetingStarted', res => {
+        console.log(res);
+        if (props.id === res) {
+          setActiveMeeting(true);
+        }
       })
 
       return () => {
         props.socket.off('meetingStarted');
       };
     }
-  }, [props.socket, props.socketOpen, activeMeeting]);
+  }, [props.id, props.socket, props.socketOpen, activeMeeting]);
 
   return (
     <div className={classes.root}>
