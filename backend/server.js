@@ -223,9 +223,9 @@ io.on('connection', (client) => {
     client.on('enterMeeting', (data) => {
       client.emit('enteredMeeting', activeMeetings[data.meetingId]);
 
-    client.join(data.meetingId);
-    io.to(data.meetingId).emit('newParticipant', (data.user));
-  });
+      client.join(data.meetingId);
+      io.to(data.meetingId).emit('newParticipant', (data.user));
+    });
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
