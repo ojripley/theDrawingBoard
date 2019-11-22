@@ -3,7 +3,7 @@ CREATE TABLE meetings (
   id SERIAL PRIMARY KEY NOT NULL,
   owner_id INTEGER NOT NULL,
   name VARCHAR(255),
-  description text,
+  description TEXT,
   start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   status VARCHAR(255),

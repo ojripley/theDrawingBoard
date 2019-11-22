@@ -7,7 +7,7 @@ class ActiveMeeting {
   }
 
   removeMeeting(id) {
-    delete this[meeting.id];
+    delete this[id];
   }
 }
 

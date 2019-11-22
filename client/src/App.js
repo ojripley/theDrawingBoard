@@ -23,6 +23,7 @@ export default function App() {
 
   //State required for meetings (to support auto-reconnect to meetings):
   const [inMeeting, setInMeeting] = useState(false);
+  const [meetingId, setMeetingId] = useState();
   const [meetingNotes, setMeetingNotes] = useState("");
   const [user, setUser] = useState(null);
 
@@ -53,17 +54,26 @@ export default function App() {
     if (inMeeting) {
       return (
         <ActiveMeeting
+          meetingId={meetingId}
           user={user}
           socket={socket}
           socketOpen={socketOpen}
           initialNotes={meetingNotes}
+          setInMeeting={setInMeeting}
         />
       );
     } else {
       return (
         <Box>
           <NavBar user={user} />
-          {mode === DASHBOARD && <Dashboard socket={socket} socketOpen={socketOpen} user={user} />}
+          {mode === DASHBOARD &&
+            <Dashboard
+              socket={socket}
+              socketOpen={socketOpen}
+              user={user}
+              setInMeeting={setInMeeting}
+              setMeetingId={setMeetingId}
+            />}
           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
           <TabBar mode={mode} setMode={setMode} />

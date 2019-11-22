@@ -104,16 +104,24 @@ io.on('connection', (client) => {
         const authenticateAttempt = res;
 
         if (authenticateAttempt) {
-          activeUsers.addUser(authenticateAttempt.username, client)
+          console.log('id to be added:');
+          console.log(authenticateAttempt.id);
+          activeUsers.addUser(authenticateAttempt.id, client)
+          console.log('active users:');
+          for (let user in activeUsers) {
+            if (activeUsers[user].id) {
+              console.log('user:', activeUsers[user].id);
+            }
+          }
 
           client.on('disconnect', () => {
-            activeUsers.removeUser(data.username);
+            activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
           console.log('attempted login: failed');
         }
         client.emit('loginResponse', authenticateAttempt);
-      })
+      });
   });
 
   //These lines are for testing purposes
@@ -125,34 +133,7 @@ io.on('connection', (client) => {
     io.to('theOneRoomToRuleThemAll').emit('drawClick', data);//pass message along
   })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   //End of test
-
-
-
   client.on('msg', (data) => {
     console.log(data);
   });
@@ -225,25 +206,17 @@ io.on('connection', (client) => {
         return Promise.all(promiseArray).then(() => {
           return id;
         });
-
-
-
-
-        // setTimeout(() => {
-        //   console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
-        //   console.log(id);
-        //   db.fetchMeetingWithUsersById(id)
-        //   .then(res => {
-        //     console.log(res);
-        //     client.emit('test', res[0]);
-        //   });
-        // }, 400);
       })
       .then((id) => {
         db.fetchMeetingWithUsersById(id)
           .then(res => {
-            console.log(res);
-            client.emit('itWorkedThereforeIPray', res[0]);
+            console.log(res[0].attendee_ids);
+            for (let contactId of res[0].attendee_ids) {
+              if (activeUsers[contactId]) {
+                console.log(`${contactId} should now rerender`);
+                activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
+              }
+            }
           });
       })
   });
@@ -267,21 +240,39 @@ io.on('connection', (client) => {
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
+            // console.log(activeMeetings[meeting.id]);
+
+            // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
-              db.fetchUsersMeetingsByIds(id, meeting.id)
-                .then(res => { // users have been identified
-                  const user = res[0];
-                  if (activeUsers[user.username]) {
-                    const userClient = activeUsers[user.username].socket
-                    userClient.emit('meetingStarted', meeting.id);
-                  }
-                });
+              if (activeUsers[id]) {
+                const userClient = activeUsers[id].socket
+                userClient.emit('meetingStarted', meeting.id);
+              }
             }
           });
       });
   });
 
+  client.on('enterMeeting', (data) => {
+    // console.log(data.user.id);
+    // console.log(`putting user ${activeUsers[data.user.id]} into :`);
+    // console.log(activeMeetings[data.meetingId]);
+    // console.log(`the members of this meeting by id ${data.attendeeIds}`);
+    client.emit('enteredMeeting', activeMeetings[data.meetingId]);
+
+    client.join(data.meetingId);
+    io.to(data.meetingId).emit('newParticipant', (data.user));
+  });
+
   // gotta handle the end meeting event
-  // client.on('endMeeting', (data), )
+  client.on('endMeeting', (data) => {
+
+    io.to(data.meetingId).emit('meetingConcluded', (data.meetingId));
+
+
+
+    activeMeetings.removeMeeting(data.meetingId);
+  });
+
 });
 

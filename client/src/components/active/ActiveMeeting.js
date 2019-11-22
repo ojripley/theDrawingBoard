@@ -8,7 +8,7 @@ import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
+import CloseIcon from '@material-ui/icons/Close';
 
 
 const useStyles = makeStyles(theme => ({
@@ -17,6 +17,11 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     bottom: 0,
     left: 0,
+    zIndex: 3
+  },
+  endFab: {
+    margin: theme.spacing(1),
+    position: 'relative',
     zIndex: 3
   },
   extendedIcon: {
@@ -52,7 +57,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting }) {
   const [isLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes);
   const [writeMode, setWriteMode] = useState(false);
@@ -77,6 +82,20 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
     setMeetingNotes(e.target.value);
     setSaving(true);
   }
+
+  const endMeeting = () => {
+    console.log('meeting ended');
+    console.log('ID:', meetingId);
+    socket.emit('endMeeting', {meetingId: meetingId});
+  }
+
+  useEffect(() => {
+    socket.on('meetingConcluded', res => {
+      console.log('concluded', res);
+      setInMeeting(false);
+    })
+    return () => socket.off('meetingConcluded');
+  }, [socket, setInMeeting])
 
   useEffect(() => {
     console.log(debouncedNotes);
@@ -104,6 +123,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
         className={classes.fab}
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
+      </Fab>
+      <Fab
+        aria-label='end'
+        color='primary'
+        className={classes.endFab}
+        onClick={endMeeting} >
+        <CloseIcon />
       </Fab>
       {writeMode &&
         <div className={classes.center}>
