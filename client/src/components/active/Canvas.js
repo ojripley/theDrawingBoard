@@ -42,7 +42,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId }) {
 
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
@@ -142,7 +142,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     setPaint(true);
     addClick(mouseX, mouseY);
-    socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: false }, code: myCode.current });
+    socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: false }, meetingId: meetingId, code: myCode.current });
 
     // redraw();
   }
@@ -152,7 +152,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: true }, code: myCode.current });
+      socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: true }, meetingId: meetingId, code: myCode.current });
       // redraw();
     }
   }

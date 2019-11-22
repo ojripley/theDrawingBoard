@@ -123,7 +123,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         socket={socket}
         socketOpen={socketOpen}
         imageEl={myImage}
-        isLoaded={isLoaded} />
+        isLoaded={isLoaded}
+        meetingId={meetingId}
+        />
       <Fab
         aria-label='edit'
         color='secondary'
