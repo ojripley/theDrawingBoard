@@ -113,7 +113,7 @@ io.on('connection', (client) => {
           console.log('attempted login: failed');
         }
         client.emit('loginResponse', authenticateAttempt);
-      })
+      });
   });
 
 
@@ -269,6 +269,7 @@ io.on('connection', (client) => {
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
+            console.log(activeMeetings[meeting.id]);
             for (let id of attendeeIds) {
               db.fetchUsersMeetingsByIds(id, meeting.id)
                 .then(res => { // users have been identified
