@@ -172,9 +172,20 @@ io.on('connection', (client) => {
   client.on('insertMeeting', data => {
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
       .then(res => {
-        console.log(res[0]);
         client.emit('newMeeting', res[0]);
-        client.emit('test', res[0]);
+        // console.log(res[0].id);
+        return res[0].id
+      })
+      .then((id) => {
+        setTimeout(() => {
+          console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
+          console.log(id);
+          db.fetchMeetingWithUsersById(id)
+          .then(res => {
+            console.log(res);
+            client.emit('test', res[0]);
+          });
+        }, 200);
       });
   });
 
