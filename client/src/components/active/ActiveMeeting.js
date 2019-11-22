@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId }) {
   const [isLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes);
   const [writeMode, setWriteMode] = useState(false);
@@ -86,15 +86,22 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const endMeeting = () => {
     console.log('meeting ended');
     console.log('ID:', meetingId);
-    socket.emit('endMeeting', {meetingId: meetingId});
+    socket.emit('endMeeting', {meetingId: meetingId, endTime: new Date(Date.now())});
   }
 
   useEffect(() => {
-    socket.on('meetingConcluded', res => {
+    socket.on('requestNotes', res => {
       console.log('concluded', res);
+      socket.emit('notes', {user: user, meetingId: meetingId, notes: meetingNotes});
+    });
+    socket.on('concludedMeetingId', res => {
       setInMeeting(false);
+      // setMeetingId(null);
     })
-    return () => socket.off('meetingConcluded');
+    return () => {
+      socket.off('requestNotes');
+      socket.off('concludedMeetingId');
+    };
   }, [socket, setInMeeting])
 
   useEffect(() => {
@@ -124,13 +131,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
-      {ownerId === user.id && <Fab
+      <Fab
         aria-label='end'
         color='primary'
         className={classes.endFab}
         onClick={endMeeting} >
         <CloseIcon />
-      </Fab>}
+      </Fab>
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize

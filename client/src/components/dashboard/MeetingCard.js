@@ -96,6 +96,7 @@ export default function MeetingCard({
     socket.on('meetingStarted', res => {
       console.log('res', res)
       if (id === res.meetingId) {
+        console.log('changing ID', id, res.meetingId)
         setActiveMeeting(true);
         setMeetingId(id);
         setOwnerId(res.ownerId);
