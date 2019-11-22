@@ -48,6 +48,10 @@ export default function MeetingCard(props) {
     props.socket.emit('startMeeting', {id: props.id});
   };
 
+  const enterMeeting = () => {
+    props.socket.emit('enterMeeting', {userId: props.user.id, meetingId: props.id})
+  }
+
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('meetingStarted', res => {
@@ -57,9 +61,14 @@ export default function MeetingCard(props) {
         }
       })
 
-      // return () => {
-      //   props.socket.off('meetingStarted');
-      // };
+      props.socket.on('enteredMeeting', res => {
+        console.log('Meeting is: ', res);
+        props.setInMeeting(true)
+      })
+
+      return () => {
+        props.socket.off('enteredMeeting');
+      };
     }
   }, [props.id, props.socket, props.socketOpen, activeMeeting]);
 
@@ -93,7 +102,7 @@ export default function MeetingCard(props) {
             />
             : <Attendee />
           }
-          {activeMeeting && <Button variant="contained" color="primary" className={classes.button}>
+          {activeMeeting && <Button variant="contained" color="primary" className={classes.button} onClick={enterMeeting}>
             Enter Meeting
           </Button>}
         </ExpansionPanelDetails>

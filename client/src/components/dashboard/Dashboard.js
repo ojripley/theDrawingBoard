@@ -62,6 +62,7 @@ export default function Dashboard(props) {
           setExpanded={setExpanded}
           socket={props.socket}
           socketOpen={props.socketOpen}
+          setInMeeting={props.setInMeeting}
         />
       </li>
     )
