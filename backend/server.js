@@ -271,32 +271,28 @@ io.on('connection', (client) => {
             }
           });
       });
+    });
+
+    client.on('enterMeeting', (data) => {
+      console.log(data.user.id);
+      console.log(`putting user ${activeUsers[data.user.id]} into :`);
+      console.log(activeMeetings[data.meetingId]);
+      console.log(`the members of this meeting by id ${data.attendeeIds}`);
+      client.emit('enteredMeeting', activeMeetings[data.meetingId]);
+
+      client.join(data.meetingId);
+        io.to(data.meetingId).emit('newParticipant', (data.user));
+    });
+
+    // gotta handle the end meeting event
+    client.on('endMeeting', (data) => {
+
+      io.to(data.meetingId).emit('meetingConcluded', (data.meetingId));
 
 
 
-
-
-      client.on('enterMeeting', (data) => {
-        console.log(data.user.id);
-        console.log(`putting user ${activeUsers[data.user.id]} into :`);
-        console.log(activeMeetings[data.meetingId]);
-        console.log(`the members of this meeting by id ${data.attendeeIds}`);
-        client.emit('enteredMeeting', activeMeetings[data.meetingId]);
-
-        client.join(data.meetingId);
-          io.to(data.meetingId).emit('newParticipant', (data.user));
-      });
-
-      // gotta handle the end meeting event
-      client.on('endMeeting', (data) => {
-
-        io.to(data.meetingId).emit('meetingConcluded');
-
-
-
-        activeMeetings.removeMeeting(data.id);
-      });
-  });
+      activeMeetings.removeMeeting(data.meetingId);
+    });
 
 });
 
