@@ -55,13 +55,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     ctx: undefined
   });
 
-
-  // //These four are reducered:
-  // let [clickX, setClickX] = useState([]);
-  // let [clickY, setClickY] = useState([]);
-  // let [clickDrag, setClickDrag] = useState([]);
-  // let [ctx, setCtx] = useState(); //Writing screen context
-
+  const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   //State for image canvas:
   const imageCanvasRef = useRef(null);
@@ -93,11 +87,15 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     if (socketOpen) {
       // socket.emit('fetchMeetings', { username: user.username, meetingStatus: 'scheduled' });
       socket.on('drawClick', data => {
-        console.log(data.mouse.x);
-        dispatch({ type: SET_X, payload: data.mouse.x });
-        dispatch({ type: SET_Y, payload: data.mouse.y });
-        dispatch({ type: SET_DRAG, payload: data.mouse.dragging });
-        dispatch({ type: REDRAW });
+        // console.log(data.mouse.x);
+        console.log(user);
+        console.log(data.code);
+        if (myCode.current !== data.code) {
+          dispatch({ type: SET_X, payload: data.mouse.x });
+          dispatch({ type: SET_Y, payload: data.mouse.y });
+          dispatch({ type: SET_DRAG, payload: data.mouse.dragging });
+          dispatch({ type: REDRAW });
+        }
       });
       console.log('done setting up the on')
       return () => {
@@ -132,15 +130,10 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
-    // setClickX([...clickX, x]);
-    // setClickY([...clickY, y]);
-    // setClickDrag([...clickDrag, dragging]);
-    // redraw();
-    // setImageCtx(prev => { //Move this to on save (meeting end. )
-    //   prev = imageCanvasRef.current.getContext('2d')
-    //   prev.drawImage(drawCanvasRef.current, 0, 0, window.innerWidth, window.innerHeight);
-    // });
-
+    dispatch({ type: SET_X, payload: x });
+    dispatch({ type: SET_Y, payload: y });
+    dispatch({ type: SET_DRAG, payload: dragging });
+    dispatch({ type: REDRAW });
   };
 
 
@@ -149,7 +142,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     setPaint(true);
     addClick(mouseX, mouseY);
-    socket.emit('addClick', { username: user.username, mouse: { x: mouseX, y: mouseY, dragging: false } });
+    socket.emit('addClick', { user, mouse: { x: mouseX, y: mouseY, dragging: false }, code: myCode.current });
 
     // redraw();
   }
@@ -159,7 +152,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      socket.emit('addClick', { username: user.username, mouse: { x: mouseX, y: mouseY, dragging: true } });
+      socket.emit('addClick', { user, mouse: { x: mouseX, y: mouseY, dragging: true }, code: myCode.current });
       // redraw();
     }
   }
