@@ -64,7 +64,7 @@ export default function MeetingCard({
   };
 
   const enterMeeting = () => {
-    socket.emit('enterMeeting', {userId: user.id, meetingId: id, attendeeIds: attendeeIds})
+    socket.emit('enterMeeting', {user: user, meetingId: id, attendeeIds: attendeeIds})
   }
 
   useEffect(() => {
