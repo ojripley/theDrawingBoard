@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -59,7 +59,7 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.user === props.owner ? <Owner id={props.id} socket={props.socket} /> : <Attendee />}
+          {props.user === props.owner ? <Owner id={props.id} socket={props.socket} handleMeetings={props.handleMeetings}/> : <Attendee />}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>

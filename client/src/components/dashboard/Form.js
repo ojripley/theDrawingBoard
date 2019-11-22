@@ -77,7 +77,21 @@ export default function Form(props) {
 
   const [contacts, setContacts] = useState([]);
 
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.emit('fetchContactsByUserId', {id: props.user.id});
+      props.socket.on('contactsByUserId', data => {
+        console.log(data)
+        setContacts(data);
+      })
+      return () => {
+        props.socket.off('contactsByUserId');
+      };
+    }
+  }, [props.socketOpen, props.socket, props.user.id])
+
   const handleContactChange = event => {
+    console.log('selected contacts', event.target.value)
     props.setSelectedContacts(event.target.value);
   };
 
@@ -93,16 +107,13 @@ export default function Form(props) {
     props.setMeetingDesc(event.target.value);
   }
 
-  useEffect(() => {
-    if (props.socketOpen) {
-      props.socket.emit('fetchContactsByUserId', {id: props.user.id});
-      props.socket.on('contactsByUserId', data => {
-        console.log(data)
-        setContacts(data);
-      })
-      return () => props.socket.off('contactsByUserId');
-    }
-  }, [props.socket, props.socketOpen, props.user]);
+  const contactsList = contacts.map(contact => {
+    return (
+      <MenuItem key={contact.id} value={contact} style={getStyles(contact.username, props.selectedContacts, theme)}>
+        {contact.username}
+      </MenuItem>
+    )
+  });
 
   return (
     <Box className={classes.container} noValidate autoComplete="off">
@@ -160,19 +171,15 @@ export default function Form(props) {
             onChange={handleContactChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
-              <div className={classes.chips}>
-                {selected.map(value => (
-                  <Chip key={value.id} label={value.username} className={classes.chip} />
-                ))}
-              </div>
-            )}
+                <div className={classes.chips}>
+                  {selected.map(value => (
+                    <Chip key={value.id} label={value.username} className={classes.chip} />
+                  ))}
+                </div>
+              )}
             MenuProps={MenuProps}
           >
-            {contacts.map(contact => (
-              <MenuItem key={contact.id} value={contact} style={getStyles(contact.username, props.selectedContacts, theme)}>
-                {contact.username}
-              </MenuItem>
-            ))}
+            {contactsList}
           </Select>
         </FormControl>
       </div>
