@@ -53,9 +53,9 @@ export default function MeetingCard(props) {
         }
       })
 
-      return () => {
-        props.socket.off('meetingStarted');
-      };
+      // return () => {
+      //   props.socket.off('meetingStarted');
+      // };
     }
   }, [props.id, props.socket, props.socketOpen, activeMeeting]);
 
