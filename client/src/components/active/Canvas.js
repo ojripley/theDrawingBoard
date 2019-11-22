@@ -36,7 +36,7 @@ export default function Canvas({ ctx, setCtx, imageEl, isLoaded }) {
     setClickY([...clickY, y]);
     setClickDrag([...clickDrag, dragging]);
 
-    setImageCtx(prev => { //adds the click to the image canvas
+    setImageCtx(prev => { //Move this to on save (meeting end. )
       prev = imageCanvasRef.current.getContext('2d')
       prev.drawImage(drawCanvasRef.current, 0, 0, window.innerWidth, window.innerHeight);
     });
