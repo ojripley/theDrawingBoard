@@ -27,7 +27,7 @@ export default function Dashboard(props) {
 
       props.socket.on('test', data => {
         console.log('newmeeting', data);
-        setMeetings(prev => [...prev, {...data, owner_username: currentUser.username, invited_users: []}]);
+        setMeetings(prev => [...prev, data]);
       });
 
       return () => {
