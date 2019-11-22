@@ -49,13 +49,12 @@ export default function MeetingCard(props) {
   };
 
   const enterMeeting = () => {
-    props.socket.emit('enterMeeting', {userId: props.user.id, meetingId: props.id})
+    props.socket.emit('enterMeeting', {userId: props.user.id, meetingId: props.id, attendeeIds: props.attendeeIds})
   }
 
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('meetingStarted', res => {
-        console.log(res);
         if (props.id === res) {
           setActiveMeeting(true);
         }
@@ -70,7 +69,7 @@ export default function MeetingCard(props) {
         props.socket.off('enteredMeeting');
       };
     }
-  }, [props.id, props.socket, props.socketOpen, activeMeeting]);
+  }, [props.id, props.socket, props.socketOpen, props.setInMeeting, activeMeeting]);
 
   return (
     <div className={classes.root}>
@@ -93,7 +92,7 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.user === props.owner ?
+          {props.user.username === props.owner ?
             <Owner
               id={props.id}
               socket={props.socket}

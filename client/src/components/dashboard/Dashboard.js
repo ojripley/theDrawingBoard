@@ -46,7 +46,6 @@ export default function Dashboard(props) {
   // };
 
   const list = meetings.map(meeting => {
-
     return (
       <li className='meeting-list-item' key={meeting.id}>
         <MeetingCard
@@ -55,9 +54,10 @@ export default function Dashboard(props) {
           name={meeting.name}
           owner={meeting.owner_username}
           attendees={meeting.invited_users}
+          attendeeIds={meeting.attendee_ids}
           description={meeting.description}
           active={meeting.active}
-          user={currentUser.username}
+          user={currentUser}
           expanded={expanded}
           setExpanded={setExpanded}
           socket={props.socket}
