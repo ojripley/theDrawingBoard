@@ -98,7 +98,7 @@ io.on('connection', (client) => {
 
   client.on('addClick', data => {
     console.log("message received");
-    console.log(data.mouse.x);
+    console.log(data.pixel.x);
     io.to('theOneRoomToRuleThemAll').emit('drawClick', data);//pass message along
   })
 
