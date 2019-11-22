@@ -39,7 +39,7 @@ export default function Dashboard(props) {
         props.socket.off('test');
       };
     }
-  }, [props.socket, props.socketOpen]);
+  }, [props.socket, props.socketOpen, currentUser.username]);
 
   // const startMeeting = () => {
   //   props.socket.emit('startMeeting', {id: props.id});
