@@ -109,7 +109,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     socket.emit('saveNotes', { user, note: debouncedNotes });
     // socket.on('receiveOkay') //can have a socket on when received
     setSaving(false);
-  }, [socket, debouncedNotes])
+  }, [socket, debouncedNotes, user])
 
 
   let myImage = new Image();

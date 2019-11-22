@@ -93,7 +93,7 @@ export default function MeetingCard({
         socket.off('enteredMeeting');
       };
     }
-  }, [socket, socketOpen, setInMeeting]);
+  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId]);
 
   useEffect(() => {
     socket.on('meetingStarted', res => {
