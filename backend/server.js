@@ -1,3 +1,19 @@
+
+//          ####   ######   ######   #   #   #####
+//         #       #         #      #   #   #   #
+//          ###    #####      #      #   #   ####
+//             #   #          #      #   #   #
+//         ####    ######     #       ###    #
+//
+//
+//
+//
+//
+//
+//
+
+
+
 // load .env data into process.env
 require('dotenv').config();
 
@@ -45,53 +61,6 @@ app.get("/", (req, res) => {
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 io.on('connection', (client) => {
   console.log('new client has connected');
@@ -179,8 +148,6 @@ io.on('connection', (client) => {
       ...data
     };
 
-    // if (authenticator.registerUser(credentials))
-
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
         client.emit('loginAttempt', credentials.username);
@@ -246,7 +213,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId:meeting.owner_id});
+                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId: meeting.owner_id});
               }
             }
           });
@@ -256,9 +223,9 @@ io.on('connection', (client) => {
     client.on('enterMeeting', (data) => {
       client.emit('enteredMeeting', activeMeetings[data.meetingId]);
 
-    client.join(data.meetingId);
-    io.to(data.meetingId).emit('newParticipant', (data.user));
-  });
+      client.join(data.meetingId);
+      io.to(data.meetingId).emit('newParticipant', (data.user));
+    });
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {

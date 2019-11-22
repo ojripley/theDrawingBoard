@@ -88,14 +88,20 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     if (socketOpen) {
       // socket.emit('fetchMeetings', { username: user.username, meetingStatus: 'scheduled' });
       socket.on('drawClick', data => {
-        // console.log(data.mouse.x);
+        // console.log(data.pixel.x);
         console.log(user);
         console.log(data.code);
         if (myCode.current !== data.code) {
+          dispatch({ type: SET_X, payload: data.pixel.x });
+          dispatch({ type: SET_Y, payload: data.pixel.y });
+          dispatch({ type: SET_DRAG, payload: data.pixel.dragging });
+          dispatch({ type: REDRAW });
+          /*
           dispatch({ type: SET_X, payload: { user: myCode, x: data.mouse.x } });
           dispatch({ type: SET_Y, payload: { user: myCode, y: data.mouse.y } });
           dispatch({ type: SET_DRAG, payload: { user: myCode, drag: data.mouse.dragging } });
-          dispatch({ type: REDRAW });
+
+          */
         }
       });
       console.log('done setting up the on')
@@ -143,7 +149,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     setPaint(true);
     addClick(mouseX, mouseY);
-    socket.emit('addClick', { user, mouse: { x: mouseX, y: mouseY, dragging: false }, code: myCode.current });
+    socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: false }, code: myCode.current });
 
     // redraw();
   }
@@ -153,7 +159,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      socket.emit('addClick', { user, mouse: { x: mouseX, y: mouseY, dragging: true }, code: myCode.current });
+      socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: true }, code: myCode.current });
       // redraw();
     }
   }
