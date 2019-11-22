@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import theImage from './tmp.jpg';
 import Canvas from './Canvas';
-import ImageCanvas from './Image';
 import useDebounce from '../../hooks/useDebounce';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -69,7 +68,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
   useEffect(() => {
     if (socketOpen) {
       socket.emit(
-        'GETIMAGE', data => { //Will get the image to be shown in background ?
+        'retrieveImage', data => { //Will get the image to be shown in background ?
           console.log(data);
         });
     }
@@ -78,7 +77,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
   const handleInput = (e) => {
     setMeetingNotes(e.target.value);
     setSaving(true);
-    //These line is temporary:
   }
 
   useEffect(() => {
@@ -91,22 +89,23 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user }
 
   let myImage = new Image();
   myImage.onload = () => { setLoaded(true) };
-  myImage.src = theImage;
+  myImage.src = theImage; //pull this from socket
 
   return (
     <>
-      <div id='canvas-container'>
-        <ImageCanvas myImage={myImage} isLoaded={isLoaded} useRef={backgroundCanvas} />
-        <Canvas imgCanvas={backgroundCanvas} ctx={ctx} setCtx={setCtx} />
-        <Fab
-          aria-label='edit'
-          color='secondary'
-          className={classes.fab}
-          onClick={() => setWriteMode(prev => !prev)} >
-          <EditIcon />
-        </Fab>
-      </div>
-
+      <Canvas
+        imageEl={myImage}
+        isLoaded={isLoaded}
+        imgCanvas={backgroundCanvas}
+        ctx={ctx}
+        setCtx={setCtx} />
+      <Fab
+        aria-label='edit'
+        color='secondary'
+        className={classes.fab}
+        onClick={() => setWriteMode(prev => !prev)} >
+        <EditIcon />
+      </Fab>
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
