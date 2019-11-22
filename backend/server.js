@@ -46,53 +46,6 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
