@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId }) {
   const [isLoaded, setLoaded] = useState(false);
-  const [meetingNotes, setMeetingNotes] = useState(initialNotes);
+  const [meetingNotes, setMeetingNotes] = useState('');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
@@ -79,6 +79,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, socketOpen]);
 
   const handleInput = (e) => {
+    console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
   }
@@ -91,18 +92,17 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   useEffect(() => {
     socket.on('requestNotes', res => {
-      console.log('concluded', res);
       socket.emit('notes', {user: user, meetingId: meetingId, notes: meetingNotes});
     });
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
-      // setMeetingId(null);
+      setMeetingId(null);
     })
     return () => {
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
     };
-  }, [socket, setInMeeting])
+  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user])
 
   useEffect(() => {
     console.log(debouncedNotes);

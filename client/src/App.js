@@ -30,7 +30,7 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      socket.emit('loginAttempt', { email: 'oj@mail.com', password: 'p' });
+      socket.emit('loginAttempt', { email: 'tc@mail.com', password: 'p' });
       socket.on('loginResponse', (data) => {
         if (data.id) {
           // console.log(data);
