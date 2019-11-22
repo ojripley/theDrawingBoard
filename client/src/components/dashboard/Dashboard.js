@@ -13,28 +13,37 @@ export default function Dashboard(props) {
   const [meetings, setMeetings] = useState([]);
   const [expanded, setExpanded] = useState(false);
 
-  const handleMeetings = () => {
-    props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
-    props.socket.on('meetings', data => {
-      console.log(data)
-      setMeetings(data)
-    });
-  };
+  // const handleMeetings = () => {
+
+  // };
 
   useEffect(() => {
     if (props.socketOpen) {
-      handleMeetings();
-      return () => props.socket.off('meetings');
+      props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
+      props.socket.on('meetings', data => {
+        console.log('handling')
+        setMeetings(data)
+      });
+
+      props.socket.on('test', data => {
+        console.log('newmeeting', data);
+        setMeetings(prev => [...prev, data]);
+      });
+
+      // props.socket.on('meetingStarted', () => {
+
+      // })
+
+      return () => {
+        props.socket.off('meetings');
+        props.socket.off('test');
+      };
     }
   }, [props.socket, props.socketOpen]);
 
-  useEffect(() => {
-    props.socket.on('invitedUsers', () => {
-      handleMeetings();
-    });
-    return () => props.socket.off('invitedUsers');
-  })
-
+  // const startMeeting = () => {
+  //   props.socket.emit('startMeeting', {id: props.id});
+  // };
 
   const list = meetings.map(meeting => {
 
@@ -47,9 +56,12 @@ export default function Dashboard(props) {
           owner={meeting.owner_username}
           attendees={meeting.invited_users}
           description={meeting.description}
+          active={meeting.active}
           user={currentUser.username}
           expanded={expanded}
           setExpanded={setExpanded}
+          socket={props.socket}
+          socketOpen={props.socketOpen}
         />
       </li>
     )

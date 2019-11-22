@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -15,13 +15,28 @@ export default function FormDialog(props) {
   const [meetingName, setMeetingName] = useState('');
   const [meetingDesc, setMeetingDesc] = useState('');
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  // const handleClickOpen = () => {
+  //   setOpen(true);
+  // };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
+
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.on('newMeeting', res => {
+        props.socket.emit('insertUsersMeeting', { userId: props.user.id, meetingId: res.id})
+        for (let contact of selectedContacts) {
+          props.socket.emit('insertUsersMeeting', { userId: contact.id, meetingId: res.id})
+        }
+        setSelectedContacts([]);
+      });
+      return () => {
+        props.socket.off('newMeeting');
+      };
+    }
+  }, [props.socketOpen, props.socket, props.user.id, selectedContacts, setSelectedContacts]);
 
   const handleSubmit = () => {
     props.socket.emit('insertMeeting', {
@@ -31,27 +46,23 @@ export default function FormDialog(props) {
       description: meetingDesc,
       status: 'scheduled',
       linkToInitialDoc: null
-    })
-    props.socket.on('newMeeting', res => {
-      props.socket.emit('insertUsersMeeting', { userId: props.user.id, meetingId: res[0].id})
-      for (let contact of selectedContacts) {
-        props.socket.emit('insertUsersMeeting', { userId: contact.id, meetingId: res[0].id})
-      }
-    })
-  }
+    });
+
+    setOpen(false);
+  };
 
   return (
     <div>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+      <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
         Create New Meeting
       </Button>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">New Meeting</DialogTitle>
         <DialogContent>
           <Form
             socket={props.socket}
             socketOpen={props.socketOpen}
-            user={props.user.id}
+            user={props.user}
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             selectedContacts={selectedContacts}
@@ -63,14 +74,11 @@ export default function FormDialog(props) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={() => setOpen(false)} color="primary">
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              handleSubmit();
-              handleClose();
-            }}
+            onClick={handleSubmit}
             color="primary"
           >
             Submit

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -22,19 +22,44 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(15),
     color: theme.palette.text.secondary,
   },
+  active: {
+    backgroundColor: 'orange'
+  },
+  scheduled: {
+    backgroundColor: 'white'
+  }
 }));
 
 export default function MeetingCard(props) {
 
   const classes = useStyles();
 
+  const [activeMeeting, setActiveMeeting] = useState(props.active);
+
   const handleChange = panel => (event, isExpanded) => {
     props.setExpanded(isExpanded ? panel : false);
   };
 
+  const startMeeting = () => {
+    props.socket.emit('startMeeting', {id: props.id});
+  };
+
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.on('meetingStarted', () => {
+        console.log(activeMeeting);
+        setActiveMeeting(true);
+      })
+
+      return () => {
+        props.socket.off('meetingStarted');
+      };
+    }
+  }, [props.socket, props.socketOpen, activeMeeting]);
+
   return (
     <div className={classes.root}>
-      <ExpansionPanel expanded={props.expanded === `panel${props.id}`} onChange={handleChange(`panel${props.id}`)}>
+      <ExpansionPanel className={activeMeeting ? classes.active : classes.scheduled} expanded={props.expanded === `panel${props.id}`} onChange={handleChange(`panel${props.id}`)}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls={`panel${props.id}bh-content`}
@@ -53,7 +78,7 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.user === props.owner ? <Owner /> : <Attendee />}
+          {props.user === props.owner ? <Owner id={props.id} socket={props.socket} startMeeting={startMeeting}/> : <Attendee />}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>
