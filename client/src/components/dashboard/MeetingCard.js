@@ -34,68 +34,83 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function MeetingCard(props) {
+export default function MeetingCard({
+  id,
+  startTime,
+  name,
+  owner,
+  attendees,
+  attendeeIds,
+  description,
+  active,
+  user,
+  expanded,
+  setExpanded,
+  socket,
+  socketOpen,
+  setInMeeting
+}) {
 
   const classes = useStyles();
 
-  const [activeMeeting, setActiveMeeting] = useState(props.active);
+  const [activeMeeting, setActiveMeeting] = useState(active);
 
   const handleChange = panel => (event, isExpanded) => {
-    props.setExpanded(isExpanded ? panel : false);
+    setExpanded(isExpanded ? panel : false);
   };
 
   const startMeeting = () => {
-    props.socket.emit('startMeeting', {id: props.id});
+    socket.emit('startMeeting', {id: id});
   };
 
   const enterMeeting = () => {
-    props.socket.emit('enterMeeting', {userId: props.user.id, meetingId: props.id, attendeeIds: props.attendeeIds})
+    socket.emit('enterMeeting', {userId: user.id, meetingId: id, attendeeIds: attendeeIds})
   }
 
   useEffect(() => {
-    if (props.socketOpen) {
-      props.socket.on('meetingStarted', res => {
-        if (props.id === res) {
+    if (socketOpen) {
+      socket.on('meetingStarted', res => {
+        if (id === res) {
           setActiveMeeting(true);
         }
       })
 
-      props.socket.on('enteredMeeting', res => {
+      socket.on('enteredMeeting', res => {
         console.log('Meeting is: ', res);
-        props.setInMeeting(true)
+        setInMeeting(true)
       })
 
       return () => {
-        props.socket.off('enteredMeeting');
+        socket.off('enteredMeeting');
       };
     }
-  }, [props.id, props.socket, props.socketOpen, props.setInMeeting, activeMeeting]);
+  }, [id, socket, socketOpen, setInMeeting, activeMeeting]);
 
   return (
     <div className={classes.root}>
-      <ExpansionPanel className={activeMeeting ? classes.active : classes.scheduled} expanded={props.expanded === `panel${props.id}`} onChange={handleChange(`panel${props.id}`)}>
+      <ExpansionPanel className={activeMeeting ? classes.active : classes.scheduled} expanded={expanded === `panel${id}`} onChange={handleChange(`panel${id}`)}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
-          aria-controls={`panel${props.id}bh-content`}
-          id={`panel${props.id}bh-header`}
+          aria-controls={`panel${id}bh-content`}
+          id={`panel${id}bh-header`}
         >
-          <Typography className={classes.heading}>{props.startTime}</Typography>
-          <Typography className={classes.secondaryHeading}>{props.name}</Typography>
-          <Typography variant="body2" component="p">{props.owner}</Typography>
-          <Typography variant="body2" component="p">{props.attendees.length} Attendees</Typography>
+          <Typography className={classes.heading}>{startTime}</Typography>
+          <Typography className={classes.secondaryHeading}>{name}</Typography>
+          <Typography variant="body2" component="p">{owner}</Typography>
+          <Typography variant="body2" component="p">{attendees.length} Attendees</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Typography variant="body2" component="p">
-            Description: {props.description}
+            Description: {description}
           </Typography>
           <Typography variant="body2" component="p">Attendees</Typography>
             <ul>
-              {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
+              {attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.user.username === props.owner ?
+          {user.username === owner ?
             <Owner
-              id={props.id}
-              socket={props.socket}
+              id={id}
+              socket={socket}
               startMeeting={startMeeting}
               activeMeeting={activeMeeting}
             />
