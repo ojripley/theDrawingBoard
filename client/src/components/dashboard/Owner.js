@@ -15,16 +15,16 @@ export default function Owner(props) {
   const classes = useStyles();
 
   const onDestroy = () => {
-    props.socket.emit('removeMeeting', {id: props.id})
+    console.log('destroy');
   };
 
   const onEdit = () => {
     console.log('edit')
   };
 
-  const startMeeting = () => {
-    props.socket.emit('startMeeting', {id: props.id});
-  };
+  // const startMeeting = () => {
+  //   props.socket.emit('startMeeting', {id: props.id});
+  // };
 
   return (
     <div>
@@ -32,7 +32,7 @@ export default function Owner(props) {
         variant="contained"
         color="secondary"
         className={classes.button}
-        onClick={startMeeting}
+        onClick={props.startMeeting}
       >
         Start Meeting
       </Button>

@@ -30,12 +30,20 @@ export default function Dashboard(props) {
         setMeetings(prev => [...prev, data]);
       });
 
+      // props.socket.on('meetingStarted', () => {
+
+      // })
+
       return () => {
         props.socket.off('meetings');
         props.socket.off('test');
       };
     }
   }, [props.socket, props.socketOpen]);
+
+  // const startMeeting = () => {
+  //   props.socket.emit('startMeeting', {id: props.id});
+  // };
 
   const list = meetings.map(meeting => {
 
@@ -53,6 +61,7 @@ export default function Dashboard(props) {
           expanded={expanded}
           setExpanded={setExpanded}
           socket={props.socket}
+          socketOpen={props.socketOpen}
         />
       </li>
     )
