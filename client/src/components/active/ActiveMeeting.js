@@ -57,14 +57,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId }) {
   const [isLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes);
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
-  const backgroundCanvas = useRef(null);
-  const [ctx, setCtx] = useState(); //Writing screen context
+  // const backgroundCanvas = useRef(null);
 
 
   const classes = useStyles();
@@ -113,11 +112,11 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   return (
     <>
       <Canvas
+        user={user}
+        socket={socket}
+        socketOpen={socketOpen}
         imageEl={myImage}
-        isLoaded={isLoaded}
-        imgCanvas={backgroundCanvas}
-        ctx={ctx}
-        setCtx={setCtx} />
+        isLoaded={isLoaded} />
       <Fab
         aria-label='edit'
         color='secondary'
@@ -125,13 +124,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
-      <Fab
+      {ownerId === user.id && <Fab
         aria-label='end'
         color='primary'
         className={classes.endFab}
         onClick={endMeeting} >
         <CloseIcon />
-      </Fab>
+      </Fab>}
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
