@@ -107,6 +107,26 @@ const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
     .catch(error => {
       console.error('Query Error', error);
     });
+};
+
+const fetchMeetingWithUsersById = function(meeting_id) {
+  const vars = [meeting_id];
+
+  return db.query(`
+    SELECT start_time, end_time, name, description, active, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users FROM meetings
+    JOIN users_meetings ON users_meetings.meeting_id = meetings.id
+    JOIN users ON users.id = users_meetings.user_id
+    WHERE meetings.id = $1
+    GROUP BY meetings.id, users_meetings.notes;
+  `, vars)
+    .then(res => {
+      if (res.rows) {
+      }
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
 }
 
 const insertUser = function (username, email, password) {
@@ -132,7 +152,7 @@ const insertMeeting = function (start_time, owner_id, name, description, status,
   return db.query(`
     INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_doc)
     VALUES($1, $2, $3, $4, $5, $6)
-    RETURNING id;
+    RETURNING *;
   `, vars)
     .then(res => {
       return res.rows;
@@ -239,4 +259,4 @@ const updateMeetingActiveState = function(meeting_id, status) {
     });
 }
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes, updateMeetingActiveState };
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes, updateMeetingActiveState };
