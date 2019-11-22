@@ -6,11 +6,6 @@ class Authenticator {
   authenticate(email, password) {
     return db.fetchUserByEmail(email)
       .then(user => {
-
-        console.log(password);
-
-        console.log(user[0]);
-
         if (user && bcrypt.compareSync(password, user[0].password)) {
           console.log('login attempt: success');
           return {

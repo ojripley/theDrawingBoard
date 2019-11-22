@@ -104,10 +104,10 @@ io.on('connection', (client) => {
         const authenticateAttempt = res;
 
         if (authenticateAttempt) {
-          activeUsers.addUser(authenticateAttempt.username, client)
+          activeUsers.addUser(authenticateAttempt.id, client)
 
           client.on('disconnect', () => {
-            activeUsers.removeUser(data.username);
+            activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
           console.log('attempted login: failed');
@@ -270,12 +270,14 @@ io.on('connection', (client) => {
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
             console.log(activeMeetings[meeting.id]);
+
+            // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
               db.fetchUsersMeetingsByIds(id, meeting.id)
                 .then(res => { // users have been identified
                   const user = res[0];
-                  if (activeUsers[user.username]) {
-                    const userClient = activeUsers[user.username].socket
+                  if (activeUsers[id]) {
+                    const userClient = activeUsers[id].socket
                     userClient.emit('meetingStarted', meeting.id);
                   }
                 });

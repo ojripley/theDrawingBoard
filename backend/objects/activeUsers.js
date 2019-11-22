@@ -6,12 +6,12 @@ class ActiveUsers {
   // -- -- -- -- -- -- //
   // methods           //
 
-  addUser(username, client) {
-    this[username] = {username: username, socket: client};
+  addUser(id, client) {
+    this[id] = {id: id, socket: client};
   }
 
-  removeUser(username) {
-    delete this[username];
+  removeUser(id) {
+    delete this[id];
   }
 };
 
