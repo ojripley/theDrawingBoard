@@ -227,15 +227,6 @@ io.on('connection', (client) => {
         return Promise.all(promiseArray).then(() => {
           return id;
         });
-          // setTimeout(() => {
-            //   console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
-            //   console.log(id);
-            //   db.fetchMeetingWithUsersById(id)
-            //   .then(res => {
-              //     console.log(res);
-              //     client.emit('test', res[0]);
-              //   });
-              // }, 400);
       })
       .then((id) => {
         db.fetchMeetingWithUsersById(id)
@@ -280,22 +271,32 @@ io.on('connection', (client) => {
             }
           });
       });
+
+
+
+
+
+      client.on('enterMeeting', (data) => {
+        console.log(data.user.id);
+        console.log(`putting user ${activeUsers[data.user.id]} into :`);
+        console.log(activeMeetings[data.meetingId]);
+        console.log(`the members of this meeting by id ${data.attendeeIds}`);
+        client.emit('enteredMeeting', activeMeetings[data.meetingId]);
+
+        client.join(data.meetingId);
+          io.to(data.meetingId).emit('newParticipant', (data.user));
+      });
+
+      // gotta handle the end meeting event
+      client.on('endMeeting', (data) => {
+
+        io.to(data.meetingId).emit('meetingConcluded');
+
+
+
+        activeMeetings.removeMeeting(data.id);
+      });
   });
 
-  client.on('enterMeeting', (data) => {
-    console.log(data.userId);
-    console.log(`putting user ${activeUsers[data.userId]} into :`);
-    console.log(activeMeetings[data.meetingId]);
-    console.log(`the members of this meeting by id ${data.attendeeIds}`);
-    client.emit('enteredMeeting', activeMeetings[data.meetingId]);
-
-
-  });
-
-  // gotta handle the end meeting event
-  client.on('endMeeting', (data) => {
-
-    activeMeetings.removeMeeting(data.id);
-  })
 });
 
