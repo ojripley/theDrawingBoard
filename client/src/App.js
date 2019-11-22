@@ -23,13 +23,13 @@ export default function App() {
 
   //State required for meetings (to support auto-reconnect to meetings):
   const [inMeeting, setInMeeting] = useState(false);
-  const [meetingId, setMeetingId] = useState();
+  const [meetingId, setMeetingId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (socketOpen) {
-      socket.emit('loginAttempt', { email: 'tc@mail.com', password: 'p' });
+      socket.emit('loginAttempt', { email: 'ta@mail.com', password: 'p' });
       socket.on('loginResponse', (data) => {
         if (data.id) {
           // console.log(data);
