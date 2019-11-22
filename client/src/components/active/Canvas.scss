@@ -1,4 +1,9 @@
-#canvas {
+// #canvas-container { //Use to center image and contain it when screen size changes
+//   position: relative;
+//   height: 80%;
+// }
+
+#drawCanvas {
   position: relative;
   width: 100%;
   height: 100%;
@@ -6,4 +11,13 @@
   left: 0;
   background: transparent;
   z-index: 2;
+}
+
+#image {
+  position: absolute;
+  // top: 0;
+  // left: 0;
+  z-index: 1;
+  // height: 100%;
+  // width: 100%;
 }
