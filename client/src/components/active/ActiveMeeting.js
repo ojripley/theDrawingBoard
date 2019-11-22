@@ -63,8 +63,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
-  const backgroundCanvas = useRef(null);
-  const [ctx, setCtx] = useState(); //Writing screen context
+  // const backgroundCanvas = useRef(null);
 
 
   const classes = useStyles();
@@ -113,11 +112,11 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   return (
     <>
       <Canvas
+        user={user}
+        socket={socket}
+        socketOpen={socketOpen}
         imageEl={myImage}
-        isLoaded={isLoaded}
-        imgCanvas={backgroundCanvas}
-        ctx={ctx}
-        setCtx={setCtx} />
+        isLoaded={isLoaded} />
       <Fab
         aria-label='edit'
         color='secondary'

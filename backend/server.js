@@ -124,45 +124,16 @@ io.on('connection', (client) => {
       });
   });
 
+  //These lines are for testing purposes
+  client.join('theOneRoomToRuleThemAll');
 
+  client.on('addClick', data => {
+    console.log("message received");
+    console.log(data.mouse.x);
+    io.to('theOneRoomToRuleThemAll').emit('drawClick', data);//pass message along
+  })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  //End of test
   client.on('msg', (data) => {
     console.log(data);
   });
@@ -240,7 +211,7 @@ io.on('connection', (client) => {
         db.fetchMeetingWithUsersById(id)
           .then(res => {
             console.log(res[0].attendee_ids);
-            for (let contactId of res[0].attendee_ids){
+            for (let contactId of res[0].attendee_ids) {
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
@@ -280,28 +251,28 @@ io.on('connection', (client) => {
             }
           });
       });
-    });
+  });
 
-    client.on('enterMeeting', (data) => {
-      // console.log(data.user.id);
-      // console.log(`putting user ${activeUsers[data.user.id]} into :`);
-      // console.log(activeMeetings[data.meetingId]);
-      // console.log(`the members of this meeting by id ${data.attendeeIds}`);
-      client.emit('enteredMeeting', activeMeetings[data.meetingId]);
+  client.on('enterMeeting', (data) => {
+    // console.log(data.user.id);
+    // console.log(`putting user ${activeUsers[data.user.id]} into :`);
+    // console.log(activeMeetings[data.meetingId]);
+    // console.log(`the members of this meeting by id ${data.attendeeIds}`);
+    client.emit('enteredMeeting', activeMeetings[data.meetingId]);
 
-      client.join(data.meetingId);
-        io.to(data.meetingId).emit('newParticipant', (data.user));
-    });
+    client.join(data.meetingId);
+    io.to(data.meetingId).emit('newParticipant', (data.user));
+  });
 
-    // gotta handle the end meeting event
-    client.on('endMeeting', (data) => {
+  // gotta handle the end meeting event
+  client.on('endMeeting', (data) => {
 
-      io.to(data.meetingId).emit('meetingConcluded', (data.meetingId));
+    io.to(data.meetingId).emit('meetingConcluded', (data.meetingId));
 
 
 
-      activeMeetings.removeMeeting(data.meetingId);
-    });
+    activeMeetings.removeMeeting(data.meetingId);
+  });
 
 });
 
