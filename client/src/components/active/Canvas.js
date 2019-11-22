@@ -5,21 +5,41 @@ const SET_X = "SET_X";
 const SET_Y = "SET_Y";
 const SET_DRAG = "SET_DRAG";
 const SET_CTX = "SET_CTX";
+const REDRAW = "REDRAW";
 
 function reducer(state, action) {
   switch (action.type) {
     case SET_X:
-      return { count: state.count + 1 };
+      return { ...state, clickX: [...state.clickX, action.payload] };
     case SET_Y:
-      return { count: state.count - 1 };
+      return { ...state, clickY: [...state.clickY, action.payload] };
     case SET_DRAG:
-      return { count: state.count - 1 };
+      return { ...state, clickDrag: [...state.clickDrag, action.payload] };
     case SET_CTX:
-      return { count: state.count - 1 };
+      return { ...state, ctx: action.payload };
+    case REDRAW: {
+      console.log(state.clickX)
+      state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
+      state.ctx.lineJoin = "round";
+      state.ctx.lineWidth = 2;
+      state.ctx.strokeStyle = '#00000';
+
+      for (let i = 0; i < state.clickX.length; i++) {
+        state.ctx.beginPath();
+        if (state.clickDrag[i] && i) {
+          state.ctx.moveTo(state.clickX[i - 1], state.clickY[i - 1]);
+        } else {
+          state.ctx.moveTo(state.clickX[i] - 1, state.clickY[i]);
+        }
+        state.ctx.lineTo(state.clickX[i], state.clickY[i]);
+        state.ctx.closePath();
+        state.ctx.stroke();
+      }
+      return { ...state };
+    }
     default:
       throw new Error();
   }
-
 }
 
 export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) {
@@ -28,19 +48,19 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
   const drawCanvasRef = useRef(null);
   let [paint, setPaint] = useState(false);
 
-  // const [drawingState, dispatch] = useReducer({
-  //   clickX: [],
-  //   clickY: [],
-  //   clickDrag: [],
-  //   ctx: undefined
-  // });
+  const [drawingState, dispatch] = useReducer(reducer, {
+    clickX: [],
+    clickY: [],
+    clickDrag: [],
+    ctx: undefined
+  });
 
 
-  //These four are reducered:
-  let [clickX, setClickX] = useState([]);
-  let [clickY, setClickY] = useState([]);
-  let [clickDrag, setClickDrag] = useState([]);
-  let [ctx, setCtx] = useState(); //Writing screen context
+  // //These four are reducered:
+  // let [clickX, setClickX] = useState([]);
+  // let [clickY, setClickY] = useState([]);
+  // let [clickDrag, setClickDrag] = useState([]);
+  // let [ctx, setCtx] = useState(); //Writing screen context
 
 
   //State for image canvas:
@@ -48,23 +68,23 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
   let [imageCtx, setImageCtx] = useState();
 
 
-  const redraw = (curCtx = ctx, curClickX = clickX, curClickY = clickY, curClickDrag = clickDrag) => {
-    console.log(curClickX)
-    curCtx.clearRect(0, 0, curCtx.canvas.width, curCtx.canvas.height); // Clears the drawCanvas
-    curCtx.lineJoin = "round";
-    curCtx.lineWidth = 2;
-    curCtx.strokeStyle = '#00000';
+  const redraw = () => {
+    console.log(drawingState.clickX)
+    drawingState.ctx.clearRect(0, 0, drawingState.ctx.canvas.width, drawingState.ctx.canvas.height); // Clears the drawCanvas
+    drawingState.ctx.lineJoin = "round";
+    drawingState.ctx.lineWidth = 2;
+    drawingState.ctx.strokeStyle = '#00000';
 
-    for (let i = 0; i < curClickX.length; i++) {
-      curCtx.beginPath();
-      if (curClickDrag[i] && i) {
-        curCtx.moveTo(curClickX[i - 1], curClickY[i - 1]);
+    for (let i = 0; i < drawingState.clickX.length; i++) {
+      drawingState.ctx.beginPath();
+      if (drawingState.clickDrag[i] && i) {
+        drawingState.ctx.moveTo(drawingState.clickX[i - 1], drawingState.clickY[i - 1]);
       } else {
-        curCtx.moveTo(curClickX[i] - 1, curClickY[i]);
+        drawingState.ctx.moveTo(drawingState.clickX[i] - 1, drawingState.clickY[i]);
       }
-      curCtx.lineTo(curClickX[i], curClickY[i]);
-      curCtx.closePath();
-      curCtx.stroke();
+      drawingState.ctx.lineTo(drawingState.clickX[i], drawingState.clickY[i]);
+      drawingState.ctx.closePath();
+      drawingState.ctx.stroke();
     }
   };
 
@@ -74,35 +94,15 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
       // socket.emit('fetchMeetings', { username: user.username, meetingStatus: 'scheduled' });
       socket.on('drawClick', data => {
         console.log(data.mouse.x);
-        let updatedX = [];
-        let updatedY = [];
-        let updatedDragging = [];
-        setClickX((prev) => {
-          updatedX = [...prev, data.mouse.x]
-          return [...prev, data.mouse.x];
-        });
-        setClickY((prev) => {
-          updatedY = [...prev, data.mouse.y]
-          return [...prev, data.mouse.y];
-        });
-        setClickDrag((prev) => {
-          updatedDragging = [...prev, data.mouse.dragging];
-          return [...prev, data.mouse.dragging];
-        });
-        // setClickY((prev) => [...prev, data.mouse.y]);
-        setCtx((prev) => { //dumb
-          console.log("REDRAWING")
-          redraw(prev, updatedX, updatedY, updatedDragging);
-
-          return prev;
-        })
-        // console.log(clickX);
-        // addClick(data.mouse.x, data.mouse.y);
+        dispatch({ type: SET_X, payload: data.mouse.x });
+        dispatch({ type: SET_Y, payload: data.mouse.y });
+        dispatch({ type: SET_DRAG, payload: data.mouse.dragging });
+        dispatch({ type: REDRAW });
       });
       console.log('done setting up the on')
-      // return () => {
-      //   socket.off('drawClick');
-      // };
+      return () => {
+        socket.off('drawClick');
+      };
     }
   }, [socket, socketOpen, user.username]);
 
@@ -122,7 +122,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
   useEffect(() => {
     drawCanvasRef.current.width = window.innerWidth;
     drawCanvasRef.current.height = window.innerHeight;
-    setCtx(drawCanvasRef.current.getContext('2d'));
+    const newCtx = drawCanvasRef.current.getContext('2d')
+    dispatch({
+      type: SET_CTX,
+      payload: newCtx
+    });
+    // setCtx(drawCanvasRef.current.getContext('2d'));
   }, []);
 
   const addClick = (x, y, dragging) => {
