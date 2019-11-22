@@ -19,9 +19,10 @@ export default function FormDialog(props) {
   //   setOpen(true);
   // };
 
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedContacts([]);
+  };
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -53,7 +54,7 @@ export default function FormDialog(props) {
       <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
         Create New Meeting
       </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">New Meeting</DialogTitle>
         <DialogContent>
           <Form
@@ -71,7 +72,7 @@ export default function FormDialog(props) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">
+          <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
           <Button
