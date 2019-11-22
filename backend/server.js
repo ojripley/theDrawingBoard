@@ -275,7 +275,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', meeting.id);
+                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId:meeting.owner_id});
               }
             }
           });
@@ -283,10 +283,6 @@ io.on('connection', (client) => {
     });
 
     client.on('enterMeeting', (data) => {
-      // console.log(data.user.id);
-      // console.log(`putting user ${activeUsers[data.user.id]} into :`);
-      // console.log(activeMeetings[data.meetingId]);
-      // console.log(`the members of this meeting by id ${data.attendeeIds}`);
       client.emit('enteredMeeting', activeMeetings[data.meetingId]);
 
       client.join(data.meetingId);
@@ -296,12 +292,26 @@ io.on('connection', (client) => {
     // gotta handle the end meeting event
     client.on('endMeeting', (data) => {
 
-      io.to(data.meetingId).emit('meetingConcluded', (data.meetingId));
+      // db.updateMeetingById(data.meeting.id, false, 'past');
+      // io.to(data.meeting.id).emit('meetingConcluded', (data.meeting.id));
+
+      // .then((res) => {
+      //   for (let user in data.meeting.selectedUsers)
+      //     db.updateUsersMeetings
+      // })
+      //
 
 
 
-      activeMeetings.removeMeeting(data.meetingId);
+      activeMeetings.removeMeeting(data.meeting.id);
     });
+
+    // client.on('notes', (data) => {
+    // db.updateUsersMeetingsNotes(data.user.id, data.meeting_id, data.notes)
+    //   .then(() => {
+    //     client.emit('concludedMeetingData');
+    //   })
+    // })
 
 });
 

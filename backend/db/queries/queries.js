@@ -226,13 +226,14 @@ const updateUsersMeetingsStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingNotes = function (user_id, notes) {
+const updateUsersMeetingNotes = function (user_id, meeting_id, notes) {
   const vars = [user_id, meeting_id, notes];
 
   return db.query(`
     UPDATE users_meetings
-    SET notes = $2
-    WHERE user_id = $1;
+    SET notes = $3
+    WHERE meeting_id = $2
+    AND user_id = $1;
   `, vars)
     .then(res => {
       return res.rows;
