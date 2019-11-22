@@ -86,7 +86,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const endMeeting = () => {
     console.log('meeting ended');
-    console.log('ID:', meetingId);
+    // console.log('ID:', meetingId);
     socket.emit('endMeeting', {meetingId: meetingId, endTime: new Date(Date.now())});
   }
 
@@ -105,7 +105,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user])
 
   useEffect(() => {
-    console.log(debouncedNotes);
+    // console.log(debouncedNotes);
     socket.emit('saveNotes', { user, note: debouncedNotes });
     // socket.on('receiveOkay') //can have a socket on when received
     setSaving(false);
