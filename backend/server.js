@@ -104,7 +104,15 @@ io.on('connection', (client) => {
         const authenticateAttempt = res;
 
         if (authenticateAttempt) {
+          console.log('id to be added:');
+          console.log(authenticateAttempt.id);
           activeUsers.addUser(authenticateAttempt.id, client)
+          console.log('active users:');
+          for (let user in activeUsers) {
+            if (activeUsers[user].id) {
+              console.log('user:', activeUsers[user].id);
+            }
+          }
 
           client.on('disconnect', () => {
             activeUsers.removeUser(authenticateAttempt.id);
@@ -234,6 +242,7 @@ io.on('connection', (client) => {
             console.log(res[0].attendee_ids);
             for (let contactId of res[0].attendee_ids){
               if (activeUsers[contactId]) {
+                console.log(`${contactId} should now rerender`);
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
               }
             }
@@ -260,7 +269,7 @@ io.on('connection', (client) => {
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
-            console.log(activeMeetings[meeting.id]);
+            // console.log(activeMeetings[meeting.id]);
 
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
@@ -274,10 +283,10 @@ io.on('connection', (client) => {
     });
 
     client.on('enterMeeting', (data) => {
-      console.log(data.user.id);
-      console.log(`putting user ${activeUsers[data.user.id]} into :`);
-      console.log(activeMeetings[data.meetingId]);
-      console.log(`the members of this meeting by id ${data.attendeeIds}`);
+      // console.log(data.user.id);
+      // console.log(`putting user ${activeUsers[data.user.id]} into :`);
+      // console.log(activeMeetings[data.meetingId]);
+      // console.log(`the members of this meeting by id ${data.attendeeIds}`);
       client.emit('enteredMeeting', activeMeetings[data.meetingId]);
 
       client.join(data.meetingId);
