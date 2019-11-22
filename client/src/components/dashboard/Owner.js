@@ -28,14 +28,14 @@ export default function Owner(props) {
 
   return (
     <div>
-      <Button
+      {!props.activeMeeting && <Button
         variant="contained"
         color="secondary"
         className={classes.button}
         onClick={props.startMeeting}
       >
         Start Meeting
-      </Button>
+      </Button>}
       <EditIcon onClick={onEdit}/>
       <DeleteIcon onClick={onDestroy}/>
     </div>

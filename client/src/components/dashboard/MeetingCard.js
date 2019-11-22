@@ -5,6 +5,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Button from '@material-ui/core/Button';
 
 import Owner from './Owner';
 import Attendee from './Attendee';
@@ -27,6 +28,9 @@ const useStyles = makeStyles(theme => ({
   },
   scheduled: {
     backgroundColor: 'white'
+  },
+  button: {
+    margin: theme.spacing(1),
   }
 }));
 
@@ -80,7 +84,18 @@ export default function MeetingCard(props) {
             <ul>
               {props.attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
             </ul>
-          {props.user === props.owner ? <Owner id={props.id} socket={props.socket} startMeeting={startMeeting}/> : <Attendee />}
+          {props.user === props.owner ?
+            <Owner
+              id={props.id}
+              socket={props.socket}
+              startMeeting={startMeeting}
+              activeMeeting={activeMeeting}
+            />
+            : <Attendee />
+          }
+          {activeMeeting && <Button variant="contained" color="primary" className={classes.button}>
+            Enter Meeting
+          </Button>}
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>
