@@ -48,7 +48,8 @@ export default function MeetingCard({
   setExpanded,
   socket,
   socketOpen,
-  setInMeeting
+  setInMeeting,
+  setMeetingId
 }) {
 
   const classes = useStyles();
@@ -64,7 +65,7 @@ export default function MeetingCard({
   };
 
   const enterMeeting = () => {
-    socket.emit('enterMeeting', {userId: user.id, meetingId: id, attendeeIds: attendeeIds})
+    socket.emit('enterMeeting', {user: user, meetingId: id, attendeeIds: attendeeIds})
   }
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function MeetingCard({
       socket.on('meetingStarted', res => {
         if (id === res) {
           setActiveMeeting(true);
+          setMeetingId(id);
         }
       })
 
@@ -84,7 +86,7 @@ export default function MeetingCard({
         socket.off('enteredMeeting');
       };
     }
-  }, [id, socket, socketOpen, setInMeeting, activeMeeting]);
+  }, [id, socket, socketOpen, setInMeeting, activeMeeting, setMeetingId]);
 
   return (
     <div className={classes.root}>
