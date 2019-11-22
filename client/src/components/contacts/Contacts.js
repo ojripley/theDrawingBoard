@@ -83,10 +83,7 @@ export default function Contacts(props) {
       />);
     }
     return null;
-  }
-
-
-  );
+  });
 
   return (
     <>
