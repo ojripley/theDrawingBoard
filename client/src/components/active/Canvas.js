@@ -131,6 +131,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user }) 
   }, []);
 
   const addClick = (x, y, dragging) => {
+    //Uncomment this if you want the user to
     // setClickX([...clickX, x]);
     // setClickY([...clickY, y]);
     // setClickDrag([...clickDrag, dragging]);
