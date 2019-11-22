@@ -172,7 +172,9 @@ io.on('connection', (client) => {
   client.on('insertMeeting', data => {
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
       .then(res => {
-        client.emit('newMeeting', res);
+        console.log(res[0]);
+        client.emit('newMeeting', res[0]);
+        client.emit('test', res[0]);
       });
   });
 

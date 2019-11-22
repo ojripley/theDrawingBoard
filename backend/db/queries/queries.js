@@ -132,7 +132,7 @@ const insertMeeting = function (start_time, owner_id, name, description, status,
   return db.query(`
     INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_doc)
     VALUES($1, $2, $3, $4, $5, $6)
-    RETURNING id;
+    RETURNING *;
   `, vars)
     .then(res => {
       return res.rows;
