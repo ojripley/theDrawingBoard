@@ -113,8 +113,47 @@ io.on('connection', (client) => {
           console.log('attempted login: failed');
         }
         client.emit('loginResponse', authenticateAttempt);
-      })
+      });
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   client.on('msg', (data) => {
     console.log(data);
@@ -174,19 +213,41 @@ io.on('connection', (client) => {
       .then(res => {
         client.emit('newMeeting', res[0]);
         // console.log(res[0].id);
-        return res[0].id
+        return res[0].id;
       })
       .then((id) => {
-        setTimeout(() => {
-          console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
-          console.log(id);
-          db.fetchMeetingWithUsersById(id)
+
+        const promiseArray = [];
+
+        for (let contact of data.selectedContacts) {
+          console.log(contact.username);
+          promiseArray.push(db.insertUsersMeeting(contact.id, id));
+        }
+
+        return Promise.all(promiseArray).then(() => {
+          return id;
+        });
+
+
+
+
+          // setTimeout(() => {
+            //   console.log('\n\n\n\n\n\n\nWHAT FOLLOWS IS THE ID: ');
+            //   console.log(id);
+            //   db.fetchMeetingWithUsersById(id)
+            //   .then(res => {
+              //     console.log(res);
+              //     client.emit('test', res[0]);
+              //   });
+              // }, 400);
+      })
+      .then((id) => {
+        db.fetchMeetingWithUsersById(id)
           .then(res => {
             console.log(res);
-            client.emit('test', res[0]);
+            client.emit('itWorkedThereforeIPray', res[0]);
           });
-        }, 400);
-      });
+      })
   });
 
   client.on('insertUsersMeeting', data => {
@@ -208,6 +269,7 @@ io.on('connection', (client) => {
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
+            console.log(activeMeetings[meeting.id]);
             for (let id of attendeeIds) {
               db.fetchUsersMeetingsByIds(id, meeting.id)
                 .then(res => { // users have been identified
@@ -222,6 +284,7 @@ io.on('connection', (client) => {
       });
   });
 
+  // gotta handle the end meeting event
   // client.on('endMeeting', (data), )
 });
 
