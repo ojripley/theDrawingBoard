@@ -54,7 +54,6 @@ const fetchUsersByUsername = function (username = '') {
 const fetchMeetingsByUserId = function (username, meeting_status) {
 
   const vars = [username, meeting_status];
-  console.log(vars);
 
   return db.query(`
     SELECT start_time, end_time, name, description, active, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users FROM meetings
