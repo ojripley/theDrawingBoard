@@ -25,8 +25,8 @@ export default function Dashboard(props) {
         setMeetings(data)
       });
 
-      props.socket.on('test', data => {
-        console.log('newmeeting', data);
+      props.socket.on('itWorkedThereforeIPray', data => {
+        console.log('new meeting', data);
         setMeetings(prev => [...prev, data]);
       });
 
@@ -36,7 +36,7 @@ export default function Dashboard(props) {
 
       return () => {
         props.socket.off('meetings');
-        props.socket.off('test');
+        props.socket.off('itWorkedThereforeIPray');
       };
     }
   }, [props.socket, props.socketOpen, currentUser.username]);
