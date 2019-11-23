@@ -1,3 +1,19 @@
+
+//          #####   ######   ######   #   #   #####
+//         #       #         #      #   #   #   #
+//          #####    #####      #      #   #   ####
+//               #   #          #      #   #   #
+//          #####  ######     #       ###    #
+//
+//
+//
+//
+//
+//
+//
+
+
+
 // load .env data into process.env
 require('dotenv').config();
 
@@ -46,53 +62,6 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
@@ -125,12 +94,14 @@ io.on('connection', (client) => {
   });
 
   //These lines are for testing purposes
-  client.join('theOneRoomToRuleThemAll');
+  // client.join('theOneRoomToRuleThemAll');
 
   client.on('addClick', data => {
     console.log("message received");
-    console.log(data.mouse.x);
-    io.to('theOneRoomToRuleThemAll').emit('drawClick', data);//pass message along
+    console.log(data.pixel.x);
+    activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
+    console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
+    io.to(data.meetingId).emit('drawClick', data);//pass message along
   })
 
   //End of test
@@ -160,9 +131,29 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
+
+
+
+    // TODO
+
+    // fetch file from local storage
+    // send the actual file, either through the socket event or a route
+
+
+
+
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
+
+        // if going to send the file through the socket event, use the following logic
+
+        // if res.link {
+          // client.emit('meetingsWithDocs')
+        // } else {
+
         client.emit('meetings', res);
+
+        // }
       });
   });
 
@@ -178,8 +169,6 @@ io.on('connection', (client) => {
     const credentials = {
       ...data
     };
-
-    // if (authenticator.registerUser(credentials))
 
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
@@ -236,6 +225,10 @@ io.on('connection', (client) => {
         db.fetchMeetingById(data.id)
           .then(res => { // meeting has been retrieved
             const meeting = res[0];
+
+            // set meeting pixel log
+            meeting['userPixels'] = {};
+
             const attendeeIds = meeting.invited_users;
 
             // keep track of active meetings
@@ -246,15 +239,18 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId:meeting.owner_id});
+                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId: meeting.owner_id});
               }
             }
           });
       });
   });
 
-    client.on('enterMeeting', (data) => {
-      client.emit('enteredMeeting', activeMeetings[data.meetingId]);
+  client.on('enterMeeting', (data) => {
+    if (!activeMeetings[data.meetingId].userPixels[data.user.id]) {
+      activeMeetings[data.meetingId].userPixels[data.user.id] = [];
+    }
+    client.emit('enteredMeeting', activeMeetings[data.meetingId], activeMeetings[data.meetingId].userPixels);
 
     client.join(data.meetingId);
     io.to(data.meetingId).emit('newParticipant', (data.user));
@@ -266,7 +262,7 @@ io.on('connection', (client) => {
 
       // data needs to be:
       // the document -> talk to T
-      // end time (not strictly needed)
+      // end_time (not strictly needed)
 
       db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
       io.to(data.meetingId).emit('requestNotes', data.meetingId);
@@ -284,6 +280,13 @@ io.on('connection', (client) => {
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
       });
+    });
+
+    client.on('fetchNotes', (data) => {
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
+          client.emit('notes', res[0]);
+        });
     });
 
 });

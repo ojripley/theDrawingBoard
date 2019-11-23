@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode }) {
   const [isLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState('');
   const [writeMode, setWriteMode] = useState(false);
@@ -86,13 +86,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const endMeeting = () => {
     console.log('meeting ended');
-    console.log('ID:', meetingId);
-    socket.emit('endMeeting', {meetingId: meetingId, endTime: new Date(Date.now())});
+    // console.log('ID:', meetingId);
+    socket.emit('endMeeting', { meetingId: meetingId, endTime: new Date(Date.now()) });
   }
 
   useEffect(() => {
     socket.on('requestNotes', res => {
-      socket.emit('notes', {user: user, meetingId: meetingId, notes: meetingNotes});
+      socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
@@ -105,11 +105,11 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user])
 
   useEffect(() => {
-    console.log(debouncedNotes);
+    // console.log(debouncedNotes);
     socket.emit('saveNotes', { user, note: debouncedNotes });
     // socket.on('receiveOkay') //can have a socket on when received
     setSaving(false);
-  }, [socket, debouncedNotes])
+  }, [socket, debouncedNotes, user])
 
 
   let myImage = new Image();
@@ -123,7 +123,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         socket={socket}
         socketOpen={socketOpen}
         imageEl={myImage}
-        isLoaded={isLoaded} />
+        isLoaded={isLoaded}
+        meetingId={meetingId}
+      />
       <Fab
         aria-label='edit'
         color='secondary'
