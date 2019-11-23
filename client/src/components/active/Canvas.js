@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
 
-const SET_X = "SET_X";
-const SET_Y = "SET_Y";
-const SET_DRAG = "SET_DRAG";
+// const SET_X = "SET_X";
+// const SET_Y = "SET_Y";
+// const SET_DRAG = "SET_DRAG";
 const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
@@ -97,11 +97,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   useEffect(() => {
     if (socketOpen) {
-      // socket.emit('fetchMeetings', { username: user.username, meetingStatus: 'scheduled' });
       socket.on('drawClick', data => {
-        // console.log(data.pixel.x);
-        console.log(user);
-        console.log(data.code);
         if (myCode.current !== data.code) {
           dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: data.pixel } });
           dispatch({ type: REDRAW });
@@ -118,7 +114,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     imageCanvasRef.current.width = window.innerWidth;
     imageCanvasRef.current.height = window.innerHeight;
     setImageCtx(prev => {
-      prev = imageCanvasRef.current.getContext('2d')
+      prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, window.innerWidth, window.innerHeight);
     });
   }, [imageCtx, isLoaded, imageEl]);
@@ -127,7 +123,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     drawCanvasRef.current.width = window.innerWidth;
     drawCanvasRef.current.height = window.innerHeight;
-    const newCtx = drawCanvasRef.current.getContext('2d')
+    const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
       payload: newCtx
