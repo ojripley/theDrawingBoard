@@ -8,7 +8,6 @@ import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import CloseIcon from '@material-ui/icons/Close';
 
 
 const useStyles = makeStyles(theme => ({
@@ -17,11 +16,6 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     bottom: 0,
     left: 0,
-    zIndex: 3
-  },
-  endFab: {
-    margin: theme.spacing(1),
-    position: 'relative',
     zIndex: 3
   },
   extendedIcon: {
@@ -68,27 +62,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const classes = useStyles();
 
-  //TODO: Add text input which will be sent to server on submit
-  useEffect(() => {
-    if (socketOpen) {
-      socket.emit(
-        'retrieveImage', data => { //Will get the image to be shown in background ?
-          console.log(data);
-        });
-    }
-  }, [socket, socketOpen]);
-
   const handleInput = (e) => {
     console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
   }
 
-  const endMeeting = () => {
-    console.log('meeting ended');
-    // console.log('ID:', meetingId);
-    socket.emit('endMeeting', { meetingId: meetingId, endTime: new Date(Date.now()) });
-  }
+
 
   useEffect(() => {
     socket.on('requestNotes', res => {
@@ -132,13 +112,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         className={classes.fab}
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
-      </Fab>
-      <Fab
-        aria-label='end'
-        color='primary'
-        className={classes.endFab}
-        onClick={endMeeting} >
-        <CloseIcon />
       </Fab>
       {writeMode &&
         <div className={classes.center}>

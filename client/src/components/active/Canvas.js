@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
+import { makeStyles } from '@material-ui/core/styles';
+import CloseIcon from '@material-ui/icons/Close';
+import Fab from '@material-ui/core/Fab';
+
 
 // const SET_X = "SET_X";
 // const SET_Y = "SET_Y";
@@ -78,6 +82,19 @@ function reducer(state, action) {
 
 export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId }) {
 
+  const useStyles = makeStyles(theme => ({
+    endFab: {
+      margin: theme.spacing(1),
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 3
+    }
+  }));
+
+  const classes = useStyles();
+
+
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
   let [paint, setPaint] = useState(false);
@@ -94,6 +111,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
+
+
 
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
@@ -115,6 +134,15 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       };
     }
   }, [socket, socketOpen, user.username]);
+
+  const endMeeting = () => {
+    console.log('meeting ended');
+    // console.log('ID:', meetingId);
+    socket.emit('endMeeting', {
+      meetingId: meetingId,
+      endTime: new Date(Date.now())
+    });
+  }
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
@@ -168,25 +196,36 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   }
 
   return (
-    <div id='canvas-container'>
+    <>
+      <Fab
+        aria-label='end'
+        color='primary'
+        className={classes.endFab}
+        onClick={endMeeting} >
+        <CloseIcon />
+      </Fab>
+      <div id='canvas-container'>
 
-      <canvas
-        id='image'
-        ref={imageCanvasRef}
-      >
-      </canvas>
-      <canvas
-        id='drawCanvas'
-        ref={drawCanvasRef}
-        onMouseDown={e => handleMouseDown(e.nativeEvent)}
-        onMouseMove={e => handleMouseMove(e.nativeEvent)}
-        onMouseUp={e => setPaint(false)}
-        onMouseLeave={e => setPaint(false)}
-        onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
-        onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
-        onTouchEnd={e => setPaint(false)}
-      >
-      </canvas>
-    </div>
+
+
+        <canvas
+          id='image'
+          ref={imageCanvasRef}
+        >
+        </canvas>
+        <canvas
+          id='drawCanvas'
+          ref={drawCanvasRef}
+          onMouseDown={e => handleMouseDown(e.nativeEvent)}
+          onMouseMove={e => handleMouseMove(e.nativeEvent)}
+          onMouseUp={e => setPaint(false)}
+          onMouseLeave={e => setPaint(false)}
+          onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
+          onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
+          onTouchEnd={e => setPaint(false)}
+        >
+        </canvas>
+      </div>
+    </>
   );
 }
