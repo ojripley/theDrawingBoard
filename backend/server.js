@@ -27,7 +27,6 @@ const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-session');
-const fileUpload = require('express-fileupload');
 
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
@@ -54,8 +53,6 @@ app.use(morgan('dev'));
 app.use(cookieParser({ signed: false }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(fileUpload());
 
 app.get("/", (req, res) => {
   res.send('testing purposes only');
@@ -183,18 +180,12 @@ io.on('connection', (client) => {
   client.on('insertMeeting', data => {
     console.log(data.file.name);
     console.log(data.file.payload);
-    const file = data.file;
 
-    fs.writeFile("meeting_files/smartName.jpg", data.file.payload, (err) => {
+    fs.writeFile(`meeting_files/${data.file.name}`, data.file.payload, (err) => {
       if (err) throw err;
       console.log('The file has been saved!');
     });
 
-    // file.mv(`/meeting_files/${file.name}`, err => {
-    //   if (err) {
-    //     console.error(err);
-    //   }
-    // });
 
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
       .then(res => {
