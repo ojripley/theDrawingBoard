@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels}) {
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState('');
   const [writeMode, setWriteMode] = useState(false);
@@ -105,6 +105,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         imageEl={backgroundImage}
         imageLoaded={imageLoaded}
         meetingId={meetingId}
+        initialPixels={initialPixels}
       />
       <Fab
         aria-label='edit'

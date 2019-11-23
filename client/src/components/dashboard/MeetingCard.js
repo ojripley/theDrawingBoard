@@ -52,7 +52,8 @@ export default function MeetingCard({
   setMeetingId,
   setOwnerId,
   setBackgroundImage,
-  setImageLoaded
+  setImageLoaded,
+  setInitialPixels
 }) {
 
   const classes = useStyles();
@@ -84,15 +85,17 @@ export default function MeetingCard({
       socket.on('enteredMeeting', data => {
         // console.log('Meeting is: ', res);
         let res = data.meeting;
-        setInMeeting(true)
+        setInMeeting(true);
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
 
 
         let myImage = new Image();
         myImage.onload = () => {
-          setImageLoaded(true)
+          setImageLoaded(true);
           setBackgroundImage(myImage);
+          console.log("received these pixels", data.pixels)
+          setInitialPixels(data.pixels);
         };
         myImage.src = data.image; //pull this from socket
 
