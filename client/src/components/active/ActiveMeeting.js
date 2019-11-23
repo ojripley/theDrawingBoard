@@ -87,12 +87,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const endMeeting = () => {
     console.log('meeting ended');
     // console.log('ID:', meetingId);
-    socket.emit('endMeeting', {meetingId: meetingId, endTime: new Date(Date.now())});
+    socket.emit('endMeeting', { meetingId: meetingId, endTime: new Date(Date.now()) });
   }
 
   useEffect(() => {
     socket.on('requestNotes', res => {
-      socket.emit('notes', {user: user, meetingId: meetingId, notes: meetingNotes});
+      socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
@@ -125,7 +125,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         imageEl={myImage}
         isLoaded={isLoaded}
         meetingId={meetingId}
-        />
+      />
       <Fab
         aria-label='edit'
         color='secondary'
@@ -133,13 +133,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
-      {user.id === ownerId && <Fab
+      <Fab
         aria-label='end'
         color='primary'
         className={classes.endFab}
         onClick={endMeeting} >
         <CloseIcon />
-      </Fab>}
+      </Fab>
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
