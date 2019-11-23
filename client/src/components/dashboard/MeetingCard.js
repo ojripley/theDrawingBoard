@@ -82,14 +82,6 @@ export default function MeetingCard({
       // })
 
       socket.on('enteredMeeting', data => {
-        // console.log('Meeting is: ', res);
-        let res = data.meeting;
-        console.log('debug', res.owner_id);
-        console.log('debug', res.id);
-        console.log('debug', data.image);
-        console.log('debug', data);
-        // debugger;
-        // console.log('current user entered the room', user);
         setInMeeting(true)
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
@@ -105,8 +97,6 @@ export default function MeetingCard({
       })
 
       return () => {
-        // console.log('closing listeners')
-        // socket.off('meetingStarted');
         socket.off('enteredMeeting');
       };
     }
@@ -114,10 +104,7 @@ export default function MeetingCard({
 
   useEffect(() => {
     socket.on('meetingStarted', res => {
-      // console.log('res', res)
       if (id === res.meetingId) {
-        // console.log('starting meeting', res)
-        // console.log('ownerId', res.ownerId)
         setActiveMeeting(true);
       }
     })
