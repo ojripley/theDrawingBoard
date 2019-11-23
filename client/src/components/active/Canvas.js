@@ -95,6 +95,13 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
 
+  const mergeWithImage = () => {
+    setImageCtx(prev => { //adds the click to the image canvas
+      prev = imageCanvasRef.current.getContext('2d')
+      prev.drawImage(drawCanvasRef.current, 0, 0, window.innerWidth, window.innerHeight);
+    });
+  }
+
   useEffect(() => {
     if (socketOpen) {
       socket.on('drawClick', data => {
@@ -139,6 +146,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     };
     dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: pixel } });
     dispatch({ type: REDRAW });
+    mergeWithImage();
   };
 
 
