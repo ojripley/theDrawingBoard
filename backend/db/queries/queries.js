@@ -34,7 +34,7 @@ const fetchContactsByUserId = function(user_id, username = '') {
     });
 };
 
-const fetchUsersByUsername = function (username = '') {
+const fetchUsersByUsername = function(username = '') {
 
   const vars = [`%${username}%`];
 
@@ -51,7 +51,7 @@ const fetchUsersByUsername = function (username = '') {
     });
 };
 
-const fetchMeetingsByUserId = function (username, meeting_status) {
+const fetchMeetingsByUserId = function(username, meeting_status) {
 
   const vars = [username, meeting_status];
 
@@ -73,7 +73,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
     });
 };
 
-const fetchMeetingById = function (meeting_id) {
+const fetchMeetingById = function(meeting_id) {
 
   const vars = [meeting_id];
 
@@ -128,7 +128,7 @@ const fetchMeetingWithUsersById = function(meeting_id) {
     });
 }
 
-const insertUser = function (username, email, password) {
+const insertUser = function(username, email, password) {
 
   const vars = [username, email, password];
 
@@ -144,7 +144,7 @@ const insertUser = function (username, email, password) {
     });
 };
 
-const insertMeeting = function (start_time, owner_id, name, description, status, link_to_initial_doc) {
+const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_doc) {
 
   const vars = [start_time, owner_id, name, description, status, link_to_initial_doc];
 
@@ -161,7 +161,7 @@ const insertMeeting = function (start_time, owner_id, name, description, status,
     });
 };
 
-const insertUsersMeeting = function (user_id, meeting_id) {
+const insertUsersMeeting = function(user_id, meeting_id) {
   const vars = [user_id, meeting_id, 'invited'];
 
   return db.query(`
@@ -176,7 +176,7 @@ const insertUsersMeeting = function (user_id, meeting_id) {
     });
 };
 
-const insertFriend = function (user_id, friend_id, status) {
+const insertFriend = function(user_id, friend_id, status) {
 
   const vars = [user_id, friend_id, status];
 
@@ -192,7 +192,7 @@ const insertFriend = function (user_id, friend_id, status) {
     });
 };
 
-const updateFriendStatus = function (user_id, status) {
+const updateFriendStatus = function(user_id, status) {
 
   const vars = [user_id, status];
 
@@ -209,7 +209,7 @@ const updateFriendStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingsStatus = function (user_id, status) {
+const updateUsersMeetingsStatus = function(user_id, status) {
 
   const vars = [user_id, status];
 
@@ -226,7 +226,7 @@ const updateUsersMeetingsStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingsNotes = function (user_id, meeting_id, notes) {
+const updateUsersMeetingsNotes = function(user_id, meeting_id, notes) {
   const vars = [user_id, meeting_id, notes];
 
   return db.query(`
@@ -259,15 +259,16 @@ const updateMeetingActiveState = function(meeting_id, active) {
     });
 }
 
-const updateMeetingById = function (meeting_id, end_time, active, status) {
-  const vars = [meeting_id, end_time, active, status];
+const updateMeetingById = function(meeting_id, end_time, active, status, link_to_final_doc) {
+  const vars = [meeting_id, end_time, active, status, link_to_final_doc];
 
   return db.query(`
     UPDATE meetings
     SET
       end_time = $2,
       active = $3,
-      status = $4
+      status = $4,
+      link_to_final_doc = $5
     WHERE id = $1;
   `, vars)
     .then(res => {
