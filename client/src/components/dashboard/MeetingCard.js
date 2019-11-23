@@ -82,6 +82,8 @@ export default function MeetingCard({
       // })
 
       socket.on('enteredMeeting', data => {
+        // console.log('Meeting is: ', res);
+        let res = data.meeting;
         setInMeeting(true)
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
@@ -104,6 +106,7 @@ export default function MeetingCard({
 
   useEffect(() => {
     socket.on('meetingStarted', res => {
+      // console.log('res', res)
       if (id === res.meetingId) {
         setActiveMeeting(true);
       }
