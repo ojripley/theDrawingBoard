@@ -296,6 +296,8 @@ io.on('connection', (client) => {
         console.error;
         image = "";
       }
+      console.log("sending these pixels");
+      console.log(meetingDetails.userPixels);
       client.emit('enteredMeeting', { meeting: meetingDetails, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
       client.join(data.meetingId);

@@ -67,6 +67,7 @@ export default function Dashboard(props) {
           setOwnerId={props.setOwnerId}
           setBackgroundImage={props.setBackgroundImage}
           setImageLoaded={props.setImageLoaded}
+          setInitialPixels={props.setInitialPixels}
         />
       </li>
     )

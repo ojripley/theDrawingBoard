@@ -8,12 +8,19 @@ import Fab from '@material-ui/core/Fab';
 // const SET_X = "SET_X";
 // const SET_Y = "SET_Y";
 // const SET_DRAG = "SET_DRAG";
+const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
 const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 
 function reducer(state, action) {
   switch (action.type) {
+    case SET_INITIAL_PIXELS: {
+      return {
+        ...state,
+        pixelArrays: action.payload
+      }
+    }
     case SET_PIXEL: {
       if (state.pixelArrays[action.payload.user]) {
         return {
@@ -37,7 +44,6 @@ function reducer(state, action) {
       return { ...state, ctx: action.payload };
     case REDRAW: {
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
-      console.log("1- state", state)
       //Sets the properties (change this part for custom pixel colors)
       state.ctx.lineJoin = "round";
       state.ctx.lineWidth = 2;
@@ -80,7 +86,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels }) {
 
   const useStyles = makeStyles(theme => ({
     endFab: {
@@ -101,9 +107,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   const [drawingState, dispatch] = useReducer(reducer, {
-    pixelArrays: {
-      [myCode]: []
-    },
+    pixelArrays: { ...initialPixels },
     ctx: undefined
   });
 
@@ -111,6 +115,18 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
+
+
+  //Loads the initial drawing canvas
+  useEffect(() => {
+    drawCanvasRef.current.width = window.innerWidth;
+    drawCanvasRef.current.height = window.innerHeight;
+    const newCtx = drawCanvasRef.current.getContext('2d');
+    dispatch({
+      type: SET_CTX,
+      payload: newCtx
+    });
+  }, []);
 
 
 
@@ -139,13 +155,14 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     console.log('meeting ended');
     mergeWithImage();
     let dataURL = imageCanvasRef.current.toDataURL();
-    // console.log('ID:', meetingId);
+
     socket.emit('endMeeting', {
       meetingId: meetingId,
       endTime: new Date(Date.now()),
       image: dataURL
     });
   }
+
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
@@ -154,19 +171,11 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     setImageCtx(prev => {
       prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, window.innerWidth, window.innerHeight);
+      dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
+      dispatch({ type: REDRAW })
     });
-  }, [imageCtx, isLoaded, imageEl]);
+  }, [imageCtx, isLoaded, imageEl, initialPixels]);
 
-  //Loads the initial drawing canvas
-  useEffect(() => {
-    drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = window.innerHeight;
-    const newCtx = drawCanvasRef.current.getContext('2d');
-    dispatch({
-      type: SET_CTX,
-      payload: newCtx
-    });
-  }, []);
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
