@@ -193,7 +193,7 @@ export default function Form(props) {
           >
             {contactsList}
           </Select>
-          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".jpg"/>
+          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"/>
         </FormControl>
       </div>
     </Box>
