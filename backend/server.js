@@ -131,8 +131,21 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
+
+
+    // fetch file from stored link
+    // emit the actual file
+
+
+
+
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
+
+        // if res.link {
+
+        // }
+
         client.emit('meetings', res);
       });
   });
@@ -260,6 +273,13 @@ io.on('connection', (client) => {
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
       });
+    });
+
+    client.on('fetchNotes', (data) => {
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
+          client.emit('notes', res[0]);
+        });
     });
 
 });
