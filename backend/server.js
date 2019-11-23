@@ -178,13 +178,7 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
-    console.log(data.file.name);
-    console.log(data.file.payload);
 
-    fs.writeFile(`meeting_files/${data.file.name}`, data.file.payload, (err) => {
-      if (err) throw err;
-      console.log('The file has been saved!');
-    });
 
 
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
@@ -194,7 +188,12 @@ io.on('connection', (client) => {
         return res[0].id;
       })
       .then((id) => {
-
+        fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
+          fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+            if (err) throw err;
+            console.log('The file has been saved!');
+          }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+        });
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
