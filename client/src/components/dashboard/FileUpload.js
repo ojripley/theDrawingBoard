@@ -12,6 +12,9 @@ const useStyles = makeStyles(theme => ({
 
 
 export default function FileUpload(props) {
+  // const [file, setFile] = useState('');
+  // const [fileName, setFileName] = useState('ChooseFile');
+
 
   const classes = useStyles();
 

@@ -14,6 +14,7 @@ export default function FormDialog(props) {
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [meetingName, setMeetingName] = useState('');
   const [meetingDesc, setMeetingDesc] = useState('');
+  const [file, setFile] = useState({});
 
   // const handleClickOpen = () => {
   //   setOpen(true);
@@ -43,7 +44,8 @@ export default function FormDialog(props) {
       description: meetingDesc,
       status: 'scheduled',
       linkToInitialDoc: null,
-      selectedContacts: [...selectedContacts, props.user]
+      selectedContacts: [...selectedContacts, props.user],
+      file: file
     });
 
     setOpen(false);
@@ -69,6 +71,7 @@ export default function FormDialog(props) {
             setMeetingName={setMeetingName}
             meetingDesc={meetingDesc}
             setMeetingDesc={setMeetingDesc}
+            setFile={setFile}
           />
         </DialogContent>
         <DialogActions>
