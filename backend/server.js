@@ -16,6 +16,7 @@
 
 // load .env data into process.env
 require('dotenv').config();
+var fs = require('fs');
 
 // server config
 const PORT = process.env.PORT || 8080;
@@ -148,7 +149,7 @@ io.on('connection', (client) => {
         // if going to send the file through the socket event, use the following logic
 
         // if res.link {
-          // client.emit('meetingsWithDocs')
+        // client.emit('meetingsWithDocs')
         // } else {
 
         client.emit('meetings', res);
@@ -177,14 +178,22 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
+
+
+
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
       .then(res => {
         client.emit('newMeeting', res[0]);
         // console.log(res[0].id);
         return res[0].id;
       })
       .then((id) => {
-
+        fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
+          fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+            if (err) throw err;
+            console.log('The file has been saved!');
+          }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+        });
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
@@ -239,7 +248,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId: meeting.owner_id});
+                userClient.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
@@ -258,36 +267,36 @@ io.on('connection', (client) => {
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
-      // todo: figure out document saving
+    // todo: figure out document saving
 
-      // data needs to be:
-      // the document -> talk to T
-      // end_time (not strictly needed)
+    // data needs to be:
+    // the document -> talk to T
+    // end_time (not strictly needed)
 
-      db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
-      io.to(data.meetingId).emit('requestNotes', data.meetingId);
+    db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
+    io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
 
 
-      activeMeetings.removeMeeting(data.meetingId);
+    activeMeetings.removeMeeting(data.meetingId);
 
   });
 
-    client.on('notes', (data) => {
+  client.on('notes', (data) => {
     console.log('attempting to write notes');
     console.log(data.notes);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
       });
-    });
+  });
 
-    client.on('fetchNotes', (data) => {
-      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-        .then((res) => {
-          client.emit('notes', res[0]);
-        });
-    });
+  client.on('fetchNotes', (data) => {
+    db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+      .then((res) => {
+        client.emit('notes', res[0]);
+      });
+  });
 
 });
 
