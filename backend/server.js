@@ -259,10 +259,24 @@ io.on('connection', (client) => {
     if (!activeMeetings[data.meetingId].userPixels[data.user.id]) {
       activeMeetings[data.meetingId].userPixels[data.user.id] = [];
     }
-    client.emit('enteredMeeting', activeMeetings[data.meetingId], activeMeetings[data.meetingId].userPixels);
+    console.log("Looking for", `meeting_files/${data.meetingId}/${activeMeetings[data.meetingId].link_to_initial_doc}`);
+    fs.readFile(`meeting_files/${data.meetingId}/${activeMeetings[data.meetingId].link_to_initial_doc}`, (err, image) => {
 
-    client.join(data.meetingId);
-    io.to(data.meetingId).emit('newParticipant', (data.user));
+      if (err) {
+        console.error;
+        image = "";
+      }
+
+      // socket.emit('imageConversionByServer', "data:image/jpg;base64,"+ data.toString("base64"));
+
+      client.emit('enteredMeeting', { meeting: activeMeetings[data.meetingId], pixels: activeMeetings[data.meetingId].userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+
+      client.join(data.meetingId);
+      io.to(data.meetingId).emit('newParticipant', (data.user));
+
+    });
+
+
   });
 
   // gotta handle the end meeting event
