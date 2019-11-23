@@ -1,9 +1,9 @@
 
-//          ####   ######   ######   #   #   #####
+//          #####   ######   ######   #   #   #####
 //         #       #         #      #   #   #   #
-//          ###    #####      #      #   #   ####
-//             #   #          #      #   #   #
-//         ####    ######     #       ###    #
+//          #####    #####      #      #   #   ####
+//               #   #          #      #   #   #
+//          #####  ######     #       ###    #
 //
 //
 //
@@ -133,8 +133,11 @@ io.on('connection', (client) => {
   client.on('fetchMeetings', (data) => {
 
 
-    // fetch file from stored link
-    // emit the actual file
+
+    // TODO
+
+    // fetch file from local storage
+    // send the actual file, either through the socket event or a route
 
 
 
@@ -142,11 +145,15 @@ io.on('connection', (client) => {
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
 
-        // if res.link {
+        // if going to send the file through the socket event, use the following logic
 
-        // }
+        // if res.link {
+          // client.emit('meetingsWithDocs')
+        // } else {
 
         client.emit('meetings', res);
+
+        // }
       });
   });
 
