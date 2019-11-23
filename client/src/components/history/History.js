@@ -16,7 +16,6 @@ export default function History(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'past'});
       props.socket.on('meetings', data => {
-        console.log(data);
         setMeetings(data)
       });
 
@@ -27,12 +26,10 @@ export default function History(props) {
   }, [props.socket, props.socketOpen, currentUser.username]);
 
   const displayDetailedHistory = (id) => {
-    console.log('id', id)
     setViewMeeting(id);
   }
 
   const historyList = meetings.map(meeting => {
-    console.log('meeting', meeting)
     return (
       <li className='history-list-item' key={meeting.id}>
         <HistoryCard

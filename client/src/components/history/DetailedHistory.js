@@ -4,8 +4,6 @@ import Button from '@material-ui/core/Button';
 
 export default function DetailedHistory(props) {
 
-  console.log('props', props)
-
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
