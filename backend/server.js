@@ -283,12 +283,12 @@ io.on('connection', (client) => {
       meetingDetails.userPixels[data.user.id] = [];
     }
     console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
-    
+
     let img;
-    if(meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !==-1){
-      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0]+"-0.png";
-    }else{
-      img= meetingDetails.link_to_initial_doc;
+    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+    } else {
+      img = meetingDetails.link_to_initial_doc;
     }
 
     fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
@@ -313,14 +313,23 @@ io.on('connection', (client) => {
     // data needs to be:
     // the document -> talk to T
     // end_time (not strictly needed)
+    //Save the image
+    let meetingDetails = activeMeetings[data.meetingId];
 
-    db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
-    io.to(data.meetingId).emit('requestNotes', data.meetingId);
+    let img;
+    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+    } else {
+      img = meetingDetails.link_to_initial_doc;
+    }
 
-
-
-    activeMeetings.removeMeeting(data.meetingId);
-
+    fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
+      if (err) throw err;
+      console.log('The file has been saved!');
+      db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
+      io.to(data.meetingId).emit('requestNotes', data.meetingId);
+      activeMeetings.removeMeeting(data.meetingId);
+    });
   });
 
   client.on('notes', (data) => {
