@@ -50,7 +50,9 @@ export default function MeetingCard({
   socketOpen,
   setInMeeting,
   setMeetingId,
-  setOwnerId
+  setOwnerId,
+  setBackgroundImage,
+  setImageLoaded
 }) {
 
   const classes = useStyles();
@@ -62,11 +64,11 @@ export default function MeetingCard({
   };
 
   const startMeeting = () => {
-    socket.emit('startMeeting', {id: id});
+    socket.emit('startMeeting', { id: id });
   };
 
   const enterMeeting = () => {
-    socket.emit('enterMeeting', {user: user, meetingId: id, attendeeIds: attendeeIds})
+    socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
   }
 
   useEffect(() => {
@@ -79,12 +81,27 @@ export default function MeetingCard({
       //   }
       // })
 
-      socket.on('enteredMeeting', res => {
+      socket.on('enteredMeeting', data => {
         // console.log('Meeting is: ', res);
+        let res = data.meeting;
+        console.log('debug', res.owner_id);
+        console.log('debug', res.id);
+        console.log('debug', data.image);
+        console.log('debug', data);
+        // debugger;
         // console.log('current user entered the room', user);
         setInMeeting(true)
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
+
+
+        let myImage = new Image();
+        myImage.onload = () => {
+          setImageLoaded(true)
+          setBackgroundImage(myImage);
+        };
+        myImage.src = data.image; //pull this from socket
+
       })
 
       return () => {
@@ -128,9 +145,9 @@ export default function MeetingCard({
             Description: {description}
           </Typography>
           <Typography variant="body2" component="p">Attendees</Typography>
-            <ul>
-              {attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
-            </ul>
+          <ul>
+            {attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
+          </ul>
           {user.username === owner ?
             <Owner
               id={id}

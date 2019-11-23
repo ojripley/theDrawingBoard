@@ -57,8 +57,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode }) {
-  const [isLoaded, setLoaded] = useState(false);
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage }) {
+  // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState('');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
@@ -112,9 +112,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, debouncedNotes, user])
 
 
-  let myImage = new Image();
-  myImage.onload = () => { setLoaded(true) };
-  myImage.src = theImage; //pull this from socket
+  // let myImage = new Image();
+  // myImage.onload = () => { setLoaded(true) };
+  // myImage.src = theImage; //pull this from socket
 
   return (
     <>
@@ -122,8 +122,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         user={user}
         socket={socket}
         socketOpen={socketOpen}
-        imageEl={myImage}
-        isLoaded={isLoaded}
+        imageEl={backgroundImage}
+        imageLoaded={imageLoaded}
         meetingId={meetingId}
       />
       <Fab

@@ -26,6 +26,8 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
+  const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -63,6 +65,8 @@ export default function App() {
           initialNotes={meetingNotes}
           setInMeeting={setInMeeting}
           setMeetingId={setMeetingId}
+          imageLoaded={imageLoaded}
+          backgroundImage={backgroundImage}
           setMode={setMode}
         />
       );
@@ -78,6 +82,8 @@ export default function App() {
               setInMeeting={setInMeeting}
               setMeetingId={setMeetingId}
               setOwnerId={setOwnerId}
+              setBackgroundImage={setBackgroundImage}
+              setImageLoaded={setImageLoaded}
             />}
           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
