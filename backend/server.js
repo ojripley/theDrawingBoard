@@ -181,7 +181,7 @@ io.on('connection', (client) => {
 
 
 
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
       .then(res => {
         client.emit('newMeeting', res[0]);
         // console.log(res[0].id);
