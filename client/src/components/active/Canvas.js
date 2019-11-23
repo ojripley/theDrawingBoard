@@ -33,7 +33,7 @@ function reducer(state, action) {
       return { ...state, ctx: action.payload };
     case REDRAW: {
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
-
+      console.log("1- state", state)
       //Sets the properties (change this part for custom pixel colors)
       state.ctx.lineJoin = "round";
       state.ctx.lineWidth = 2;
@@ -103,7 +103,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         console.log(user);
         console.log(data.code);
         if (myCode.current !== data.code) {
-          dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: data.pixel } });
+          dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
       });
