@@ -22,6 +22,7 @@
     "express": "^4.17.1",
     "morgan": "^1.9.1",
     "node-sass-middleware": "^0.11.0",
+    "pdf-image": "^2.0.0",
     "pg": "^6.4.2",
     "pg-native": "^3.0.0",
     "socket.io": "^2.3.0"
