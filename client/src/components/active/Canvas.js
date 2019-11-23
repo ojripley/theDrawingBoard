@@ -113,8 +113,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     }
   }, [socket, socketOpen, user.username]);
 
-
-
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
     imageCanvasRef.current.width = window.innerWidth;

@@ -1,9 +1,9 @@
 
-//          ####   ######   ######   #   #   #####
+//          #####   ######   ######   #   #   #####
 //         #       #         #      #   #   #   #
-//          ###    #####      #      #   #   ####
-//             #   #          #      #   #   #
-//         ####    ######     #       ###    #
+//          #####    #####      #      #   #   ####
+//               #   #          #      #   #   #
+//          #####  ######     #       ###    #
 //
 //
 //
@@ -99,6 +99,8 @@ io.on('connection', (client) => {
   client.on('addClick', data => {
     console.log("message received");
     console.log(data.pixel.x);
+    activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
+    console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data);//pass message along
   })
 
@@ -129,9 +131,29 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
+
+
+
+    // TODO
+
+    // fetch file from local storage
+    // send the actual file, either through the socket event or a route
+
+
+
+
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
+
+        // if going to send the file through the socket event, use the following logic
+
+        // if res.link {
+          // client.emit('meetingsWithDocs')
+        // } else {
+
         client.emit('meetings', res);
+
+        // }
       });
   });
 
@@ -203,6 +225,10 @@ io.on('connection', (client) => {
         db.fetchMeetingById(data.id)
           .then(res => { // meeting has been retrieved
             const meeting = res[0];
+
+            // set meeting pixel log
+            meeting['userPixels'] = {};
+
             const attendeeIds = meeting.invited_users;
 
             // keep track of active meetings
@@ -220,12 +246,15 @@ io.on('connection', (client) => {
       });
   });
 
-    client.on('enterMeeting', (data) => {
-      client.emit('enteredMeeting', activeMeetings[data.meetingId]);
+  client.on('enterMeeting', (data) => {
+    if (!activeMeetings[data.meetingId].userPixels[data.user.id]) {
+      activeMeetings[data.meetingId].userPixels[data.user.id] = [];
+    }
+    client.emit('enteredMeeting', activeMeetings[data.meetingId], activeMeetings[data.meetingId].userPixels);
 
-      client.join(data.meetingId);
-      io.to(data.meetingId).emit('newParticipant', (data.user));
-    });
+    client.join(data.meetingId);
+    io.to(data.meetingId).emit('newParticipant', (data.user));
+  });
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
@@ -233,7 +262,7 @@ io.on('connection', (client) => {
 
       // data needs to be:
       // the document -> talk to T
-      // end time (not strictly needed)
+      // end_time (not strictly needed)
 
       db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
       io.to(data.meetingId).emit('requestNotes', data.meetingId);
@@ -251,6 +280,13 @@ io.on('connection', (client) => {
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
       });
+    });
+
+    client.on('fetchNotes', (data) => {
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
+          client.emit('notes', res[0]);
+        });
     });
 
 });

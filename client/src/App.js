@@ -63,6 +63,7 @@ export default function App() {
           initialNotes={meetingNotes}
           setInMeeting={setInMeeting}
           setMeetingId={setMeetingId}
+          setMode={setMode}
         />
       );
     } else {
