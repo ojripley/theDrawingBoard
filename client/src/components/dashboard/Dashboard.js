@@ -45,7 +45,7 @@ export default function Dashboard(props) {
   //   props.socket.emit('startMeeting', {id: props.id});
   // };
 
-  const list = meetings.map(meeting => {
+  const meetingsList = meetings.map(meeting => {
     return (
       <li className='meeting-list-item' key={meeting.id}>
         <MeetingCard
@@ -79,7 +79,7 @@ export default function Dashboard(props) {
         user={currentUser}
       />
       <ul className='meeting-list'>
-        {list}
+        {meetingsList}
       </ul>
     </div>
   );
