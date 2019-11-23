@@ -16,7 +16,6 @@
 
 // load .env data into process.env
 require('dotenv').config();
-var fs = require('fs');
 
 // server config
 const PORT = process.env.PORT || 8080;
@@ -27,6 +26,9 @@ const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-session');
+const fs = require('fs');
+const PDFImage = require("pdf-image").PDFImage;
+
 
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
@@ -189,10 +191,30 @@ io.on('connection', (client) => {
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-            if (err) throw err;
-            console.log('The file has been saved!');
-          }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+          //Check if pdf
+          if (data.file.name.search(/\.pdf$/ig) !== -1) {
+
+            fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+              if (err) throw err;
+              console.log('The file has been saved!');
+            }, () => {
+              let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+
+              pdfImage.convertPage(0).then(function(imagePath) {
+                // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                fs.existsSync("/tmp/slide-0.png") // => true\
+                console.log(imagePath);
+              });
+            }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+
+
+
+          } else {
+            fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+              if (err) throw err;
+              console.log('The file has been saved!');
+            }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+          }
         });
         const promiseArray = [];
 
@@ -256,20 +278,25 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
-    if (!activeMeetings[data.meetingId].userPixels[data.user.id]) {
-      activeMeetings[data.meetingId].userPixels[data.user.id] = [];
+    let meetingDetails = activeMeetings[data.meetingId];
+    if (!meetingDetails.userPixels[data.user.id]) {
+      meetingDetails.userPixels[data.user.id] = [];
     }
-    console.log("Looking for", `meeting_files/${data.meetingId}/${activeMeetings[data.meetingId].link_to_initial_doc}`);
-    fs.readFile(`meeting_files/${data.meetingId}/${activeMeetings[data.meetingId].link_to_initial_doc}`, (err, image) => {
+    console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
+    
+    let img;
+    if(meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !==-1){
+      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0]+"-0.png";
+    }else{
+      img= meetingDetails.link_to_initial_doc;
+    }
 
+    fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
       if (err) {
         console.error;
         image = "";
       }
-
-      // socket.emit('imageConversionByServer', "data:image/jpg;base64,"+ data.toString("base64"));
-
-      client.emit('enteredMeeting', { meeting: activeMeetings[data.meetingId], pixels: activeMeetings[data.meetingId].userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+      client.emit('enteredMeeting', { meeting: meetingDetails, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
       client.join(data.meetingId);
       io.to(data.meetingId).emit('newParticipant', (data.user));
