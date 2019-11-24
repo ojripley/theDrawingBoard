@@ -93,15 +93,14 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   // let myImage = new Image();
   // myImage.onload = () => { setLoaded(true) };
   // myImage.src = theImage; //pull this from socket
-
   return (
-    <>
+    imageLoaded && <>
       <Canvas
         user={user}
         socket={socket}
         socketOpen={socketOpen}
         imageEl={backgroundImage}
-        imageLoaded={imageLoaded}
+        isLoaded={imageLoaded}
         meetingId={meetingId}
         initialPixels={initialPixels}
       />

@@ -120,20 +120,20 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //Loads the initial drawing canvas
   useEffect(() => {
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = window.innerHeight;
+    drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
       payload: newCtx
     });
-  }, []);
+  }, [isLoaded, imageEl]);
 
 
 
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
       prev = imageCanvasRef.current.getContext('2d')
-      prev.drawImage(drawCanvasRef.current, 0, 0, window.innerWidth, window.innerHeight);
+      prev.drawImage(drawCanvasRef.current, 0, 0, drawCanvasRef.current.width, drawCanvasRef.current.height);
     });
   }
 
@@ -163,14 +163,14 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     });
   }
 
-
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
-    imageCanvasRef.current.width = window.innerWidth;
-    imageCanvasRef.current.height = window.innerHeight;
+
     setImageCtx(prev => {
+      imageCanvasRef.current.width = window.innerWidth;
+      imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
       prev = imageCanvasRef.current.getContext('2d');
-      prev.drawImage(imageEl, 0, 0, window.innerWidth, window.innerHeight);
+      prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
       dispatch({ type: REDRAW })
     });

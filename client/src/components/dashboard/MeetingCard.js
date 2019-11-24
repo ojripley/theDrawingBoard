@@ -118,7 +118,7 @@ export default function MeetingCard({
     return () => {
       socket.off('meetingStarted');
     };
-  }, [socket, id, activeMeeting, setMeetingId, setOwnerId])
+  }, [socket, id, activeMeeting])
 
   return (
     <div className={classes.root}>
