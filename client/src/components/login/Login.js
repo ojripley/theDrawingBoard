@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Button from '@material-ui/core/Button';
+// import cookie from "react-cookie";
 
 export default function Login(props) {
 
@@ -28,9 +29,11 @@ export default function Login(props) {
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('loginResponse', (data) => {
-        if (data.id) {
+        if (data.user && data.user.id) {
           // console.log(data);
-          props.setUser(data);
+          console.log("Attempting to set cookie");
+          document.cookie = `sid=${data.session}`;
+          props.setUser(data.user);
         }
       })
 
@@ -56,15 +59,16 @@ export default function Login(props) {
         value={password}
         onChange={event => setPassword(event.target.value)}
         onKeyPress={onEnter}
-        InputProps={{endAdornment:
-          <InputAdornment position="end">
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={() => showPassword ? setShowPassword(false) : setShowPassword(true)}
-            >
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          </InputAdornment>
+        InputProps={{
+          endAdornment:
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={() => showPassword ? setShowPassword(false) : setShowPassword(true)}
+              >
+                {showPassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
         }}
       />
       <Button variant="contained" onClick={handleLogin}>Login</Button>
