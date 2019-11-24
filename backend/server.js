@@ -96,6 +96,7 @@ io.on('connection', (client) => {
       db.fetchUserByEmail(email)
         .then(res => {
           console.log(res);
+          activeUsers.addUser(res[0].id, client);
           client.emit('cookieResponse', res);
         })
         .catch(err => {
@@ -281,6 +282,7 @@ io.on('connection', (client) => {
             for (let contactId of res[0].attendee_ids) {
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
+                console.log('res[0]:', res[0])
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
               }
             }
