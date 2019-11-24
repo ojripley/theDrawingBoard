@@ -4,12 +4,17 @@ import Button from '@material-ui/core/Button';
 
 export default function DetailedHistory(props) {
 
+  console.log('props for details', props);
+
   const [notes, setNotes] = useState('');
+  const [image, setImage] = useState('');
 
   useEffect(() => {
-    props.socket.emit('fetchNotes', {user: props.user, meetingId: props.meeting.id});
+    props.socket.emit('fetchNotes', {user: props.user, meetingId: props.meeting.id, linkToFinalDoc: props.meeting.link_to_final_doc});
     props.socket.on('notes', res => {
-      setNotes(res.notes);
+      console.log('image', res.image);
+      setNotes(res.usersMeetings.notes);
+      setImage(res.image);
     });
 
     return () => props.socket.off('notes');
@@ -28,7 +33,7 @@ export default function DetailedHistory(props) {
       <h4>My Notes</h4>
       <p>{notes}</p>
       <h4>Group Notes</h4>
-      <p>Pics go here</p>
+      <img src={image} alt='meeting-notes' />
       <Button variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
     </Box>
   );
