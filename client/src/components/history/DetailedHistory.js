@@ -3,7 +3,6 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 
 export default function DetailedHistory(props) {
-  console.log(props.meeting);
 
   const [notes, setNotes] = useState('');
 

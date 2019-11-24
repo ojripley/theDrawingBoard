@@ -16,6 +16,8 @@ export default function History(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'past'});
       props.socket.on('meetings', data => {
+        console.log('fetched meetings')
+        console.log(data)
         setMeetings(data)
       });
 
