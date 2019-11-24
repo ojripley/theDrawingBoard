@@ -177,6 +177,19 @@ io.on('connection', (client) => {
         // client.emit('meetingsWithDocs')
         // } else {
 
+          // let meetingDetails = activeMeetings[res.meetingId];
+          // if (!meetingDetails.userPixels[data.user.id]) {
+          //   meetingDetails.userPixels[data.user.id] = [];
+          // }
+          // console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
+
+          // let img;
+          // if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+          //   img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+          // } else {
+          //   img = meetingDetails.link_to_initial_doc;
+          // }
+
         client.emit('meetings', res);
 
         // }
@@ -369,7 +382,20 @@ io.on('connection', (client) => {
   client.on('fetchNotes', (data) => {
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        client.emit('notes', res[0]);
+        console.log('image', `meeting_files/${data.meetingId}/${data.linkToFinalDoc}`);
+        fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
+          if (err) {
+            console.error;
+            image = "";
+          }
+          // console.log("sending these pixels");
+          // console.log(meetingDetails.userPixels);
+          // client.emit('enteredMeeting', { image: "data:image/jpg;base64," + image.toString("base64") });
+
+          // client.join(data.meetingId);
+          // io.to(data.meetingId).emit('newParticipant', (data.user));
+          client.emit('notes', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
+        });
       });
   });
 
