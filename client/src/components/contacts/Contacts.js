@@ -8,12 +8,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 
-
-
-// boiled data
-// will be replaced with an axios call
-
-
 const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
@@ -56,7 +50,7 @@ export default function Contacts(props) {
         props.socket.emit('fetchContactsGlobal', { username: debouncedSearchTerm });
         props.socket.on('contactsGlobal', (data) => {
           setContactsList(data);
-        });
+      });
 
         // close event after receiving data. Prevents multiple events
         return () => props.socket.off('contactsGlobal');
@@ -66,7 +60,7 @@ export default function Contacts(props) {
         props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: debouncedSearchTerm });
         props.socket.on('contactsByUserId', (data) => {
           setContactsList(data);
-        });
+      });
 
         // close event after recieving data. Prevents multiple events
         return () => props.socket.off('contactsByUserId');
@@ -78,8 +72,10 @@ export default function Contacts(props) {
     if (friend.username !== props.user.username) {
       return (<Contact
         key={friend.id}
-        username={friend.username}
-        email={friend.email}
+        contact={friend}
+        user={props.user}
+        socket={props.socket}
+        socketOpen={props.socketOpen}
       />);
     }
     return null;
