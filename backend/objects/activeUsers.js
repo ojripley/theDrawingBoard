@@ -7,12 +7,15 @@ class ActiveUsers {
   // methods           //
 
   addUser(id, client) {
-    this[id] = {id: id, socket: client};
+    // let sid = this.generateSessionId();
+    this[id] = { id: id, socket: client };
+    // return sid;
   }
 
   removeUser(id) {
     delete this[id];
   }
+
 };
 
 module.exports = { ActiveUsers };
