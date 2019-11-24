@@ -17,7 +17,7 @@ export default function DetailedHistory(props) {
     });
 
     return () => props.socket.off('notes');
-  }, [props.socket, props.meeting.id, props.user])
+  }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc])
 
   return (
     <Box>
