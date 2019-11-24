@@ -16,7 +16,6 @@
 
 // load .env data into process.env
 require('dotenv').config();
-const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
 
 // server config
 const PORT = process.env.PORT || 8080;
@@ -26,7 +25,7 @@ const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, { cookie: "yo" });
-// const cookieParser = require('cookie-session');
+const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 
@@ -53,7 +52,6 @@ const usersMeetingsRoutes = require('./routes/usersMeetingsRoutes');
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
 
-// app.use(cookieParser({ signed: false }));
 const encrypt = (text) => {
   var cipher = crypto.createCipher(algorithm, password)
   var crypted = cipher.update(text, 'utf8', 'hex')

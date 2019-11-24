@@ -22,6 +22,11 @@ const useStyles = makeStyles(theme => ({
 export default function NavBar(props) {
   const classes = useStyles();
 
+  const handleLogout = () => {
+    document.cookie = 'sid=""'; //clear the cookie
+    props.setUser(null);
+  }
+
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -35,7 +40,7 @@ export default function NavBar(props) {
           {props.user && (
             <>
               <h2>{props.user.username}</h2>
-              <Button color="inherit">Logout</Button>
+              <Button color="inherit" onClick={handleLogout}>Logout</Button>
             </>
           )}
         </Toolbar>

@@ -75,7 +75,7 @@ export default function App() {
     } else {
       return (
         <Box>
-          <NavBar user={user} />
+          <NavBar user={user} setUser={setUser} />
           {mode === DASHBOARD &&
             <Dashboard
               socket={socket}
