@@ -21,10 +21,14 @@ const fetchContactsByUserId = function(user_id, username = '') {
   const vars = [user_id, `%${username}%`];
 
   return db.query(`
-    SELECT username, id, email FROM users
+    SELECT username, id, email, relation FROM users
     JOIN friends ON friends.friend_id = users.id
-    WHERE friends.user_id = $1
-    AND username ILIKE $2;
+    WHERE (friends.user_id = $1
+    AND username ILIKE $2
+    AND friends.relation = 'accepted')
+    OR (friends.user_id = $1
+    AND username ILIKE $2
+    AND friends.relation = 'requested');
   `, vars)
     .then(res => {
       return res.rows;
@@ -34,14 +38,38 @@ const fetchContactsByUserId = function(user_id, username = '') {
     });
 };
 
-const fetchUsersByUsername = function(username = '') {
+// const fetchUsersByUsername = function(username = '', id) {
 
-  const vars = [`%${username}%`];
+//   const vars = [`%${username}%`, id];
+
+//   return db.query(`
+//     SELECT username, email, id
+//     FROM users
+//     LEFT OUTER JOIN friends on id = friends.friend_id
+//     WHERE username ILIKE $1
+//     AND friends.user_id != $2
+//   `, vars)
+//     .then(res => {
+//       return res.rows;
+//     })
+//     .catch(error => {
+//       console.error('Query Error', error);
+//     });
+// };
+
+
+
+
+
+
+
+
+const fetchUsersByUsername = function (username = '', id) {
+
+  const vars = [`%${username}%`, id];
 
   return db.query(`
-    SELECT username, email, id
-    FROM users
-    WHERE username ILIKE $1;
+    select * from users left join friends on users.id=friends.user_id where (friend_id != $2 or friend_id is null) and id != $2 and username ILIKE $1;
   `, vars)
     .then(res => {
       return res.rows;
@@ -50,6 +78,21 @@ const fetchUsersByUsername = function(username = '') {
       console.error('Query Error', error);
     });
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const fetchMeetingsByUserId = function(username, meeting_status) {
 
@@ -181,7 +224,7 @@ const insertFriend = function(user_id, friend_id, status) {
   const vars = [user_id, friend_id, status];
 
   return db.query(`
-    INSERT INTO friends (user_id, friend_id, status)
+    INSERT INTO friends (user_id, friend_id, relation)
     VALUES ($1, $2, $3);
   `, vars)
     .then(res => {
@@ -192,14 +235,15 @@ const insertFriend = function(user_id, friend_id, status) {
     });
 };
 
-const updateFriendStatus = function(user_id, status) {
+const updateFriendStatus = function(user_id, friend_id, relation) {
 
-  const vars = [user_id, status];
+  const vars = [user_id, friend_id, relation];
 
   return db.query(`
     UPDATE friends
-    SET status = $2
-    WHERE user_id = $1;
+    SET relation = $3
+    WHERE user_id = $1
+    AND friend_id =$2;
   `, vars)
     .then(res => {
       return res.rows;
@@ -279,4 +323,21 @@ const updateMeetingById = function(meeting_id, end_time, active, status, link_to
     });
 }
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById };
+const deleteContact = function(user_id, contact_id) {
+  const vars = [user_id, contact_id];
+
+  return db.query(`
+    DELETE FROM friends
+    WHERE user_id = $1
+    AND friend_id = $2;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+}
+
+
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById, deleteContact };

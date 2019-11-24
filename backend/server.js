@@ -122,13 +122,15 @@ io.on('connection', (client) => {
   client.on('fetchContactsByUserId', (data) => {
     db.fetchContactsByUserId(data.id, data.username)
       .then(res => {
+        console.log(res);
         client.emit('contactsByUserId', res);
       });
   });
 
   client.on('fetchContactsGlobal', (data) => {
-    db.fetchUsersByUsername(data.username)
+    db.fetchUsersByUsername(data.username, data.user.id)
       .then(res => {
+        console.log(res);
         client.emit('contactsGlobal', res);
       });
   })
@@ -348,6 +350,51 @@ io.on('connection', (client) => {
       .then((res) => {
         client.emit('notes', res[0]);
       });
+  });
+
+  client.on('addContact', (data) => {
+
+    console.log('adding contact');
+    console.log(data.contactId);
+
+    // user requests contact add
+    db.insertFriend(data.user.id, data.contactId, 'requested');
+
+    // friend is now a pending add
+    db.insertFriend(data.contactId, data.user.id, 'pending');
+
+    // tell the user they're request has been sent
+    client.emit('relationChanged', { relation: 'requested', contactId: data.contactId });
+
+    // tell the client they have a contact request if they are online
+    if (activeUsers[data.contactId]) {
+      activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
+    }
+  });
+
+  client.on('changeRelation', (data) => {
+
+    // change the user relation
+    db.updateFriendStatus(data.user.id, data.contactId, data.relation)
+    client.emit('relationChanged', {relation: data.relation, contactId: data.contactId});
+
+    // change the contact status based on what the user relation was
+    if (data.relation === 'accepted') {
+      db.updateFriendStatus(data.contactId, data.user.id, 'accepted');
+      if (activeUsers[data.contactId]) {
+        activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'accepted', contactId: data.user.id });
+      }
+    }
+  });
+
+  client.on('deleteContact', (data) => {
+    db.deleteContact(data.user.id, data.contactId);
+    db.deleteContact(data.contactId, data.user.id);
+
+    client.emit('relationChanged', { relation: null, contactId: data.contactId });
+    if (activeUsers[data.contactId]) {
+      activeUsers[data.contactId].socket.emit('relationChanged', { relation: null, contactId: data.user.id } );
+    }
   });
 
 });
