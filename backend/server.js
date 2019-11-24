@@ -129,6 +129,7 @@ io.on('connection', (client) => {
 
   client.on('fetchContactsGlobal', (data) => {
     db.fetchUsersByUsername(data.username, data.user.id)
+    // db.fetchUsersByUsername(data.user.id)
       .then(res => {
         console.log(res);
         client.emit('contactsGlobal', res);

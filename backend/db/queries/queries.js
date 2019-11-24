@@ -25,10 +25,14 @@ const fetchContactsByUserId = function(user_id, username = '') {
     JOIN friends ON friends.friend_id = users.id
     WHERE (friends.user_id = $1
     AND username ILIKE $2
-    AND friends.relation = 'accepted')
+    AND friends.relation = 'pending')
     OR (friends.user_id = $1
     AND username ILIKE $2
-    AND friends.relation = 'requested');
+    AND friends.relation = 'requested')
+    OR (friends.user_id = $1
+    AND username ILIKE $2
+    AND friends.relation = 'accepted');
+
   `, vars)
     .then(res => {
       return res.rows;
@@ -69,8 +73,9 @@ const fetchUsersByUsername = function (username = '', id) {
   const vars = [`%${username}%`, id];
 
   return db.query(`
-    select * from users left join friends on users.id=friends.user_id where (friend_id != $2 or friend_id is null) and id != $2 and username ILIKE $1;
-  `, vars)
+select id, username, relation from users left join friends on users.id = friends.user_id where username ilike $1 and (friend_id=$2 OR friend_id is null)
+union
+select id, username, null as relation from users join friends on users.id=friends.user_id where username ilike $1 and id != $2 group by id having($2 != all(array_agg(friend_id)));  `, vars)
     .then(res => {
       return res.rows;
     })
