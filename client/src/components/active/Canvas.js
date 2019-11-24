@@ -100,6 +100,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   const classes = useStyles();
 
+
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
   let [paint, setPaint] = useState(false);
@@ -130,7 +131,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
 
   const mergeWithImage = () => {
-    console.log('imageEl on merge:', imageEl.height, imageEl.width);
     setImageCtx(prev => { //adds the click to the image canvas
       prev = imageCanvasRef.current.getContext('2d')
       prev.drawImage(drawCanvasRef.current, 0, 0, imageEl.width, imageEl.height);
@@ -165,7 +165,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
-    console.log('imageEl on load:', imageEl.height, imageEl.width);
 
     setImageCtx(prev => {
       imageCanvasRef.current.width = window.innerWidth;
