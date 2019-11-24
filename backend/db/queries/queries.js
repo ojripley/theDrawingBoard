@@ -34,7 +34,7 @@ const fetchContactsByUserId = function(user_id, username = '') {
     });
 };
 
-const fetchUsersByUsername = function (username = '') {
+const fetchUsersByUsername = function(username = '') {
 
   const vars = [`%${username}%`];
 
@@ -51,12 +51,12 @@ const fetchUsersByUsername = function (username = '') {
     });
 };
 
-const fetchMeetingsByUserId = function (username, meeting_status) {
+const fetchMeetingsByUserId = function(username, meeting_status) {
 
   const vars = [username, meeting_status];
 
   return db.query(`
-    SELECT start_time, end_time, name, description, active, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids FROM meetings
+    SELECT start_time, end_time, name, description, active, link_to_final_doc, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
@@ -73,7 +73,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
     });
 };
 
-const fetchMeetingById = function (meeting_id) {
+const fetchMeetingById = function(meeting_id) {
 
   const vars = [meeting_id];
 
@@ -128,7 +128,7 @@ const fetchMeetingWithUsersById = function(meeting_id) {
     });
 }
 
-const insertUser = function (username, email, password) {
+const insertUser = function(username, email, password) {
 
   const vars = [username, email, password];
 
@@ -144,7 +144,7 @@ const insertUser = function (username, email, password) {
     });
 };
 
-const insertMeeting = function (start_time, owner_id, name, description, status, link_to_initial_doc) {
+const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_doc) {
 
   const vars = [start_time, owner_id, name, description, status, link_to_initial_doc];
 
@@ -161,7 +161,7 @@ const insertMeeting = function (start_time, owner_id, name, description, status,
     });
 };
 
-const insertUsersMeeting = function (user_id, meeting_id) {
+const insertUsersMeeting = function(user_id, meeting_id) {
   const vars = [user_id, meeting_id, 'invited'];
 
   return db.query(`
@@ -176,7 +176,7 @@ const insertUsersMeeting = function (user_id, meeting_id) {
     });
 };
 
-const insertFriend = function (user_id, friend_id, status) {
+const insertFriend = function(user_id, friend_id, status) {
 
   const vars = [user_id, friend_id, status];
 
@@ -192,7 +192,7 @@ const insertFriend = function (user_id, friend_id, status) {
     });
 };
 
-const updateFriendStatus = function (user_id, status) {
+const updateFriendStatus = function(user_id, status) {
 
   const vars = [user_id, status];
 
@@ -209,7 +209,7 @@ const updateFriendStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingsStatus = function (user_id, status) {
+const updateUsersMeetingsStatus = function(user_id, status) {
 
   const vars = [user_id, status];
 
@@ -226,7 +226,7 @@ const updateUsersMeetingsStatus = function (user_id, status) {
     });
 };
 
-const updateUsersMeetingNotes = function (user_id, meeting_id, notes) {
+const updateUsersMeetingsNotes = function(user_id, meeting_id, notes) {
   const vars = [user_id, meeting_id, notes];
 
   return db.query(`
@@ -243,8 +243,8 @@ const updateUsersMeetingNotes = function (user_id, meeting_id, notes) {
     });
 };
 
-const updateMeetingActiveState = function(meeting_id, status) {
-  const vars = [meeting_id, status];
+const updateMeetingActiveState = function(meeting_id, active) {
+  const vars = [meeting_id, active];
 
   return db.query(`
     UPDATE meetings
@@ -259,4 +259,24 @@ const updateMeetingActiveState = function(meeting_id, status) {
     });
 }
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingNotes, updateMeetingActiveState };
+const updateMeetingById = function(meeting_id, end_time, active, status, link_to_final_doc) {
+  const vars = [meeting_id, end_time, active, status, link_to_final_doc];
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      end_time = $2,
+      active = $3,
+      status = $4,
+      link_to_final_doc = $5
+    WHERE id = $1;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+}
+
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById };

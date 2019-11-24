@@ -14,14 +14,16 @@ export default function FormDialog(props) {
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [meetingName, setMeetingName] = useState('');
   const [meetingDesc, setMeetingDesc] = useState('');
+  const [file, setFile] = useState({});
 
   // const handleClickOpen = () => {
   //   setOpen(true);
   // };
 
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedContacts([]);
+  };
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -42,7 +44,8 @@ export default function FormDialog(props) {
       description: meetingDesc,
       status: 'scheduled',
       linkToInitialDoc: null,
-      selectedContacts: [...selectedContacts, props.user]
+      selectedContacts: [...selectedContacts, props.user],
+      file: file
     });
 
     setOpen(false);
@@ -53,7 +56,7 @@ export default function FormDialog(props) {
       <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
         Create New Meeting
       </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">New Meeting</DialogTitle>
         <DialogContent>
           <Form
@@ -68,10 +71,11 @@ export default function FormDialog(props) {
             setMeetingName={setMeetingName}
             meetingDesc={meetingDesc}
             setMeetingDesc={setMeetingDesc}
+            setFile={setFile}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">
+          <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
           <Button

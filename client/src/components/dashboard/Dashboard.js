@@ -19,7 +19,7 @@ export default function Dashboard(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
+      props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'scheduled' });
       props.socket.on('meetings', data => {
         // console.log('handling')
         setMeetings(data)
@@ -45,7 +45,7 @@ export default function Dashboard(props) {
   //   props.socket.emit('startMeeting', {id: props.id});
   // };
 
-  const list = meetings.map(meeting => {
+  const meetingsList = meetings.map(meeting => {
     return (
       <li className='meeting-list-item' key={meeting.id}>
         <MeetingCard
@@ -65,6 +65,9 @@ export default function Dashboard(props) {
           setInMeeting={props.setInMeeting}
           setMeetingId={props.setMeetingId}
           setOwnerId={props.setOwnerId}
+          setBackgroundImage={props.setBackgroundImage}
+          setImageLoaded={props.setImageLoaded}
+          setInitialPixels={props.setInitialPixels}
         />
       </li>
     )
@@ -79,7 +82,7 @@ export default function Dashboard(props) {
         user={currentUser}
       />
       <ul className='meeting-list'>
-        {list}
+        {meetingsList}
       </ul>
     </div>
   );
