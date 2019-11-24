@@ -12,13 +12,12 @@ export default function DetailedHistory(props) {
   useEffect(() => {
     props.socket.emit('fetchNotes', {user: props.user, meetingId: props.meeting.id, linkToFinalDoc: props.meeting.link_to_final_doc});
     props.socket.on('notes', res => {
-      console.log('image', res.image);
       setNotes(res.usersMeetings.notes);
       setImage(res.image);
     });
 
     return () => props.socket.off('notes');
-  }, [props.socket, props.meeting.id, props.user])
+  }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc])
 
   return (
     <Box>
