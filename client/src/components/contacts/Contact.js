@@ -75,7 +75,7 @@ export default function Contact(props) {
 
 
         <Button variant="outlined" color="primary" onClick={changeRelation}>
-        {relationStatus === undefined ? 'add contact' : relationStatus === 'accepted' ? 'remove friend' : relationStatus === 'requested' ? 'requested' : 'add contact'}
+        {relationStatus === undefined ? 'add contact' : relationStatus === 'accepted' ? 'remove friend' : relationStatus === 'requested' ? 'requested' : relationStatus === 'pending' ? 'hey accept me!' : 'add contact'}
         </Button>
 
       </Card>
