@@ -34,13 +34,6 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      // socket.emit('loginAttempt', { email: 'sdfs@mail.com', password: 'p' });
-      // socket.on('loginResponse', (data) => {
-      //   if (data.id) {
-      //     // console.log(data);
-      //     setUser(data);
-      //   }
-      // });
       socket.on(
         'msg', data => {
           console.log(data);
@@ -50,6 +43,11 @@ export default function App() {
         setInMeeting(data.inMeeting); //Can be changed by user on login
         setMeetingNotes(data.notes); //notes for the current meeting
       });
+
+      return () => {
+        socket.off('msg');
+        socket.off('meeting');
+      }
     }
   }, [socket, socketOpen]);
 
