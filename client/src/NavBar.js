@@ -30,9 +30,14 @@ export default function NavBar(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            News
+            The Drawing Board
           </Typography>
-          {props.user ? <h2>{props.user.username}</h2> :  <Button color="inherit">Login</Button>}
+          {props.user && (
+            <>
+              <h2>{props.user.username}</h2>
+              <Button color="inherit">Logout</Button>
+            </>
+          )}
         </Toolbar>
       </AppBar>
     </div>
