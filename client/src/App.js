@@ -34,18 +34,19 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      socket.on(
-        'msg', data => {
-          console.log(data);
-        });
+      socket.emit('checkCookie');
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
         setInMeeting(data.inMeeting); //Can be changed by user on login
         setMeetingNotes(data.notes); //notes for the current meeting
       });
 
+      socket.on('cookieResponse', data => {
+        setUser(data[0]);
+      });
+
       return () => {
-        socket.off('msg');
+        socket.off('cookieResponse');
         socket.off('meeting');
       }
     }
