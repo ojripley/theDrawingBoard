@@ -28,6 +28,7 @@ export default function Contacts(props) {
   const [globalSearch, setGlobalSearch] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
 
+
   const handleSearchTermChange = event => {
     setSearchTerm(event.target.value);
   };
@@ -41,14 +42,24 @@ export default function Contacts(props) {
   };
 
   useEffect(() => {
+    props.socket.off('relationChanged');
+
+    return () => {
+      // setContactsList([]);
+    }
+  }, [globalSearch, props.socket]);
+
+  useEffect(() => {
     console.log(debouncedSearchTerm);
     // socket check
     if (props.socketOpen) {
       if (globalSearch) {
 
         // emit global search
-        props.socket.emit('fetchContactsGlobal', { username: debouncedSearchTerm });
+        props.socket.emit('fetchContactsGlobal', { username: debouncedSearchTerm, user: props.user });
         props.socket.on('contactsGlobal', (data) => {
+          console.log('recieved all users:')
+          console.log(data);
           setContactsList(data);
       });
 
@@ -59,17 +70,24 @@ export default function Contacts(props) {
         // emit contact search
         props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: debouncedSearchTerm });
         props.socket.on('contactsByUserId', (data) => {
+          console.log('recieved contacts:')
+          console.log(data);
           setContactsList(data);
       });
 
         // close event after recieving data. Prevents multiple events
-        return () => props.socket.off('contactsByUserId');
+        return () => {
+          props.socket.off('contactsByUserId')
+        };
       }
     }
-  }, [debouncedSearchTerm, globalSearch, props.socket, props.socketOpen, props.user.id]);
+  }, [debouncedSearchTerm, globalSearch, props.socket, props.socketOpen, props.user]);
+
 
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {
+      console.log(friend.username, friend.id);
+
       return (<Contact
         key={friend.id}
         contact={friend}

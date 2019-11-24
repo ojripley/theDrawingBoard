@@ -1,42 +1,82 @@
 import React, { useEffect, useState } from 'react';
 
-import RelationEditButton from './RelationEditButton';
-
 import Card from '@material-ui/core/Card';
 import PersonOutlineOutlinedIcon from '@material-ui/icons/PersonOutlineOutlined';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
+import Button from '@material-ui/core/Button';
+
 
 
 import './Contacts.scss';
 
 export default function Contact(props) {
 
-  const [contact, setContact] = useState(props.contact.relation);
+  // console.log(props.contact.username, props.contact.relation);
+  const [relationStatus, setRelationStatus] = useState(props.contact.relation);
+
 
   useEffect(() => {
+    // console.log('something changed!');
     if (props.socketOpen) {
-      props.socket.emit('addContact', {user: props.user, id: props.contact.id});
+      props.socket.on('relationChanged', (data) => {
 
-      props.socket.on('contactAdded', (data) => {
-        setContact(true);
-      })
+        // console.log('contact id of operation', data.contactId);
+        // console.log('contct id of this card', props.contact.id);
+
+        if (data.contactId === props.contact.id) {
+          console.log('changing a relation for ', props.contact.id);
+            // if (!data.relation) {
+            //   data.relation = undefined;
+            // }
+
+          setRelationStatus(data.relation);
+
+        }
+      });
+
+      return () => {
+        // console.log('the clean up function has been run for', props.contact.username);
+        // props.socket.off('relationChanged');
+      };
     }
-  })
+  }, [relationStatus, props.contact, props.socket, props.socketOpen]);
 
-  const relationStatus = 'temp';
+  const changeRelation = function () {
 
+
+
+    console.log('change relationStatus of:')
+    console.log(props.contact.username)
+
+    if (relationStatus === null) {
+      console.log('insert a new relation');
+      props.socket.emit('addContact', {user: props.user, contactId: props.contact.id});
+    }
+
+    if (relationStatus === 'pending') {
+      console.log('was pending -> change to accepted');
+      props.socket.emit('changeRelation', { user: props.user, contactId: props.contact.id, relation: 'accepted' });
+    }
+
+    if (relationStatus === 'accepted') {
+      console.log('was accepted -> change to null');
+      props.socket.emit('deleteContact', { user: props.user, contactId: props.contact.id, relation: null });
+    }
+
+    if (relationStatus === 'requested') {
+      props.socket.emit('deleteContact', { user: props.user, contactId: props.contact.id, relation: null })
+    }
+  }
 
   return(
       <Card className='contact-card'>
         <PersonOutlineOutlinedIcon className='contact-icon'></PersonOutlineOutlinedIcon>
         <span className='contact-username'>{props.contact.username} </span>
         <span className='contact-email'>{props.contact.email}</span>
-        {/* <RelationEditButton
-          user={props.user}
-          contact={props.contact}
-          onClick={setContact}
-        /> */}
+
+
+        <Button variant="outlined" color="primary" onClick={changeRelation}>
+        {relationStatus === undefined ? 'add contact' : relationStatus === 'accepted' ? 'remove friend' : relationStatus === 'requested' ? 'requested' : 'add contact'}
+        </Button>
 
       </Card>
   );
