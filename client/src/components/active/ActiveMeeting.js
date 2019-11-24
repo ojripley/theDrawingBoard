@@ -68,8 +68,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     setSaving(true);
   }
 
-
-
   useEffect(() => {
     socket.on('requestNotes', res => {
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });

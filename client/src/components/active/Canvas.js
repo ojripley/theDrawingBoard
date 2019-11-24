@@ -186,7 +186,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     };
     dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: pixel } });
     dispatch({ type: REDRAW });
-    mergeWithImage();
+    // mergeWithImage();
   };
 
 
