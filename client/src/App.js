@@ -9,6 +9,7 @@ import ActiveMeeting from './components/active/ActiveMeeting';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
+import Login from './components/login/Login';
 
 //Custom hooks
 import { useSocket } from './hooks/useSocket'
@@ -33,13 +34,6 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      socket.emit('loginAttempt', { email: 'ta@mail.com', password: 'p' });
-      socket.on('loginResponse', (data) => {
-        if (data.id) {
-          // console.log(data);
-          setUser(data);
-        }
-      });
       socket.on(
         'msg', data => {
           console.log(data);
@@ -49,6 +43,11 @@ export default function App() {
         setInMeeting(data.inMeeting); //Can be changed by user on login
         setMeetingNotes(data.notes); //notes for the current meeting
       });
+
+      return () => {
+        socket.off('msg');
+        socket.off('meeting');
+      }
     }
   }, [socket, socketOpen]);
 
@@ -97,7 +96,10 @@ export default function App() {
     }
   } else {
     return (
-      <h1> Replace with login page </h1>
+      <>
+        <NavBar user={null} />
+        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+      </>
     );
 
   }
