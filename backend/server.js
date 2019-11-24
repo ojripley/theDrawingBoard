@@ -24,8 +24,8 @@ const bodyParser = require("body-parser");
 const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
-const cookieParser = require('cookie-session');
+const io = require('socket.io')(server, { cookie: "yo" });
+// const cookieParser = require('cookie-session');
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 
@@ -52,7 +52,12 @@ const usersMeetingsRoutes = require('./routes/usersMeetingsRoutes');
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
 
-app.use(cookieParser({ signed: false }));
+// app.use(cookieParser({ signed: false }));
+const session = require('cookie-session')({
+  name: 'some-session-name',
+  secret: 'some-session-secret',
+});
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -68,6 +73,24 @@ server.listen(PORT, () => {
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
+
+  let cookieString = client.request.headers.cookie;
+  console.log("cookieString", cookieString);
+
+  // let req1 = client.request;
+  // req1.session.userID = '123';
+  // req1.session.save();
+
+  let req = { connection: { encrypted: false }, headers: { cookie: cookieString } }
+  let res = { getHeader: () => { }, setHeader: () => { } };
+
+  session(req, res, () => {
+    console.log(req.session.username); // Do something with req.session
+    console.log(res); // Do something with req.session
+    console.log(req); // Do something with req.session
+    req.session.userID = "123";
+    req.session.save();
+  })
 
   // handles logging in and activeUsers
   client.on('loginAttempt', (data) => {

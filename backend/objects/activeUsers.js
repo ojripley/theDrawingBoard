@@ -6,8 +6,8 @@ class ActiveUsers {
   // -- -- -- -- -- -- //
   // methods           //
 
-  addUser(id, client) {
-    this[id] = {id: id, socket: client};
+  addUser(id, client, cookie) {
+    this[id] = { id: id, socket: client, cookie: cookie };
   }
 
   removeUser(id) {
