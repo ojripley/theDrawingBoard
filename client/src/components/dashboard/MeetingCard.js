@@ -50,7 +50,10 @@ export default function MeetingCard({
   socketOpen,
   setInMeeting,
   setMeetingId,
-  setOwnerId
+  setOwnerId,
+  setBackgroundImage,
+  setImageLoaded,
+  setInitialPixels
 }) {
 
   const classes = useStyles();
@@ -62,11 +65,11 @@ export default function MeetingCard({
   };
 
   const startMeeting = () => {
-    socket.emit('startMeeting', {id: id});
+    socket.emit('startMeeting', { id: id });
   };
 
   const enterMeeting = () => {
-    socket.emit('enterMeeting', {user: user, meetingId: id, attendeeIds: attendeeIds})
+    socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
   }
 
   useEffect(() => {
@@ -79,17 +82,26 @@ export default function MeetingCard({
       //   }
       // })
 
-      socket.on('enteredMeeting', res => {
+      socket.on('enteredMeeting', data => {
         // console.log('Meeting is: ', res);
-        // console.log('current user entered the room', user);
-        setInMeeting(true)
+        let res = data.meeting;
+        setInMeeting(true);
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
+
+
+        let myImage = new Image();
+        myImage.onload = () => {
+          setImageLoaded(true);
+          setBackgroundImage(myImage);
+          console.log("received these pixels", data.pixels)
+          setInitialPixels(data.pixels);
+        };
+        myImage.src = data.image; //pull this from socket
+
       })
 
       return () => {
-        // console.log('closing listeners')
-        // socket.off('meetingStarted');
         socket.off('enteredMeeting');
       };
     }
@@ -99,8 +111,6 @@ export default function MeetingCard({
     socket.on('meetingStarted', res => {
       // console.log('res', res)
       if (id === res.meetingId) {
-        // console.log('starting meeting', res)
-        // console.log('ownerId', res.ownerId)
         setActiveMeeting(true);
       }
     })
@@ -128,9 +138,9 @@ export default function MeetingCard({
             Description: {description}
           </Typography>
           <Typography variant="body2" component="p">Attendees</Typography>
-            <ul>
-              {attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
-            </ul>
+          <ul>
+            {attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
+          </ul>
           {user.username === owner ?
             <Owner
               id={id}

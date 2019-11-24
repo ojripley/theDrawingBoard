@@ -26,6 +26,9 @@ const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-session');
+const fs = require('fs');
+const PDFImage = require("pdf-image").PDFImage;
+
 
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
@@ -148,7 +151,7 @@ io.on('connection', (client) => {
         // if going to send the file through the socket event, use the following logic
 
         // if res.link {
-          // client.emit('meetingsWithDocs')
+        // client.emit('meetingsWithDocs')
         // } else {
 
         client.emit('meetings', res);
@@ -177,14 +180,42 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.linkToInitialDoc)
+
+
+
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
       .then(res => {
         client.emit('newMeeting', res[0]);
         // console.log(res[0].id);
         return res[0].id;
       })
       .then((id) => {
+        fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
+          //Check if pdf
+          if (data.file.name.search(/\.pdf$/ig) !== -1) {
 
+            fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+              if (err) throw err;
+              console.log('The file has been saved!');
+            }, () => {
+              let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+
+              pdfImage.convertPage(0).then(function(imagePath) {
+                // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                fs.existsSync("/tmp/slide-0.png") // => true\
+                console.log(imagePath);
+              });
+            }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+
+
+
+          } else {
+            fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+              if (err) throw err;
+              console.log('The file has been saved!');
+            }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+          }
+        });
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
@@ -239,7 +270,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', {meetingId: meeting.id, ownerId: meeting.owner_id});
+                userClient.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
@@ -247,47 +278,77 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
-    if (!activeMeetings[data.meetingId].userPixels[data.user.id]) {
-      activeMeetings[data.meetingId].userPixels[data.user.id] = [];
+    let meetingDetails = activeMeetings[data.meetingId];
+    if (!meetingDetails.userPixels[data.user.id]) {
+      meetingDetails.userPixels[data.user.id] = [];
     }
-    client.emit('enteredMeeting', activeMeetings[data.meetingId], activeMeetings[data.meetingId].userPixels);
+    console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
-    client.join(data.meetingId);
-    io.to(data.meetingId).emit('newParticipant', (data.user));
+    let img;
+    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+    } else {
+      img = meetingDetails.link_to_initial_doc;
+    }
+
+    fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
+      if (err) {
+        console.error;
+        image = "";
+      }
+      console.log("sending these pixels");
+      console.log(meetingDetails.userPixels);
+      client.emit('enteredMeeting', { meeting: meetingDetails, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+
+      client.join(data.meetingId);
+      io.to(data.meetingId).emit('newParticipant', (data.user));
+
+    });
+
+
   });
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
-      // todo: figure out document saving
+    // todo: figure out document saving
 
-      // data needs to be:
-      // the document -> talk to T
-      // end_time (not strictly needed)
+    // data needs to be:
+    // the document -> talk to T
+    // end_time (not strictly needed)
+    //Save the image
+    let meetingDetails = activeMeetings[data.meetingId];
 
-      db.updateMeetingById(data.meetingId, data.endTime, false, 'past');
+    let img;
+    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+    } else {
+      img = meetingDetails.link_to_initial_doc;
+    }
+
+    fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
+      if (err) throw err;
+      console.log('The file has been saved!');
+      db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
       io.to(data.meetingId).emit('requestNotes', data.meetingId);
-
-
-
       activeMeetings.removeMeeting(data.meetingId);
-
+    });
   });
 
-    client.on('notes', (data) => {
+  client.on('notes', (data) => {
     console.log('attempting to write notes');
     console.log(data.notes);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
       });
-    });
+  });
 
-    client.on('fetchNotes', (data) => {
-      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-        .then((res) => {
-          client.emit('notes', res[0]);
-        });
-    });
+  client.on('fetchNotes', (data) => {
+    db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+      .then((res) => {
+        client.emit('notes', res[0]);
+      });
+  });
 
 });
 

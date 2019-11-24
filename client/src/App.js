@@ -9,6 +9,7 @@ import ActiveMeeting from './components/active/ActiveMeeting';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
+import Login from './components/login/Login';
 
 //Custom hooks
 import { useSocket } from './hooks/useSocket'
@@ -26,17 +27,13 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
+  const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (socketOpen) {
-      socket.emit('loginAttempt', { email: 'tc@mail.com', password: 'p' });
-      socket.on('loginResponse', (data) => {
-        if (data.id) {
-          // console.log(data);
-          setUser(data);
-        }
-      });
       socket.on(
         'msg', data => {
           console.log(data);
@@ -46,6 +43,11 @@ export default function App() {
         setInMeeting(data.inMeeting); //Can be changed by user on login
         setMeetingNotes(data.notes); //notes for the current meeting
       });
+
+      return () => {
+        socket.off('msg');
+        socket.off('meeting');
+      }
     }
   }, [socket, socketOpen]);
 
@@ -63,7 +65,10 @@ export default function App() {
           initialNotes={meetingNotes}
           setInMeeting={setInMeeting}
           setMeetingId={setMeetingId}
+          imageLoaded={imageLoaded}
+          backgroundImage={backgroundImage}
           setMode={setMode}
+          initialPixels={initialPixels}
         />
       );
     } else {
@@ -78,6 +83,9 @@ export default function App() {
               setInMeeting={setInMeeting}
               setMeetingId={setMeetingId}
               setOwnerId={setOwnerId}
+              setBackgroundImage={setBackgroundImage}
+              setImageLoaded={setImageLoaded}
+              setInitialPixels={setInitialPixels}
             />}
           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
@@ -88,7 +96,10 @@ export default function App() {
     }
   } else {
     return (
-      <h1> Replace with login page </h1>
+      <>
+        <NavBar user={null} />
+        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+      </>
     );
 
   }

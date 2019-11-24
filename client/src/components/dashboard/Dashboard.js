@@ -19,7 +19,7 @@ export default function Dashboard(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'scheduled'});
+      props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'scheduled' });
       props.socket.on('meetings', data => {
         // console.log('handling')
         setMeetings(data)
@@ -65,6 +65,9 @@ export default function Dashboard(props) {
           setInMeeting={props.setInMeeting}
           setMeetingId={props.setMeetingId}
           setOwnerId={props.setOwnerId}
+          setBackgroundImage={props.setBackgroundImage}
+          setImageLoaded={props.setImageLoaded}
+          setInitialPixels={props.setInitialPixels}
         />
       </li>
     )

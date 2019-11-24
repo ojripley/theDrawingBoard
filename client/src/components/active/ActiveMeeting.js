@@ -8,7 +8,6 @@ import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import CloseIcon from '@material-ui/icons/Close';
 
 
 const useStyles = makeStyles(theme => ({
@@ -17,11 +16,6 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     bottom: 0,
     left: 0,
-    zIndex: 3
-  },
-  endFab: {
-    margin: theme.spacing(1),
-    position: 'relative',
     zIndex: 3
   },
   extendedIcon: {
@@ -57,8 +51,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode }) {
-  const [isLoaded, setLoaded] = useState(false);
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels}) {
+  // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState('');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
@@ -68,31 +62,17 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const classes = useStyles();
 
-  //TODO: Add text input which will be sent to server on submit
-  useEffect(() => {
-    if (socketOpen) {
-      socket.emit(
-        'retrieveImage', data => { //Will get the image to be shown in background ?
-          console.log(data);
-        });
-    }
-  }, [socket, socketOpen]);
-
   const handleInput = (e) => {
     console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
   }
 
-  const endMeeting = () => {
-    console.log('meeting ended');
-    // console.log('ID:', meetingId);
-    socket.emit('endMeeting', {meetingId: meetingId, endTime: new Date(Date.now())});
-  }
+
 
   useEffect(() => {
     socket.on('requestNotes', res => {
-      socket.emit('notes', {user: user, meetingId: meetingId, notes: meetingNotes});
+      socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
@@ -112,9 +92,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, debouncedNotes, user])
 
 
-  let myImage = new Image();
-  myImage.onload = () => { setLoaded(true) };
-  myImage.src = theImage; //pull this from socket
+  // let myImage = new Image();
+  // myImage.onload = () => { setLoaded(true) };
+  // myImage.src = theImage; //pull this from socket
 
   return (
     <>
@@ -122,10 +102,11 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         user={user}
         socket={socket}
         socketOpen={socketOpen}
-        imageEl={myImage}
-        isLoaded={isLoaded}
+        imageEl={backgroundImage}
+        imageLoaded={imageLoaded}
         meetingId={meetingId}
-        />
+        initialPixels={initialPixels}
+      />
       <Fab
         aria-label='edit'
         color='secondary'
@@ -133,13 +114,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
       </Fab>
-      {user.id === ownerId && <Fab
-        aria-label='end'
-        color='primary'
-        className={classes.endFab}
-        onClick={endMeeting} >
-        <CloseIcon />
-      </Fab>}
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize

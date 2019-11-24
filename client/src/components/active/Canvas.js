@@ -1,40 +1,84 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
+import { makeStyles } from '@material-ui/core/styles';
+import CloseIcon from '@material-ui/icons/Close';
+import Fab from '@material-ui/core/Fab';
 
-const SET_X = "SET_X";
-const SET_Y = "SET_Y";
-const SET_DRAG = "SET_DRAG";
+
+// const SET_X = "SET_X";
+// const SET_Y = "SET_Y";
+// const SET_DRAG = "SET_DRAG";
+const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
+const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 
 function reducer(state, action) {
   switch (action.type) {
-    case SET_X:
-      return { ...state, clickX: [...state.clickX, action.payload] };
-    case SET_Y:
-      return { ...state, clickY: [...state.clickY, action.payload] };
-    case SET_DRAG:
-      return { ...state, clickDrag: [...state.clickDrag, action.payload] };
+    case SET_INITIAL_PIXELS: {
+      return {
+        ...state,
+        pixelArrays: action.payload
+      }
+    }
+    case SET_PIXEL: {
+      if (state.pixelArrays[action.payload.user]) {
+        return {
+          ...state,
+          pixelArrays: {
+            ...state.pixelArrays,
+            [action.payload.user]: [...state.pixelArrays[action.payload.user], action.payload.pixel]
+          }
+        }
+      } else {
+        return {
+          ...state,
+          pixelArrays: {
+            ...state.pixelArrays,
+            [action.payload.user]: [action.payload.pixel]
+          }
+        }
+      }
+    }
     case SET_CTX:
       return { ...state, ctx: action.payload };
     case REDRAW: {
-      console.log(state.clickX)
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
+      //Sets the properties (change this part for custom pixel colors)
       state.ctx.lineJoin = "round";
       state.ctx.lineWidth = 2;
       state.ctx.strokeStyle = '#00000';
 
-      for (let i = 0; i < state.clickX.length; i++) {
-        state.ctx.beginPath();
-        if (state.clickDrag[i] && i) {
-          state.ctx.moveTo(state.clickX[i - 1], state.clickY[i - 1]);
-        } else {
-          state.ctx.moveTo(state.clickX[i] - 1, state.clickY[i]);
+      for (let user in state.pixelArrays) {
+
+        let pixels = state.pixelArrays[user]
+        for (let i in pixels) {
+
+          state.ctx.beginPath(); //start drawing a single line
+          if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
+            state.ctx.moveTo(pixels[i - 1].x, pixels[i - 1].y);
+          } else { //else use the current pixel, offset by 1px to the left
+            state.ctx.moveTo(pixels[i].x - 1, pixels[i].y);
+          }
+          state.ctx.lineTo(pixels[i].x, pixels[i].y);//draw a line from point mentioned above to the current pixel
+          state.ctx.closePath();//end the line
+          state.ctx.stroke();//draw the line
         }
-        state.ctx.lineTo(state.clickX[i], state.clickY[i]);
-        state.ctx.closePath();
-        state.ctx.stroke();
       }
+      /* Old way (single array) Remove once we confirm multiuser array method works
+       for (let i = 0; i < state.clickX.length; i++) {
+          state.ctx.beginPath();
+          if (state.clickDrag[i] && i) {
+            state.ctx.moveTo(state.clickX[i - 1], state.clickY[i - 1]);
+          } else {
+            state.ctx.moveTo(state.clickX[i] - 1, state.clickY[i]);
+          }
+          state.ctx.lineTo(state.clickX[i], state.clickY[i]);
+          state.ctx.closePath();
+          state.ctx.stroke();
+        }
+      */
+
       return { ...state };
     }
     default:
@@ -42,68 +86,82 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels }) {
+
+  const useStyles = makeStyles(theme => ({
+    endFab: {
+      margin: theme.spacing(1),
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 3
+    }
+  }));
+
+  const classes = useStyles();
+
 
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
   let [paint, setPaint] = useState(false);
+  const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   const [drawingState, dispatch] = useReducer(reducer, {
-    clickX: [],
-    clickY: [],
-    clickDrag: [],
+    pixelArrays: { ...initialPixels },
     ctx: undefined
   });
 
-  const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
 
 
-  const redraw = () => {
-    console.log(drawingState.clickX)
-    drawingState.ctx.clearRect(0, 0, drawingState.ctx.canvas.width, drawingState.ctx.canvas.height); // Clears the drawCanvas
-    drawingState.ctx.lineJoin = "round";
-    drawingState.ctx.lineWidth = 2;
-    drawingState.ctx.strokeStyle = '#00000';
+  //Loads the initial drawing canvas
+  useEffect(() => {
+    drawCanvasRef.current.width = window.innerWidth;
+    drawCanvasRef.current.height = window.innerHeight;
+    const newCtx = drawCanvasRef.current.getContext('2d');
+    dispatch({
+      type: SET_CTX,
+      payload: newCtx
+    });
+  }, []);
 
-    for (let i = 0; i < drawingState.clickX.length; i++) {
-      drawingState.ctx.beginPath();
-      if (drawingState.clickDrag[i] && i) {
-        drawingState.ctx.moveTo(drawingState.clickX[i - 1], drawingState.clickY[i - 1]);
-      } else {
-        drawingState.ctx.moveTo(drawingState.clickX[i] - 1, drawingState.clickY[i]);
-      }
-      drawingState.ctx.lineTo(drawingState.clickX[i], drawingState.clickY[i]);
-      drawingState.ctx.closePath();
-      drawingState.ctx.stroke();
-    }
-  };
 
-  // Sample request
+
+  const mergeWithImage = () => {
+    setImageCtx(prev => { //adds the click to the image canvas
+      prev = imageCanvasRef.current.getContext('2d')
+      prev.drawImage(drawCanvasRef.current, 0, 0, window.innerWidth, window.innerHeight);
+    });
+  }
+
   useEffect(() => {
     if (socketOpen) {
-      // socket.emit('fetchMeetings', { username: user.username, meetingStatus: 'scheduled' });
       socket.on('drawClick', data => {
-        // console.log(data.pixel.x);
-        console.log(user);
-        console.log(data.code);
         if (myCode.current !== data.code) {
-          dispatch({ type: SET_X, payload: data.pixel.x });
-          dispatch({ type: SET_Y, payload: data.pixel.y });
-          dispatch({ type: SET_DRAG, payload: data.pixel.dragging });
+          dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
       });
-      console.log('done setting up the on')
       return () => {
         socket.off('drawClick');
       };
     }
   }, [socket, socketOpen, user.username]);
 
+  const endMeeting = () => {
+    console.log('meeting ended');
+    mergeWithImage();
+    let dataURL = imageCanvasRef.current.toDataURL();
+
+    socket.emit('endMeeting', {
+      meetingId: meetingId,
+      endTime: new Date(Date.now()),
+      image: dataURL
+    });
+  }
 
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
@@ -111,29 +169,24 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     imageCanvasRef.current.width = window.innerWidth;
     imageCanvasRef.current.height = window.innerHeight;
     setImageCtx(prev => {
-      prev = imageCanvasRef.current.getContext('2d')
+      prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, window.innerWidth, window.innerHeight);
+      dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
+      dispatch({ type: REDRAW })
     });
-  }, [imageCtx, isLoaded, imageEl]);
+  }, [imageCtx, isLoaded, imageEl, initialPixels]);
 
-  //Loads the initial drawing canvas
-  useEffect(() => {
-    drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = window.innerHeight;
-    const newCtx = drawCanvasRef.current.getContext('2d')
-    dispatch({
-      type: SET_CTX,
-      payload: newCtx
-    });
-    // setCtx(drawCanvasRef.current.getContext('2d'));
-  }, []);
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
-    dispatch({ type: SET_X, payload: x });
-    dispatch({ type: SET_Y, payload: y });
-    dispatch({ type: SET_DRAG, payload: dragging });
+    let pixel = {
+      x: x,
+      y: y,
+      dragging: dragging
+    };
+    dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: pixel } });
     dispatch({ type: REDRAW });
+    mergeWithImage();
   };
 
 
@@ -142,9 +195,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     setPaint(true);
     addClick(mouseX, mouseY);
-    socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: false }, meetingId: meetingId, code: myCode.current });
-
-    // redraw();
+    socket.emit('addClick', { user: user, pixel: { x: mouseX, y: mouseY, dragging: false }, meetingId: meetingId, code: myCode.current });
   }
 
   const handleMouseMove = e => { //Change to useCallback??
@@ -152,31 +203,41 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      socket.emit('addClick', { user, pixel: { x: mouseX, y: mouseY, dragging: true }, meetingId: meetingId, code: myCode.current });
-      // redraw();
+      socket.emit('addClick', { user: user, pixel: { x: mouseX, y: mouseY, dragging: true }, meetingId: meetingId, code: myCode.current });
     }
   }
 
   return (
-    <div id='canvas-container'>
+    <>
+      <Fab
+        aria-label='end'
+        color='primary'
+        className={classes.endFab}
+        onClick={endMeeting} >
+        <CloseIcon />
+      </Fab>
+      <div id='canvas-container'>
 
-      <canvas
-        id='image'
-        ref={imageCanvasRef}
-      >
-      </canvas>
-      <canvas
-        id='drawCanvas'
-        ref={drawCanvasRef}
-        onMouseDown={e => handleMouseDown(e.nativeEvent)}
-        onMouseMove={e => handleMouseMove(e.nativeEvent)}
-        onMouseUp={e => setPaint(false)}
-        onMouseLeave={e => setPaint(false)}
-        onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
-        onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
-        onTouchEnd={e => setPaint(false)}
-      >
-      </canvas>
-    </div>
+
+
+        <canvas
+          id='image'
+          ref={imageCanvasRef}
+        >
+        </canvas>
+        <canvas
+          id='drawCanvas'
+          ref={drawCanvasRef}
+          onMouseDown={e => handleMouseDown(e.nativeEvent)}
+          onMouseMove={e => handleMouseMove(e.nativeEvent)}
+          onMouseUp={e => setPaint(false)}
+          onMouseLeave={e => setPaint(false)}
+          onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
+          onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
+          onTouchEnd={e => setPaint(false)}
+        >
+        </canvas>
+      </div>
+    </>
   );
 }

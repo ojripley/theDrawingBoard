@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import FileUpload from './FileUpload';
+
 // Material UI - Text Inputs
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
@@ -48,6 +50,12 @@ const useStyles = makeStyles(theme => ({
   button: {
     margin: theme.spacing(1),
   },
+  file: {
+    marginTop: '1em',
+    width: 200,
+    padding: '2em',
+    border: 'solid 1px gray'
+  }
 }));
 
 const ITEM_HEIGHT = 48;
@@ -79,7 +87,7 @@ export default function Form(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchContactsByUserId', {id: props.user.id});
+      props.socket.emit('fetchContactsByUserId', { id: props.user.id });
       props.socket.on('contactsByUserId', data => {
         console.log(data)
         setContacts(data);
@@ -105,6 +113,10 @@ export default function Form(props) {
 
   const handleMeetingDescChange = event => {
     props.setMeetingDesc(event.target.value);
+  }
+
+  const handleFileUpload = event => {
+    props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
   }
 
   const contactsList = contacts.map(contact => {
@@ -171,16 +183,17 @@ export default function Form(props) {
             onChange={handleContactChange}
             input={<Input id="select-multiple-chip" />}
             renderValue={selected => (
-                <div className={classes.chips}>
-                  {selected.map(value => (
-                    <Chip key={value.id} label={value.username} className={classes.chip} />
-                  ))}
-                </div>
-              )}
+              <div className={classes.chips}>
+                {selected.map(value => (
+                  <Chip key={value.id} label={value.username} className={classes.chip} />
+                ))}
+              </div>
+            )}
             MenuProps={MenuProps}
           >
             {contactsList}
           </Select>
+          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"/>
         </FormControl>
       </div>
     </Box>
