@@ -19,6 +19,12 @@ export default function Login(props) {
     }
   };
 
+  const onEnter = event => {
+    if (event.charCode === 13) {
+      handleLogin();
+    }
+  }
+
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('loginResponse', (data) => {
@@ -49,6 +55,7 @@ export default function Login(props) {
         type={showPassword ? 'text' : 'password'}
         value={password}
         onChange={event => setPassword(event.target.value)}
+        onKeyPress={onEnter}
         InputProps={{endAdornment:
           <InputAdornment position="end">
             <IconButton
