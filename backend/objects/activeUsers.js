@@ -6,13 +6,16 @@ class ActiveUsers {
   // -- -- -- -- -- -- //
   // methods           //
 
-  addUser(id, client, cookie) {
-    this[id] = { id: id, socket: client, cookie: cookie };
+  addUser(id, client) {
+    // let sid = this.generateSessionId();
+    this[id] = { id: id, socket: client };
+    // return sid;
   }
 
   removeUser(id) {
     delete this[id];
   }
+
 };
 
 module.exports = { ActiveUsers };

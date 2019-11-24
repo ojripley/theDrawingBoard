@@ -16,6 +16,7 @@
 
 // load .env data into process.env
 require('dotenv').config();
+const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
 
 // server config
 const PORT = process.env.PORT || 8080;
@@ -53,11 +54,19 @@ const usersMeetingsRoutes = require('./routes/usersMeetingsRoutes');
 app.use(morgan('dev'));
 
 // app.use(cookieParser({ signed: false }));
-const session = require('cookie-session')({
-  name: 'some-session-name',
-  secret: 'some-session-secret',
-});
+const encrypt = (text) => {
+  var cipher = crypto.createCipher(algorithm, password)
+  var crypted = cipher.update(text, 'utf8', 'hex')
+  crypted += cipher.final('hex');
+  return crypted;
+};
 
+const decrypt = (text) => {
+  var decipher = crypto.createDecipher(algorithm, password)
+  var dec = decipher.update(text, 'hex', 'utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -74,34 +83,38 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
-  let cookieString = client.request.headers.cookie;
-  console.log("cookieString", cookieString);
+  let cookieString = ""; //This will grab the clients session cookie should it exist
+  if (client.request.headers.cookie) {
+    let matches = client.request.headers.cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
+    if (matches) cookieString = matches[0];
+  }
 
-  // let req1 = client.request;
-  // req1.session.userID = '123';
-  // req1.session.save();
 
-  let req = { connection: { encrypted: false }, headers: { cookie: cookieString } }
-  let res = { getHeader: () => { }, setHeader: () => { } };
-
-  session(req, res, () => {
-    console.log(req.session.username); // Do something with req.session
-    console.log(res); // Do something with req.session
-    console.log(req); // Do something with req.session
-    req.session.userID = "123";
-    req.session.save();
-  })
+  //Checks cookie
+  client.on('checkCookie', () => {
+    if (cookieString) {
+      let email = decrypt(cookieString);
+      console.log('decrypted', email)
+      db.fetchUserByEmail(email)
+        .then(res => {
+          console.log(res);
+          client.emit('cookieResponse', res);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  });
 
   // handles logging in and activeUsers
   client.on('loginAttempt', (data) => {
     authenticator.authenticate(data.email, data.password)
       .then(res => {
         const authenticateAttempt = res;
-
         if (authenticateAttempt) {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
-          activeUsers.addUser(authenticateAttempt.id, client)
+          activeUsers.addUser(authenticateAttempt.id, client);
           console.log('active users:');
           for (let user in activeUsers) {
             if (activeUsers[user].id) {
@@ -115,7 +128,7 @@ io.on('connection', (client) => {
         } else {
           console.log('attempted login: failed');
         }
-        client.emit('loginResponse', authenticateAttempt);
+        client.emit('loginResponse', { user: authenticateAttempt, session: (authenticateAttempt.id ? encrypt(authenticateAttempt.email) : "") });
       });
   });
 
@@ -177,18 +190,18 @@ io.on('connection', (client) => {
         // client.emit('meetingsWithDocs')
         // } else {
 
-          // let meetingDetails = activeMeetings[res.meetingId];
-          // if (!meetingDetails.userPixels[data.user.id]) {
-          //   meetingDetails.userPixels[data.user.id] = [];
-          // }
-          // console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
+        // let meetingDetails = activeMeetings[res.meetingId];
+        // if (!meetingDetails.userPixels[data.user.id]) {
+        //   meetingDetails.userPixels[data.user.id] = [];
+        // }
+        // console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
-          // let img;
-          // if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-          //   img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-          // } else {
-          //   img = meetingDetails.link_to_initial_doc;
-          // }
+        // let img;
+        // if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+        //   img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+        // } else {
+        //   img = meetingDetails.link_to_initial_doc;
+        // }
 
         client.emit('meetings', res);
 
