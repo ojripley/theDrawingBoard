@@ -60,7 +60,7 @@ const fetchMeetingsByUserId = function(username, meeting_status) {
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
-    GROUP BY meetings.id, users_meetings.notes
+    GROUP BY meetings.id
     HAVING $1 = any(array_agg(users.username))
     ORDER BY start_time
     LIMIT 20;
@@ -116,7 +116,7 @@ const fetchMeetingWithUsersById = function(meeting_id) {
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.id = $1
-    GROUP BY meetings.id, users_meetings.notes;
+    GROUP BY meetings.id;
   `, vars)
     .then(res => {
       if (res.rows) {
