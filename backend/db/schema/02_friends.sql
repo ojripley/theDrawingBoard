@@ -2,7 +2,7 @@
 
 DROP TABLE IF EXISTS friends CASCADE;
 CREATE TABLE friends (
-  user_id INTEGER NOT NULL,
-  friend_id INTEGER NOT NULL,
-  user_status VARCHAR(255) NOT NULL
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  friend_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  relation VARCHAR(255)
 );

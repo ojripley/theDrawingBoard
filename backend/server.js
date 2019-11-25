@@ -1,9 +1,9 @@
 
-//          #####   ######   ######   #   #   #####
-//         #       #         #      #   #   #   #
-//          #####    #####      #      #   #   ####
-//               #   #          #      #   #   #
-//          #####  ######     #       ###    #
+//          #####   ######  ######   #   #   #####
+//         #        #          #      #   #   #   #
+//          #####   #####      #      #   #   ####
+//               #  #          #      #   #   #
+//          #####   ######     #       ###    #
 //
 //
 //
@@ -131,9 +131,6 @@ io.on('connection', (client) => {
       });
   });
 
-  //These lines are for testing purposes
-  // client.join('theOneRoomToRuleThemAll');
-
   client.on('addClick', data => {
     console.log("message received");
     console.log(data.pixel.x);
@@ -157,54 +154,24 @@ io.on('connection', (client) => {
   client.on('fetchContactsByUserId', (data) => {
     db.fetchContactsByUserId(data.id, data.username)
       .then(res => {
+        console.log(res);
         client.emit('contactsByUserId', res);
       });
   });
 
   client.on('fetchContactsGlobal', (data) => {
-    db.fetchUsersByUsername(data.username)
+    db.fetchUsersByUsername(data.username, data.user.id)
+    // db.fetchUsersByUsername(data.user.id)
       .then(res => {
+        console.log(res);
         client.emit('contactsGlobal', res);
       });
   })
 
   client.on('fetchMeetings', (data) => {
-
-
-
-    // TODO
-
-    // fetch file from local storage
-    // send the actual file, either through the socket event or a route
-
-
-
-
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
-
-        // if going to send the file through the socket event, use the following logic
-
-        // if res.link {
-        // client.emit('meetingsWithDocs')
-        // } else {
-
-        // let meetingDetails = activeMeetings[res.meetingId];
-        // if (!meetingDetails.userPixels[data.user.id]) {
-        //   meetingDetails.userPixels[data.user.id] = [];
-        // }
-        // console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
-
-        // let img;
-        // if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-        //   img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-        // } else {
-        //   img = meetingDetails.link_to_initial_doc;
-        // }
-
         client.emit('meetings', res);
-
-        // }
       });
   });
 
@@ -228,9 +195,6 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
-
-
-
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
       .then(res => {
         client.emit('newMeeting', res[0]);
@@ -351,20 +315,12 @@ io.on('connection', (client) => {
 
       client.join(data.meetingId);
       io.to(data.meetingId).emit('newParticipant', (data.user));
-
     });
-
-
   });
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
-    // todo: figure out document saving
 
-    // data needs to be:
-    // the document -> talk to T
-    // end_time (not strictly needed)
-    //Save the image
     let meetingDetails = activeMeetings[data.meetingId];
 
     let img;
@@ -412,5 +368,49 @@ io.on('connection', (client) => {
       });
   });
 
+  client.on('addContact', (data) => {
+
+    console.log('adding contact');
+    console.log(data.contactId);
+
+    // user requests contact add
+    db.insertFriend(data.user.id, data.contactId, 'requested');
+
+    // friend is now a pending add
+    db.insertFriend(data.contactId, data.user.id, 'pending');
+
+    // tell the user they're request has been sent
+    client.emit('relationChanged', { relation: 'requested', contactId: data.contactId });
+
+    // tell the client they have a contact request if they are online
+    if (activeUsers[data.contactId]) {
+      activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
+    }
+  });
+
+  client.on('changeRelation', (data) => {
+
+    // change the user relation
+    db.updateFriendStatus(data.user.id, data.contactId, data.relation)
+    client.emit('relationChanged', {relation: data.relation, contactId: data.contactId});
+
+    // change the contact status based on what the user relation was
+    if (data.relation === 'accepted') {
+      db.updateFriendStatus(data.contactId, data.user.id, 'accepted');
+      if (activeUsers[data.contactId]) {
+        activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'accepted', contactId: data.user.id });
+      }
+    }
+  });
+
+  client.on('deleteContact', (data) => {
+    db.deleteContact(data.user.id, data.contactId);
+    db.deleteContact(data.contactId, data.user.id);
+
+    client.emit('relationChanged', { relation: null, contactId: data.contactId });
+    if (activeUsers[data.contactId]) {
+      activeUsers[data.contactId].socket.emit('relationChanged', { relation: null, contactId: data.user.id } );
+    }
+  });
 });
 
