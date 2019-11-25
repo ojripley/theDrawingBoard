@@ -32,8 +32,7 @@ export default function Dashboard(props) {
 
       props.socket.on('meetingDeleted', (res) => {
         console.log('meeting deleted', res);
-        const filteredMeetings = meetings.filter(meeting => meeting.id !== res.meetingId);
-        setMeetings(filteredMeetings);
+        setMeetings(prev => prev.filter(meeting => meeting.id !== res.id));
       });
 
       // props.socket.on('meetingStarted', () => {
@@ -51,7 +50,7 @@ export default function Dashboard(props) {
   // const startMeeting = () => {
   //   props.socket.emit('startMeeting', {id: props.id});
   // };
-
+  // console.log('meetings:', meetings)
   const meetingsList = meetings.map(meeting => {
     return (
       <li className='meeting-list-item' key={meeting.id}>

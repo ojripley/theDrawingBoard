@@ -420,11 +420,11 @@ io.on('connection', (client) => {
   });
 
   client.on('deleteMeeting', (data) => {
-    db.deleteMeeting(data.id)
+    db.deleteMeeting(data.meetingId)
     .then(() => {
       for (let contactId of data.attendeeIds) {
         if (activeUsers[contactId]) {
-          console.log(`${contactId} should now rerender`);
+          // console.log(`${contactId} should now rerender`);
           activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
         }
       }
