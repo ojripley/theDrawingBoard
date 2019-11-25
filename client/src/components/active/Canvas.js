@@ -41,6 +41,8 @@ function reducer(state, action) {
       return { ...state, ctx: action.payload };
     case REDRAW: {
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
+      const w = state.ctx.canvas.width;
+      const h = state.ctx.canvas.height;
       //Sets the properties (change this part for custom pixel colors)
       state.ctx.lineJoin = "round";
       state.ctx.lineWidth = 2;
@@ -54,11 +56,11 @@ function reducer(state, action) {
 
           state.ctx.beginPath(); //start drawing a single line
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
-            state.ctx.moveTo(pixels[i - 1].x, pixels[i - 1].y);
+            state.ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
           } else { //else use the current pixel, offset by 1px to the left
-            state.ctx.moveTo(pixels[i].x - 1, pixels[i].y);
+            state.ctx.moveTo(pixels[i].x * w - 1, pixels[i].y * h);
           }
-          state.ctx.lineTo(pixels[i].x, pixels[i].y);//draw a line from point mentioned above to the current pixel
+          state.ctx.lineTo(pixels[i].x * w, pixels[i].y * h);//draw a line from point mentioned above to the current pixel
           state.ctx.closePath();//end the line
           state.ctx.stroke();//draw the line
         }
@@ -97,9 +99,15 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
-
   //Loads the initial drawing canvas
   useEffect(() => {
+    console.log("resize");
+    window.onresize = () => {
+      drawCanvasRef.current.width = window.innerWidth;
+      drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
+      dispatch({ type: REDRAW });
+    }
+
     drawCanvasRef.current.width = window.innerWidth;
     drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width; //ensure canvas is to scale
     const newCtx = drawCanvasRef.current.getContext('2d');
@@ -107,7 +115,13 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       type: SET_CTX,
       payload: newCtx
     });
-  }, [isLoaded, imageEl]);
+    dispatch({ type: REDRAW });
+    return () => {
+      window.onresize = undefined;
+    }
+
+
+  }, [isLoaded, imageEl, window.innerWidth]);
 
   const mapPixelToScreen = useCallback(
     (pixel) => {
@@ -120,16 +134,16 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     [drawCanvasRef.current.width, drawCanvasRef.current.height],
   );
 
-  const mapToRelativeUnits = useCallback(
-    (pixel) => {
-      let w = drawCanvasRef.current.width;
-      let h = drawCanvasRef.current.height;
-      pixel.x = pixel.x / w;
-      pixel.y = pixel.y / h;
-      return pixel;
-    },
-    [drawCanvasRef.current.width, drawCanvasRef.current.height],
-  );
+  // const mapToRelativeUnits = useCallback(
+  const mapToRelativeUnits = (pixel) => {
+    let w = drawCanvasRef.current.width;
+    let h = drawCanvasRef.current.height;
+    pixel.x = pixel.x / w;
+    pixel.y = pixel.y / h;
+    return pixel;
+  }
+  //   [drawCanvasRef.current.width, drawCanvasRef.current.height],
+  // );
 
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
@@ -145,7 +159,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (myCode.current !== data.code) {
-          dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: mapPixelToScreen(data.pixel) } });
+          dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
       });
@@ -187,7 +201,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       y: y,
       dragging: dragging
     };
-    dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: pixel } });
+    dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: mapToRelativeUnits(pixel) } });
     dispatch({ type: REDRAW });
     // mergeWithImage();
   };
