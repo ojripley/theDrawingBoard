@@ -8,10 +8,13 @@ import EditIcon from '@material-ui/icons/Edit';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import CanvasControls from './CanvasControls';
+import CanvasDrawer from './CanvasDrawer';
 
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+  },
   fab: {
     margin: theme.spacing(1),
     position: 'absolute',
@@ -37,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     height: 100,
     width: "100%"
   },
-  root: {
+  saving: {
     position: 'absolute',
     width: 100,
     height: 100,
@@ -94,7 +97,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
 
   return (
-    imageLoaded && <>
+    imageLoaded &&
+    <div className={classes.root}>
+      <CanvasDrawer />
       <Canvas
         user={user}
         socket={socket}
@@ -104,31 +109,31 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         meetingId={meetingId}
         initialPixels={initialPixels}
       />
-      {/* <Fab
-        aria-label='edit'
-        color='secondary'
-        className={classes.fab}
-        onClick={() => setWriteMode(prev => !prev)} >
-        <EditIcon />
-      </Fab> */}
-      <CanvasControls />
-      {writeMode &&
-        <div className={classes.center}>
-          <TextareaAutosize
-            aria-label='empty textarea'
-            placeholder='Empty'
-            defaultValue={meetingNotes}
-            className={classes.textareaAutosize}
-            onChange={event => handleInput(event)}
-          />
-        </div>
-      }
-      {saving &&
-        <div className={classes.root}>
-          <CircularProgress />
-        </div>
-      }
-    </>
+    </div>
   )
-
 }
+
+/* <Fab
+  aria-label='edit'
+  color='secondary'
+  className={classes.fab}
+  onClick={() => setWriteMode(prev => !prev)} >
+  <EditIcon />
+</Fab> */
+
+// {writeMode &&
+//   <div className={classes.center}>
+//     <TextareaAutosize
+//       aria-label='empty textarea'
+//       placeholder='Empty'
+//       defaultValue={meetingNotes}
+//       className={classes.textareaAutosize}
+//       onChange={event => handleInput(event)}
+//     />
+//   </div>
+// }
+// {saving &&
+//   <div className={classes.saving}>
+//     <CircularProgress />
+//   </div>
+// }
