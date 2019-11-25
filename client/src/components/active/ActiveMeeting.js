@@ -3,12 +3,12 @@ import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
 import { makeStyles } from '@material-ui/core/styles';
-import Fab from '@material-ui/core/Fab';
-import EditIcon from '@material-ui/icons/Edit';
+import InputIcon from '@material-ui/icons/Input';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
+import { Input } from '@material-ui/core';
 
 
 const useStyles = makeStyles(theme => ({
@@ -26,19 +26,20 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
   },
   textareaAutosize: {
-    position: 'absolute',
-    zIndex: 2,
-    bottom: 20,
-    width: "50%",
-    resize: 'none'
+    resize: 'none',
+    width: '50%',
+    marginRight: '1em'
   },
   center: {
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 0,
-    height: 100,
-    width: "100%"
+    height: 50,
+    position: 'absolute',
+    zIndex: 2,
+    bottom: 20,
+    width: "100%",
   },
   saving: {
     position: 'absolute',
@@ -95,7 +96,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     setSaving(false);
   }, [socket, debouncedNotes, user])
 
-
   return (
     imageLoaded &&
     <div className={classes.root}>
@@ -119,10 +119,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           <TextareaAutosize
             aria-label='empty textarea'
             placeholder='Empty'
+            autoFocus
             defaultValue={meetingNotes}
             className={classes.textareaAutosize}
             onChange={event => handleInput(event)}
           />
+          <InputIcon onClick={() => setWriteMode(prev => !prev)}/>
         </div>
       }
       {saving &&

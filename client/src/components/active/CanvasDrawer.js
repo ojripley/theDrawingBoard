@@ -52,9 +52,14 @@ export default function CanvasDrawer(props) {
     props.setMode('DASHBOARD');
   }
 
+  const handleWrite = () => {
+    props.setWriteMode(prev => !prev);
+    setOpenDrawer(false);
+  }
+
   return (
     <div>
-      <Button className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
+      <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
       <Drawer anchor="right" open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <div
           className={classes.list}
@@ -79,7 +84,7 @@ export default function CanvasDrawer(props) {
           </List>
           <Divider />
           <List>
-            <ListItem button>Write Notes</ListItem>
+            <ListItem button onClick={handleWrite}>Write Notes</ListItem>
           </List>
           <Divider />
           <List>
