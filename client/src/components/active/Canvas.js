@@ -3,6 +3,7 @@ import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import Fab from '@material-ui/core/Fab';
+import useDebounce from '../../hooks/useDebounce';
 
 
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -101,7 +102,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   let [imageCtx, setImageCtx] = useState();
   //Loads the initial drawing canvas
   useEffect(() => {
-    console.log("resize");
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
       drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
@@ -116,6 +116,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       payload: newCtx
     });
     dispatch({ type: REDRAW });
+
     return () => {
       window.onresize = undefined;
     }
