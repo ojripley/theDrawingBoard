@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
 import Box from '@material-ui/core/Box';
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
+import { store } from 'react-notifications-component';
+
 
 // COMPONENTS
 import TabBar from './TabBar';
@@ -32,6 +36,7 @@ export default function App() {
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
 
+
   useEffect(() => {
     if (socketOpen) {
       console.log('checking for cookie')
@@ -42,10 +47,32 @@ export default function App() {
         setMeetingNotes(data.notes); //notes for the current meeting
       });
 
+      socket.on('notify', data => {
+        console.log(data);
+
+        store.addNotification({
+          title: `${data.type}`,
+          message: `${data.msg}`,
+          type: "success",
+          insert: "top",
+          container: "top-right",
+          animationIn: ["animated", "fadeIn"],
+          animationOut: ["animated", "fadeOut"],
+          dismiss: {
+            duration: 100000,
+            onScreen: true
+          }
+        });
+      })
+
       socket.on('cookieResponse', data => {
         console.log('received cookie', data);
         setUser(data[0]);
       });
+
+
+
+
 
       return () => {
         socket.off('cookieResponse');
@@ -76,6 +103,8 @@ export default function App() {
     } else {
       return (
         <Box>
+          <ReactNotification />
+
           <NavBar user={user} setUser={setUser} />
           {mode === DASHBOARD &&
             <Dashboard
