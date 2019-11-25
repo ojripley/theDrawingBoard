@@ -99,7 +99,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   return (
     imageLoaded &&
     <div className={classes.root}>
-      <CanvasDrawer />
+      <CanvasDrawer
+        user={user}
+        setMode={setMode}
+        setInMeeting={setInMeeting}
+        setWriteMode={setWriteMode}
+      />
       <Canvas
         user={user}
         socket={socket}
@@ -109,6 +114,22 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         meetingId={meetingId}
         initialPixels={initialPixels}
       />
+      {writeMode &&
+        <div className={classes.center}>
+          <TextareaAutosize
+            aria-label='empty textarea'
+            placeholder='Empty'
+            defaultValue={meetingNotes}
+            className={classes.textareaAutosize}
+            onChange={event => handleInput(event)}
+          />
+        </div>
+      }
+      {saving &&
+        <div className={classes.saving}>
+          <CircularProgress />
+        </div>
+      }
     </div>
   )
 }
@@ -120,20 +141,3 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   onClick={() => setWriteMode(prev => !prev)} >
   <EditIcon />
 </Fab> */
-
-// {writeMode &&
-//   <div className={classes.center}>
-//     <TextareaAutosize
-//       aria-label='empty textarea'
-//       placeholder='Empty'
-//       defaultValue={meetingNotes}
-//       className={classes.textareaAutosize}
-//       onChange={event => handleInput(event)}
-//     />
-//   </div>
-// }
-// {saving &&
-//   <div className={classes.saving}>
-//     <CircularProgress />
-//   </div>
-// }

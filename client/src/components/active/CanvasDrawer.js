@@ -25,7 +25,7 @@ const useStyles = makeStyles({
   }
 });
 
-export default function TemporaryDrawer() {
+export default function CanvasDrawer(props) {
   const classes = useStyles();
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -46,6 +46,11 @@ export default function TemporaryDrawer() {
 
   //   setOpenDrawer(false);
   // };
+
+  const backToDash = () => {
+    props.setInMeeting(false);
+    props.setMode('DASHBOARD');
+  }
 
   return (
     <div>
@@ -70,6 +75,16 @@ export default function TemporaryDrawer() {
               <MenuItem onClick={handleClose}>Large</MenuItem>
             </Menu>
             <ListItem button>Highlighter</ListItem>
+            <ListItem button>Pointer</ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem button>Write Notes</ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem button onClick={backToDash}>Back to Dashboard</ListItem>
+            <ListItem button>End Meeting</ListItem>
           </List>
         </div>
       </Drawer>
