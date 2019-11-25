@@ -13,9 +13,7 @@ export default function Dashboard(props) {
   const [meetings, setMeetings] = useState([]);
   const [expanded, setExpanded] = useState(false);
 
-  // const handleMeetings = () => {
 
-  // };
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -52,6 +50,45 @@ export default function Dashboard(props) {
   // };
   // console.log('meetings:', meetings)
   const meetingsList = meetings.map(meeting => {
+
+    const attendees = [];
+
+
+
+
+    for (let i = 0; i < meeting.attendee_ids.length; i++) {
+      console.log(meeting.attendee_ids[i]);
+      console.log(attendees);
+      if (meeting.attendee_ids[i] === props.user.id) {
+        currentUser['attendance'] = meeting.attendances[i];
+        console.log('userid', props.user.id);
+      }
+      attendees.push(
+        {
+          id: meeting.attendee_ids[i],
+          username: meeting.invited_users[i],
+          attendance: meeting.attendances[i]
+        }
+      )
+    }
+
+
+
+
+
+    // for (let [index, id] of meeting.attendee_ids) {
+    //   if (id === props.user.id) {
+    //     currentUser['attendance'] = meeting.attendances[index];
+    //   }
+    //   attendees.push(
+    //     {
+    //       id: id,
+    //       username: meeting.invited_users[index],
+    //       attendance: meeting.attendances[index]
+    //     }
+    //   )
+    // }
+
     return (
       <li className='meeting-list-item' key={meeting.id}>
         <MeetingCard
@@ -59,7 +96,7 @@ export default function Dashboard(props) {
           startTime={meeting.start_time}
           name={meeting.name}
           owner={meeting.owner_username}
-          attendees={meeting.invited_users}
+          attendees={attendees}
           attendeeIds={meeting.attendee_ids}
           description={meeting.description}
           active={meeting.active}

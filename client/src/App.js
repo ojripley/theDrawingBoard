@@ -54,8 +54,6 @@ export default function App() {
     }
   }, [socket, socketOpen]);
 
-  console.log(user);
-
   if (user) {
     if (inMeeting) {
       return (

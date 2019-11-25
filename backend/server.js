@@ -182,7 +182,8 @@ io.on('connection', (client) => {
 
   client.on('fetchMeeting', (data) => {
     db.fetchMeetingById(data.id)
-      .then(res => {
+    .then(res => {
+        console.log(res);
         client.emit('meeting', res);
       });
   });
@@ -430,5 +431,13 @@ io.on('connection', (client) => {
       }
     })
   })
+  client.on('changeAttendance', (data) => {
+
+    console.log('changing attendance...');
+    console.log(data.rsvp);
+    db.updateUsersMeetingsStatus(data.user.id, data.meetingId, data.rsvp);
+
+    client.emit('attendanceChanged', {meetingId: data.meetingId});
+  });
 });
 
