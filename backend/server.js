@@ -24,8 +24,8 @@ const bodyParser = require("body-parser");
 const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
-const cookieParser = require('cookie-session');
+const io = require('socket.io')(server, { cookie: "yo" });
+const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 
@@ -52,7 +52,19 @@ const usersMeetingsRoutes = require('./routes/usersMeetingsRoutes');
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
 
-app.use(cookieParser({ signed: false }));
+const encrypt = (text) => {
+  var cipher = crypto.createCipher(algorithm, password)
+  var crypted = cipher.update(text, 'utf8', 'hex')
+  crypted += cipher.final('hex');
+  return crypted;
+};
+
+const decrypt = (text) => {
+  var decipher = crypto.createDecipher(algorithm, password)
+  var dec = decipher.update(text, 'hex', 'utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -69,16 +81,39 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
+  let cookieString = ""; //This will grab the clients session cookie should it exist
+  if (client.request.headers.cookie) {
+    let matches = client.request.headers.cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
+    if (matches) cookieString = matches[0];
+  }
+
+
+  //Checks cookie
+  client.on('checkCookie', () => {
+    if (cookieString) {
+      let email = decrypt(cookieString);
+      console.log('decrypted', email)
+      db.fetchUserByEmail(email)
+        .then(res => {
+          console.log(res);
+          activeUsers.addUser(res[0].id, client);
+          client.emit('cookieResponse', res);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  });
+
   // handles logging in and activeUsers
   client.on('loginAttempt', (data) => {
     authenticator.authenticate(data.email, data.password)
       .then(res => {
         const authenticateAttempt = res;
-
         if (authenticateAttempt) {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
-          activeUsers.addUser(authenticateAttempt.id, client)
+          activeUsers.addUser(authenticateAttempt.id, client);
           console.log('active users:');
           for (let user in activeUsers) {
             if (activeUsers[user].id) {
@@ -92,7 +127,7 @@ io.on('connection', (client) => {
         } else {
           console.log('attempted login: failed');
         }
-        client.emit('loginResponse', authenticateAttempt);
+        client.emit('loginResponse', { user: authenticateAttempt, session: (authenticateAttempt.id ? encrypt(authenticateAttempt.email) : "") });
       });
   });
 
@@ -211,6 +246,7 @@ io.on('connection', (client) => {
             for (let contactId of res[0].attendee_ids) {
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
+                console.log('res[0]:', res[0])
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
               }
             }
@@ -315,7 +351,20 @@ io.on('connection', (client) => {
   client.on('fetchNotes', (data) => {
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        client.emit('notes', res[0]);
+        console.log('image', `meeting_files/${data.meetingId}/${data.linkToFinalDoc}`);
+        fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
+          if (err) {
+            console.error;
+            image = "";
+          }
+          // console.log("sending these pixels");
+          // console.log(meetingDetails.userPixels);
+          // client.emit('enteredMeeting', { image: "data:image/jpg;base64," + image.toString("base64") });
+
+          // client.join(data.meetingId);
+          // io.to(data.meetingId).emit('newParticipant', (data.user));
+          client.emit('notes', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
+        });
       });
   });
 
