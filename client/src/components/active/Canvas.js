@@ -134,6 +134,9 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
       prev = imageCanvasRef.current.getContext('2d')
+      imageCanvasRef.current.width = imageEl.width;
+      imageCanvasRef.current.height = imageEl.height;
+      prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       prev.drawImage(drawCanvasRef.current, 0, 0, imageEl.width, imageEl.height);
     });
   }
