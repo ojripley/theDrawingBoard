@@ -32,7 +32,7 @@ export default function DetailedHistory(props) {
       <h4>My Notes</h4>
       <p>{notes}</p>
       <h4>Group Notes</h4>
-      <img src={image} alt='meeting-notes' />
+      <img className='meeting-image' src={image} alt='meeting-notes' />
       <Button variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
     </Box>
   );
