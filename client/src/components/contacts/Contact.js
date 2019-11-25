@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 
 import './Contacts.scss';
 
+
 export default function Contact(props) {
 
   // console.log(props.contact.username, props.contact.relation);
@@ -42,8 +43,6 @@ export default function Contact(props) {
 
   const changeRelation = function () {
 
-
-
     console.log('change relationStatus of:')
     console.log(props.contact.username)
 
@@ -67,6 +66,22 @@ export default function Contact(props) {
     }
   }
 
+  const declineRelation = function() {
+    if (relationStatus === 'pending') {
+      props.socket.emit('deleteContact', { user: props.user, contactId: props.contact.id, relation: null })
+    }
+  }
+
+  const toDisplayOrNotDisplay = function() {
+    if (relationStatus === 'pending') {
+      return 'decline-contact-request';
+    }
+
+    else {
+      return 'decline-contact-request-not-visible';
+    }
+  }
+
   return(
       <Card className='contact-card'>
         <PersonOutlineOutlinedIcon className='contact-icon'></PersonOutlineOutlinedIcon>
@@ -75,8 +90,17 @@ export default function Contact(props) {
 
 
         <Button variant="outlined" color="primary" onClick={changeRelation}>
-        {relationStatus === undefined ? 'add contact' : relationStatus === 'accepted' ? 'remove friend' : relationStatus === 'requested' ? 'requested' : relationStatus === 'pending' ? 'hey accept me!' : 'add contact'}
+        {relationStatus === undefined ? 'Add Friend'
+        : relationStatus === 'accepted' ? 'Remove Friend'
+        : relationStatus === 'requested' ? 'Friend Request Sent'
+        : relationStatus === 'pending' ? 'Accept Friend Request'
+        : 'add contact'}
         </Button>
+
+      <Button className={toDisplayOrNotDisplay()} variant="outlined" color="secondary" onClick={declineRelation} >
+        Decline Friend Request
+      </Button>
+
 
       </Card>
   );
