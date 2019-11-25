@@ -26,7 +26,7 @@ export default function Contacts(props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [contactsList, setContactsList] = useState([]);
   const [globalSearch, setGlobalSearch] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 400);
+  const debouncedSearchTerm = useDebounce(searchTerm, 100);
 
 
   const handleSearchTermChange = event => {

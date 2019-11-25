@@ -108,7 +108,23 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
     });
 };
 
+const removeUserFromMeeting = function(user_id, meeting_id) {
 
+  const vars = [user_id, meeting_id];
+
+  return db.query(`
+    DELETE FROM users_meetings
+    WHERE user_id = $1
+    AND meeting_id = $2;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+
+};
 
 
 
@@ -357,4 +373,4 @@ const deleteMeeting = function(meeting_id) {
 }
 
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById, deleteContact, deleteMeeting };
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById, deleteContact, deleteMeeting, removeUserFromMeeting };

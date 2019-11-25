@@ -77,6 +77,52 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const notify = function(client, notification) {
+
+  notification.timestamp = Date.now();
+
+  client.emit('notify', notification);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
@@ -261,8 +307,8 @@ io.on('connection', (client) => {
             for (let contactId of res[0].attendee_ids) {
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
-                console.log('res[0]:', res[0])
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
+                notify(activeUsers[contactId].socket, { type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id});
               }
             }
           });
@@ -299,6 +345,7 @@ io.on('connection', (client) => {
               if (activeUsers[id]) {
                 const userClient = activeUsers[id].socket
                 userClient.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
+                notify(userClient, { type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
@@ -360,12 +407,20 @@ io.on('connection', (client) => {
       if (err) throw err;
       console.log('The file has been saved!');
       db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
-      io.to(data.meetingId).emit('requestNotes', data.meetingId);
-      activeMeetings.removeMeeting(data.meetingId);
-
-      console.log(`meeting ${data.meetingId}is done`);
-      console.log(activeMeetings);
     });
+
+    io.to(data.meetingId).emit('requestNotes', data.meetingId);
+
+    for (let id of meetingDetails.invited_users) {
+      if (activeUsers[id]) {
+        const userClient = activeUsers[id].socket;
+        notify(userClient, { type: 'meeting', msg: `Meeting '${data.meetingName} has ended! You may check the details in History`, meetingId: meetingDetails.name });
+      }
+    }
+    activeMeetings.removeMeeting(data.meetingId);
+
+    console.log(`meeting ${data.meetingId}is done`);
+    console.log(activeMeetings);
   });
 
   client.on('notes', (data) => {
@@ -445,15 +500,23 @@ io.on('connection', (client) => {
           activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
         }
       }
-    })
-  })
+    });
+  });
+
+
   client.on('changeAttendance', (data) => {
 
     console.log('changing attendance...');
     console.log(data.rsvp);
-    db.updateUsersMeetingsStatus(data.user.id, data.meetingId, data.rsvp);
+
+    if (data.rsvp === 'declined') {
+      db.removeUserFromMeeting(data.user.id, data.meetingId);
+    } else {
+      db.updateUsersMeetingsStatus(data.user.id, data.meetingId, data.rsvp);
+    }
 
     client.emit('attendanceChanged', {meetingId: data.meetingId});
+
   });
 });
 
