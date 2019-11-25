@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import theImage from './tmp.jpg';
+import React, { useState, useEffect } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -51,7 +50,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels}) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels }) {
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState('');
   const [writeMode, setWriteMode] = useState(false);
@@ -90,9 +89,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, debouncedNotes, user])
 
 
-  // let myImage = new Image();
-  // myImage.onload = () => { setLoaded(true) };
-  // myImage.src = theImage; //pull this from socket
   return (
     imageLoaded && <>
       <Canvas

@@ -65,19 +65,6 @@ function reducer(state, action) {
           state.ctx.stroke();//draw the line
         }
       }
-      /* Old way (single array) Remove once we confirm multiuser array method works
-       for (let i = 0; i < state.clickX.length; i++) {
-          state.ctx.beginPath();
-          if (state.clickDrag[i] && i) {
-            state.ctx.moveTo(state.clickX[i - 1], state.clickY[i - 1]);
-          } else {
-            state.ctx.moveTo(state.clickX[i] - 1, state.clickY[i]);
-          }
-          state.ctx.lineTo(state.clickX[i], state.clickY[i]);
-          state.ctx.closePath();
-          state.ctx.stroke();
-        }
-      */
 
       return { ...state };
     }
@@ -106,7 +93,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   let [paint, setPaint] = useState(false);
   const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
-  const [drawingState, dispatch] = useReducer(reducer, {
+  const [, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: undefined
   });

@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-import FileUpload from './FileUpload';
-
 // Material UI - Text Inputs
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
@@ -193,7 +191,7 @@ export default function Form(props) {
           >
             {contactsList}
           </Select>
-          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"/>
+          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg" />
         </FormControl>
       </div>
     </Box>
