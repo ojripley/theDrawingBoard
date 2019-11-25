@@ -220,13 +220,13 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   return (
     <>
-      <Fab
+      {/* <Fab
         aria-label='end'
         color='primary'
         className={classes.endFab}
         onClick={endMeeting} >
         <CloseIcon />
-      </Fab>
+      </Fab> */}
       <div id='canvas-container'>
         <canvas
           id='image'

@@ -8,6 +8,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import CanvasControls from './CanvasControls';
+
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -102,13 +104,14 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         meetingId={meetingId}
         initialPixels={initialPixels}
       />
-      <Fab
+      {/* <Fab
         aria-label='edit'
         color='secondary'
         className={classes.fab}
         onClick={() => setWriteMode(prev => !prev)} >
         <EditIcon />
-      </Fab>
+      </Fab> */}
+      <CanvasControls />
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
