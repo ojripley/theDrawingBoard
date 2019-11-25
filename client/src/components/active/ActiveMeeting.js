@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -65,6 +65,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const debouncedNotes = useDebounce(meetingNotes, 400);
   // const backgroundCanvas = useRef(null);
 
+  const textareaRef = useRef(null);
 
   const classes = useStyles();
 
@@ -72,6 +73,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
+  }
+
+  const handleCaret = e => {
+    var temp_value = e.target.value
+    e.target.value = ''
+    e.target.value = temp_value
   }
 
   useEffect(() => {
@@ -96,6 +103,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     setSaving(false);
   }, [socket, debouncedNotes, user])
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [textareaRef.current, writeMode])
+
   return (
     imageLoaded &&
     <div className={classes.root}>
@@ -118,12 +131,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
+            ref={textareaRef}
             aria-label='empty textarea'
             placeholder='Empty'
-            autoFocus
             defaultValue={meetingNotes}
             className={classes.textareaAutosize}
             onChange={event => handleInput(event)}
+            onFocus={handleCaret}
           />
           <InputIcon onClick={() => setWriteMode(prev => !prev)}/>
         </div>
