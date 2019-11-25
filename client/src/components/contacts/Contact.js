@@ -14,7 +14,6 @@ export default function Contact(props) {
   // console.log(props.contact.username, props.contact.relation);
   const [relationStatus, setRelationStatus] = useState(props.contact.relation);
 
-
   useEffect(() => {
     // console.log('something changed!');
     if (props.socketOpen) {

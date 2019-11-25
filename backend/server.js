@@ -1,5 +1,5 @@
 
-//          #####   ######  ######   #   #   #####
+//          #####   ######  ######    #   #   #####
 //         #        #          #      #   #   #   #
 //          #####   #####      #      #   #   ####
 //               #  #          #      #   #   #
@@ -90,9 +90,11 @@ io.on('connection', (client) => {
 
   //Checks cookie
   client.on('checkCookie', () => {
+    console.log('cookie check');
+    console.log(cookieString);
     if (cookieString) {
       let email = decrypt(cookieString);
-      console.log('decrypted', email)
+      console.log('decrypted', email);
       db.fetchUserByEmail(email)
         .then(res => {
           console.log(res);
@@ -107,6 +109,8 @@ io.on('connection', (client) => {
 
   // handles logging in and activeUsers
   client.on('loginAttempt', (data) => {
+    console.log('authenticating...');
+    console.log(data);
     authenticator.authenticate(data.email, data.password)
       .then(res => {
         const authenticateAttempt = res;
@@ -127,6 +131,7 @@ io.on('connection', (client) => {
         } else {
           console.log('attempted login: failed');
         }
+        console.log('sending response');
         client.emit('loginResponse', { user: authenticateAttempt, session: (authenticateAttempt.id ? encrypt(authenticateAttempt.email) : "") });
       });
   });
@@ -384,6 +389,7 @@ io.on('connection', (client) => {
 
     // tell the client they have a contact request if they are online
     if (activeUsers[data.contactId]) {
+      console.log(`letting ${activeUsers[data.contactId].username}`);
       activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
     }
   });
