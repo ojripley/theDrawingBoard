@@ -24,7 +24,8 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     zIndex: 2,
     bottom: 20,
-    width: "50%"
+    width: "50%",
+    resize: 'none'
   },
   center: {
     display: 'flex',
