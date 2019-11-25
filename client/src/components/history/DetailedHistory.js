@@ -38,11 +38,11 @@ export default function DetailedHistory(props) {
       <p>{props.meeting.invited_users.map((name, index) => <span key={index}>{name} </span>)}</p>
       <h4>Description</h4>
       <p>{props.meeting.description}</p>
-      <div className='personal-notes'>
+      {notes.length > 0 && <div className='personal-notes'>
         <h4>My Notes</h4>
         <textarea className='notes-text' ref={notesRef} value={notes}>{notes}</textarea>
         <FileCopyIcon onClick={copyToClipboard} />
-      </div>
+      </div>}
       <h4>Group Notes</h4>
       <img className='meeting-image' src={image} alt='meeting-notes' />
       <Button variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
