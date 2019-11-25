@@ -118,11 +118,16 @@ export default function Form(props) {
   }
 
   const contactsList = contacts.map(contact => {
-    return (
-      <MenuItem key={contact.id} value={contact} style={getStyles(contact.username, props.selectedContacts, theme)}>
-        {contact.username}
-      </MenuItem>
-    )
+
+    if (contact.relation === 'accepted') {
+      return (
+        <MenuItem key={contact.id} value={contact} style={getStyles(contact.username, props.selectedContacts, theme)}>
+          {contact.username}
+        </MenuItem>
+      )
+    } else {
+      return null;
+    }
   });
 
   return (

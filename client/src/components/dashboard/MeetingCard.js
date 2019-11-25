@@ -53,7 +53,7 @@ export default function MeetingCard({
   setOwnerId,
   setBackgroundImage,
   setImageLoaded,
-  setInitialPixels
+  setInitialPixels,
 }) {
 
   const classes = useStyles();
@@ -72,15 +72,10 @@ export default function MeetingCard({
     socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
   }
 
+  console.log(attendees);
+
   useEffect(() => {
     if (socketOpen) {
-      // socket.on('meetingStarted', res => {
-      //   console.log(res)
-      //   if (id === res) {
-      //     setActiveMeeting(true);
-      //     setMeetingId(id);
-      //   }
-      // })
 
       socket.on('enteredMeeting', data => {
         // console.log('Meeting is: ', res);
@@ -139,7 +134,11 @@ export default function MeetingCard({
           </Typography>
           <Typography variant="body2" component="p">Attendees</Typography>
           <ul>
-            {attendees.map((attendee, index) => (<li key={index}>{attendee}</li>))}
+            {attendees.map((attendee) => (
+            <li className='attendee' key={attendee.id}>
+              {attendee.username}
+              <span className='attendee-attendance'>  {attendee.attendance}</span>
+            </li>))}
           </ul>
           {user.username === owner ?
             <Owner
@@ -147,8 +146,15 @@ export default function MeetingCard({
               socket={socket}
               startMeeting={startMeeting}
               activeMeeting={activeMeeting}
+              attendeeIds={attendeeIds}
             />
-            : <Attendee />
+            : <Attendee
+                user={user}
+                meetingId={id}
+                socket={socket}
+                socketOpen={socketOpen}
+                attendance={user.attendance}
+              />
           }
           {activeMeeting && <Button variant="contained" color="primary" className={classes.button} onClick={enterMeeting}>
             Enter Meeting
