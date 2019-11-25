@@ -84,9 +84,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       zIndex: 3
     }
   }));
-
   const classes = useStyles();
-
 
   //State for drawing canvas:
   const drawCanvasRef = useRef(null);
@@ -98,11 +96,9 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     ctx: undefined
   });
 
-
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
-
 
   //Loads the initial drawing canvas
   useEffect(() => {
@@ -114,8 +110,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       payload: newCtx
     });
   }, [isLoaded, imageEl]);
-
-
 
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
@@ -163,7 +157,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     });
   }, [imageCtx, isLoaded, imageEl, initialPixels]);
 
-
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
     let pixel = {
@@ -175,7 +168,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     dispatch({ type: REDRAW });
     // mergeWithImage();
   };
-
 
   const handleMouseDown = e => {
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
@@ -204,9 +196,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         <CloseIcon />
       </Fab>
       <div id='canvas-container'>
-
-
-
         <canvas
           id='image'
           ref={imageCanvasRef}
