@@ -16,6 +16,8 @@ export default function Login(props) {
 
   const handleLogin = () => {
     if (props.socketOpen) {
+      console.log('attempting to log in')
+      console.log(email, password)
       props.socket.emit('loginAttempt', { email: email, password: password });
     }
   };
@@ -30,9 +32,10 @@ export default function Login(props) {
     if (props.socketOpen) {
       props.socket.on('loginResponse', (data) => {
         if (data.user && data.user.id) {
-          // console.log(data);
+          console.log(data);
           console.log("Attempting to set cookie");
           document.cookie = `sid=${data.session}`;
+          console.log(document.cookie);
           props.setUser(data.user);
         }
       })
