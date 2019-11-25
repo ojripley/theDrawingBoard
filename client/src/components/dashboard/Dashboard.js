@@ -20,7 +20,7 @@ export default function Dashboard(props) {
       props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'scheduled' });
       props.socket.on('meetings', data => {
         // console.log('handling')
-        setMeetings(data)
+        setMeetings(data);
       });
 
       props.socket.on('itWorkedThereforeIPray', data => {
@@ -51,11 +51,8 @@ export default function Dashboard(props) {
 
 
     for (let i = 0; i < meeting.attendee_ids.length; i++) {
-      console.log(meeting.attendee_ids[i]);
-      console.log(attendees);
       if (meeting.attendee_ids[i] === props.user.id) {
         currentUser['attendance'] = meeting.attendances[i];
-        console.log('userid', props.user.id);
       }
       attendees.push(
         {
@@ -105,6 +102,7 @@ export default function Dashboard(props) {
           setBackgroundImage={props.setBackgroundImage}
           setImageLoaded={props.setImageLoaded}
           setInitialPixels={props.setInitialPixels}
+          setMeetingNotes={props.setMeetingNotes}
         />
       </li>
     )
