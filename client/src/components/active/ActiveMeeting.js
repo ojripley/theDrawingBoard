@@ -24,7 +24,8 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     zIndex: 2,
     bottom: 20,
-    width: "50%"
+    width: "50%",
+    resize: 'none'
   },
   center: {
     display: 'flex',
@@ -52,7 +53,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels }) {
   // const [imageLoaded, setLoaded] = useState(false);
-  const [meetingNotes, setMeetingNotes] = useState('');
+  const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
@@ -83,7 +84,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   useEffect(() => {
     // console.log(debouncedNotes);
-    socket.emit('saveNotes', { user, note: debouncedNotes });
+    console.log('requesting note save');
+    socket.emit('saveDebouncedNotes', { user: user, meetingId: meetingId, notes: debouncedNotes });
     // socket.on('receiveOkay') //can have a socket on when received
     setSaving(false);
   }, [socket, debouncedNotes, user])

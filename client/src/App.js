@@ -64,6 +64,7 @@ export default function App() {
           socket={socket}
           socketOpen={socketOpen}
           initialNotes={meetingNotes}
+          setMeetingNotes={setMeetingNotes}
           setInMeeting={setInMeeting}
           setMeetingId={setMeetingId}
           imageLoaded={imageLoaded}
@@ -83,6 +84,7 @@ export default function App() {
               user={user}
               setInMeeting={setInMeeting}
               setMeetingId={setMeetingId}
+              setMeetingNotes={setMeetingNotes}
               setOwnerId={setOwnerId}
               setBackgroundImage={setBackgroundImage}
               setImageLoaded={setImageLoaded}

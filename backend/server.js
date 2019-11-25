@@ -317,11 +317,22 @@ io.on('connection', (client) => {
       }
       console.log("sending these pixels");
       console.log(meetingDetails.userPixels);
-      client.emit('enteredMeeting', { meeting: meetingDetails, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
-      client.join(data.meetingId);
-      io.to(data.meetingId).emit('newParticipant', (data.user));
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
+
+          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+
+          client.join(data.meetingId);
+          io.to(data.meetingId).emit('newParticipant', (data.user));
+        })
     });
+  });
+
+  client.on('saveDebouncedNotes', (data) => {
+    console.log('attempting to write notes');
+    console.log(data.notes);
+    db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes);
   });
 
   // gotta handle the end meeting event
@@ -346,8 +357,6 @@ io.on('connection', (client) => {
   });
 
   client.on('notes', (data) => {
-    console.log('attempting to write notes');
-    console.log(data.notes);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
@@ -363,12 +372,7 @@ io.on('connection', (client) => {
             console.error;
             image = "";
           }
-          // console.log("sending these pixels");
-          // console.log(meetingDetails.userPixels);
-          // client.emit('enteredMeeting', { image: "data:image/jpg;base64," + image.toString("base64") });
 
-          // client.join(data.meetingId);
-          // io.to(data.meetingId).emit('newParticipant', (data.user));
           client.emit('notes', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
         });
       });
