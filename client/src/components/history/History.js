@@ -58,6 +58,7 @@ export default function History(props) {
         setViewMeeting={setViewMeeting}
         user={props.user}
         socket={props.socket}
+        socketOpen={props.socketOpen}
       />
     }
     </Box>
