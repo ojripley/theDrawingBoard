@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useReducer, useCallback } from 'rea
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-import Fab from '@material-ui/core/Fab';
+import Button from '@material-ui/core/Button';
 
 
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -73,15 +73,14 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
 
   const useStyles = makeStyles(theme => ({
-    endFab: {
-      margin: theme.spacing(1),
+    endMeeting: {
       position: 'fixed',
-      top: 0,
+      bottom: 0,
       left: 0,
-      zIndex: 3
+      zIndex: 10
     }
   }));
   const classes = useStyles();
@@ -219,14 +218,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   }
 
   return (
-    <>
-      <Fab
-        aria-label='end'
-        color='primary'
-        className={classes.endFab}
-        onClick={endMeeting} >
-        <CloseIcon />
-      </Fab>
       <div id='canvas-container'>
         <canvas
           id='image'
@@ -245,7 +236,14 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
           onTouchEnd={e => setPaint(false)}
         >
         </canvas>
+        {user.id === ownerId && <Button
+          variant='contained'
+          color='secondary'
+          className={classes.endMeeting}
+          onClick={endMeeting}
+        >
+          End Meeting
+        </Button>}
       </div>
-    </>
   );
 }
