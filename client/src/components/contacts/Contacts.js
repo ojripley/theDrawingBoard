@@ -120,7 +120,7 @@ export default function Contacts(props) {
             color="primary"
           />
         }
-        label={globalSearch ? 'Search: All Users' : 'Search: My Contacts'}
+        label={globalSearch ? 'Search: Find New Friends!' : 'Search: My Friends'}
       />
       <ul>
         {contacts}

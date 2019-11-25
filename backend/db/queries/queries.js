@@ -42,38 +42,13 @@ const fetchContactsByUserId = function(user_id, username = '') {
     });
 };
 
-// const fetchUsersByUsername = function(username = '', id) {
-
-//   const vars = [`%${username}%`, id];
-
-//   return db.query(`
-//     SELECT username, email, id
-//     FROM users
-//     LEFT OUTER JOIN friends on id = friends.friend_id
-//     WHERE username ILIKE $1
-//     AND friends.user_id != $2
-//   `, vars)
-//     .then(res => {
-//       return res.rows;
-//     })
-//     .catch(error => {
-//       console.error('Query Error', error);
-//     });
-// };
-
-
-
-
-
-
-
 
 const fetchUsersByUsername = function (username = '', id) {
 
   const vars = [`%${username}%`, id];
 
   return db.query(`
-select id, username, relation from users left join friends on users.id = friends.user_id where username ilike $1 and (friend_id=$2 OR friend_id is null)
+select id, username, relation from users left join friends on users.id = friends.user_id where username ilike $1 and (friend_id is null)
 union
 select id, username, null as relation from users join friends on users.id=friends.user_id where username ilike $1 and id != $2 group by id having($2 != all(array_agg(friend_id)));  `, vars)
     .then(res => {
@@ -83,20 +58,6 @@ select id, username, null as relation from users join friends on users.id=friend
       console.error('Query Error', error);
     });
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 const fetchMeetingsByUserId = function(username, meeting_status) {
