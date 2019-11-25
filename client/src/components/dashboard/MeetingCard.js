@@ -147,6 +147,7 @@ export default function MeetingCard({
               socket={socket}
               startMeeting={startMeeting}
               activeMeeting={activeMeeting}
+              attendeeIds={attendeeIds}
             />
             : <Attendee />
           }

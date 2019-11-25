@@ -30,6 +30,12 @@ export default function Dashboard(props) {
         setMeetings(prev => [...prev, data]);
       });
 
+      props.socket.on('meetingDeleted', (res) => {
+        console.log('meeting deleted', res);
+        const filteredMeetings = meetings.filter(meeting => meeting.id !== res.meetingId);
+        setMeetings(filteredMeetings);
+      });
+
       // props.socket.on('meetingStarted', () => {
 
       // })
@@ -37,6 +43,7 @@ export default function Dashboard(props) {
       return () => {
         props.socket.off('meetings');
         props.socket.off('itWorkedThereforeIPray');
+        props.socket.off('meetingDeleted');
       };
     }
   }, [props.socket, props.socketOpen, currentUser.username]);

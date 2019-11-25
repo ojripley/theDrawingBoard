@@ -418,5 +418,17 @@ io.on('connection', (client) => {
       activeUsers[data.contactId].socket.emit('relationChanged', { relation: null, contactId: data.user.id } );
     }
   });
+
+  client.on('deleteMeeting', (data) => {
+    db.deleteMeeting(data.id)
+    .then(() => {
+      for (let contactId of data.attendeeIds) {
+        if (activeUsers[contactId]) {
+          console.log(`${contactId} should now rerender`);
+          activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
+        }
+      }
+    })
+  })
 });
 
