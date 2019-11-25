@@ -3,7 +3,6 @@ import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import Fab from '@material-ui/core/Fab';
-import useDebounce from '../../hooks/useDebounce';
 
 
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -122,18 +121,9 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     }
 
 
-  }, [isLoaded, imageEl, window.innerWidth]);
+  }, [isLoaded, imageEl]);
 
-  const mapPixelToScreen = useCallback(
-    (pixel) => {
-      let w = drawCanvasRef.current.width;
-      let h = drawCanvasRef.current.height;
-      pixel.x = pixel.x * w;
-      pixel.y = pixel.y * h;
-      return pixel;
-    },
-    [drawCanvasRef.current.width, drawCanvasRef.current.height],
-  );
+
 
   // const mapToRelativeUnits = useCallback(
   const mapToRelativeUnits = (pixel) => {
@@ -168,7 +158,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         socket.off('drawClick');
       };
     }
-  }, [socket, socketOpen, user.username, mapPixelToScreen]);
+  }, [socket, socketOpen, user.username]);
 
   const endMeeting = () => {
     console.log('meeting ended');
