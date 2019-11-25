@@ -340,5 +340,21 @@ const deleteContact = function(user_id, contact_id) {
     });
 }
 
+const deleteMeeting = function(meeting_id) {
+  const vars = [meeting_id];
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById, deleteContact };
+  return db.query(`
+    DELETE FROM meetings
+    WHERE id = $1;
+  `, vars)
+  .then(res => {
+    console.log('res:', res)
+    return res.rows;
+  })
+  .catch(err => {
+    console.error('Query Error', err);
+  })
+}
+
+
+module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById, deleteContact, deleteMeeting };

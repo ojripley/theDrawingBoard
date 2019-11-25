@@ -28,6 +28,11 @@ export default function Dashboard(props) {
         setMeetings(prev => [...prev, data]);
       });
 
+      props.socket.on('meetingDeleted', (res) => {
+        console.log('meeting deleted', res);
+        setMeetings(prev => prev.filter(meeting => meeting.id !== res.id));
+      });
+
       // props.socket.on('meetingStarted', () => {
 
       // })
@@ -35,6 +40,7 @@ export default function Dashboard(props) {
       return () => {
         props.socket.off('meetings');
         props.socket.off('itWorkedThereforeIPray');
+        props.socket.off('meetingDeleted');
       };
     }
   }, [props.socket, props.socketOpen, currentUser.username]);
@@ -42,7 +48,7 @@ export default function Dashboard(props) {
   // const startMeeting = () => {
   //   props.socket.emit('startMeeting', {id: props.id});
   // };
-
+  // console.log('meetings:', meetings)
   const meetingsList = meetings.map(meeting => {
 
     const attendees = [];
