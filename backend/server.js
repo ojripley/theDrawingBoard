@@ -1,9 +1,9 @@
 
-//          #####   ######   ######   #   #   #####
-//         #       #         #      #   #   #   #
-//          #####    #####      #      #   #   ####
-//               #   #          #      #   #   #
-//          #####  ######     #       ###    #
+//          #####   ######  ######   #   #   #####
+//         #        #          #      #   #   #   #
+//          #####   #####      #      #   #   ####
+//               #  #          #      #   #   #
+//          #####   ######     #       ###    #
 //
 //
 //
@@ -96,9 +96,6 @@ io.on('connection', (client) => {
       });
   });
 
-  //These lines are for testing purposes
-  // client.join('theOneRoomToRuleThemAll');
-
   client.on('addClick', data => {
     console.log("message received");
     console.log(data.pixel.x);
@@ -137,29 +134,9 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
-
-
-
-    // TODO
-
-    // fetch file from local storage
-    // send the actual file, either through the socket event or a route
-
-
-
-
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
-
-        // if going to send the file through the socket event, use the following logic
-
-        // if res.link {
-        // client.emit('meetingsWithDocs')
-        // } else {
-
         client.emit('meetings', res);
-
-        // }
       });
   });
 
@@ -183,9 +160,6 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
-
-
-
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
       .then(res => {
         client.emit('newMeeting', res[0]);
@@ -305,20 +279,12 @@ io.on('connection', (client) => {
 
       client.join(data.meetingId);
       io.to(data.meetingId).emit('newParticipant', (data.user));
-
     });
-
-
   });
 
   // gotta handle the end meeting event
   client.on('endMeeting', (data) => {
-    // todo: figure out document saving
 
-    // data needs to be:
-    // the document -> talk to T
-    // end_time (not strictly needed)
-    //Save the image
     let meetingDetails = activeMeetings[data.meetingId];
 
     let img;
@@ -397,6 +363,5 @@ io.on('connection', (client) => {
       activeUsers[data.contactId].socket.emit('relationChanged', { relation: null, contactId: data.user.id } );
     }
   });
-
 });
 
