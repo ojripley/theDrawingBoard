@@ -89,7 +89,6 @@ export default function CanvasDrawer(props) {
           <Divider />
           <List>
             <ListItem button onClick={backToDash}>Back to Dashboard</ListItem>
-            <ListItem button>End Meeting</ListItem>
           </List>
         </div>
       </Drawer>

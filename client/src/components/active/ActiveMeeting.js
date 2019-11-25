@@ -107,6 +107,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       />
       <Canvas
         user={user}
+        ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
         imageEl={backgroundImage}

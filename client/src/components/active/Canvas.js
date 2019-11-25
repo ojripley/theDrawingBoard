@@ -73,7 +73,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -236,14 +236,14 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
           onTouchEnd={e => setPaint(false)}
         >
         </canvas>
-        <Button
+        {user.id === ownerId && <Button
           variant='contained'
           color='secondary'
           className={classes.endMeeting}
           onClick={endMeeting}
         >
           End Meeting
-        </Button>
+        </Button>}
       </div>
   );
 }
