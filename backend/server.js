@@ -433,14 +433,14 @@ io.on('connection', (client) => {
   client.on('fetchNotes', (data) => {
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
+        console.log(res);
         console.log('image', `meeting_files/${data.meetingId}/${data.linkToFinalDoc}`);
         fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
           if (err) {
             console.error;
             image = "";
           }
-
-          client.emit('notes', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
+          client.emit('notesFetched', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
         });
       });
   });
