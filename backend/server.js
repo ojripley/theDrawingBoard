@@ -212,17 +212,26 @@ io.on('connection', (client) => {
           //Check if pdf
           if (data.file.name.search(/\.pdf$/ig) !== -1) {
 
+            console.log(data.file.name);
             fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-              if (err) throw err;
+              if (err) {
+                console.log('problem');
+                throw err;
+              }
               console.log('The file has been saved!');
-            }, () => {
+
               let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+
+              // console.log(pdfImage);
 
               pdfImage.convertPage(0).then(function(imagePath) {
                 // 0-th page (first page) of the slide.pdf is available as slide-0.png
                 fs.existsSync("/tmp/slide-0.png") // => true\
                 console.log(imagePath);
-              });
+              })
+              .catch((error) => {
+                console.log(error);
+              })
             }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
 
 
@@ -353,6 +362,9 @@ io.on('connection', (client) => {
       db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
       io.to(data.meetingId).emit('requestNotes', data.meetingId);
       activeMeetings.removeMeeting(data.meetingId);
+
+      console.log(`meeting ${data.meetingId}is done`);
+      console.log(activeMeetings);
     });
   });
 
