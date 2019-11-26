@@ -136,6 +136,10 @@ io.on('connection', (client) => {
               client.emit('allNotifications', res);
             })
           activeUsers.addUser(user, client);
+
+          client.on('disconnect', () => {
+            activeUsers.removeUser(user.id);
+          });
         });
     }
   });
