@@ -1,10 +1,19 @@
 import React from 'react';
 
 import Notification from './Notification';
+import { makeStyles } from '@material-ui/core/styles';
 
-
+const useStyles = makeStyles(theme => ({
+  section: {
+    margin: theme.spacing(1)
+  }
+}));
 
 export default function Notifications(props) {
+
+
+  const classes = useStyles();
+
 
   const removeNotification = (id) => {
     console.log(id);
@@ -19,6 +28,7 @@ export default function Notifications(props) {
       return (<Notification
         key={notif.id}
         id={notif.id}
+        user={props.user}
         type={notif.type}
         title={notif.title}
         onClick={() => props.setMode("DASHBOARD")}
@@ -38,6 +48,7 @@ export default function Notifications(props) {
       return (<Notification
         key={notif.id}
         id={notif.id}
+        user={props.user}
         type={notif.type}
         title={notif.title}
         onClick={() => props.setMode("CONTACTS")}
@@ -56,6 +67,7 @@ export default function Notifications(props) {
       return (<Notification
         key={notif.id}
         id={notif.id}
+        user={props.user}
         type={notif.type}
         title={notif.title}
         onClick={() => props.setMode("DASHBOARD")}
@@ -76,17 +88,17 @@ export default function Notifications(props) {
     <>
       <h1>Notifications</h1>
 
-      <h2> Meetings </h2>
+      <h2 class={classes.section}> Meetings </h2>
       <ul>
         {notifications}
       </ul>
 
-      <h2> Contacts </h2>
+      <h2 class={classes.section}> Contacts </h2>
       <ul>
         {contacts}
       </ul>
 
-      <h2> Direct Messages </h2>
+      <h2 class={classes.section}> Direct Messages </h2>
       <ul>
         {dms}
       </ul>
