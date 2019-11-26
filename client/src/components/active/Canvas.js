@@ -99,12 +99,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
+      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : imageEl.height * window.innerWidth / imageEl.width;
       dispatch({ type: REDRAW });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width; //ensure canvas is to scale
+    drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : imageEl.height * window.innerWidth / imageEl.width;
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -168,7 +168,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
     setImageCtx(prev => {
       imageCanvasRef.current.width = window.innerWidth;
-      imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
+      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : imageEl.height * window.innerWidth / imageEl.width;
       prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
