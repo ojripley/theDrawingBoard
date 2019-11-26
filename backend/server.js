@@ -36,18 +36,24 @@ const db = require('./db/queries/queries');
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
 
-const encrypt = (text) => {
-  var cipher = crypto.createCipher(algorithm, password)
-  var crypted = cipher.update(text, 'utf8', 'hex')
-  crypted += cipher.final('hex');
-  return crypted;
-};
+const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
+const iv = new Buffer.from("XFf9bYQkLKtwD4QD"); //Could use random bytes, would refresh on server refresh
 
-const decrypt = (text) => {
-  var decipher = crypto.createDecipher(algorithm, password)
-  var dec = decipher.update(text, 'hex', 'utf8')
-  dec += decipher.final('utf8');
-  return dec;
+function encrypt(text) {
+  let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+}
+
+function decrypt(text) {
+  console.log('decryptiv', text.iv)
+  let iv = Buffer.from(text.iv, 'hex');
+  let encryptedText = Buffer.from(text.encryptedData, 'hex');
+  let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
 }
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -72,7 +78,7 @@ server.listen(PORT, () => {
 const notify = function(userId, notification) {
 
   // assign notificationId with res.id after a db query
-  notification.userId =  userId;
+  notification.userId = userId;
 
   if (notification.type === 'meeting') {
     db.insertMeetingNotification(userId, notification)
@@ -113,34 +119,45 @@ io.on('connection', (client) => {
   client.emit('msg', "there's a snake in my boot!");
 
   let cookieString = ""; //This will grab the clients session cookie should it exist
+  let ivString = ""; //This will grab the clients session cookie should it exist
   if (client.request.headers.cookie) {
     let matches = client.request.headers.cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
     if (matches) cookieString = matches[0];
+
+    ivMatch = client.request.headers.cookie.match(/(?<=iv=)[a-zA-Z0-9]*/);
+    if (ivMatch) ivString = ivMatch[0];
   }
 
   //Checks cookie
   client.on('checkCookie', () => {
     console.log('cookie check');
     console.log(cookieString);
-    if (cookieString) {
-      let email = decrypt(cookieString);
-      console.log('decrypted', email);
-      db.fetchUserByEmail(email)
-        .then(res => {
-          const user = {id: res[0].id, username: res[0].username, email: res[0].email}
-          client.emit('cookieResponse', user);
-          db.fetchNotificationsByUser(user.id)
-            .then(res => {
-              console.log('sending');
-              console.log(res);
-              client.emit('allNotifications', res);
-            })
-          activeUsers.addUser(user, client);
+    console.log(ivString);
 
-          client.on('disconnect', () => {
-            activeUsers.removeUser(user.id);
+    if (cookieString && ivString) {
+      try {
+        let email = decrypt({ encryptedData: cookieString, iv: iv });
+        console.log('decrypted', email);
+        db.fetchUserByEmail(email)
+          .then(res => {
+            const user = { id: res[0].id, username: res[0].username, email: res[0].email }
+            client.emit('cookieResponse', user);
+            db.fetchNotificationsByUser(user.id)
+              .then(res => {
+                console.log('sending');
+                console.log(res);
+                client.emit('allNotifications', res);
+              })
+            activeUsers.addUser(user, client);
+
+            client.on('disconnect', () => {
+              activeUsers.removeUser(user.id);
+            });
           });
-        });
+
+      } catch (err) {
+        console.error('Cookie authentication failed!');
+      }
     }
   });
 
@@ -163,7 +180,18 @@ io.on('connection', (client) => {
           console.log('attempted login: failed');
         }
         console.log('sending response');
-        client.emit('loginResponse', { user: authenticateAttempt, session: (authenticateAttempt.id ? encrypt(authenticateAttempt.email) : "") });
+        if (authenticateAttempt.id) {
+          let enc = encrypt(authenticateAttempt.email);
+          client.emit('loginResponse', {
+            user: authenticateAttempt,
+            session: { sid: enc.encryptedData, iv: enc.iv }
+          });
+        } else {
+          client.emit('loginResponse', {
+            user: authenticateAttempt,
+            session: ""
+          });
+        }
         db.fetchNotificationsByUser(authenticateAttempt.id)
           .then(res => {
             console.log('sending');
@@ -187,7 +215,7 @@ io.on('connection', (client) => {
   client.on('fetchUser', (data) => {
     db.fetchUserByEmail(data.email)
       .then(res => {
-        user = {id: res.id, username: res.username, email: res.email};
+        user = { id: res.id, username: res.username, email: res.email };
         client.emit('user', user);
       });
   });
@@ -202,7 +230,7 @@ io.on('connection', (client) => {
 
   client.on('fetchContactsGlobal', (data) => {
     db.fetchUsersByUsername(data.username, data.user.id)
-    // db.fetchUsersByUsername(data.user.id)
+      // db.fetchUsersByUsername(data.user.id)
       .then(res => {
         console.log(res);
         client.emit('contactsGlobal', res);
@@ -218,7 +246,7 @@ io.on('connection', (client) => {
 
   client.on('fetchMeeting', (data) => {
     db.fetchMeetingById(data.id)
-    .then(res => {
+      .then(res => {
         console.log(res);
         client.emit('meeting', res);
       });
@@ -265,9 +293,9 @@ io.on('connection', (client) => {
                 fs.existsSync("/tmp/slide-0.png") // => true\
                 console.log(imagePath);
               })
-              .catch((error) => {
-                console.log(error);
-              })
+                .catch((error) => {
+                  console.log(error);
+                })
             }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
 
 
@@ -293,7 +321,7 @@ io.on('connection', (client) => {
         db.fetchMeetingWithUsersById(id)
           .then(res => {
             for (let contactId of res[0].attendee_ids) {
-              notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id});
+              notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id });
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
@@ -440,7 +468,7 @@ io.on('connection', (client) => {
     // tell contact that they have a friend request
     notify(data.contactId, { title: 'Friend Request', type: 'contact', msg: `${data.user.username} has requested to add you as a friend!`, senderId: data.user.id });
     if (activeUsers[data.contactId]) {
-      activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
+      activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id });
     }
   });
 
@@ -448,7 +476,7 @@ io.on('connection', (client) => {
 
     // change the user relation
     db.updateFriendStatus(data.user.id, data.contactId, data.relation)
-    client.emit('relationChanged', {relation: data.relation, contactId: data.contactId});
+    client.emit('relationChanged', { relation: data.relation, contactId: data.contactId });
 
     // change the contact status based on what the user relation was
     if (data.relation === 'accepted') {
@@ -467,20 +495,20 @@ io.on('connection', (client) => {
 
     client.emit('relationChanged', { relation: null, contactId: data.contactId });
     if (activeUsers[data.contactId]) {
-      activeUsers[data.contactId].socket.emit('relationChanged', { relation: null, contactId: data.user.id } );
+      activeUsers[data.contactId].socket.emit('relationChanged', { relation: null, contactId: data.user.id });
     }
   });
 
   client.on('deleteMeeting', (data) => {
     db.deleteMeeting(data.meetingId)
-    .then(() => {
-      for (let contactId of data.attendeeIds) {
-        if (activeUsers[contactId]) {
-          // console.log(`${contactId} should now rerender`);
-          activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
+      .then(() => {
+        for (let contactId of data.attendeeIds) {
+          if (activeUsers[contactId]) {
+            // console.log(`${contactId} should now rerender`);
+            activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
+          }
         }
-      }
-    });
+      });
   });
 
   client.on('changeAttendance', (data) => {
@@ -490,7 +518,7 @@ io.on('connection', (client) => {
       db.updateUsersMeetingsStatus(data.user.id, data.meetingId, data.rsvp);
     }
 
-    client.emit('attendanceChanged', {meetingId: data.meetingId});
+    client.emit('attendanceChanged', { meetingId: data.meetingId });
 
   });
 
