@@ -1,9 +1,9 @@
 
-//          #####   ######  ######    #   #   #####
-//         #        #          #      #   #   #   #
-//          #####   #####      #      #   #   ####
-//               #  #          #      #   #   #
-//          #####   ######     #       ###    #
+//          #####   #######  #######  #     #  ######
+//         #        #        #  #  #  #     #  #     #
+//          #####   #####       #     #     #  ######
+//               #  #           #     #     #  #
+//          #####   #######     #      #####   #
 //
 //
 //
@@ -183,8 +183,6 @@ io.on('connection', (client) => {
   });
 
   client.on('addClick', data => {
-    console.log("message received");
-    console.log(data.pixel.x);
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
     console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data);//pass message along
@@ -198,7 +196,8 @@ io.on('connection', (client) => {
   client.on('fetchUser', (data) => {
     db.fetchUserByEmail(data.email)
       .then(res => {
-        client.emit('user', res);
+        user = {id: res.id, username: res.username, email: res.email};
+        client.emit('user', user);
       });
   });
 
