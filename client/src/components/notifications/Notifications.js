@@ -44,8 +44,6 @@ export default function Notifications(props) {
   const [meetingExpanded, setMeetingExpanded] = useState(true);
   const [contactsExpanded, setContactsExpanded] = useState(true);
   const [dmsExpanded, setDmsExpanded] = useState(true);
-  // const [meetingExpanded, setmeetingExpanded] = useState(false);
-  // const [meetingExpanded, setmeetingExpanded] = useState(false);
 
   const removeNotification = (id) => {
     console.log(id);
@@ -111,12 +109,6 @@ export default function Notifications(props) {
         socketOpen={props.socketOpen}
       />);
     });
-
-  // const handleChange = panel => (event, ismeetingExpanded) => {
-  //   setmeetingExpanded(ismeetingExpanded ? panel : false);
-  // };
-
-  // console.log(notifications);
 
   return (
     <>
