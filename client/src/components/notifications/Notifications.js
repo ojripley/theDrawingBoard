@@ -43,7 +43,6 @@ export default function Notifications(props) {
   const classes = useStyles();
   const [meetingExpanded, setMeetingExpanded] = useState(true);
   const [contactsExpanded, setContactsExpanded] = useState(true);
-  const [dmsExpanded, setDmsExpanded] = useState(true);
 
   const removeNotification = (id) => {
     console.log(id);
@@ -82,25 +81,6 @@ export default function Notifications(props) {
         type={notif.type}
         title={notif.title}
         onClick={() => props.setMode("CONTACTS")}
-        onRemove={removeNotification}
-        message={notif.message}
-        timestamp={notif.timestamp}
-        setMode={props.setMode}
-        socket={props.socket}
-        socketOpen={props.socketOpen}
-      />);
-    });
-
-  const dms = props.notificationList
-    .filter(notification => notification.type === "dm")
-    .map(notif => {
-      return (<Notification
-        key={notif.id}
-        id={notif.id}
-        user={props.user}
-        type={notif.type}
-        title={notif.title}
-        onClick={() => props.setMode("DASHBOARD")}
         onRemove={removeNotification}
         message={notif.message}
         timestamp={notif.timestamp}
@@ -149,23 +129,6 @@ export default function Notifications(props) {
           </ExpansionPanelDetails>
         </ExpansionPanel>
 
-      }
-
-      {dms.length > 0 &&
-        <ExpansionPanel expanded={dmsExpanded} onChange={() => setDmsExpanded(!dmsExpanded)}>
-          <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls={`panel1bh-content`}
-            id={`panel1bh-header`}
-          >
-            <h2 className={classes.section}> {`DM Notifications (${dms.length})`}</h2>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <ul className={classes.list}>
-              {dms}
-            </ul>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
       }
     </>
   );
