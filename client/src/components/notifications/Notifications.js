@@ -55,14 +55,15 @@ export default function Notifications(props) {
     .filter(notification => notification.type === "meeting")
     .map(notif => {
       return (<Notification
-        key={notif.id}
-        id={notif.id}
+        key={notif.notificationId}
+        id={notif.notificationId}
         user={props.user}
+        userId={props.userId}
         type={notif.type}
         title={notif.title}
+        message={notif.msg}
         onClick={() => props.setMode("DASHBOARD")}
         onRemove={removeNotification}
-        message={notif.message}
         timestamp={notif.time}
         setMode={props.setMode}
         socket={props.socket}
@@ -72,17 +73,18 @@ export default function Notifications(props) {
 
 
   const contacts = props.notificationList
-    .filter(notification => notification.type === "contacts")
+    .filter(notification => notification.type === "contacts" || notification.type === "dm")
     .map(notif => {
       return (<Notification
-        key={notif.id}
-        id={notif.id}
+        key={notif.notificationId}
+        id={notif.notificationId}
         user={props.user}
+        userId={props.userId}
         type={notif.type}
         title={notif.title}
+        message={notif.msg}
         onClick={() => props.setMode("CONTACTS")}
         onRemove={removeNotification}
-        message={notif.message}
         timestamp={notif.time}
         setMode={props.setMode}
         socket={props.socket}

@@ -49,28 +49,28 @@ export default function App() {
         time: (new Date()).toLocaleDateString()
       },
       {
-        id: 2,
+        notificationId: 2,
         type: "meeting",
         title: "example2",
         message: "onetwothree",
         time: (new Date()).toLocaleDateString()
       },
       {
-        id: 3,
+        notificationId: 3,
         type: "meeting",
         title: "example3",
         message: "onetwothree",
         time: (new Date()).toLocaleDateString()
       },
       {
-        id: 4,
+        notificationId: 4,
         type: "contacts",
         title: "new contact",
         message: "you have a new contact",
         time: (new Date()).toLocaleDateString()
       },
       {
-        id: 5,
+        notificationId: 5,
         type: "contacts",
         title: "accepted your friend request",
         message: "onetwothree",
