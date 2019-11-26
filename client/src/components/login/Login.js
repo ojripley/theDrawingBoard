@@ -34,7 +34,8 @@ export default function Login(props) {
         if (data.user && data.user.id) {
           console.log(data);
           console.log("Attempting to set cookie");
-          document.cookie = `sid=${data.session}`;
+          document.cookie = `sid=${data.session.sid}`
+          document.cookie = `iv=${data.session.iv}`;
           console.log(document.cookie);
           props.setUser(data.user);
         }
