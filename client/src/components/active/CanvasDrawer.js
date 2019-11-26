@@ -39,22 +39,20 @@ export default function CanvasDrawer(props) {
     setAnchorEl(null);
   };
 
-  // const toggleDrawer = (open) => event => {
-  //   if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-  //     return;
-  //   }
-
-  //   setOpenDrawer(false);
-  // };
-
   const backToDash = () => {
     props.setInMeeting(false);
     props.setMode('DASHBOARD');
-  }
+  };
 
   const handleWrite = () => {
     props.setWriteMode(prev => !prev);
     setOpenDrawer(false);
+  };
+
+  const handleUndo = () => {
+    if (props.socketOpen) {
+      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId});
+    }
   }
 
   return (
@@ -66,7 +64,7 @@ export default function CanvasDrawer(props) {
           role="presentation"
         >
           <List>
-            <ListItem button>Undo</ListItem>
+            <ListItem button onClick={handleUndo}>Undo</ListItem>
             <ListItem button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>Pen</ListItem>
             <Menu
               id="simple-menu"
@@ -84,11 +82,11 @@ export default function CanvasDrawer(props) {
           </List>
           <Divider />
           <List>
-            <ListItem button onClick={handleWrite}>Write Notes</ListItem>
+            <ListItem button onClick={handleWrite}>Notes</ListItem>
           </List>
           <Divider />
           <List>
-            <ListItem button onClick={backToDash}>Back to Dashboard</ListItem>
+            <ListItem button onClick={backToDash}>Leave Meeting</ListItem>
           </List>
         </div>
       </Drawer>

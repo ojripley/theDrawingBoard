@@ -113,6 +113,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     <div className={classes.root}>
       <CanvasDrawer
         user={user}
+        socket={socket}
+        socketOpen={socketOpen}
+        meetingId={meetingId}
         setMode={setMode}
         setInMeeting={setInMeeting}
         setWriteMode={setWriteMode}
@@ -149,11 +152,3 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     </div>
   )
 }
-
-/* <Fab
-  aria-label='edit'
-  color='secondary'
-  className={classes.fab}
-  onClick={() => setWriteMode(prev => !prev)} >
-  <EditIcon />
-</Fab> */
