@@ -554,5 +554,15 @@ io.on('connection', (client) => {
     }
 
     io.to(data.meetingId).emit('redraw', { meetingId: data.meetingId, pixels: activeMeetings[data.meetingId].userPixels, user: data.user })
-  })
+  });
+
+  client.on('msgToMeeting', (data) => {
+    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user } );
+  });
+
+  client.on('msgToUser', (data) => {
+    if (activeUsers[data.contactId]) {
+      activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user } );
+    }
+  });
 });
