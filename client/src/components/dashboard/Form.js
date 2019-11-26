@@ -29,7 +29,8 @@ import Chip from '@material-ui/core/Chip';
 const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    minWidth: '300px',
   },
   textField: {
     width: '90%',
@@ -84,6 +85,7 @@ export default function Form(props) {
   const theme = useTheme();
 
   const [contacts, setContacts] = useState([]);
+  const [fileName, setFileName] = useState('No File Selected');
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -117,6 +119,7 @@ export default function Form(props) {
 
   const handleFileUpload = event => {
     props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
+    setFileName(event.target.files[0].name);
   }
 
   const contactsList = contacts.map(contact => {
@@ -200,15 +203,12 @@ export default function Form(props) {
             onChange={handleFileUpload}
             accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
           />
-          <Button
-            variant="contained"
-            color="primary"
-          >
-            <label htmlFor='upload-initial-doc'>
-              <CloudUploadIcon />
-              Upload a File
-            </label>
-          </Button>
+          <label htmlFor='upload-initial-doc'>
+            <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
+              Upload
+            </Button>
+            {fileName}
+          </label>
       </div>
   );
 }

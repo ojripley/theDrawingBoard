@@ -17,9 +17,10 @@
   color: $color-4-hex;
 }
 
-#upload-initial-doc + label {
-  display: flex;
-  flex-direction: row;
-  align-content: center;
-  justify-content: center;
+#upload-initial-doc + label:hover {
+  cursor: pointer;
+}
+
+#upload-initial-doc + label * {
+  pointer-events: none;
 }
