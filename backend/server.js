@@ -519,7 +519,6 @@ io.on('connection', (client) => {
     }
 
     client.emit('attendanceChanged', { meetingId: data.meetingId });
-
   });
 
   client.on('dismissNotification', (data) => {
@@ -541,18 +540,19 @@ io.on('connection', (client) => {
     console.log(`the client ${data.user.username} would like to undo their last drawn line in meeting ${data.meetingId}`);
 
     if (activeMeetings[data.meetingId]) {
-
       const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
 
-      while (pixels[pixels.length - 1].dragging !== false) {
-        pixels.pop();
-      }
-      if (pixels[pixels.length - 1].dragging === false){
-        console.log('removing last');
-        pixels.pop();
+      if (pixels.length > 0) {
+        while (pixels[pixels.length - 1].dragging !== false) {
+          pixels.pop();
+        }
+        if (pixels[pixels.length - 1].dragging === false){
+          // remove last pixel
+          pixels.pop();
+        }
       }
     }
 
-    io.to(data.meetingId).emit('redraw', { meetingId: data.meetingId, pixels: meetingDetails.userPixels })
+    io.to(data.meetingId).emit('redraw', { meetingId: data.meetingId, pixels: activeMeetings[data.meetingId].userPixels, user: data.user })
   })
 });
