@@ -43,7 +43,7 @@ export default function DetailedHistory(props) {
       <p>{props.meeting.description}</p>
       {notes && notes.length > 0 && <div className='personal-notes'>
         <h4>My Notes</h4>
-        <textarea className='notes-text' ref={notesRef} value={notes}>{notes}</textarea>
+        <textarea className='notes-text' ref={notesRef} value={notes} readOnly>{notes}</textarea>
         <FileCopyIcon onClick={copyToClipboard} />
       </div>}
       <h4>Group Notes</h4>

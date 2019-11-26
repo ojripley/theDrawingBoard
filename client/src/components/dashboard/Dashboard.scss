@@ -24,3 +24,8 @@
 #upload-initial-doc + label * {
   pointer-events: none;
 }
+
+.MuiDialog-paperWidthSm {
+  width: 50%;
+  min-width: 350px;
+}

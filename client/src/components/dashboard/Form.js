@@ -34,6 +34,7 @@ const useStyles = makeStyles(theme => ({
   },
   textField: {
     width: '90%',
+    height: 'auto'
   },
   formControl: {
     margin: theme.spacing(1),
@@ -153,27 +154,27 @@ export default function Form(props) {
           onChange={handleMeetingDescChange}
         />
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <KeyboardDatePicker
-              margin="normal"
-              id="date-picker-dialog"
-              label="date"
-              format="MM/dd/yyyy"
-              value={props.selectedDate}
-              onChange={handleDateChange}
-              KeyboardButtonProps={{
-                'aria-label': 'change date',
-              }}
-            />
-            <KeyboardTimePicker
-              margin="normal"
-              id="time-picker"
-              label="Time"
-              value={props.selectedDate}
-              onChange={handleDateChange}
-              KeyboardButtonProps={{
-                'aria-label': 'change time',
-              }}
-            />
+          <KeyboardDatePicker
+            margin="normal"
+            id="date-picker-dialog"
+            label="date"
+            format="MM/dd/yyyy"
+            value={props.selectedDate}
+            onChange={handleDateChange}
+            KeyboardButtonProps={{
+              'aria-label': 'change date',
+            }}
+          />
+          <KeyboardTimePicker
+            margin="normal"
+            id="time-picker"
+            label="Time"
+            value={props.selectedDate}
+            onChange={handleDateChange}
+            KeyboardButtonProps={{
+              'aria-label': 'change time',
+            }}
+          />
         </MuiPickersUtilsProvider>
         <FormControl className={classes.formControl}>
           <InputLabel id="demo-mutiple-chip-label">Contacts</InputLabel>
