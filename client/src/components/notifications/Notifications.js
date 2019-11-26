@@ -64,12 +64,14 @@ export default function Notifications(props) {
   }
 
   const removeAllNotifications = () => {
-    props.socket.emit('dismissAllNotifications', { id: props.userId });
+    console.log('Sending Owen this:', props.user.id);
+    props.socket.emit('dismissAllNotifications', { userId: props.user.id });
     props.setNotificationList([]);
   }
 
-  const removeMeetingNotifications = () => {
-
+  const removeMeetingNotifications = (type) => {
+    props.socket.emit('dismissNotificationType', { userId: props.user.id, type: type });
+    props.setNotificationList([]);
   }
 
 
@@ -80,7 +82,7 @@ export default function Notifications(props) {
         key={notif.id}
         id={notif.id}
         user={props.user}
-        userId={props.userId}
+        userId={notif.userId}
         type={notif.type}
         title={notif.title}
         message={notif.msg}
@@ -95,7 +97,7 @@ export default function Notifications(props) {
 
 
   const contacts = props.notificationList
-    .filter(notification => notification.type === "contacts" || notification.type === "dm")
+    .filter(notification => notification.type === "contact" || notification.type === "dm")
     .map(notif => {
       return (<Notification
         key={notif.id}
@@ -129,7 +131,7 @@ export default function Notifications(props) {
             id={`panel1bh-header`}
           >
             <span className={classes.header2}> {`Meeting Notifications (${meetings.length})`}</span>
-            <Button variant="outlined" color="secondary" onClick={removeMeetingNotifications}> Dismiss meeting notifications</Button>
+            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("meeting")}> Dismiss meeting notifications</Button>
 
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
@@ -149,6 +151,7 @@ export default function Notifications(props) {
             id={`panel1bh-header`}
           >
             <h2 className={classes.section}> {`Contact Notifications (${contacts.length})`}</h2>
+            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("contact")}> Dismiss contact notifications</Button>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <ul className={classes.list}>
