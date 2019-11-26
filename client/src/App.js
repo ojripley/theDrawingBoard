@@ -10,6 +10,7 @@ import { store } from 'react-notifications-component';
 import TabBar from './TabBar';
 import NavBar from './NavBar';
 import ActiveMeeting from './components/active/ActiveMeeting';
+import Notifications from './components/contacts/Notifications';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
@@ -36,6 +37,53 @@ export default function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
+  const [notificationList, setNotificationList] = useState(
+    [
+      {
+        type: "meeting",
+        title: "example",
+        message: "onetwothree",
+        timestamp: new Date()
+      },
+      {
+        type: "meeting",
+        title: "example2",
+        message: "onetwothree",
+        timestamp: new Date()
+      },
+      {
+        type: "meeting",
+        title: "example3",
+        message: "onetwothree",
+        timestamp: new Date()
+      },
+      {
+        type: "contacts",
+        title: "new contact",
+        message: "you have a new contact",
+        timestamp: new Date()
+      },
+      {
+        type: "contacts",
+        title: "accepted your friend request",
+        message: "onetwothree",
+        timestamp: new Date()
+      },
+      {
+        type: "dm",
+        title: "OJ",
+        message: "Has dmd you",
+        timestamp: new Date()
+      },
+      {
+        type: "dm",
+        title: "blah",
+        message: "what's up",
+        timestamp: new Date()
+      },
+
+    ])
+    ;
 
 
   useEffect(() => {
@@ -122,6 +170,13 @@ export default function App() {
             />}
           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+          {mode === NOTIFICATIONS &&
+            <Notifications
+              socket={socket}
+              socketOpen={socketOpen}
+              user={user}
+              notifications={notificationList}
+            />}
           <TabBar mode={mode} setMode={setMode} />
         </Box >
 
