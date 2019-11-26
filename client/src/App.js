@@ -5,6 +5,9 @@ import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
 import { store } from 'react-notifications-component';
 
+import theme from './theme/muiTheme';
+import ThemeProvider from '@material-ui/styles/ThemeProvider';
+
 
 // COMPONENTS
 import TabBar from './TabBar';
@@ -158,7 +161,7 @@ export default function App() {
       );
     } else {
       return (
-        <Box>
+        <ThemeProvider theme={theme}>
           <ReactNotification />
 
           <NavBar user={user} setUser={setUser} />
@@ -187,7 +190,7 @@ export default function App() {
               setMode={setMode}
             />}
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-        </Box >
+        </ThemeProvider>
 
       );
     }
