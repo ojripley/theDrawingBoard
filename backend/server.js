@@ -101,13 +101,14 @@ server.listen(PORT, () => {
 
 
 
-// FIX THIS
+
 const notify = function(client, notification) {
 
-  // assign notificationId with res.id
-  notification.notificationId = 'temp';
+  // assign notificationId with res.id after a db query
+
+  notification.notificationId = 0;
   notification.timestamp = Date.now();
-  notification.user =  {id: client.id, username: client.username, email: client.email};
+  notification.userId =  client.id;
 
   client.socket.emit('notify', notification);
 }
@@ -169,12 +170,6 @@ io.on('connection', (client) => {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
           activeUsers.addUser(authenticateAttempt, client);
-          console.log('active users:');
-          for (let user in activeUsers) {
-            if (activeUsers[user].id) {
-              console.log('user:', activeUsers[user]);
-            }
-          }
 
           client.on('disconnect', () => {
             activeUsers.removeUser(authenticateAttempt.id);
