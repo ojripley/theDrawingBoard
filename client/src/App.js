@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
 import Box from '@material-ui/core/Box';
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
+import { store } from 'react-notifications-component';
+
 
 // COMPONENTS
 import TabBar from './TabBar';
 import NavBar from './NavBar';
 import ActiveMeeting from './components/active/ActiveMeeting';
+import Notifications from './components/notifications/Notifications';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
@@ -18,6 +23,7 @@ export default function App() {
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
+  const NOTIFICATIONS = 'NOTIFICATIONS';
   const [mode, setMode] = useState(DASHBOARD);
 
   const { socket, socketOpen } = useSocket();
@@ -31,6 +37,61 @@ export default function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
+  const [notificationList, setNotificationList] = useState(
+    [
+      {
+        id: 1,
+        type: "meeting",
+        title: "example",
+        message: "onetwothree",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 2,
+        type: "meeting",
+        title: "example2",
+        message: "onetwothree",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 3,
+        type: "meeting",
+        title: "example3",
+        message: "onetwothree",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 4,
+        type: "contacts",
+        title: "new contact",
+        message: "you have a new contact",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 5,
+        type: "contacts",
+        title: "accepted your friend request",
+        message: "onetwothree",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 6,
+        type: "dm",
+        title: "OJ",
+        message: "Has dmd you",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 7,
+        type: "dm",
+        title: "blah",
+        message: "what's up",
+        timestamp: (new Date()).toLocaleDateString()
+      },
+
+    ])
+    ;
+
 
   useEffect(() => {
     if (socketOpen) {
@@ -42,10 +103,32 @@ export default function App() {
         setMeetingNotes(data.notes); //notes for the current meeting
       });
 
+      socket.on('notify', data => {
+        console.log(data);
+
+        store.addNotification({
+          title: `${data.type}`,
+          message: `${data.msg}`,
+          type: "success",
+          insert: "top",
+          container: "top-right",
+          animationIn: ["animated", "fadeIn"],
+          animationOut: ["animated", "fadeOut"],
+          dismiss: {
+            duration: 100000,
+            onScreen: true
+          }
+        });
+      })
+
       socket.on('cookieResponse', data => {
         console.log('received cookie', data);
         setUser(data[0]);
       });
+
+
+
+
 
       return () => {
         socket.off('cookieResponse');
@@ -76,6 +159,8 @@ export default function App() {
     } else {
       return (
         <Box>
+          <ReactNotification />
+
           <NavBar user={user} setUser={setUser} />
           {mode === DASHBOARD &&
             <Dashboard
@@ -92,17 +177,26 @@ export default function App() {
             />}
           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-          <TabBar mode={mode} setMode={setMode} />
+          {mode === NOTIFICATIONS &&
+            <Notifications
+              socket={socket}
+              socketOpen={socketOpen}
+              user={user}
+              notificationList={notificationList}
+              setNotificationList={setNotificationList}
+              setMode={setMode}
+            />}
+          <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </Box >
 
       );
     }
   } else {
     return (
-      <>
+      <Box>
         <NavBar user={null} />
         <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </>
+      </Box>
     );
 
   }

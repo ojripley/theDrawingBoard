@@ -1,0 +1,23 @@
+.card {
+  position: relative;
+  padding: 1em;
+  margin-top: 0.5em;
+  margin-right: 1em;
+  width: 90%;
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  button {
+    float: right;
+  }
+  .timestamp {
+    color: gray;
+    position: absolute;
+    right: 0;
+    margin: 1em;
+    bottom: 0;
+    text-align: right;
+  }
+}

@@ -3,14 +3,18 @@ import { makeStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import FolderIcon from '@material-ui/icons/Folder';
+import Badge from '@material-ui/core/Badge';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%",
+    width: '100%'
   },
-});
+  padding: {
+    padding: theme.spacing(0, 1.1),
+  },
+}));
 
-export default function TabBar({ mode, setMode }) {
+export default function TabBar({ mode, setMode, notificationList }) {
   const classes = useStyles();
 
   const handleChange = (event, newmode) => {
@@ -19,6 +23,9 @@ export default function TabBar({ mode, setMode }) {
 
   return (
     <BottomNavigation value={mode} onChange={handleChange} className={classes.root} showLabels>
+      <BottomNavigationAction label={
+        <Badge className={classes.padding} color="primary" badgeContent={notificationList.length}>Notifications</Badge>
+      } value="NOTIFICATIONS" icon={<FolderIcon />} />
       <BottomNavigationAction label="Contacts" value="CONTACTS" icon={<FolderIcon />} />
       <BottomNavigationAction label="Dashboard" value="DASHBOARD" icon={<FolderIcon />} />
       <BottomNavigationAction label="History" value="HISTORY" icon={<FolderIcon />} />
