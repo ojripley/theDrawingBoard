@@ -2,7 +2,9 @@
 //   position: relative;
 //   height: 80%;
 // }
-
+html {
+  // overflow: hidden;
+}
 #drawCanvas {
   position: absolute;
   width: 100%;

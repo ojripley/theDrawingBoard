@@ -40,53 +40,59 @@ export default function App() {
   const [notificationList, setNotificationList] = useState(
     [
       {
-        id: 1,
+        notificationId: 1,
+        userId: 1, //id, email
         type: "meeting",
+        meetingId: 0,
         title: "example",
-        message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        msg: "onetwothree",
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 2,
         type: "meeting",
         title: "example2",
         message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 3,
         type: "meeting",
         title: "example3",
         message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 4,
         type: "contacts",
         title: "new contact",
         message: "you have a new contact",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 5,
         type: "contacts",
         title: "accepted your friend request",
         message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
-        id: 6,
-        type: "dm",
-        title: "OJ",
-        message: "Has dmd you",
-        timestamp: (new Date()).toLocaleDateString()
+        notificationId: 7,
+        userId: 4, //id, email
+        type: "contacts",
+        senderId: 0, //Either an id or
+        title: "Friend added",
+        msg: "Someone has added you",
+        time: (new Date()).toLocaleDateString()
       },
       {
-        id: 7,
+        notificationId: 8,
+        userId: 2, //id, email
         type: "dm",
-        title: "blah",
-        message: "what's up",
-        timestamp: (new Date()).toLocaleDateString()
+        senderId: 0, //Either an id or
+        title: "New message from ...",
+        msg: "...",
+        time: (new Date()).toLocaleDateString()
       },
 
     ])
