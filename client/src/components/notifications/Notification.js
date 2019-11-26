@@ -1,22 +1,29 @@
 import Card from '@material-ui/core/Card';
 import React from 'react';
-import './Notifications.scss';
+import './Notification.scss';
+import Button from '@material-ui/core/Button';
 
 
 export default function Contact(props) {
 
-  const dismissNotification = function() {
+  const dismissNotification = function(e) {
     console.log("DISMISS THIS");
+    e.stopPropagation(); //Prevents default card actions
+    //Remove the element
+    props.socket.emit('dismissNotification', props.id);
+    props.onRemove(props.id);
   }
 
 
-  return (<Card className='contact-card'>
-    <span className='contact-username'>{props.contact.username} </span>
-    <span className='contact-email'>{props.contact.email}</span>
-
-    <Button variant="outlined" color="secondary" onClick={dismissNotification} >
-      X
+  return (<Card className='card' onClick={props.onClick}>
+    <h1 className='title'>{props.title}
+      <Button variant="outlined" color="secondary" onClick={(e) => dismissNotification(e)} >
+        X
     </Button>
-  </Card>)
+    </h1>
+    <p className='message'>{props.message}</p>
+    <footer className='timestamp'>{props.timestamp}</footer>
+
+  </Card >)
 
 }

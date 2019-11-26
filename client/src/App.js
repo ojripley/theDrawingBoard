@@ -10,7 +10,7 @@ import { store } from 'react-notifications-component';
 import TabBar from './TabBar';
 import NavBar from './NavBar';
 import ActiveMeeting from './components/active/ActiveMeeting';
-import Notifications from './components/contacts/Notifications';
+import Notifications from './components/notifications/Notifications';
 import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
@@ -40,46 +40,53 @@ export default function App() {
   const [notificationList, setNotificationList] = useState(
     [
       {
+        id: 1,
         type: "meeting",
         title: "example",
         message: "onetwothree",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
       {
+        id: 2,
         type: "meeting",
         title: "example2",
         message: "onetwothree",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
       {
+        id: 3,
         type: "meeting",
         title: "example3",
         message: "onetwothree",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
       {
+        id: 4,
         type: "contacts",
         title: "new contact",
         message: "you have a new contact",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
       {
+        id: 5,
         type: "contacts",
         title: "accepted your friend request",
         message: "onetwothree",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
       {
+        id: 6,
         type: "dm",
         title: "OJ",
         message: "Has dmd you",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
       {
+        id: 7,
         type: "dm",
         title: "blah",
         message: "what's up",
-        timestamp: new Date()
+        timestamp: (new Date()).toLocaleDateString()
       },
 
     ])
@@ -175,7 +182,9 @@ export default function App() {
               socket={socket}
               socketOpen={socketOpen}
               user={user}
-              notifications={notificationList}
+              notificationList={notificationList}
+              setNotificationList={setNotificationList}
+              setMode={setMode}
             />}
           <TabBar mode={mode} setMode={setMode} />
         </Box >
