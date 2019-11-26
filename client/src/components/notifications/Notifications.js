@@ -55,8 +55,8 @@ export default function Notifications(props) {
     .filter(notification => notification.type === "meeting")
     .map(notif => {
       return (<Notification
-        key={notif.notificationId}
-        id={notif.notificationId}
+        key={notif.id}
+        id={notif.id}
         user={props.user}
         userId={props.userId}
         type={notif.type}
@@ -76,8 +76,8 @@ export default function Notifications(props) {
     .filter(notification => notification.type === "contacts" || notification.type === "dm")
     .map(notif => {
       return (<Notification
-        key={notif.notificationId}
-        id={notif.notificationId}
+        key={notif.id}
+        id={notif.id}
         user={props.user}
         userId={props.userId}
         type={notif.type}

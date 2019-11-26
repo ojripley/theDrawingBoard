@@ -37,67 +37,68 @@ export default function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
-  const [notificationList, setNotificationList] = useState(
-    [
-      {
-        notificationId: 1,
-        userId: 1,
-        type: "meeting",
-        meetingId: 0,
-        title: "example",
-        msg: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        notificationId: 2,
-        userId: 1,
-        type: "meeting",
-        title: "example2",
-        msg: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        notificationId: 3,
-        type: "meeting",
-        title: "example3",
-        message: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        notificationId: 4,
-        type: "contacts",
-        title: "new contact",
-        message: "you have a new contact",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        notificationId: 5,
-        type: "contacts",
-        title: "accepted your friend request",
-        message: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        notificationId: 7,
-        userId: 4, //id, email
-        type: "contacts",
-        senderId: 0, //Either an id or
-        title: "Friend added",
-        msg: "Someone has added you",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        notificationId: 8,
-        userId: 2, //id, email
-        type: "dm",
-        senderId: 0, //Either an id or
-        title: "New message from ...",
-        msg: "...",
-        time: (new Date()).toLocaleDateString()
-      },
+  const [notificationList, setNotificationList] = useState([]);
+  // const [notificationList, setNotificationList] = useState(
+  //   [
+  //     {
+  //       notificationId: 1,
+  //       userId: 1,
+  //       type: "meeting",
+  //       meetingId: 0,
+  //       title: "example",
+  //       msg: "onetwothree",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
+  //     {
+  //       notificationId: 2,
+  //       userId: 1,
+  //       type: "meeting",
+  //       title: "example2",
+  //       msg: "onetwothree",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
+  //     {
+  //       notificationId: 3,
+  //       type: "meeting",
+  //       title: "example3",
+  //       message: "onetwothree",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
+  //     {
+  //       notificationId: 4,
+  //       type: "contacts",
+  //       title: "new contact",
+  //       message: "you have a new contact",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
+  //     {
+  //       notificationId: 5,
+  //       type: "contacts",
+  //       title: "accepted your friend request",
+  //       message: "onetwothree",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
+  //     {
+  //       notificationId: 7,
+  //       userId: 4, //id, email
+  //       type: "contacts",
+  //       senderId: 0, //Either an id or
+  //       title: "Friend added",
+  //       msg: "Someone has added you",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
+  //     {
+  //       notificationId: 8,
+  //       userId: 2, //id, email
+  //       type: "dm",
+  //       senderId: 0, //Either an id or
+  //       title: "New message from ...",
+  //       msg: "...",
+  //       time: (new Date()).toLocaleDateString()
+  //     },
 
-    ])
-    ;
+  //   ])
+  //   ;
 
 
   useEffect(() => {
@@ -107,6 +108,12 @@ export default function App() {
       socket.on('meeting', data => {//Could be on connect
         setInMeeting(data.inMeeting); //Can be changed by user on login
         setMeetingNotes(data.notes); //notes for the current meeting
+      });
+
+      socket.on('allNotifications', data => {
+        console.log(data);
+
+        setNotificationList(data);
       });
 
       socket.on('notify', data => {
