@@ -41,7 +41,7 @@ export default function App() {
     [
       {
         notificationId: 1,
-        userId: 1, //id, email
+        userId: 1,
         type: "meeting",
         meetingId: 0,
         title: "example",
@@ -50,9 +50,10 @@ export default function App() {
       },
       {
         notificationId: 2,
+        userId: 1,
         type: "meeting",
         title: "example2",
-        message: "onetwothree",
+        msg: "onetwothree",
         time: (new Date()).toLocaleDateString()
       },
       {

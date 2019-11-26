@@ -10,7 +10,7 @@ export default function Contact(props) {
     console.log("DISMISS THIS");
     e.stopPropagation(); //Prevents default card actions
     //Remove the element
-    props.socket.emit('dismissNotification', props.id); //props.user?
+    props.socket.emit('dismissNotification', { id: props.id }); //props.user?
     props.onRemove(props.id);
   }
 
