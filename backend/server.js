@@ -1,9 +1,9 @@
 
-//          #####   ######  ######    #   #   #####
-//         #        #          #      #   #   #   #
-//          #####   #####      #      #   #   ####
-//               #  #          #      #   #   #
-//          #####   ######     #       ###    #
+//          #####   #######  #######  #     #  ######
+//         #        #        #  #  #  #     #  #     #
+//          #####   #####       #     #     #  ######
+//               #  #           #     #     #  #
+//          #####   #######     #      #####   #
 //
 //
 //
@@ -69,7 +69,7 @@ const decrypt = (text) => {
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.send('testing purposes only');
+  res.send('get outta my backend!');
 });
 
 
@@ -101,12 +101,18 @@ server.listen(PORT, () => {
 
 
 
-
+// FIX THIS
 const notify = function(client, notification) {
 
-  notification.timestamp = Date.now();
 
-  client.emit('notify', notification);
+  // write the notification id to db here
+
+  // assign notificationId with res.id
+  notification.notificationId = 'temp';
+  notification.timestamp = Date.now();
+  notification.user =  client;
+
+  client.socket.emit('notify', notification);
 }
 
 
@@ -183,8 +189,6 @@ io.on('connection', (client) => {
   });
 
   client.on('addClick', data => {
-    console.log("message received");
-    console.log(data.pixel.x);
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
     console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data);//pass message along
@@ -198,7 +202,8 @@ io.on('connection', (client) => {
   client.on('fetchUser', (data) => {
     db.fetchUserByEmail(data.email)
       .then(res => {
-        client.emit('user', res);
+        user = {id: res.id, username: res.username, email: res.email};
+        client.emit('user', user);
       });
   });
 
@@ -308,7 +313,7 @@ io.on('connection', (client) => {
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
-                notify(activeUsers[contactId].socket, { type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id});
+                notify(activeUsers[contactId], { type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id});
               }
             }
           });
@@ -343,9 +348,8 @@ io.on('connection', (client) => {
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
               if (activeUsers[id]) {
-                const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
-                notify(userClient, { type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
+                activeUsers[id].socket.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
+                notify(activeUsers[id], { type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
@@ -413,8 +417,7 @@ io.on('connection', (client) => {
 
     for (let id of meetingDetails.invited_users) {
       if (activeUsers[id]) {
-        const userClient = activeUsers[id].socket;
-        notify(userClient, { type: 'meeting', msg: `Meeting '${data.meetingName} has ended! You may check the details in History`, meetingId: meetingDetails.name });
+        notify(activeUsers[id], { type: 'meeting', msg: `Meeting '${data.meetingName} has ended! You may check the details in History`, meetingId: meetingDetails.name });
       }
     }
     activeMeetings.removeMeeting(data.meetingId);
