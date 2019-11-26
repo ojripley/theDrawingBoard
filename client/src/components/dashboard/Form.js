@@ -14,8 +14,7 @@ import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
+  KeyboardDateTimePicker,
 } from '@material-ui/pickers';
 
 // Material UI - Name Selector
@@ -30,15 +29,14 @@ const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    minWidth: '300px',
   },
   textField: {
-    width: '90%',
+    minWidth: '300px',
     height: 'auto'
   },
   formControl: {
     margin: theme.spacing(1),
-    width: '90%'
+    minWidth: '300px'
   },
   chips: {
     display: 'flex',
@@ -154,26 +152,15 @@ export default function Form(props) {
           onChange={handleMeetingDescChange}
         />
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
+          <KeyboardDateTimePicker
             margin="normal"
             id="date-picker-dialog"
-            label="date"
-            format="MM/dd/yyyy"
+            label="Date &amp; Time"
+            format="yyyy/MM/dd hh:mm a"
             value={props.selectedDate}
             onChange={handleDateChange}
-            KeyboardButtonProps={{
-              'aria-label': 'change date',
-            }}
-          />
-          <KeyboardTimePicker
-            margin="normal"
-            id="time-picker"
-            label="Time"
-            value={props.selectedDate}
-            onChange={handleDateChange}
-            KeyboardButtonProps={{
-              'aria-label': 'change time',
-            }}
+            disablePast
+            orientation='portrait'
           />
         </MuiPickersUtilsProvider>
         <FormControl className={classes.formControl}>
