@@ -111,7 +111,7 @@ export default function App() {
       socket.on('notify', data => {
         console.log(data);
 
-        setNotificationList([...notificationList, data]);
+        setNotificationList(prev => [...prev, data]);
 
         store.addNotification({
           title: `${data.type}`,
@@ -131,11 +131,6 @@ export default function App() {
       socket.on('cookieResponse', data => {
         setUser(data[0]);
       });
-
-
-
-
-
       return () => {
         socket.off('cookieResponse');
         socket.off('meeting');

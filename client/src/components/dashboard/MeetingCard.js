@@ -86,15 +86,24 @@ export default function MeetingCard({
         setMeetingNotes(data.notes);
         setInMeeting(true);
 
-
-        let myImage = new Image();
-        myImage.onload = () => {
-          setImageLoaded(true);
-          setBackgroundImage(myImage);
-          console.log("received these pixels", data.pixels)
-          setInitialPixels(data.pixels);
-        };
-        myImage.src = data.image; //pull this from socket
+        if (data.image) {//if image
+          let myImage = new Image();
+          myImage.onload = () => {
+            setImageLoaded(true);
+            setBackgroundImage(myImage);
+            console.log("received these pixels", data.pixels)
+            setInitialPixels(data.pixels);
+          };
+          myImage.src = data.image; //pull this from socket
+        } else {//if no image
+          let myImage = new Image();
+          myImage.onload = () => {
+            setImageLoaded(true);
+            setBackgroundImage(myImage);
+            console.log("received these pixels", data.pixels)
+            setInitialPixels(data.pixels);
+          };
+        }
 
       })
 
@@ -137,10 +146,10 @@ export default function MeetingCard({
           <Typography variant="body2" component="p">Attendees</Typography>
           <ul>
             {attendees.map((attendee) => (
-            <li className='attendee' key={attendee.id}>
-              {attendee.username}
-              <span className='attendee-attendance'>  {attendee.attendance}</span>
-            </li>))}
+              <li className='attendee' key={attendee.id}>
+                {attendee.username}
+                <span className='attendee-attendance'>  {attendee.attendance}</span>
+              </li>))}
           </ul>
           {user.username === owner ?
             <Owner
@@ -151,12 +160,12 @@ export default function MeetingCard({
               attendeeIds={attendeeIds}
             />
             : <Attendee
-                user={user}
-                meetingId={id}
-                socket={socket}
-                socketOpen={socketOpen}
-                attendance={user.attendance}
-              />
+              user={user}
+              meetingId={id}
+              socket={socket}
+              socketOpen={socketOpen}
+              attendance={user.attendance}
+            />
           }
           {activeMeeting && <Button variant="contained" color="primary" className={classes.button} onClick={enterMeeting}>
             Enter Meeting
