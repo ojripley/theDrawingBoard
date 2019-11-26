@@ -63,7 +63,7 @@ export default function Notifications(props) {
         onClick={() => props.setMode("DASHBOARD")}
         onRemove={removeNotification}
         message={notif.message}
-        timestamp={notif.timestamp}
+        timestamp={notif.time}
         setMode={props.setMode}
         socket={props.socket}
         socketOpen={props.socketOpen}
@@ -83,7 +83,7 @@ export default function Notifications(props) {
         onClick={() => props.setMode("CONTACTS")}
         onRemove={removeNotification}
         message={notif.message}
-        timestamp={notif.timestamp}
+        timestamp={notif.time}
         setMode={props.setMode}
         socket={props.socket}
         socketOpen={props.socketOpen}
