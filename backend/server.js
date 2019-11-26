@@ -203,7 +203,7 @@ io.on('connection', (client) => {
 
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
-    console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
+    // console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   })
 
