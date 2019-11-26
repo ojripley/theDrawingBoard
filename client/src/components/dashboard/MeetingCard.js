@@ -24,19 +24,25 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1),
   },
   meetingSummary: {
-    height: '100px',
-    verticalAlign: 'center'
+    height: 'auto',
+    verticalAlign: 'center',
+    padding: '1em'
   },
   meetingSummaryContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    margin: 0,
   },
   date: {
-    flexBasis: '80%'
+    flexBasis: '75%'
   },
   time: {
-    flexBasis: '20%'
+    flexBasis: '25%',
+    alignSelf: 'center'
+  },
+  name: {
+    flexBasis: '100%'
   }
 }));
 
@@ -146,9 +152,9 @@ export default function MeetingCard({
           }}
         >
           <Typography classes={{ root: classes.date }} variant='h6'>{date.toLocaleString('en-US', {
-              weekday: 'long',
+              weekday: 'short',
               year: 'numeric',
-              month: 'long',
+              month: 'short',
               day: 'numeric'
             })}
           </Typography>
@@ -157,8 +163,8 @@ export default function MeetingCard({
               minute: 'numeric'
             })}
           </Typography>
-          <Typography variant='subtitle1'>{name}</Typography>
-          <Typography variant="subtitle1">Host: {owner}</Typography>
+          <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
+          <Typography variant="subtitle2">Host: {owner}</Typography>
           {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>

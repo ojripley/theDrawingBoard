@@ -31,11 +31,11 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
   },
   textField: {
-    minWidth: '300px',
+    minWidth: '240px',
     height: 'auto'
   },
   formControl: {
-    minWidth: '300px'
+    minWidth: '240px'
   },
   chips: {
     display: 'flex',
@@ -145,10 +145,12 @@ export default function Form(props) {
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingNameChange}
+          inputProps={{ maxLength: 100 }}
           required
         />
         <TextField
           label="Description"
+          multiline
           placeholder='Meeting Description'
           className={classes.textField}
           margin="normal"
