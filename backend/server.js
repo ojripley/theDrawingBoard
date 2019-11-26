@@ -104,13 +104,10 @@ server.listen(PORT, () => {
 // FIX THIS
 const notify = function(client, notification) {
 
-
-  // write the notification id to db here
-
   // assign notificationId with res.id
   notification.notificationId = 'temp';
   notification.timestamp = Date.now();
-  notification.user =  client;
+  notification.user =  {id: client.id, username: client.username, email: client.email};
 
   client.socket.emit('notify', notification);
 }
@@ -149,9 +146,11 @@ io.on('connection', (client) => {
       console.log('decrypted', email);
       db.fetchUserByEmail(email)
         .then(res => {
+          console.log('cookie check');
           console.log(res);
-          activeUsers.addUser(res[0].id, client);
+          activeUsers.addUser(res[0], client);
           client.emit('cookieResponse', res);
+          console.log('cookie check end');
         })
         .catch(err => {
           console.error(err);
@@ -169,11 +168,11 @@ io.on('connection', (client) => {
         if (authenticateAttempt) {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
-          activeUsers.addUser(authenticateAttempt.id, client);
+          activeUsers.addUser(authenticateAttempt, client);
           console.log('active users:');
           for (let user in activeUsers) {
             if (activeUsers[user].id) {
-              console.log('user:', activeUsers[user].id);
+              console.log('user:', activeUsers[user]);
             }
           }
 
@@ -191,7 +190,7 @@ io.on('connection', (client) => {
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
     console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
-    io.to(data.meetingId).emit('drawClick', data);//pass message along
+    io.to(data.meetingId).emit('drawClick', data); //pass message along
   })
 
   //End of test
@@ -297,7 +296,6 @@ io.on('connection', (client) => {
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
-          console.log(contact.username);
           promiseArray.push(db.insertUsersMeeting(contact.id, id));
         }
 
@@ -308,7 +306,6 @@ io.on('connection', (client) => {
       .then((id) => {
         db.fetchMeetingWithUsersById(id)
           .then(res => {
-            console.log(res[0].attendee_ids);
             for (let contactId of res[0].attendee_ids) {
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
@@ -423,7 +420,6 @@ io.on('connection', (client) => {
     activeMeetings.removeMeeting(data.meetingId);
 
     console.log(`meeting ${data.meetingId}is done`);
-    console.log(activeMeetings);
   });
 
   client.on('notes', (data) => {
@@ -436,8 +432,6 @@ io.on('connection', (client) => {
   client.on('fetchNotes', (data) => {
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        console.log(res);
-        console.log('image', `meeting_files/${data.meetingId}/${data.linkToFinalDoc}`);
         fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
           if (err) {
             console.error;
@@ -450,9 +444,6 @@ io.on('connection', (client) => {
 
   client.on('addContact', (data) => {
 
-    console.log('adding contact');
-    console.log(data.contactId);
-
     // user requests contact add
     db.insertFriend(data.user.id, data.contactId, 'requested');
 
@@ -464,7 +455,6 @@ io.on('connection', (client) => {
 
     // tell the client they have a contact request if they are online
     if (activeUsers[data.contactId]) {
-      console.log(`letting ${activeUsers[data.contactId].username}`);
       activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
     }
   });
@@ -508,10 +498,6 @@ io.on('connection', (client) => {
 
 
   client.on('changeAttendance', (data) => {
-
-    console.log('changing attendance...');
-    console.log(data.rsvp);
-
     if (data.rsvp === 'declined') {
       db.removeUserFromMeeting(data.user.id, data.meetingId);
     } else {
