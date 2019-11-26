@@ -186,17 +186,17 @@ export default function App() {
               setNotificationList={setNotificationList}
               setMode={setMode}
             />}
-          <TabBar mode={mode} setMode={setMode} />
+          <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </Box >
 
       );
     }
   } else {
     return (
-      <>
+      <Box>
         <NavBar user={null} />
         <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </>
+      </Box>
     );
 
   }
