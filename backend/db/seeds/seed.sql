@@ -40,13 +40,13 @@ VALUES
 
 INSERT INTO users_meetings (user_id, meeting_id, attendance)
 values (1, 1, 'accepted'),
-(1, 2, 'rejected'),
+(1, 2, 'declined'),
 (1, 3, 'invited'),
-(2, 1, 'rejected'),
+(2, 1, 'declined'),
 (2, 2, 'accepted'),
 (2, 3, 'invited'),
 (3, 1, 'accepted'),
 (3, 2, 'accepted'),
-(3, 3, 'rejected'),
+(3, 3, 'declined'),
 (1, 4, 'accepted'),
 (2, 4, 'accepted');

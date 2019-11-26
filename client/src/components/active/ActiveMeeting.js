@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
 import { makeStyles } from '@material-ui/core/styles';
-import Fab from '@material-ui/core/Fab';
-import EditIcon from '@material-ui/icons/Edit';
+import InputIcon from '@material-ui/icons/Input';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import CanvasDrawer from './CanvasDrawer';
+import { Input } from '@material-ui/core';
+
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+  },
   fab: {
     margin: theme.spacing(1),
     position: 'absolute',
@@ -21,21 +26,22 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
   },
   textareaAutosize: {
-    position: 'absolute',
-    zIndex: 2,
-    bottom: 20,
-    width: "50%",
-    resize: 'none'
+    resize: 'none',
+    width: '50%',
+    marginRight: '1em'
   },
   center: {
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 0,
-    height: 100,
-    width: "100%"
+    height: 50,
+    position: 'absolute',
+    zIndex: 2,
+    bottom: 20,
+    width: "100%",
   },
-  root: {
+  saving: {
     position: 'absolute',
     width: 100,
     height: 100,
@@ -59,6 +65,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const debouncedNotes = useDebounce(meetingNotes, 400);
   // const backgroundCanvas = useRef(null);
 
+  const textareaRef = useRef(null);
 
   const classes = useStyles();
 
@@ -66,6 +73,12 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
+  }
+
+  const handleCaret = e => {
+    var temp_value = e.target.value
+    e.target.value = ''
+    e.target.value = temp_value
   }
 
   useEffect(() => {
@@ -90,11 +103,24 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     setSaving(false);
   }, [socket, debouncedNotes, user])
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [textareaRef.current, writeMode])
 
   return (
-    imageLoaded && <>
+    imageLoaded &&
+    <div className={classes.root}>
+      <CanvasDrawer
+        user={user}
+        setMode={setMode}
+        setInMeeting={setInMeeting}
+        setWriteMode={setWriteMode}
+      />
       <Canvas
         user={user}
+        ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
         imageEl={backgroundImage}
@@ -102,30 +128,33 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         meetingId={meetingId}
         initialPixels={initialPixels}
       />
-      <Fab
-        aria-label='edit'
-        color='secondary'
-        className={classes.fab}
-        onClick={() => setWriteMode(prev => !prev)} >
-        <EditIcon />
-      </Fab>
       {writeMode &&
         <div className={classes.center}>
           <TextareaAutosize
+            ref={textareaRef}
             aria-label='empty textarea'
             placeholder='Empty'
             defaultValue={meetingNotes}
             className={classes.textareaAutosize}
             onChange={event => handleInput(event)}
+            onFocus={handleCaret}
           />
+          <InputIcon onClick={() => setWriteMode(prev => !prev)}/>
         </div>
       }
       {saving &&
-        <div className={classes.root}>
+        <div className={classes.saving}>
           <CircularProgress />
         </div>
       }
-    </>
+    </div>
   )
-
 }
+
+/* <Fab
+  aria-label='edit'
+  color='secondary'
+  className={classes.fab}
+  onClick={() => setWriteMode(prev => !prev)} >
+  <EditIcon />
+</Fab> */
