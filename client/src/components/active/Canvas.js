@@ -198,10 +198,11 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const handleMouseDown = e => {
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
-    setPaint(true);
     addClick(mouseX, mouseY);
     let pixel = { x: mouseX, y: mouseY, dragging: false };
+    setPaint(true);
     mapToRelativeUnits(pixel);
+    console.log('clickDown', mouseX, mouseY, pixel.dragging);
     socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: myCode.current });
   }
 
@@ -212,6 +213,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       addClick(mouseX, mouseY, true);
       let pixel = { x: mouseX, y: mouseY, dragging: true };
       mapToRelativeUnits(pixel);
+      console.log('dragging', mouseX, mouseY, pixel.dragging);
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: myCode.current });
     }
   }
@@ -229,6 +231,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
           onMouseDown={e => handleMouseDown(e.nativeEvent)}
           onMouseMove={e => handleMouseMove(e.nativeEvent)}
           onMouseUp={e => setPaint(false)}
+          // onMouseUp={e => handleMouseUp(e.nativeEvent)}
           onMouseLeave={e => setPaint(false)}
           onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
           onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
