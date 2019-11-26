@@ -12,16 +12,7 @@ import Attendee from './Attendee';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
-    flexShrink: 0,
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
+    width: '100%'
   },
   active: {
     backgroundColor: 'orange'
@@ -31,6 +22,21 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     margin: theme.spacing(1),
+  },
+  meetingSummary: {
+    height: '100px',
+    verticalAlign: 'center'
+  },
+  meetingSummaryContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  date: {
+    flexBasis: '80%'
+  },
+  time: {
+    flexBasis: '20%'
   }
 }));
 
@@ -134,26 +140,32 @@ export default function MeetingCard({
           expandIcon={<ExpandMoreIcon />}
           aria-controls={`panel${id}bh-content`}
           id={`panel${id}bh-header`}
+          classes={{
+            root: classes.meetingSummary,
+            content: classes.meetingSummaryContent
+          }}
         >
-          <Typography className={classes.heading}>{date.toLocaleString('en-US', {
+          <Typography classes={{ root: classes.date }} variant='h6'>{date.toLocaleString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
-            })}</Typography>
-          <Typography className={classes.heading}>{date.toLocaleString('en-US', {
+            })}
+          </Typography>
+          <Typography classes={{ root: classes.time }} align='right' variant='subtitle2'>{date.toLocaleString('en-US', {
               hour: 'numeric',
               minute: 'numeric'
-            })}</Typography>
-          <Typography className={classes.secondaryHeading}>{name}</Typography>
-          <Typography variant="body2" component="p">{owner}</Typography>
-          <Typography variant="body2" component="p">{attendees.length} Attendees</Typography>
+            })}
+          </Typography>
+          <Typography variant='subtitle1'>{name}</Typography>
+          <Typography variant="subtitle1">Host: {owner}</Typography>
+          {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-          <Typography variant="body2" component="p">
+          <Typography variant="body2">
             Description: {description}
           </Typography>
-          <Typography variant="body2" component="p">Attendees</Typography>
+          <Typography variant="body2">Attendees ({attendees.length})</Typography>
           <ul>
             {attendees.map((attendee) => (
               <li className='attendee' key={attendee.id}>

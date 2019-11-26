@@ -23,6 +23,7 @@ export default function FormDialog(props) {
   const handleClose = () => {
     setOpen(false);
     setSelectedContacts([]);
+    setSelectedDate(new Date());
   };
 
   useEffect(() => {

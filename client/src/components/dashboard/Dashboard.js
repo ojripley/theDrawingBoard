@@ -25,7 +25,14 @@ export default function Dashboard(props) {
 
       props.socket.on('itWorkedThereforeIPray', data => {
         console.log('new meeting', data);
-        setMeetings(prev => [...prev, data]);
+        setMeetings(prev => {
+          const newMeetings = [...prev, data].sort((a, b) => {
+            console.log(a, b);
+            return new Date(a.start_time) - new Date(b.start_time)
+          });
+          console.log(newMeetings)
+          return newMeetings;
+        });
       });
 
       props.socket.on('meetingDeleted', (res) => {
