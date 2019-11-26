@@ -19,6 +19,7 @@ export default function TabBar({ mode, setMode }) {
 
   return (
     <BottomNavigation value={mode} onChange={handleChange} className={classes.root} showLabels>
+      <BottomNavigationAction label="Notifications" value="NOTIFICATIONS" icon={<FolderIcon />} />
       <BottomNavigationAction label="Contacts" value="CONTACTS" icon={<FolderIcon />} />
       <BottomNavigationAction label="Dashboard" value="DASHBOARD" icon={<FolderIcon />} />
       <BottomNavigationAction label="History" value="HISTORY" icon={<FolderIcon />} />

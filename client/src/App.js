@@ -22,6 +22,7 @@ export default function App() {
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
+  const NOTIFICATIONS = 'NOTIFICATIONS';
   const [mode, setMode] = useState(DASHBOARD);
 
   const { socket, socketOpen } = useSocket();
