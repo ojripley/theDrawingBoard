@@ -163,32 +163,35 @@ export default function App() {
       return (
         <ThemeProvider theme={theme}>
           <ReactNotification />
+          <NavBar user={user} setUser={setUser} setMode={setMode}/>
+          <Box>
 
-          <NavBar user={user} setUser={setUser} />
-          {mode === DASHBOARD &&
-            <Dashboard
-              socket={socket}
-              socketOpen={socketOpen}
-              user={user}
-              setInMeeting={setInMeeting}
-              setMeetingId={setMeetingId}
-              setMeetingNotes={setMeetingNotes}
-              setOwnerId={setOwnerId}
-              setBackgroundImage={setBackgroundImage}
-              setImageLoaded={setImageLoaded}
-              setInitialPixels={setInitialPixels}
-            />}
-          {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-          {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-          {mode === NOTIFICATIONS &&
-            <Notifications
-              socket={socket}
-              socketOpen={socketOpen}
-              user={user}
-              notificationList={notificationList}
-              setNotificationList={setNotificationList}
-              setMode={setMode}
-            />}
+            {mode === DASHBOARD &&
+              <Dashboard
+                socket={socket}
+                socketOpen={socketOpen}
+                user={user}
+                setInMeeting={setInMeeting}
+                setMeetingId={setMeetingId}
+                setMeetingNotes={setMeetingNotes}
+                setOwnerId={setOwnerId}
+                setBackgroundImage={setBackgroundImage}
+                setImageLoaded={setImageLoaded}
+                setInitialPixels={setInitialPixels}
+              />}
+            {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+            {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+            {mode === NOTIFICATIONS &&
+              <Notifications
+                socket={socket}
+                socketOpen={socketOpen}
+                user={user}
+                notificationList={notificationList}
+                setNotificationList={setNotificationList}
+                setMode={setMode}
+              />}
+
+          </Box>
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </ThemeProvider>
 

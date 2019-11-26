@@ -7,22 +7,21 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 
-import './NavBar.scss';
-
-// const useStyles = makeStyles(theme => ({
-//   root: {
-//     flexGrow: 1,
-//   },
-//   menuButton: {
-//     marginRight: theme.spacing(2),
-//   },
-//   title: {
-//     flexGrow: 1,
-//   },
-// }));
+const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+    fontFamily: "'Molle', cursive"
+  }
+}));
 
 export default function NavBar(props) {
-  // const classes = useStyles();
+  const classes = useStyles();
 
   const handleLogout = () => {
     document.cookie = 'sid=""'; //clear the cookie
@@ -30,13 +29,13 @@ export default function NavBar(props) {
   }
 
   return (
-    <div className='navbar'>
+    <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu">
+          {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon />
-          </IconButton>
-          <Typography variant="h6">
+          </IconButton> */}
+          <Typography variant="h6" className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
             The Drawing Board
           </Typography>
           {props.user && (
