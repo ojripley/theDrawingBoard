@@ -1,6 +1,25 @@
+@import '../../theme/variables';
+
 .meeting-list {
   padding-left: 0;
 }
+
 .meeting-list-item {
   list-style-type: none;
+}
+
+#create-new-meeting {
+  width: 100%;
+}
+
+#create-new-meeting:hover {
+  background-color: $color-5-hex;
+  color: $color-4-hex;
+}
+
+#upload-initial-doc + label {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
-import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Box';
 import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
 import { store } from 'react-notifications-component';
@@ -164,7 +164,7 @@ export default function App() {
         <ThemeProvider theme={theme}>
           <ReactNotification />
           <NavBar user={user} setUser={setUser} setMode={setMode}/>
-          <Box>
+          <Container>
 
             {mode === DASHBOARD &&
               <Dashboard
@@ -191,7 +191,7 @@ export default function App() {
                 setMode={setMode}
               />}
 
-          </Box>
+          </Container>
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </ThemeProvider>
 
@@ -199,10 +199,10 @@ export default function App() {
     }
   } else {
     return (
-      <Box>
+      <Container>
         <NavBar user={null} />
         <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </Box>
+      </Container>
     );
 
   }

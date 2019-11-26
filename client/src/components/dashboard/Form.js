@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import Button from '@material-ui/core/Button';
+
 
 // Material UI - Date & Time Pickers
 import 'date-fns';
@@ -29,14 +32,11 @@ const useStyles = makeStyles(theme => ({
     flexWrap: 'wrap',
   },
   textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 200,
+    width: '90%',
   },
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120,
-    maxWidth: 300,
+    width: '90%'
   },
   chips: {
     display: 'flex',
@@ -49,10 +49,12 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1),
   },
   file: {
-    marginTop: '1em',
-    width: 200,
-    padding: '2em',
-    border: 'solid 1px gray'
+    width: '0.1px',
+    height: '0.1px',
+    opacity: 0,
+    overflow: 'hidden',
+    position: 'absolute',
+    zIndex: '-1',
   }
 }));
 
@@ -131,14 +133,14 @@ export default function Form(props) {
   });
 
   return (
-    <Box className={classes.container} noValidate autoComplete="off">
-      <div>
+      <div className={classes.container} noValidate autoComplete="off">
         <TextField
           label="Name"
           placeholder='Meeting Name'
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingNameChange}
+          required
         />
         <TextField
           label="Description"
@@ -147,10 +149,7 @@ export default function Form(props) {
           margin="normal"
           onChange={handleMeetingDescChange}
         />
-      </div>
-      <div>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <Grid container justify="space-around">
             <KeyboardDatePicker
               margin="normal"
               id="date-picker-dialog"
@@ -172,10 +171,7 @@ export default function Form(props) {
                 'aria-label': 'change time',
               }}
             />
-          </Grid>
         </MuiPickersUtilsProvider>
-      </div>
-      <div>
         <FormControl className={classes.formControl}>
           <InputLabel id="demo-mutiple-chip-label">Contacts</InputLabel>
           <Select
@@ -196,9 +192,23 @@ export default function Form(props) {
           >
             {contactsList}
           </Select>
-          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg" />
         </FormControl>
+          <Input
+            id='upload-initial-doc'
+            className={classes.file}
+            type='file'
+            onChange={handleFileUpload}
+            accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
+          />
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            <label htmlFor='upload-initial-doc'>
+              <CloudUploadIcon />
+              Upload a File
+            </label>
+          </Button>
       </div>
-    </Box>
   );
 }

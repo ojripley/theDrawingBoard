@@ -53,7 +53,7 @@ export default function FormDialog(props) {
 
   return (
     <div>
-      <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
+      <Button id='create-new-meeting' variant="outlined" color="secondary" onClick={() => setOpen(true)}>
         Create New Meeting
       </Button>
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
