@@ -140,7 +140,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     if (socketOpen) {
       socket.on('drawClick', data => {
-        if (user.id.current !== data.code) {
+        if (user.id !== data.user.id) {
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
@@ -149,7 +149,20 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         socket.off('drawClick');
       };
     }
-  }, [socket, socketOpen, user.username]);
+  }, [socket, socketOpen, user.id]);
+
+  useEffect(() => {
+    if (socketOpen) {
+      socket.on('redraw', (data) => {
+        console.log('redrawing pixels!');
+        dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
+        dispatch({ type: REDRAW });
+      });
+      return () => {
+        socket.off('drawClick');
+      };
+    }
+  }, [socket, socketOpen, user.id]);
 
   const endMeeting = () => {
     console.log('meeting ended');
