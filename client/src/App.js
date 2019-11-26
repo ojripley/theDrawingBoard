@@ -137,7 +137,7 @@ export default function App() {
       })
 
       socket.on('cookieResponse', data => {
-        setUser(data[0]);
+        setUser(data);
       });
       return () => {
         socket.off('cookieResponse');
