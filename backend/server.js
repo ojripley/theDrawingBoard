@@ -273,7 +273,8 @@ io.on('connection', (client) => {
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          if (data.filename) { //Only save the file if one exists, otherwise just have an empty folder
+          console.log(data.filename);
+          if (data.file.name) { //Only save the file if one exists, otherwise just have an empty folder
             //Check if pdf
             if (data.file.name.search(/\.pdf$/ig) !== -1) {
 
@@ -558,7 +559,7 @@ io.on('connection', (client) => {
         while (pixels[pixels.length - 1].dragging !== false) {
           pixels.pop();
         }
-        if (pixels[pixels.length - 1].dragging === false){
+        if (pixels[pixels.length - 1].dragging === false) {
           // remove last pixel
           pixels.pop();
         }
@@ -569,12 +570,12 @@ io.on('connection', (client) => {
   });
 
   client.on('msgToMeeting', (data) => {
-    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user } );
+    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user });
   });
 
   client.on('msgToUser', (data) => {
     if (activeUsers[data.contactId]) {
-      activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user } );
+      activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user });
     }
   });
 });
