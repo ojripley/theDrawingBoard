@@ -69,7 +69,7 @@ const decrypt = (text) => {
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.send('testing purposes only');
+  res.send('get outta my backend!');
 });
 
 
