@@ -364,7 +364,6 @@ const deleteMeeting = function(meeting_id) {
     WHERE id = $1;
   `, vars)
   .then(res => {
-    console.log('res:', res)
     return res.rows;
   })
   .catch(err => {
@@ -372,5 +371,124 @@ const deleteMeeting = function(meeting_id) {
   })
 }
 
+const insertContactNotification = function(userId, n) {
+  const vars = [userId, n.senderId, n.title, n.type, n.msg];
 
-module.exports = { fetchUserByEmail, fetchContactsByUserId, fetchUsersByUsername, fetchMeetingsByUserId, fetchMeetingById, fetchUsersMeetingsByIds, fetchMeetingWithUsersById, insertUser, insertMeeting, insertFriend, insertUsersMeeting, updateFriendStatus, updateUsersMeetingsStatus, updateUsersMeetingsNotes, updateMeetingActiveState, updateMeetingById, deleteContact, deleteMeeting, removeUserFromMeeting };
+  return db.query(`
+    INSERT INTO notifications (user_id, sender_id, title, type, msg)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+const insertMeetingNotification = function(userId, n) {
+  const vars = [userId, n.meetingId, n.title, n.type, n.msg];
+
+  return db.query(`
+  INSERT INTO notifications (user_id, meeting_id, title, type, msg)
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING *;
+`, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
+const fetchNotificationsByUser = function(userId) {
+  const vars = [userId];
+
+  return db.query(`
+    SELECT *
+    FROM notifications
+    WHERE user_id = $1;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
+const removeNotificationById = function(id) {
+  const vars = [id];
+
+  return db.query(`
+    DELETE FROM notifications
+    WHERE id = $1;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
+const removeNotificationsByUserId = function(user_id) {
+  const vars = [user_id];
+
+  return db.query(`
+    DELETE FROM notifications
+    WHERE user_id = $1;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
+const removeNotificationsByType = function(user_id, type) {
+  const vars = [user_id, type];
+
+  return db.query(`
+    DELETE FROM notifications
+    WHERE user_id = $1
+    AND type = $2;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
+
+module.exports = {
+  fetchUserByEmail,
+  fetchContactsByUserId,
+  fetchUsersByUsername,
+  fetchMeetingsByUserId,
+  fetchMeetingById,
+  fetchUsersMeetingsByIds,
+  fetchMeetingWithUsersById,
+  insertUser,
+  insertMeeting,
+  insertFriend,
+  insertUsersMeeting,
+  updateFriendStatus,
+  updateUsersMeetingsStatus,
+  updateUsersMeetingsNotes,
+  updateMeetingActiveState,
+  updateMeetingById,
+  deleteContact,
+  deleteMeeting,
+  removeUserFromMeeting,
+  insertContactNotification,
+  insertMeetingNotification,
+  fetchNotificationsByUser,
+  removeNotificationById,
+  removeNotificationsByUserId,
+  removeNotificationsByType
+};

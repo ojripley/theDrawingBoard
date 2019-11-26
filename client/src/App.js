@@ -40,56 +40,64 @@ export default function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
+  // const [notificationList, setNotificationList] = useState([]);
   const [notificationList, setNotificationList] = useState(
     [
       {
         id: 1,
+        userId: 1,
         type: "meeting",
+        meetingId: 0,
         title: "example",
-        message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        msg: "onetwothree",
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 2,
+        userId: 1,
         type: "meeting",
         title: "example2",
-        message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        msg: "onetwothree",
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 3,
         type: "meeting",
         title: "example3",
         message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 4,
         type: "contacts",
         title: "new contact",
         message: "you have a new contact",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 5,
         type: "contacts",
         title: "accepted your friend request",
         message: "onetwothree",
-        timestamp: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 6,
-        type: "dm",
-        title: "OJ",
-        message: "Has dmd you",
-        timestamp: (new Date()).toLocaleDateString()
+        time: (new Date()).toLocaleDateString()
       },
       {
         id: 7,
+        userId: 4, //id, email
+        type: "contacts",
+        senderId: 0, //Either an id or
+        title: "Friend added",
+        msg: "Someone has added you",
+        time: (new Date()).toLocaleDateString()
+      },
+      {
+        id: 8,
+        userId: 2, //id, email
         type: "dm",
-        title: "blah",
-        message: "what's up",
-        timestamp: (new Date()).toLocaleDateString()
+        senderId: 0, //Either an id or
+        title: "New message from ...",
+        msg: "...",
+        time: (new Date()).toLocaleDateString()
       },
 
     ])
@@ -98,7 +106,6 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      console.log('checking for cookie')
       socket.emit('checkCookie');
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
@@ -106,8 +113,16 @@ export default function App() {
         setMeetingNotes(data.notes); //notes for the current meeting
       });
 
+      socket.on('allNotifications', data => {
+        console.log(data);
+
+        setNotificationList(data);
+      });
+
       socket.on('notify', data => {
         console.log(data);
+
+        setNotificationList(prev => [...prev, data]);
 
         store.addNotification({
           title: `${data.type}`,
@@ -118,21 +133,15 @@ export default function App() {
           animationIn: ["animated", "fadeIn"],
           animationOut: ["animated", "fadeOut"],
           dismiss: {
-            duration: 100000,
+            duration: 2000,
             onScreen: true
           }
         });
       })
 
       socket.on('cookieResponse', data => {
-        console.log('received cookie', data);
         setUser(data[0]);
       });
-
-
-
-
-
       return () => {
         socket.off('cookieResponse');
         socket.off('meeting');

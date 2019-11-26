@@ -1,18 +1,7 @@
 
-//          #####   ######  ######    #   #   #####
-//         #        #          #      #   #   #   #
-//          #####   #####      #      #   #   ####
-//               #  #          #      #   #   #
-//          #####   ######     #       ###    #
-//
-//
-//
-//
-//
-//
-//
-
-
+//////////////////
+// SERVER SETUP //
+//////////////////
 
 // load .env data into process.env
 require('dotenv').config();
@@ -29,23 +18,18 @@ const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsE
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 
-
+// import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
 const { ActiveMeeting } = require('./objects/activeMeetings');
 
+// instantiate objects
 activeUsers = new ActiveUsers();
 authenticator = new Authenticator();
 activeMeetings = new ActiveMeeting();
 
-// db operations
+// import db operations
 const db = require('./db/queries/queries');
-
-// db routes
-const usersRoutes = require('./routes/usersRoutes');
-const usersMeetingsRoutes = require('./routes/usersMeetingsRoutes');
-
-// app.use('/', usersRoutes(db));
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
@@ -68,61 +52,62 @@ const decrypt = (text) => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// this is super important
 app.get("/", (req, res) => {
-  res.send('testing purposes only');
+  res.send('get outta my backend!');
 });
 
-
+// start server listening
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
 
 
+////////////////////////
+// CLIENT INTERACTION //
+////////////////////////
 
+// notification function
+const notify = function(userId, notification) {
 
+  // assign notificationId with res.id after a db query
+  notification.userId =  userId;
 
+  if (notification.type === 'meeting') {
+    db.insertMeetingNotification(userId, notification)
+      .then(res => {
+        notification.id = res[0].id;
+        notification.time = res[0].time;
 
+        // only emit if the client is online
+        if (activeUsers[userId]) {
+          activeUsers[userId].socket.emit('notify', notification);
+        }
+      });
+  }
 
+  if (notification.type === 'dm' || notification.type === 'contact') {
+    db.insertContactNotification(userId, notification)
+      .then(res => {
+        notification.id = res[0].id;
+        notification.time = res[0].time;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const notify = function(client, notification) {
-
-  notification.timestamp = Date.now();
-
-  client.emit('notify', notification);
+        // only emit if the client is online
+        if (activeUsers[userId]) {
+          activeUsers[userId].socket.emit('notify', notification);
+        }
+      });
+  }
 }
 
 
 
+///////////////////
+// SOCKET EVENTS //
+///////////////////
 
-
-
-
-
-
-
-
-
-
-
-
+// socket events
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
@@ -133,7 +118,6 @@ io.on('connection', (client) => {
     if (matches) cookieString = matches[0];
   }
 
-
   //Checks cookie
   client.on('checkCookie', () => {
     console.log('cookie check');
@@ -143,12 +127,19 @@ io.on('connection', (client) => {
       console.log('decrypted', email);
       db.fetchUserByEmail(email)
         .then(res => {
-          console.log(res);
-          activeUsers.addUser(res[0].id, client);
-          client.emit('cookieResponse', res);
-        })
-        .catch(err => {
-          console.error(err);
+          const user = {id: res[0].id, username: res[0].username, email: res[0].email}
+          client.emit('cookieResponse', user);
+          db.fetchNotificationsByUser(user.id)
+            .then(res => {
+              console.log('sending');
+              console.log(res);
+              client.emit('allNotifications', res);
+            })
+          activeUsers.addUser(user, client);
+
+          client.on('disconnect', () => {
+            activeUsers.removeUser(user.id);
+          });
         });
     }
   });
@@ -163,13 +154,7 @@ io.on('connection', (client) => {
         if (authenticateAttempt) {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
-          activeUsers.addUser(authenticateAttempt.id, client);
-          console.log('active users:');
-          for (let user in activeUsers) {
-            if (activeUsers[user].id) {
-              console.log('user:', activeUsers[user].id);
-            }
-          }
+          activeUsers.addUser(authenticateAttempt, client);
 
           client.on('disconnect', () => {
             activeUsers.removeUser(authenticateAttempt.id);
@@ -179,15 +164,19 @@ io.on('connection', (client) => {
         }
         console.log('sending response');
         client.emit('loginResponse', { user: authenticateAttempt, session: (authenticateAttempt.id ? encrypt(authenticateAttempt.email) : "") });
+        db.fetchNotificationsByUser(authenticateAttempt.id)
+          .then(res => {
+            console.log('sending');
+            console.log(res);
+            client.emit('allNotifications', res);
+          });
       });
   });
 
   client.on('addClick', data => {
-    console.log("message received");
-    console.log(data.pixel.x);
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
     console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
-    io.to(data.meetingId).emit('drawClick', data);//pass message along
+    io.to(data.meetingId).emit('drawClick', data); //pass message along
   })
 
   //End of test
@@ -198,7 +187,8 @@ io.on('connection', (client) => {
   client.on('fetchUser', (data) => {
     db.fetchUserByEmail(data.email)
       .then(res => {
-        client.emit('user', res);
+        user = {id: res.id, username: res.username, email: res.email};
+        client.emit('user', user);
       });
   });
 
@@ -292,7 +282,6 @@ io.on('connection', (client) => {
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
-          console.log(contact.username);
           promiseArray.push(db.insertUsersMeeting(contact.id, id));
         }
 
@@ -303,12 +292,11 @@ io.on('connection', (client) => {
       .then((id) => {
         db.fetchMeetingWithUsersById(id)
           .then(res => {
-            console.log(res[0].attendee_ids);
             for (let contactId of res[0].attendee_ids) {
+              notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id});
               if (activeUsers[contactId]) {
                 console.log(`${contactId} should now rerender`);
                 activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
-                notify(activeUsers[contactId].socket, { type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id});
               }
             }
           });
@@ -342,10 +330,9 @@ io.on('connection', (client) => {
 
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
+              notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               if (activeUsers[id]) {
-                const userClient = activeUsers[id].socket
-                userClient.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
-                notify(userClient, { type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
+                activeUsers[id].socket.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
@@ -412,15 +399,11 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
     for (let id of meetingDetails.invited_users) {
-      if (activeUsers[id]) {
-        const userClient = activeUsers[id].socket;
-        notify(userClient, { type: 'meeting', msg: `Meeting '${data.meetingName} has ended! You may check the details in History`, meetingId: meetingDetails.name });
-      }
+      notify(activeUsers[id], { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${data.meetingName} has ended! You may check the details in History`, meetingId: meetingDetails.name });
     }
     activeMeetings.removeMeeting(data.meetingId);
 
     console.log(`meeting ${data.meetingId}is done`);
-    console.log(activeMeetings);
   });
 
   client.on('notes', (data) => {
@@ -433,8 +416,6 @@ io.on('connection', (client) => {
   client.on('fetchNotes', (data) => {
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        console.log(res);
-        console.log('image', `meeting_files/${data.meetingId}/${data.linkToFinalDoc}`);
         fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
           if (err) {
             console.error;
@@ -447,9 +428,6 @@ io.on('connection', (client) => {
 
   client.on('addContact', (data) => {
 
-    console.log('adding contact');
-    console.log(data.contactId);
-
     // user requests contact add
     db.insertFriend(data.user.id, data.contactId, 'requested');
 
@@ -459,9 +437,9 @@ io.on('connection', (client) => {
     // tell the user they're request has been sent
     client.emit('relationChanged', { relation: 'requested', contactId: data.contactId });
 
-    // tell the client they have a contact request if they are online
+    // tell contact that they have a friend request
+    notify(data.contactId, { title: 'Friend Request', type: 'contact', msg: `${data.user.username} has requested to add you as a friend!`, senderId: data.user.id });
     if (activeUsers[data.contactId]) {
-      console.log(`letting ${activeUsers[data.contactId].username}`);
       activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
     }
   });
@@ -474,6 +452,8 @@ io.on('connection', (client) => {
 
     // change the contact status based on what the user relation was
     if (data.relation === 'accepted') {
+      notify(data.contactId, { title: 'Friend Request Accepted', type: 'contact', msg: `${data.user.username} has accepted your friend request!`, senderId: data.user.id });
+
       db.updateFriendStatus(data.contactId, data.user.id, 'accepted');
       if (activeUsers[data.contactId]) {
         activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'accepted', contactId: data.user.id });
@@ -503,12 +483,7 @@ io.on('connection', (client) => {
     });
   });
 
-
   client.on('changeAttendance', (data) => {
-
-    console.log('changing attendance...');
-    console.log(data.rsvp);
-
     if (data.rsvp === 'declined') {
       db.removeUserFromMeeting(data.user.id, data.meetingId);
     } else {
@@ -517,6 +492,21 @@ io.on('connection', (client) => {
 
     client.emit('attendanceChanged', {meetingId: data.meetingId});
 
+  });
+
+  client.on('dismissNotification', (data) => {
+    console.log('dismissing notification number', data.id);
+    db.removeNotificationById(data.id);
+  });
+
+  client.on('dismissAllNotifications', (data) => {
+    console.log('dismissing notification by user', data.userId);
+    db.removeNotificationsByUserId(data.userId);
+  });
+
+  client.on('dismissNotificationType', (data) => {
+    console.log('dismissing notification by type', data.userId, data.type);
+    db.removeNotificationsByType(data.userId, data.type);
   });
 });
 

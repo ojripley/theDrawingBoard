@@ -5,6 +5,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: contain; //prevents page from refreshing when user scrolls up
+  overflow: auto;
+
   height: 100%;
   overflow: auto;
   color: #36363E;
@@ -12,7 +14,10 @@ body {
 html {
   height: 100%;
   overflow: hidden;
+<<<<<<< HEAD
   color: #36363E;
+=======
+>>>>>>> origin/master
 }
 
 code {

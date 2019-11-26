@@ -6,10 +6,8 @@ class ActiveUsers {
   // -- -- -- -- -- -- //
   // methods           //
 
-  addUser(id, client) {
-    // let sid = this.generateSessionId();
-    this[id] = { id: id, socket: client };
-    // return sid;
+  addUser(user, client) {
+    this[user.id] = { id: user.id, username: user.username, email: user.email, socket: client };
   }
 
   removeUser(id) {
