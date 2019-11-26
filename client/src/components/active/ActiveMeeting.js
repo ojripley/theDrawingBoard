@@ -8,7 +8,6 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
-import { Input } from '@material-ui/core';
 
 
 const useStyles = makeStyles(theme => ({
@@ -101,13 +100,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     socket.emit('saveDebouncedNotes', { user: user, meetingId: meetingId, notes: debouncedNotes });
     // socket.on('receiveOkay') //can have a socket on when received
     setSaving(false);
-  }, [socket, debouncedNotes, user])
+  }, [socket, debouncedNotes, user, meetingId])
 
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [textareaRef.current, writeMode])
+  }, [ writeMode])
 
   return (
     imageLoaded &&
@@ -139,7 +138,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
             onChange={event => handleInput(event)}
             onFocus={handleCaret}
           />
-          <InputIcon onClick={() => setWriteMode(prev => !prev)}/>
+          <InputIcon onClick={() => setWriteMode(prev => !prev)} />
         </div>
       }
       {saving &&

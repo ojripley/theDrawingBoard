@@ -37,11 +37,12 @@ export default function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
+  // const [notificationList, setNotificationList] = useState([]);
   const [notificationList, setNotificationList] = useState(
     [
       {
-        notificationId: 1,
-        userId: 1, //id, email
+        id: 1,
+        userId: 1,
         type: "meeting",
         meetingId: 0,
         title: "example",
@@ -50,9 +51,10 @@ export default function App() {
       },
       {
         id: 2,
+        userId: 1,
         type: "meeting",
         title: "example2",
-        message: "onetwothree",
+        msg: "onetwothree",
         time: (new Date()).toLocaleDateString()
       },
       {
@@ -77,7 +79,7 @@ export default function App() {
         time: (new Date()).toLocaleDateString()
       },
       {
-        notificationId: 7,
+        id: 7,
         userId: 4, //id, email
         type: "contacts",
         senderId: 0, //Either an id or
@@ -86,7 +88,7 @@ export default function App() {
         time: (new Date()).toLocaleDateString()
       },
       {
-        notificationId: 8,
+        id: 8,
         userId: 2, //id, email
         type: "dm",
         senderId: 0, //Either an id or
@@ -101,7 +103,6 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      console.log('checking for cookie')
       socket.emit('checkCookie');
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
@@ -109,8 +110,16 @@ export default function App() {
         setMeetingNotes(data.notes); //notes for the current meeting
       });
 
+      socket.on('allNotifications', data => {
+        console.log(data);
+
+        setNotificationList(data);
+      });
+
       socket.on('notify', data => {
         console.log(data);
+
+        setNotificationList(prev => [...prev, data]);
 
         store.addNotification({
           title: `${data.type}`,
@@ -121,21 +130,15 @@ export default function App() {
           animationIn: ["animated", "fadeIn"],
           animationOut: ["animated", "fadeOut"],
           dismiss: {
-            duration: 100000,
+            duration: 2000,
             onScreen: true
           }
         });
       })
 
       socket.on('cookieResponse', data => {
-        console.log('received cookie', data);
         setUser(data[0]);
       });
-
-
-
-
-
       return () => {
         socket.off('cookieResponse');
         socket.off('meeting');

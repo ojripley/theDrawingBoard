@@ -7,6 +7,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Button from '@material-ui/core/Button';
 
 
 
@@ -33,7 +34,19 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'white'
   },
   button: {
+    display: 'inline',
+    float: 'right',
     margin: theme.spacing(1),
+  },
+  header: {
+    fontSize: '2em',
+    fontWeight: 'bold'
+
+  },
+  header2: {
+    fontSize: '1.5em',
+    fontWeight: 'bold'
+
   }
 }));
 
@@ -50,6 +63,17 @@ export default function Notifications(props) {
     props.setNotificationList(newNotifications);
   }
 
+  const removeAllNotifications = () => {
+    console.log('Sending Owen this:', props.user.id);
+    props.socket.emit('dismissAllNotifications', { userId: props.user.id });
+    props.setNotificationList([]);
+  }
+
+  const removeMeetingNotifications = (type) => {
+    props.socket.emit('dismissNotificationType', { userId: props.user.id, type: type });
+    props.setNotificationList([]);
+  }
+
 
   const meetings = props.notificationList
     .filter(notification => notification.type === "meeting")
@@ -58,11 +82,12 @@ export default function Notifications(props) {
         key={notif.id}
         id={notif.id}
         user={props.user}
+        userId={notif.userId}
         type={notif.type}
         title={notif.title}
+        message={notif.msg}
         onClick={() => props.setMode("DASHBOARD")}
         onRemove={removeNotification}
-        message={notif.message}
         timestamp={notif.time}
         setMode={props.setMode}
         socket={props.socket}
@@ -72,17 +97,18 @@ export default function Notifications(props) {
 
 
   const contacts = props.notificationList
-    .filter(notification => notification.type === "contacts")
+    .filter(notification => notification.type === "contact" || notification.type === "dm")
     .map(notif => {
       return (<Notification
         key={notif.id}
         id={notif.id}
         user={props.user}
+        userId={props.userId}
         type={notif.type}
         title={notif.title}
+        message={notif.msg}
         onClick={() => props.setMode("CONTACTS")}
         onRemove={removeNotification}
-        message={notif.message}
         timestamp={notif.time}
         setMode={props.setMode}
         socket={props.socket}
@@ -92,7 +118,9 @@ export default function Notifications(props) {
 
   return (
     <>
-      <h1>Notifications</h1>
+      <span className={classes.header}>Notifications </span>
+      <Button variant="outlined" color="secondary" onClick={removeAllNotifications}> Dismiss all</Button>
+
       {props.notificationList.length === 0 && <h2> No new notifications</h2>}
 
       {meetings.length > 0 &&
@@ -102,7 +130,9 @@ export default function Notifications(props) {
             aria-controls={`panel1bh-content`}
             id={`panel1bh-header`}
           >
-            <h2 className={classes.section}> {`Meeting Notifications (${meetings.length})`}</h2>
+            <span className={classes.header2}> {`Meeting Notifications (${meetings.length})`}</span>
+            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("meeting")}> Dismiss meeting notifications</Button>
+
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <ul className={classes.list}>
@@ -121,6 +151,7 @@ export default function Notifications(props) {
             id={`panel1bh-header`}
           >
             <h2 className={classes.section}> {`Contact Notifications (${contacts.length})`}</h2>
+            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("contact")}> Dismiss contact notifications</Button>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <ul className={classes.list}>
