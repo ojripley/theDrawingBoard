@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
-import CloseIcon from '@material-ui/icons/Close';
 import Button from '@material-ui/core/Button';
 
 

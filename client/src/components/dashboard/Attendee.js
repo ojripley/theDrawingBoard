@@ -20,7 +20,6 @@ export default function Attendee(props) {
 
 
 
-  console.log(props.attendance);
 
   const handleChange = event => {
 
@@ -38,7 +37,7 @@ export default function Attendee(props) {
 
     setRsvp(attendance);
 
-    props.socket.emit('changeAttendance', { user: props.user, meetingId: props.meetingId, rsvp: attendance});
+    props.socket.emit('changeAttendance', { user: props.user, meetingId: props.meetingId, rsvp: attendance });
   };
 
   useEffect(() => {

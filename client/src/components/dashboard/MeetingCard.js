@@ -73,7 +73,6 @@ export default function MeetingCard({
     socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
   }
 
-  console.log(attendees);
 
   useEffect(() => {
     if (socketOpen) {

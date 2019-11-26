@@ -101,7 +101,6 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      console.log('checking for cookie')
       socket.emit('checkCookie');
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
@@ -111,6 +110,8 @@ export default function App() {
 
       socket.on('notify', data => {
         console.log(data);
+
+        setNotificationList([...notificationList, data]);
 
         store.addNotification({
           title: `${data.type}`,
@@ -128,7 +129,6 @@ export default function App() {
       })
 
       socket.on('cookieResponse', data => {
-        console.log('received cookie', data);
         setUser(data[0]);
       });
 
