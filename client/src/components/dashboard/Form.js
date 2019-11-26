@@ -35,7 +35,6 @@ const useStyles = makeStyles(theme => ({
     height: 'auto'
   },
   formControl: {
-    margin: theme.spacing(1),
     minWidth: '300px'
   },
   chips: {
@@ -44,9 +43,10 @@ const useStyles = makeStyles(theme => ({
   },
   chip: {
     margin: 2,
+    backgroundColor: theme.palette.tertiary.main
   },
   button: {
-    margin: theme.spacing(1),
+    marginRight: '1em'
   },
   file: {
     width: '0.1px',
@@ -55,6 +55,9 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden',
     position: 'absolute',
     zIndex: '-1',
+  },
+  label : {
+    marginTop: '1em'
   }
 }));
 
@@ -191,7 +194,7 @@ export default function Form(props) {
             onChange={handleFileUpload}
             accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
           />
-          <label htmlFor='upload-initial-doc'>
+          <label className={classes.label} htmlFor='upload-initial-doc'>
             <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
               Upload
             </Button>
