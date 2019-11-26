@@ -73,6 +73,7 @@ export default function MeetingCard({
     socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
   }
 
+  const date = new Date(startTime);
 
   useEffect(() => {
     if (socketOpen) {
@@ -134,7 +135,16 @@ export default function MeetingCard({
           aria-controls={`panel${id}bh-content`}
           id={`panel${id}bh-header`}
         >
-          <Typography className={classes.heading}>{startTime}</Typography>
+          <Typography className={classes.heading}>{date.toLocaleString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}</Typography>
+          <Typography className={classes.heading}>{date.toLocaleString('en-US', {
+              hour: 'numeric',
+              minute: 'numeric'
+            })}</Typography>
           <Typography className={classes.secondaryHeading}>{name}</Typography>
           <Typography variant="body2" component="p">{owner}</Typography>
           <Typography variant="body2" component="p">{attendees.length} Attendees</Typography>
