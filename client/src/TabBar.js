@@ -32,9 +32,9 @@ export default function TabBar({ mode, setMode, notificationList }) {
       <BottomNavigationAction label="Contacts" value="CONTACTS" icon={<AccountCircleIcon />} />
       <BottomNavigationAction label="Dashboard" value="DASHBOARD" icon={<DashboardIcon />} />
       <BottomNavigationAction label="History" value="HISTORY" icon={<HistoryIcon />} />
-      <BottomNavigationAction label={
-        <Badge className={classes.padding} color="primary" badgeContent={notificationList.length}>Notifications</Badge>
-      } value="NOTIFICATIONS" icon={<NotificationsIcon />} />
+      <BottomNavigationAction label='Notifications' value="NOTIFICATIONS" icon={
+        <Badge className={classes.padding} color="primary" badgeContent={notificationList.length}><NotificationsIcon /></Badge>}
+      />
     </BottomNavigation>
   );
 }
