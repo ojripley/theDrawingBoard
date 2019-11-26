@@ -88,7 +88,7 @@ const notify = function(userId, notification) {
   }
 
   if (notification.type === 'dm' || notification.type === 'contact') {
-    db.insertContactNotification(client.id, notification)
+    db.insertContactNotification(userId, notification)
       .then(res => {
         notification.id = res[0].id;
         notification.time = res[0].time;
@@ -434,7 +434,7 @@ io.on('connection', (client) => {
     client.emit('relationChanged', { relation: 'requested', contactId: data.contactId });
 
     // tell contact that they have a friend request
-    notify(data.contactId, { title: 'Friend Request', type: 'meeting', msg: `${data.user.username} has requested to add you as a friend!`, senderId: data.user.id });
+    notify(data.contactId, { title: 'Friend Request', type: 'contact', msg: `${data.user.username} has requested to add you as a friend!`, senderId: data.user.id });
     if (activeUsers[data.contactId]) {
       activeUsers[data.contactId].socket.emit('relationChanged', { relation: 'pending', contactId: data.user.id } );
     }
@@ -448,7 +448,7 @@ io.on('connection', (client) => {
 
     // change the contact status based on what the user relation was
     if (data.relation === 'accepted') {
-      notify(data.contactId, { title: 'Friend Request Accepted', type: 'meeting', msg: `${data.user.username} has accepted your friend request!`, senderId: data.user.id });
+      notify(data.contactId, { title: 'Friend Request Accepted', type: 'contact', msg: `${data.user.username} has accepted your friend request!`, senderId: data.user.id });
 
       db.updateFriendStatus(data.contactId, data.user.id, 'accepted');
       if (activeUsers[data.contactId]) {
@@ -479,7 +479,6 @@ io.on('connection', (client) => {
     });
   });
 
-
   client.on('changeAttendance', (data) => {
     if (data.rsvp === 'declined') {
       db.removeUserFromMeeting(data.user.id, data.meetingId);
@@ -497,13 +496,13 @@ io.on('connection', (client) => {
   });
 
   client.on('dismissAllNotifications', (data) => {
-    console.log('dismissing notification by user', data.user.username);
-    db.removeNotificationsByUserId(data.user.id);
+    console.log('dismissing notification by user', data.userId);
+    db.removeNotificationsByUserId(data.userId);
   });
 
   client.on('dismissNotificationType', (data) => {
-    console.log('dismissing notification by type', data.user.id, data.type);
-    db.removeNotificationsByType(data.user.id, data.type);
+    console.log('dismissing notification by type', data.userId, data.type);
+    db.removeNotificationsByType(data.userId, data.type);
   });
 });
 
