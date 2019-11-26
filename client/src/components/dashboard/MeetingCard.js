@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%'
   },
   active: {
-    backgroundColor: 'orange'
+    backgroundColor: theme.palette.tertiary.main
   },
   scheduled: {
     backgroundColor: 'white'
@@ -57,6 +57,15 @@ const useStyles = makeStyles(theme => ({
     flexBasis: '33.33%'
   }
 }));
+
+const ExpansionPanelSummary = withStyles({
+  content: {
+    '&$expanded': {
+      margin: '0px 0',
+    },
+  },
+  expanded: {},
+})(MuiExpansionPanelSummary);
 
 export default function MeetingCard({
   id,
