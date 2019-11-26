@@ -43,6 +43,18 @@ const useStyles = makeStyles(theme => ({
   },
   name: {
     flexBasis: '100%'
+  },
+  meetingExpanded: {
+    height: 'auto',
+    verticalAlign: 'center',
+    padding: '1em',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    margin: 0,
+  },
+  attendees: {
+    flexBasis: '33.33%'
   }
 }));
 
@@ -139,6 +151,15 @@ export default function MeetingCard({
     };
   }, [socket, id, activeMeeting])
 
+  const attendances = [];
+  const attendeeNames = attendees.map((attendee) => {
+    let attendance = attendee.attendance === 'invited' ? 'invited' : 'accepted';
+    attendances.push(<li className={`${attendance} attendees`} key={`attendance-${attendee.id}`}> {attendee.attendance}</li>)
+    return <li className='attendees' key={`name-${attendee.id}`}>
+        {attendee.username}
+      </li>
+  })
+
   return (
     <div className={classes.root}>
       <ExpansionPanel className={activeMeeting ? classes.active : classes.scheduled} expanded={expanded === `panel${id}`} onChange={handleChange(`panel${id}`)}>
@@ -167,17 +188,16 @@ export default function MeetingCard({
           <Typography variant="subtitle2">Host: {owner}</Typography>
           {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Typography variant="body2">
+        <ExpansionPanelDetails classes={{ root: classes.meetingExpanded }}>
+          <Typography classes={{ root: classes.name }} variant="body2">
             Description: {description}
           </Typography>
-          <Typography variant="body2">Attendees ({attendees.length})</Typography>
+          <Typography className={'attendees'} variant="subtitle2">Attendees ({attendees.length})</Typography>
           <ul>
-            {attendees.map((attendee) => (
-              <li className='attendee' key={attendee.id}>
-                {attendee.username}
-                <span className='attendee-attendance'>  {attendee.attendance}</span>
-              </li>))}
+            {attendeeNames}
+          </ul>
+          <ul>
+            {attendances}
           </ul>
           {user.username === owner ?
             <Owner
