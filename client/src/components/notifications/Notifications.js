@@ -22,7 +22,7 @@ export default function Notifications(props) {
   }
 
 
-  const notifications = props.notificationList
+  const meetings = props.notificationList
     .filter(notification => notification.type === "meeting")
     .map(notif => {
       return (<Notification
@@ -82,28 +82,39 @@ export default function Notifications(props) {
 
 
 
-  console.log(notifications);
+  // console.log(notifications);
 
   return (
     <>
       <h1>Notifications</h1>
+      {props.notificationList.length===0 && <h2> No new notifications</h2>}
 
-      <h2 class={classes.section}> Meetings </h2>
-      <ul>
-        {notifications}
-      </ul>
+      {meetings.length > 0 &&
+        (<>
+          <h2 class={classes.section}> Meeting Notifications </h2>
+          <ul>
+            {meetings}
+          </ul>
+        </>
+        )}
 
-      <h2 class={classes.section}> Contacts </h2>
-      <ul>
-        {contacts}
-      </ul>
+      {contacts.length > 0 &&
+        (<>
+          <h2 class={classes.section}> Contact Notifications </h2>
+          <ul>
+            {contacts}
+          </ul>
+        </>
+        )}
 
-      <h2 class={classes.section}> Direct Messages </h2>
-      <ul>
-        {dms}
-      </ul>
-
-
+      {dms.length > 0 &&
+        (<>
+          <h2 class={classes.section}> DM Notifications </h2>
+          <ul>
+            {dms}
+          </ul>
+        </>
+        )}
     </>
   );
 }
