@@ -152,21 +152,23 @@ export default function App() {
   if (user) {
     if (inMeeting) {
       return (
-        <ActiveMeeting
-          meetingId={meetingId}
-          ownerId={ownerId}
-          user={user}
-          socket={socket}
-          socketOpen={socketOpen}
-          initialNotes={meetingNotes}
-          setMeetingNotes={setMeetingNotes}
-          setInMeeting={setInMeeting}
-          setMeetingId={setMeetingId}
-          imageLoaded={imageLoaded}
-          backgroundImage={backgroundImage}
-          setMode={setMode}
-          initialPixels={initialPixels}
-        />
+        <ThemeProvider theme={theme}>
+          <ActiveMeeting
+            meetingId={meetingId}
+            ownerId={ownerId}
+            user={user}
+            socket={socket}
+            socketOpen={socketOpen}
+            initialNotes={meetingNotes}
+            setMeetingNotes={setMeetingNotes}
+            setInMeeting={setInMeeting}
+            setMeetingId={setMeetingId}
+            imageLoaded={imageLoaded}
+            backgroundImage={backgroundImage}
+            setMode={setMode}
+            initialPixels={initialPixels}
+          />
+        </ThemeProvider>
       );
     } else {
       return (
@@ -208,10 +210,10 @@ export default function App() {
     }
   } else {
     return (
-      <Container>
+      <ThemeProvider theme={theme}>
         <NavBar user={null} />
         <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </Container>
+      </ThemeProvider>
     );
 
   }

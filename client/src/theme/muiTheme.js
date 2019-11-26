@@ -19,6 +19,14 @@ const theme = createMuiTheme({
       contrastText: '#36363E',
     }
   },
+  overrides: {
+    MuiExpansionPanelSummary: {
+      content: {
+        marginTop: 0,
+        marginBottom: 0
+      }
+    }
+  }
 });
 
 export default theme;

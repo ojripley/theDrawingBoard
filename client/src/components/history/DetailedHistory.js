@@ -23,7 +23,7 @@ export default function DetailedHistory(props) {
 
       return () => props.socket.off('notes');
     }
-  }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc]);
+  }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc, props.socketOpen]);
 
   const copyToClipboard = () => {
     console.log(notesRef.current.value)

@@ -18,6 +18,9 @@ const useStyles = makeStyles(theme => ({
   padding: {
     padding: theme.spacing(0, 1.1),
   },
+  tabItem: {
+    paddingTop: '8px'
+  }
 }));
 
 export default function TabBar({ mode, setMode, notificationList }) {
@@ -29,11 +32,11 @@ export default function TabBar({ mode, setMode, notificationList }) {
 
   return (
     <BottomNavigation value={mode} onChange={handleChange} className={classes.root} showLabels>
-      <BottomNavigationAction label="Contacts" value="CONTACTS" icon={<AccountCircleIcon />} />
-      <BottomNavigationAction label="Dashboard" value="DASHBOARD" icon={<DashboardIcon />} />
-      <BottomNavigationAction label="History" value="HISTORY" icon={<HistoryIcon />} />
-      <BottomNavigationAction label='Notifications' value="NOTIFICATIONS" icon={
-        <Badge className={classes.padding} color="primary" badgeContent={notificationList.length}><NotificationsIcon /></Badge>}
+      <BottomNavigationAction classes={{ root: classes.tabItem }} label="Contacts" value="CONTACTS" icon={<AccountCircleIcon />} />
+      <BottomNavigationAction classes={{ root: classes.tabItem }} label="Dashboard" value="DASHBOARD" icon={<DashboardIcon />} />
+      <BottomNavigationAction classes={{ root: classes.tabItem }} label="History" value="HISTORY" icon={<HistoryIcon />} />
+      <BottomNavigationAction classes={{ root: classes.tabItem }} label='Notifications' value="NOTIFICATIONS" icon={
+        <Badge className={classes.padding} color="secondary" badgeContent={notificationList.length}><NotificationsIcon /></Badge>}
       />
     </BottomNavigation>
   );

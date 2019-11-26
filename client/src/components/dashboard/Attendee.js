@@ -17,10 +17,6 @@ export default function Attendee(props) {
   const classes = useStyles();
   const [rsvp, setRsvp] = React.useState(props.attendance);
 
-
-
-
-
   const handleChange = event => {
 
     console.log('request attendance change');
@@ -59,6 +55,7 @@ export default function Attendee(props) {
         labelId="demo-simple-select-helper-label"
         id="demo-simple-select-helper"
         value={rsvp}
+
         onChange={handleChange}
         placeholder='Invited'
       >

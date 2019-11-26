@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
   meetingSummary: {
     height: 'auto',
     verticalAlign: 'center',
-    padding: '1em'
+    padding: '1em',
   },
   meetingSummaryContent: {
     flexDirection: 'row',
@@ -124,7 +124,7 @@ export default function MeetingCard({
         socket.off('enteredMeeting');
       };
     }
-  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels]);
+  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
     socket.on('meetingStarted', res => {
