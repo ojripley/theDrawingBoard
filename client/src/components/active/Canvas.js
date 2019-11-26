@@ -51,8 +51,6 @@ function reducer(state, action) {
 
         let pixels = state.pixelArrays[user]
         for (let i in pixels) {
-          // console.log(pixels[i]);
-
           state.ctx.beginPath(); //start drawing a single line
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
             state.ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
@@ -87,7 +85,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //State for drawing canvas:
   const drawCanvasRef = useRef({});
   let [paint, setPaint] = useState(false);
-  const myCode = useRef(Math.floor(Math.random() * 1000), [])
+  // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   const [, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
@@ -121,9 +119,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   }, [isLoaded, imageEl]);
 
-
-
-  // const mapToRelativeUnits = useCallback(
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
     let h = drawCanvasRef.current.height;
@@ -131,8 +126,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     pixel.y = pixel.y / h;
     return pixel;
   }
-  //   [drawCanvasRef.current.width, drawCanvasRef.current.height],
-  // );
 
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
@@ -147,8 +140,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     if (socketOpen) {
       socket.on('drawClick', data => {
-        if (myCode.current !== data.code) {
-          dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: data.pixel } });
+        if (user.id.current !== data.code) {
+          dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
       });
@@ -190,7 +183,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       y: y,
       dragging: dragging
     };
-    dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: mapToRelativeUnits(pixel) } });
+    dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
     dispatch({ type: REDRAW });
     // mergeWithImage();
   };
@@ -202,8 +195,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     let pixel = { x: mouseX, y: mouseY, dragging: false };
     setPaint(true);
     mapToRelativeUnits(pixel);
-    console.log('clickDown', mouseX, mouseY, pixel.dragging);
-    socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: myCode.current });
+    socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
   }
 
   const handleMouseMove = e => { //Change to useCallback??
@@ -213,8 +205,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       addClick(mouseX, mouseY, true);
       let pixel = { x: mouseX, y: mouseY, dragging: true };
       mapToRelativeUnits(pixel);
-      console.log('dragging', mouseX, mouseY, pixel.dragging);
-      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: myCode.current });
+      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
     }
   }
 
@@ -246,6 +237,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         >
           End Meeting
         </Button>}
-      </div>
+    </div>
   );
 }
