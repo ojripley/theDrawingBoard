@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-
+import Loading from '../Loading';
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -105,7 +105,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, pixelColor, strokeWidth, highlighting }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading,pixelColor, strokeWidth, highlighting }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -131,16 +131,17 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
+
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width)
+      drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       dispatch({ type: REDRAW });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+    drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -153,7 +154,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     }
 
 
-  }, [isLoaded, imageEl]);
+  }, [imageLoaded, backgroundImage]);
 
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
@@ -166,10 +167,10 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
       prev = imageCanvasRef.current.getContext('2d')
-      imageCanvasRef.current.width = imageEl.width;
-      imageCanvasRef.current.height = imageEl.height;
-      prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-      prev.drawImage(drawCanvasRef.current, 0, 0, imageEl.width, imageEl.height);
+      imageCanvasRef.current.width = backgroundImage.width;
+      imageCanvasRef.current.height = backgroundImage.height;
+      prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
     });
   }
 
@@ -210,11 +211,17 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     }
   }, [socket, socketOpen, user.id]);
 
+  const loadSpinner = () => {
+    socket.emit('savingMeeting', {meetingId: meetingId});
+    setLoading(true);
+    endMeeting();
+  };
+
   const endMeeting = () => {
     console.log('meeting ended');
     mergeWithImage();
     let dataURL = "";
-    if (imageEl.width === 0) {
+    if (backgroundImage.width === 0) {
       dataURL = drawCanvasRef.current.toDataURL();
     } else {
       dataURL = imageCanvasRef.current.toDataURL();
@@ -224,22 +231,21 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       endTime: new Date(Date.now()),
       image: dataURL
     });
+
   }
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
-
     setImageCtx(prev => {
 
       imageCanvasRef.current.width = window.innerWidth;
-      // imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
-      imageCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+      imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       prev = imageCanvasRef.current.getContext('2d');
-      prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
       dispatch({ type: REDRAW })
     });
-  }, [imageCtx, isLoaded, imageEl, initialPixels, imageEl.height]);
+  }, [imageCtx, imageLoaded, backgroundImage, initialPixels]);
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
@@ -311,5 +317,5 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         End Meeting
         </Button>}
     </div>
-  );
+  )
 }

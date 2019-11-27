@@ -9,7 +9,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
 
-
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
@@ -56,7 +55,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels, pixelColor }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading, pixelColor }) {
 
   const classes = useStyles();
 
@@ -70,6 +69,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [highlighting, setHighlighting] = useState(false);
 
   // const backgroundCanvas = useRef(null);
+
 
   const textareaRef = useRef(null);
 
@@ -87,13 +87,23 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   useEffect(() => {
+
+    socket.on('loadTheSpinnerPls', () => {
+      setLoading(true);
+    });
+
     socket.on('requestNotes', res => {
+      setLoading(true);
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
+
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
       setMeetingId(null);
-    })
+      setBackgroundImage(new Image());
+      setLoading(false);
+    });
+
     return () => {
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
@@ -114,52 +124,54 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     }
   }, [writeMode])
 
-  return (
-    imageLoaded &&
-    <div className={classes.root}>
-      <CanvasDrawer
-        user={user}
-        socket={socket}
-        socketOpen={socketOpen}
-        meetingId={meetingId}
-        setMode={setMode}
-        setInMeeting={setInMeeting}
-        setWriteMode={setWriteMode}
-        setStrokeWidth={setStrokeWidth}
-        setHighlighting={setHighlighting}
-      />
-      <Canvas
-        user={user}
-        ownerId={ownerId}
-        socket={socket}
-        socketOpen={socketOpen}
-        imageEl={backgroundImage}
-        isLoaded={imageLoaded}
-        meetingId={meetingId}
-        initialPixels={initialPixels}
-        pixelColor={pixelColor}
-        strokeWidth={strokeWidth}
-        highlighting={highlighting}
-      />
-      {writeMode &&
-        <div className={classes.center}>
-          <TextareaAutosize
-            ref={textareaRef}
-            aria-label='empty textarea'
-            placeholder='Empty'
-            defaultValue={meetingNotes}
-            className={classes.textareaAutosize}
-            onChange={event => handleInput(event)}
-            onFocus={handleCaret}
-          />
-          <InputIcon onClick={() => setWriteMode(prev => !prev)} />
-        </div>
-      }
-      {saving &&
-        <div className={classes.saving}>
-          <CircularProgress />
-        </div>
-      }
-    </div>
-  )
+    return (
+      imageLoaded && <div className={classes.root}>
+        <CanvasDrawer
+          user={user}
+          socket={socket}
+          socketOpen={socketOpen}
+          meetingId={meetingId}
+          setMode={setMode}
+          setImageLoaded={setImageLoaded}
+          setInMeeting={setInMeeting}
+          setWriteMode={setWriteMode}
+          setStrokeWidth={setStrokeWidth}
+          setHighlighting={setHighlighting}
+        />
+        <Canvas
+          user={user}
+          ownerId={ownerId}
+          socket={socket}
+          socketOpen={socketOpen}
+          backgroundImage={backgroundImage}
+          setBackgroundImage={setBackgroundImage}
+          imageLoaded={imageLoaded}
+          meetingId={meetingId}
+          initialPixels={initialPixels}
+          setLoading={setLoading}
+          pixelColor={pixelColor}
+          strokeWidth={strokeWidth}
+          highlighting={highlighting}
+        />
+        {writeMode &&
+          <div className={classes.center}>
+            <TextareaAutosize
+              ref={textareaRef}
+              aria-label='empty textarea'
+              placeholder='Empty'
+              defaultValue={meetingNotes}
+              className={classes.textareaAutosize}
+              onChange={event => handleInput(event)}
+              onFocus={handleCaret}
+            />
+            <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+          </div>
+        }
+        {saving &&
+          <div className={classes.saving}>
+            <CircularProgress color='secondary' />
+          </div>
+        }
+      </div>
+    )
 }

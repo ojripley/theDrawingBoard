@@ -53,7 +53,7 @@ export default function FormDialog(props) {
   };
 
   return (
-    <div>
+    <>
       <Button id='create-new-meeting' variant="outlined" color="secondary" onClick={() => setOpen(true)}>
         Create New Meeting
       </Button>
@@ -87,6 +87,6 @@ export default function FormDialog(props) {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }

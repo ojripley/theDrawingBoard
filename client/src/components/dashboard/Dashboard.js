@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import './Dashboard.scss';
 
+import Container from '@material-ui/core/Container';
 import MeetingCard from './MeetingCard';
 import FormDialog from './FormDialog';
 import Typography from '@material-ui/core/Typography';
@@ -86,6 +87,7 @@ export default function Dashboard(props) {
           setImageLoaded={props.setImageLoaded}
           setInitialPixels={props.setInitialPixels}
           setMeetingNotes={props.setMeetingNotes}
+          setLoading={props.setLoading}
           setPixelColor={props.setPixelColor}
         />
       </li>
@@ -94,16 +96,17 @@ export default function Dashboard(props) {
 
   return (
     <>
-      <Typography id='page-header' variant='h2' color='primary'>Upcoming Meetings</Typography>
-      <Divider />
-      <ul className='meeting-list'>
-        {meetingsList}
-      </ul>
       <FormDialog
         socket={props.socket}
         socketOpen={props.socketOpen}
         user={currentUser}
       />
+      <div>
+        <Typography id='page-header' variant='h2' color='primary'>Upcoming Meetings</Typography>
+        <Divider />
+      </div>
+      {meetings.length < 1 ? <p className='app-message'>You have no meetings scheduled!</p>
+        : <ul className='meeting-list'>{meetingsList}</ul>}
     </>
   );
 }

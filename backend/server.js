@@ -161,6 +161,8 @@ io.on('connection', (client) => {
       } catch (err) {
         console.error('Cookie authentication failed!');
       }
+    } else {
+      client.emit('cookieResponse', null);
     }
   });
 
@@ -438,6 +440,10 @@ io.on('connection', (client) => {
   });
 
   // gotta handle the end meeting event
+  client.on('savingMeeting', data => {
+    io.to(data.meetingId).emit('loadTheSpinnerPls');
+  })
+
   client.on('endMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
