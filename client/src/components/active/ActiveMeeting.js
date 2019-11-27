@@ -57,9 +57,13 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels, pixelColor }) {
+
+  const classes = useStyles();
+
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
   const [writeMode, setWriteMode] = useState(false);
+
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
   const [strokeWidth, setStrokeWidth] = useState(1);
@@ -69,7 +73,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const textareaRef = useRef(null);
 
-  const classes = useStyles();
 
   const handleInput = (e) => {
     console.log(e.target.value)

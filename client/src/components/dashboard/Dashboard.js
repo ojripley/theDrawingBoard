@@ -4,7 +4,8 @@ import './Dashboard.scss';
 
 import MeetingCard from './MeetingCard';
 import FormDialog from './FormDialog';
-
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 export default function Dashboard(props) {
 
@@ -25,17 +26,17 @@ export default function Dashboard(props) {
 
       props.socket.on('itWorkedThereforeIPray', data => {
         console.log('new meeting', data);
-        setMeetings(prev => [...prev, data]);
+        setMeetings(prev => {
+          const newMeetings = [...prev, data].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+          console.log(newMeetings)
+          return newMeetings;
+        });
       });
 
       props.socket.on('meetingDeleted', (res) => {
         console.log('meeting deleted', res);
         setMeetings(prev => prev.filter(meeting => meeting.id !== res.id));
       });
-
-      // props.socket.on('meetingStarted', () => {
-
-      // })
 
       return () => {
         props.socket.off('meetings');
@@ -45,16 +46,9 @@ export default function Dashboard(props) {
     }
   }, [props.socket, props.socketOpen, currentUser.username]);
 
-  // const startMeeting = () => {
-  //   props.socket.emit('startMeeting', {id: props.id});
-  // };
-  // console.log('meetings:', meetings)
   const meetingsList = meetings.map(meeting => {
 
     const attendees = [];
-
-
-
 
     for (let i = 0; i < meeting.attendee_ids.length; i++) {
       if (meeting.attendee_ids[i] === props.user.id) {
@@ -67,24 +61,7 @@ export default function Dashboard(props) {
           attendance: meeting.attendances[i]
         }
       )
-    }
-
-
-
-
-
-    // for (let [index, id] of meeting.attendee_ids) {
-    //   if (id === props.user.id) {
-    //     currentUser['attendance'] = meeting.attendances[index];
-    //   }
-    //   attendees.push(
-    //     {
-    //       id: id,
-    //       username: meeting.invited_users[index],
-    //       attendance: meeting.attendances[index]
-    //     }
-    //   )
-    // }
+    };
 
     return (
       <li className='meeting-list-item' key={meeting.id}>
@@ -116,16 +93,17 @@ export default function Dashboard(props) {
   });
 
   return (
-    <div>
-      <h1>Upcoming Meetings</h1>
+    <>
+      <Typography id='page-header' variant='h2' color='primary'>Upcoming Meetings</Typography>
+      <Divider />
+      <ul className='meeting-list'>
+        {meetingsList}
+      </ul>
       <FormDialog
         socket={props.socket}
         socketOpen={props.socketOpen}
         user={currentUser}
       />
-      <ul className='meeting-list'>
-        {meetingsList}
-      </ul>
-    </div>
+    </>
   );
 }

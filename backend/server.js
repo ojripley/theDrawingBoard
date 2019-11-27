@@ -81,8 +81,10 @@ const notify = function(userId, notification) {
   notification.userId = userId;
 
   if (notification.type === 'meeting') {
+    console.log(notification);
     db.insertMeetingNotification(userId, notification)
       .then(res => {
+        console.log(res);
         notification.id = res[0].id;
         notification.time = res[0].time;
 
@@ -203,7 +205,6 @@ io.on('connection', (client) => {
 
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
-    // console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   })
 
@@ -471,13 +472,14 @@ io.on('connection', (client) => {
     fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
       if (err) throw err;
       console.log('The file has been saved!');
+      console.log(`markup_${img}`);
       db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
     });
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
     for (let id of meetingDetails.invited_users) {
-      notify(activeUsers[id], { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${data.meetingName} has ended! You may check the details in History`, meetingId: meetingDetails.name });
+      notify(activeUsers[id].id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
     }
     activeMeetings.removeMeeting(data.meetingId);
 
@@ -485,6 +487,7 @@ io.on('connection', (client) => {
   });
 
   client.on('notes', (data) => {
+    console.log('getting notes from', data);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
@@ -554,7 +557,6 @@ io.on('connection', (client) => {
       .then(() => {
         for (let contactId of data.attendeeIds) {
           if (activeUsers[contactId]) {
-            // console.log(`${contactId} should now rerender`);
             activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
           }
         }
@@ -587,7 +589,6 @@ io.on('connection', (client) => {
   });
 
   client.on('undoLine', (data) => {
-    console.log(`the client ${data.user.username} would like to undo their last drawn line in meeting ${data.meetingId}`);
 
     if (activeMeetings[data.meetingId]) {
       const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];

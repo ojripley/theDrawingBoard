@@ -1,6 +1,55 @@
+@import '../../theme/variables';
+
 .meeting-list {
   padding-left: 0;
 }
+
 .meeting-list-item {
   list-style-type: none;
+}
+
+#create-new-meeting {
+  width: 94%;
+  max-width: 1024px;
+  position: fixed;
+  bottom: 70px;
+}
+
+#create-new-meeting:hover {
+  background-color: $color-5-hex;
+  color: $color-4-hex;
+}
+
+#upload-initial-doc + label:hover {
+  cursor: pointer;
+}
+
+#upload-initial-doc + label * {
+  pointer-events: none;
+}
+
+#owner-controls {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+}
+
+#owner-controls button {
+  margin: 0;
+  margin-top: 1em;
+}
+
+.attendees {
+  list-style-type: none;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+}
+
+.accepted {
+  color: $color-2-hex;
+  font-weight: 600;
 }
