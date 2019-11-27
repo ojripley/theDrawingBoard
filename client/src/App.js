@@ -41,67 +41,7 @@ export default function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
-  // const [notificationList, setNotificationList] = useState([]);
-  const [notificationList, setNotificationList] = useState(
-    [
-      {
-        id: 1,
-        userId: 1,
-        type: "meeting",
-        meetingId: 0,
-        title: "example",
-        msg: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 2,
-        userId: 1,
-        type: "meeting",
-        title: "example2",
-        msg: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 3,
-        type: "meeting",
-        title: "example3",
-        message: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 4,
-        type: "contacts",
-        title: "new contact",
-        message: "you have a new contact",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 5,
-        type: "contacts",
-        title: "accepted your friend request",
-        message: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 7,
-        userId: 4, //id, email
-        type: "contacts",
-        senderId: 0, //Either an id or
-        title: "Friend added",
-        msg: "Someone has added you",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 8,
-        userId: 2, //id, email
-        type: "dm",
-        senderId: 0, //Either an id or
-        title: "New message from ...",
-        msg: "...",
-        time: (new Date()).toLocaleDateString()
-      },
-
-    ]);
+  const [notificationList, setNotificationList] = useState([]);
 
   useEffect(() => {
     console.log('loading', loading)
@@ -155,74 +95,6 @@ export default function App() {
       }
     }
   }, [socket, socketOpen, setLoading]);
-
-  // if (user) {
-  //   if (inMeeting) {
-  //     return (
-  //       <ThemeProvider theme={theme}>
-  //         <ActiveMeeting
-  //           meetingId={meetingId}
-  //           ownerId={ownerId}
-  //           user={user}
-  //           socket={socket}
-  //           socketOpen={socketOpen}
-  //           initialNotes={meetingNotes}
-  //           setMeetingNotes={setMeetingNotes}
-  //           setInMeeting={setInMeeting}
-  //           setMeetingId={setMeetingId}
-  //           imageLoaded={imageLoaded}
-  //           backgroundImage={backgroundImage}
-  //           setMode={setMode}
-  //           initialPixels={initialPixels}
-  //         />
-  //       </ThemeProvider>
-  //     );
-  //   } else {
-  //     return (
-  //       <ThemeProvider theme={theme}>
-  //         <ReactNotification />
-  //         <NavBar user={user} setUser={setUser} setMode={setMode}/>
-  //         <div id='app-container'>
-
-  //           {mode === DASHBOARD &&
-  //             <Dashboard
-  //               socket={socket}
-  //               socketOpen={socketOpen}
-  //               user={user}
-  //               setInMeeting={setInMeeting}
-  //               setMeetingId={setMeetingId}
-  //               setMeetingNotes={setMeetingNotes}
-  //               setOwnerId={setOwnerId}
-  //               setBackgroundImage={setBackgroundImage}
-  //               setImageLoaded={setImageLoaded}
-  //               setInitialPixels={setInitialPixels}
-  //             />}
-  //           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-  //           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-  //           {mode === NOTIFICATIONS &&
-  //             <Notifications
-  //               socket={socket}
-  //               socketOpen={socketOpen}
-  //               user={user}
-  //               notificationList={notificationList}
-  //               setNotificationList={setNotificationList}
-  //               setMode={setMode}
-  //             />}
-
-  //         </div>
-  //         <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-  //       </ThemeProvider>
-  //     );
-  //   }
-  // } else {
-  //   return (
-  //     <ThemeProvider theme={theme}>
-  //       <NavBar user={null} />
-  //       <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-  //     </ThemeProvider>
-  //   );
-
-  // }
 
   return (
     <>
@@ -289,5 +161,3 @@ export default function App() {
     </>
   )
 }
-
-// loading ? <Loading /> :
