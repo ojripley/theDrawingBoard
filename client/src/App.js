@@ -239,6 +239,7 @@ export default function App() {
             setInMeeting={setInMeeting}
             setMeetingId={setMeetingId}
             imageLoaded={imageLoaded}
+            setImageLoaded={setImageLoaded}
             backgroundImage={backgroundImage}
             setBackgroundImage={setBackgroundImage}
             setMode={setMode}

@@ -82,6 +82,7 @@ export default function CanvasDrawer(props) {
   };
 
   const backToDash = () => {
+    props.setImageLoaded(false);
     props.setInMeeting(false);
     props.setMode('DASHBOARD');
   };

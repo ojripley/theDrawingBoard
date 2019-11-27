@@ -70,7 +70,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ backgroundImage, setBackgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -87,7 +87,7 @@ export default function Canvas({ backgroundImage, setBackgroundImage, imageLoade
   let [paint, setPaint] = useState(false);
   // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
-  const [, dispatch] = useReducer(reducer, {
+  const [_, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: undefined
   });
@@ -95,6 +95,7 @@ export default function Canvas({ backgroundImage, setBackgroundImage, imageLoade
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();
+
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {

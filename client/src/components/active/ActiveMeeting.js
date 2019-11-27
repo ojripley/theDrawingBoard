@@ -56,7 +56,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, setBackgroundImage, initialPixels }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels }) {
 
   const classes = useStyles();
 
@@ -120,6 +120,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           socketOpen={socketOpen}
           meetingId={meetingId}
           setMode={setMode}
+          setImageLoaded={setImageLoaded}
           setInMeeting={setInMeeting}
           setWriteMode={setWriteMode}
         />
