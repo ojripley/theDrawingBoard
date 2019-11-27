@@ -43,31 +43,29 @@ export default function NavBar(props) {
   };
 
   return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-            <MenuIcon />
-          </IconButton> */}
-          <Typography variant="h6" className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
-            The Drawing Board
-          </Typography>
-          {props.user && (
-            <>
-              <Button
-                color="inherit"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleLogout}
-                classes={{ root: classes.button }}
-              >
-                Logout
-              </Button>
-          </>
-          )}
-        </Toolbar>
-      </AppBar>
-    </div>
+    <AppBar position="static">
+      <Toolbar>
+        {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+          <MenuIcon />
+        </IconButton> */}
+        <Typography variant="h6" className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
+          The Drawing Board
+        </Typography>
+        {props.user && (
+          <>
+            <Button
+              color="inherit"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleLogout}
+              classes={{ root: classes.button }}
+            >
+              Logout
+            </Button>
+        </>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 }

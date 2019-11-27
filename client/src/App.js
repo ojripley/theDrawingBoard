@@ -28,6 +28,7 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const NOTIFICATIONS = 'NOTIFICATIONS';
   const [mode, setMode] = useState(DASHBOARD);
+  const [loading, setLoading] = useState(true);
 
   const { socket, socketOpen } = useSocket();
 
@@ -141,7 +142,9 @@ export default function App() {
 
       socket.on('cookieResponse', data => {
         setUser(data);
+        setLoading(false);
       });
+
       return () => {
         socket.off('cookieResponse');
         socket.off('meeting');
@@ -149,11 +152,82 @@ export default function App() {
     }
   }, [socket, socketOpen]);
 
-  if (user) {
-    if (inMeeting) {
-      return (
-        <ThemeProvider theme={theme}>
-          <ActiveMeeting
+  // if (user) {
+  //   if (inMeeting) {
+  //     return (
+  //       <ThemeProvider theme={theme}>
+  //         <ActiveMeeting
+  //           meetingId={meetingId}
+  //           ownerId={ownerId}
+  //           user={user}
+  //           socket={socket}
+  //           socketOpen={socketOpen}
+  //           initialNotes={meetingNotes}
+  //           setMeetingNotes={setMeetingNotes}
+  //           setInMeeting={setInMeeting}
+  //           setMeetingId={setMeetingId}
+  //           imageLoaded={imageLoaded}
+  //           backgroundImage={backgroundImage}
+  //           setMode={setMode}
+  //           initialPixels={initialPixels}
+  //         />
+  //       </ThemeProvider>
+  //     );
+  //   } else {
+  //     return (
+  //       <ThemeProvider theme={theme}>
+  //         <ReactNotification />
+  //         <NavBar user={user} setUser={setUser} setMode={setMode}/>
+  //         <div id='app-container'>
+
+  //           {mode === DASHBOARD &&
+  //             <Dashboard
+  //               socket={socket}
+  //               socketOpen={socketOpen}
+  //               user={user}
+  //               setInMeeting={setInMeeting}
+  //               setMeetingId={setMeetingId}
+  //               setMeetingNotes={setMeetingNotes}
+  //               setOwnerId={setOwnerId}
+  //               setBackgroundImage={setBackgroundImage}
+  //               setImageLoaded={setImageLoaded}
+  //               setInitialPixels={setInitialPixels}
+  //             />}
+  //           {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+  //           {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+  //           {mode === NOTIFICATIONS &&
+  //             <Notifications
+  //               socket={socket}
+  //               socketOpen={socketOpen}
+  //               user={user}
+  //               notificationList={notificationList}
+  //               setNotificationList={setNotificationList}
+  //               setMode={setMode}
+  //             />}
+
+  //         </div>
+  //         <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
+  //       </ThemeProvider>
+  //     );
+  //   }
+  // } else {
+  //   return (
+  //     <ThemeProvider theme={theme}>
+  //       <NavBar user={null} />
+  //       <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+  //     </ThemeProvider>
+  //   );
+
+  // }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <NavBar user={user} setUser={setUser} setMode={setMode}/>
+
+      {!user ?
+        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+        : inMeeting ?
+        <ActiveMeeting
             meetingId={meetingId}
             ownerId={ownerId}
             user={user}
@@ -168,53 +242,42 @@ export default function App() {
             setMode={setMode}
             initialPixels={initialPixels}
           />
-        </ThemeProvider>
-      );
-    } else {
-      return (
-        <ThemeProvider theme={theme}>
-          <ReactNotification />
-          <NavBar user={user} setUser={setUser} setMode={setMode}/>
-          <div id='app-container'>
+          : <>
+            <div id='app-container'>
+            <ReactNotification />
 
-            {mode === DASHBOARD &&
-              <Dashboard
-                socket={socket}
-                socketOpen={socketOpen}
-                user={user}
-                setInMeeting={setInMeeting}
-                setMeetingId={setMeetingId}
-                setMeetingNotes={setMeetingNotes}
-                setOwnerId={setOwnerId}
-                setBackgroundImage={setBackgroundImage}
-                setImageLoaded={setImageLoaded}
-                setInitialPixels={setInitialPixels}
-              />}
-            {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-            {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-            {mode === NOTIFICATIONS &&
-              <Notifications
-                socket={socket}
-                socketOpen={socketOpen}
-                user={user}
-                notificationList={notificationList}
-                setNotificationList={setNotificationList}
-                setMode={setMode}
-              />}
+              {mode === DASHBOARD &&
+                <Dashboard
+                  socket={socket}
+                  socketOpen={socketOpen}
+                  user={user}
+                  setInMeeting={setInMeeting}
+                  setMeetingId={setMeetingId}
+                  setMeetingNotes={setMeetingNotes}
+                  setOwnerId={setOwnerId}
+                  setBackgroundImage={setBackgroundImage}
+                  setImageLoaded={setImageLoaded}
+                  setInitialPixels={setInitialPixels}
+                />}
+              {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+              {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+              {mode === NOTIFICATIONS &&
+                <Notifications
+                  socket={socket}
+                  socketOpen={socketOpen}
+                  user={user}
+                  notificationList={notificationList}
+                  setNotificationList={setNotificationList}
+                  setMode={setMode}
+                />}
 
-          </div>
+            </div>
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-        </ThemeProvider>
+        </>
+      }
 
-      );
-    }
-  } else {
-    return (
-      <ThemeProvider theme={theme}>
-        <NavBar user={null} />
-        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </ThemeProvider>
-    );
-
-  }
+    </ThemeProvider>
+  )
 }
+
+// loading ? <Loading /> :
