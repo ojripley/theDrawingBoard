@@ -40,10 +40,7 @@ const clearMeetingData = function() {
   console.log(`Cleaning ./meeting_files`);
   fs.emptyDirSync('./meeting_files');
 
-  let data = `# Ignore everything in this directory
-  *
-  # Except this file
-  !.gitignore`;
+  let data = `# Ignore everything in this directory\n*\n# Except this file\n!.gitignore\n`;
 
   fs.writeFile('./meeting_files/.gitignore', data, (err) => {
     if (err) throw err;

@@ -75,7 +75,6 @@ export default function CanvasDrawer(props) {
 
   const handleClick = event => {
     setAnchorEl(event.currentTarget);
-    debugger;
   };
 
   const handleClose = () => {

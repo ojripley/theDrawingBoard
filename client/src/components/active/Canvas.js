@@ -213,8 +213,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const endMeeting = () => {
     console.log('meeting ended');
     mergeWithImage();
-    let dataURL = imageCanvasRef.current.toDataURL();
-
+    let dataURL = "";
+    if (imageEl.width === 0) {
+      dataURL = drawCanvasRef.current.toDataURL();
+    } else {
+      dataURL = imageCanvasRef.current.toDataURL();
+    }
     socket.emit('endMeeting', {
       meetingId: meetingId,
       endTime: new Date(Date.now()),
