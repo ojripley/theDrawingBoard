@@ -8,7 +8,6 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
-import Loading from '../Loading';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -56,7 +55,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading, pixelColor }) {
 
   const classes = useStyles();
 
@@ -66,6 +65,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
+  const [strokeWidth, setStrokeWidth] = useState(1);
+  const [highlighting, setHighlighting] = useState(false);
+
   // const backgroundCanvas = useRef(null);
 
 
@@ -120,7 +122,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [ writeMode])
+  }, [writeMode])
 
     return (
       imageLoaded && <div className={classes.root}>
@@ -133,6 +135,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           setImageLoaded={setImageLoaded}
           setInMeeting={setInMeeting}
           setWriteMode={setWriteMode}
+          setStrokeWidth={setStrokeWidth}
+          setHighlighting={setHighlighting}
         />
         <Canvas
           user={user}
@@ -145,6 +149,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           meetingId={meetingId}
           initialPixels={initialPixels}
           setLoading={setLoading}
+          pixelColor={pixelColor}
+          strokeWidth={strokeWidth}
+          highlighting={highlighting}
         />
         {writeMode &&
           <div className={classes.center}>

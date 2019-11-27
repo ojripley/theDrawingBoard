@@ -40,6 +40,7 @@ export default function App() {
   const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
+  const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
 
@@ -122,6 +123,7 @@ export default function App() {
               setMode={setMode}
               initialPixels={initialPixels}
               setLoading={setLoading}
+              pixelColor={pixelColor}
               />
             : <>
               <div id='app-container'>
@@ -140,6 +142,7 @@ export default function App() {
                     setInitialPixels={setInitialPixels}
                     loading={loading}
                     setLoading={setLoading}
+                    setPixelColor={setPixelColor}
                   />}
                 {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
                 {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}

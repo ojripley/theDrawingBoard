@@ -2,7 +2,9 @@
 require('dotenv').config();
 
 // other dependencies
-const fs = require('fs');
+// const fs = require('fs');
+const fs = require('fs-extra')
+
 const chalk = require('chalk');
 const Client = require('pg-native');
 
@@ -34,11 +36,24 @@ const runSeedFiles = function() {
   }
 };
 
+const clearMeetingData = function() {
+  console.log(`Cleaning ./meeting_files`);
+  fs.emptyDirSync('./meeting_files');
+
+  let data = `# Ignore everything in this directory\n*\n# Except this file\n!.gitignore\n`;
+
+  fs.writeFile('./meeting_files/.gitignore', data, (err) => {
+    if (err) throw err;
+    console.log('The gitignore has be rewritten!');
+  });
+}
+
 try {
   console.log(`-> Connecting to PG using ${connectionString} ...`);
   client.connectSync(connectionString);
   runSchemaFiles();
   runSeedFiles();
+  clearMeetingData();
   client.end();
 } catch (err) {
   console.error(chalk.red(`Failed due to error: ${err}`));

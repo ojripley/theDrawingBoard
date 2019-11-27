@@ -88,6 +88,7 @@ export default function Dashboard(props) {
           setInitialPixels={props.setInitialPixels}
           setMeetingNotes={props.setMeetingNotes}
           setLoading={props.setLoading}
+          setPixelColor={props.setPixelColor}
         />
       </li>
     )
