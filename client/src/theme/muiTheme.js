@@ -19,11 +19,27 @@ const theme = createMuiTheme({
       contrastText: '#36363E',
     }
   },
+  typography: {
+    h2: {
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+      fontWeight: 500,
+      fontSize: "1.2em",
+      lineHeight: 1.75,
+      letterSpacing: "0.02857em",
+      textTransform: "uppercase",
+      textAlign: 'center'
+    },
+  },
   overrides: {
     MuiExpansionPanelSummary: {
       content: {
         marginTop: 0,
         marginBottom: 0
+      }
+    },
+    MuiDivider: {
+      root: {
+        backgroundColor: 'rgba(2,104,115, 0.5)',
       }
     }
   }

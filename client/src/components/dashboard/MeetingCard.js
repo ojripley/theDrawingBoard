@@ -23,6 +23,9 @@ const useStyles = makeStyles(theme => ({
   button: {
     margin: 0
   },
+  enterButton: {
+    margin: '1em 0 0'
+  },
   meetingSummary: {
     height: 'auto',
     verticalAlign: 'center',
@@ -231,7 +234,7 @@ export default function MeetingCard({
               attendance={user.attendance}
             />
           }
-          {activeMeeting && <Button variant="contained" color="primary" className={classes.button} onClick={enterMeeting}>
+          {activeMeeting && <Button variant="contained" color="primary" className={classes.enterButton} onClick={enterMeeting}>
             Enter Meeting
           </Button>}
         </ExpansionPanelDetails>

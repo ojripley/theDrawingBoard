@@ -9,7 +9,10 @@
 }
 
 #create-new-meeting {
-  width: 100%;
+  width: 94%;
+  max-width: 1024px;
+  position: fixed;
+  bottom: 70px;
 }
 
 #create-new-meeting:hover {

@@ -143,7 +143,7 @@ export default function Form(props) {
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingNameChange}
-          inputProps={{ maxLength: 100 }}
+          inputProps={{ maxLength: 30 }}
           required
         />
         <TextField
