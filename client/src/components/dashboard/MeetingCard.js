@@ -68,6 +68,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ExpansionPanelSummary = withStyles({
+  root: {},
   content: {
     '&$expanded': {
       margin: '0px 0',
