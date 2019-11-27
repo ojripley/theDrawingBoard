@@ -8,7 +8,7 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
-
+import Loading from '../Loading';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -111,47 +111,52 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     }
   }, [ writeMode])
 
-  return (
-    imageLoaded &&
-    <div className={classes.root}>
-      <CanvasDrawer
-        user={user}
-        socket={socket}
-        socketOpen={socketOpen}
-        meetingId={meetingId}
-        setMode={setMode}
-        setInMeeting={setInMeeting}
-        setWriteMode={setWriteMode}
-      />
-      <Canvas
-        user={user}
-        ownerId={ownerId}
-        socket={socket}
-        socketOpen={socketOpen}
-        imageEl={backgroundImage}
-        isLoaded={imageLoaded}
-        meetingId={meetingId}
-        initialPixels={initialPixels}
-      />
-      {writeMode &&
-        <div className={classes.center}>
-          <TextareaAutosize
-            ref={textareaRef}
-            aria-label='empty textarea'
-            placeholder='Empty'
-            defaultValue={meetingNotes}
-            className={classes.textareaAutosize}
-            onChange={event => handleInput(event)}
-            onFocus={handleCaret}
-          />
-          <InputIcon onClick={() => setWriteMode(prev => !prev)} />
-        </div>
-      }
-      {saving &&
-        <div className={classes.saving}>
-          <CircularProgress />
-        </div>
-      }
-    </div>
-  )
+  if (imageLoaded) {
+    return (
+      <div className={classes.root}>
+        <CanvasDrawer
+          user={user}
+          socket={socket}
+          socketOpen={socketOpen}
+          meetingId={meetingId}
+          setMode={setMode}
+          setInMeeting={setInMeeting}
+          setWriteMode={setWriteMode}
+        />
+        <Canvas
+          user={user}
+          ownerId={ownerId}
+          socket={socket}
+          socketOpen={socketOpen}
+          imageEl={backgroundImage}
+          isLoaded={imageLoaded}
+          meetingId={meetingId}
+          initialPixels={initialPixels}
+        />
+        {writeMode &&
+          <div className={classes.center}>
+            <TextareaAutosize
+              ref={textareaRef}
+              aria-label='empty textarea'
+              placeholder='Empty'
+              defaultValue={meetingNotes}
+              className={classes.textareaAutosize}
+              onChange={event => handleInput(event)}
+              onFocus={handleCaret}
+            />
+            <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+          </div>
+        }
+        {saving &&
+          <div className={classes.saving}>
+            <CircularProgress color='secondary' />
+          </div>
+        }
+      </div>
+    )
+  } else {
+    return (
+      <Loading />
+    )
+  }
 }

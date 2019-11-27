@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
-import Container from '@material-ui/core/Box';
 import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
 import { store } from 'react-notifications-component';
@@ -12,6 +11,7 @@ import ThemeProvider from '@material-ui/styles/ThemeProvider';
 // COMPONENTS
 import TabBar from './TabBar';
 import NavBar from './NavBar';
+import Loading from './components/Loading';
 import ActiveMeeting from './components/active/ActiveMeeting';
 import Notifications from './components/notifications/Notifications';
 import Contacts from './components/contacts/Contacts';
