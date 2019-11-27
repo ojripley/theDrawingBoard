@@ -46,18 +46,28 @@ function reducer(state, action) {
       //Sets the properties (change this part for custom pixel colors)
 
       // state.ctx.strokeStyle = state.color;
-      console.log(state);
+      // console.log(state);
       for (let user in state.pixelArrays) {
         let out = [];
-        console.log(user);
+        // console.log(user);
         // if (Number(user) === 2) continue;
         let pixels = state.pixelArrays[Number(user)];
         // state.ctx.beginPath();
-        state.ctx.strokeStyle = state.color[Number(user)] || "#FF0000";
-        state.ctx.lineJoin = "round";
+        let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b}`
+        // state.ctx.lineJoin = "round";
+        // state.ctx.linecap = "square";
+        state.ctx.globalCopositeOperation = 'multiply'; //for highlighting
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
-          state.ctx.lineWidth = pixels[i].strokeWidth || 1;
+          if (pixels[i].highlighting) {
+            state.ctx.strokeStyle = col + `,0.5)` || "#FF0000";
+            state.ctx.lineWidth = pixels[i].strokeWidth * 2 || 1;
+            state.ctx.lineHeight= pixels[i].strokeWidth * 2 || 1;
+          } else {
+            state.ctx.strokeStyle = col + `,1)` || "#FF0000";
+            state.ctx.lineWidth = pixels[i].strokeWidth || 1;
+          }
+          // pixels[i].highlighting ? console.log("HIIII") : console.log("LOOOO");
           // console.log(state.color[user])
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
             state.ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
@@ -70,7 +80,7 @@ function reducer(state, action) {
           // state.ctx.closePath();//end the line
           out.push(state.color[Number(user)]);
         }
-        console.log(out);
+        // console.log(out);
       }
 
       return { ...state };
@@ -89,7 +99,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, pixelColor, strokeWidth }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, pixelColor, strokeWidth, highlighting }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -119,12 +129,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+      drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
       dispatch({ type: REDRAW });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+    drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -210,14 +220,15 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
 
     setImageCtx(prev => {
+
       imageCanvasRef.current.width = window.innerWidth;
-      imageCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+      imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
       prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
       dispatch({ type: REDRAW })
     });
-  }, [imageCtx, isLoaded, imageEl, initialPixels]);
+  }, [imageCtx, isLoaded, imageEl, initialPixels, imageEl.height]);
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to
@@ -225,7 +236,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       x: x,
       y: y,
       dragging: dragging,
-      strokeWidth: strokeWidth
+      strokeWidth: strokeWidth,
+      highlighting: highlighting
     };
     dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
     dispatch({ type: REDRAW });
@@ -247,7 +259,13 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      let pixel = { x: mouseX, y: mouseY, dragging: true, strokeWidth: strokeWidth };
+      let pixel = {
+        x: mouseX,
+        y: mouseY,
+        dragging: true,
+        strokeWidth: strokeWidth,
+        highlighting: highlighting
+      };
       mapToRelativeUnits(pixel);
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
     }

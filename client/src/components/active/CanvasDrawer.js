@@ -57,6 +57,7 @@ export default function CanvasDrawer(props) {
 
   const handleStrokeWidth = n => {
     props.setStrokeWidth(n);
+    props.setHighlighting(false);
     handleClose();
   }
 
@@ -78,11 +79,11 @@ export default function CanvasDrawer(props) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleStrokeWidth(1)}>Small</MenuItem>
-              <MenuItem onClick={() => handleStrokeWidth(2)}>Medium</MenuItem>
-              <MenuItem onClick={() => handleStrokeWidth(3)}>Large</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(2)}>Small</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(4)}>Medium</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(8)}>Large</MenuItem>
             </Menu>
-            <ListItem button>Highlighter</ListItem>
+            <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem>
             <ListItem button>Pointer</ListItem>
           </List>
           <Divider />
