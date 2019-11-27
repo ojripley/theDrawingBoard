@@ -54,7 +54,7 @@ function reducer(state, action) {
         let pixels = state.pixelArrays[Number(user)];
         // state.ctx.beginPath();
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
-        let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.3)`
+        let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.1)`
         state.ctx.lineJoin = "round";
         state.ctx.globalCompositionOperation = 'multiply'; //for highlighting
 
@@ -62,18 +62,15 @@ function reducer(state, action) {
           state.ctx.beginPath(); //start drawing a single line
           if (pixels[i].highlighting) {
             // console.log("lighting")
-            state.ctx.lineCap = 'round';
-
+            // state.ctx.globalAlpha = 0.2;
+            state.ctx.lineCap = 'butt';
             state.ctx.strokeStyle = highlightCol;
-            state.ctx.lineWidth = pixels[i].strokeWidth * 2 || 1;
-            state.ctx.lineHeight = pixels[i].strokeWidth * 2 || 1;
           } else {
             // console.log("not lighting")
             state.ctx.lineCap = 'round';
-
             state.ctx.strokeStyle = col;
-            state.ctx.lineWidth = pixels[i].strokeWidth || 1;
           }
+          state.ctx.lineWidth = pixels[i].strokeWidth || 1;
           // pixels[i].highlighting ? console.log("HIIII") : console.log("LOOOO");
           // console.log(state.color[user])
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
