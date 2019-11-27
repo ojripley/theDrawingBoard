@@ -175,7 +175,7 @@ export default function App() {
         <ThemeProvider theme={theme}>
           <ReactNotification />
           <NavBar user={user} setUser={setUser} setMode={setMode}/>
-          <Container>
+          <div id='app-container'>
 
             {mode === DASHBOARD &&
               <Dashboard
@@ -202,7 +202,7 @@ export default function App() {
                 setMode={setMode}
               />}
 
-          </Container>
+          </div>
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </ThemeProvider>
 

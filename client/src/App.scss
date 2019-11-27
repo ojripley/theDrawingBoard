@@ -1,7 +1,11 @@
-.MuiBox-root {
+#app-container {
   padding-bottom: 56px;
   width: 94%;
   max-width: 1024px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: flex-start;
 }
 
 .makeStyles-title-203:hover {
