@@ -349,7 +349,8 @@ io.on('connection', (client) => {
 
             // set meeting pixel log
             meeting['userPixels'] = {};
-            meeting['userColors'] = ['#00000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
+            meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
+            // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['counter'] = 0;
             meeting['colorMapping'] = {};
 
@@ -409,7 +410,7 @@ io.on('connection', (client) => {
             client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
             client.join(data.meetingId);
-            io.to(data.meetingId).emit('newParticipant', (data.user));
+            io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
           });
       });
     } else {

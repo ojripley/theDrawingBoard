@@ -47,10 +47,12 @@ function reducer(state, action) {
       // state.ctx.strokeStyle = state.color;
       console.log(state);
       for (let user in state.pixelArrays) {
+        let out = [];
         console.log(user);
-        let pixels = state.pixelArrays[user];
+        // if (Number(user) === 2) continue;
+        let pixels = state.pixelArrays[Number(user)];
         // state.ctx.beginPath();
-        state.ctx.strokeStyle = state.color[user] || "#FF0000";
+        state.ctx.strokeStyle = state.color[Number(user)] || "#FF0000";
         state.ctx.lineJoin = "round";
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
@@ -65,7 +67,9 @@ function reducer(state, action) {
           // state.ctx.save();
           state.ctx.stroke();//draw the line
           // state.ctx.closePath();//end the line
+          out.push(state.color[Number(user)]);
         }
+        console.log(out);
       }
 
       return { ...state };
