@@ -176,40 +176,7 @@ export default function App() {
       return (
         <ThemeProvider theme={theme}>
           <ReactNotification />
-<<<<<<< HEAD
-
-      <NavBar user={user} setUser={setUser} />
-      {
-      mode === DASHBOARD &&
-        <Dashboard
-          socket={socket}
-          socketOpen={socketOpen}
-          user={user}
-          setInMeeting={setInMeeting}
-          setMeetingId={setMeetingId}
-          setMeetingNotes={setMeetingNotes}
-          setOwnerId={setOwnerId}
-          setBackgroundImage={setBackgroundImage}
-          setImageLoaded={setImageLoaded}
-          setInitialPixels={setInitialPixels}
-          setPixelColor={setPixelColor}
-        />
-      }
-      { mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} /> }
-      { mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} /> }
-      {
-      mode === NOTIFICATIONS &&
-        <Notifications
-          socket={socket}
-          socketOpen={socketOpen}
-          user={user}
-          notificationList={notificationList}
-          setNotificationList={setNotificationList}
-          setMode={setMode}
-        />
-      }
-=======
-          <NavBar user={user} setUser={setUser} setMode={setMode}/>
+          <NavBar user={user} setUser={setUser} setMode={setMode} />
           <Container>
 
             {mode === DASHBOARD &&
@@ -224,6 +191,8 @@ export default function App() {
                 setBackgroundImage={setBackgroundImage}
                 setImageLoaded={setImageLoaded}
                 setInitialPixels={setInitialPixels}
+                setPixelColor={setPixelColor}
+
               />}
             {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
             {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
@@ -238,8 +207,7 @@ export default function App() {
               />}
 
           </Container>
->>>>>>> master
-      <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
+          <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </ThemeProvider >
 
       );

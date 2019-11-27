@@ -53,18 +53,19 @@ function reducer(state, action) {
         // if (Number(user) === 2) continue;
         let pixels = state.pixelArrays[Number(user)];
         // state.ctx.beginPath();
-        let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b}`
+        let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
+        let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.5)`
         // state.ctx.lineJoin = "round";
         // state.ctx.linecap = "square";
-        state.ctx.globalCopositeOperation = 'multiply'; //for highlighting
+        // state.ctx.globalCopositeOperation = 'multiply'; //for highlighting
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
           if (pixels[i].highlighting) {
-            state.ctx.strokeStyle = col + `,0.5)` || "#FF0000";
+            state.ctx.strokeStyle = col;
             state.ctx.lineWidth = pixels[i].strokeWidth * 2 || 1;
-            state.ctx.lineHeight= pixels[i].strokeWidth * 2 || 1;
+            state.ctx.lineHeight = pixels[i].strokeWidth * 2 || 1;
           } else {
-            state.ctx.strokeStyle = col + `,1)` || "#FF0000";
+            state.ctx.strokeStyle = highlightCol;
             state.ctx.lineWidth = pixels[i].strokeWidth || 1;
           }
           // pixels[i].highlighting ? console.log("HIIII") : console.log("LOOOO");
@@ -129,12 +130,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
+      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width)
       dispatch({ type: REDRAW });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
+    drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -222,7 +223,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     setImageCtx(prev => {
 
       imageCanvasRef.current.width = window.innerWidth;
-      imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
+      // imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width
+      imageCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
       prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
