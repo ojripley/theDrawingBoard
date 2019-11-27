@@ -55,6 +55,7 @@ export default function MeetingCard({
   setImageLoaded,
   setInitialPixels,
   setMeetingNotes,
+  setPixelColor
 }) {
 
   const classes = useStyles();
@@ -78,13 +79,14 @@ export default function MeetingCard({
     if (socketOpen) {
 
       socket.on('enteredMeeting', data => {
-        // console.log('Meeting is: ', res);
-        let res = data.meeting;
+
+        let res = data.meeting; //can send this object instead
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
-        console.log(data.notes);
         setMeetingNotes(data.notes);
         setInMeeting(true);
+        console.log(res['colorMapping']);
+        setPixelColor(res['colorMapping']);
 
         if (data.image) {//if image
           console.log("there is an image")

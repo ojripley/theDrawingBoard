@@ -43,23 +43,28 @@ function reducer(state, action) {
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;
       //Sets the properties (change this part for custom pixel colors)
-      state.ctx.lineJoin = "round";
-      state.ctx.lineWidth = 2;
-      state.ctx.strokeStyle = '#00000';
 
+      // state.ctx.strokeStyle = state.color;
+      console.log(state);
       for (let user in state.pixelArrays) {
-
-        let pixels = state.pixelArrays[user]
+        console.log(user);
+        let pixels = state.pixelArrays[user];
+        // state.ctx.beginPath();
+        state.ctx.strokeStyle = state.color[user] || "#FF0000";
+        state.ctx.lineJoin = "round";
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
+          state.ctx.lineWidth = pixels[i].strokeWidth || 1;
+          // console.log(state.color[user])
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
             state.ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
           } else { //else use the current pixel, offset by 1px to the left
             state.ctx.moveTo(pixels[i].x * w - 1, pixels[i].y * h);
           }
           state.ctx.lineTo(pixels[i].x * w, pixels[i].y * h);//draw a line from point mentioned above to the current pixel
-          state.ctx.closePath();//end the line
+          // state.ctx.save();
           state.ctx.stroke();//draw the line
+          // state.ctx.closePath();//end the line
         }
       }
 
@@ -70,7 +75,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
+export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, pixelColor, strokeWidth }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -89,7 +94,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   const [, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
-    ctx: undefined
+    ctx: undefined,
+    color: pixelColor
   });
 
   //State for image canvas:
@@ -141,6 +147,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
+          console.log("Other person is drawing", data.user.id);
+
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
@@ -194,7 +202,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     let pixel = {
       x: x,
       y: y,
-      dragging: dragging
+      dragging: dragging,
+      strokeWidth: strokeWidth
     };
     dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
     dispatch({ type: REDRAW });
@@ -205,7 +214,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     addClick(mouseX, mouseY);
-    let pixel = { x: mouseX, y: mouseY, dragging: false };
+    let pixel = { x: mouseX, y: mouseY, dragging: false, strokeWidth: strokeWidth };
     setPaint(true);
     mapToRelativeUnits(pixel);
     socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
@@ -216,7 +225,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop
       addClick(mouseX, mouseY, true);
-      let pixel = { x: mouseX, y: mouseY, dragging: true };
+      let pixel = { x: mouseX, y: mouseY, dragging: true, strokeWidth: strokeWidth };
       mapToRelativeUnits(pixel);
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
     }

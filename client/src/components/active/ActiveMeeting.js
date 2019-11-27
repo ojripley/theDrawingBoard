@@ -56,12 +56,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels, pixelColor }) {
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
+  const [strokeWidth, setStrokeWidth] = useState(1);
+
   // const backgroundCanvas = useRef(null);
 
   const textareaRef = useRef(null);
@@ -106,7 +108,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [ writeMode])
+  }, [writeMode])
 
   return (
     imageLoaded &&
@@ -119,6 +121,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         setMode={setMode}
         setInMeeting={setInMeeting}
         setWriteMode={setWriteMode}
+        setStrokeWidth={setStrokeWidth}
       />
       <Canvas
         user={user}
@@ -129,6 +132,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         isLoaded={imageLoaded}
         meetingId={meetingId}
         initialPixels={initialPixels}
+        pixelColor={pixelColor}
+        strokeWidth={strokeWidth}
       />
       {writeMode &&
         <div className={classes.center}>

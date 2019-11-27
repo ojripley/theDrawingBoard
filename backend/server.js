@@ -349,6 +349,9 @@ io.on('connection', (client) => {
 
             // set meeting pixel log
             meeting['userPixels'] = {};
+            meeting['userColors'] = ['#00000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
+            meeting['counter'] = 0;
+            meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
 
@@ -372,6 +375,17 @@ io.on('connection', (client) => {
     if (!meetingDetails.userPixels[data.user.id]) {
       meetingDetails.userPixels[data.user.id] = [];
     }
+
+    //Select a color:
+    let col = meetingDetails['colorMapping'][data.user.id];
+    if (!col) {
+      let col = meetingDetails['userColors'][meetingDetails['counter']++];
+      meetingDetails['colorMapping'][data.user.id] = col;
+    }
+
+
+
+
     console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
     let img = "";

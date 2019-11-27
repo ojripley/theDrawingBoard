@@ -51,8 +51,13 @@ export default function CanvasDrawer(props) {
 
   const handleUndo = () => {
     if (props.socketOpen) {
-      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId});
+      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId });
     }
+  }
+
+  const handleStrokeWidth = n => {
+    props.setStrokeWidth(n);
+    handleClose();
   }
 
   return (
@@ -73,9 +78,9 @@ export default function CanvasDrawer(props) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Small</MenuItem>
-              <MenuItem onClick={handleClose}>Medium</MenuItem>
-              <MenuItem onClick={handleClose}>Large</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(1)}>Small</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(2)}>Medium</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(3)}>Large</MenuItem>
             </Menu>
             <ListItem button>Highlighter</ListItem>
             <ListItem button>Pointer</ListItem>
