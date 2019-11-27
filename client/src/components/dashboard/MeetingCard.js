@@ -130,6 +130,7 @@ export default function MeetingCard({
         setInMeeting(true);
 
         if (data.image) {//if image
+          console.log("there is an image")
           let myImage = new Image();
           myImage.onload = () => {
             setImageLoaded(true);
@@ -139,13 +140,18 @@ export default function MeetingCard({
           };
           myImage.src = data.image; //pull this from socket
         } else {//if no image
+          console.log("there is no image")
           let myImage = new Image();
-          myImage.onload = () => {
-            setImageLoaded(true);
-            setBackgroundImage(myImage);
-            console.log("received these pixels", data.pixels)
-            setInitialPixels(data.pixels);
-          };
+          setBackgroundImage(myImage);
+          setImageLoaded(true);
+          setInitialPixels(data.pixels);
+
+          // myImage.onload = () => {
+          //   setImageLoaded(true);
+          //   setBackgroundImage(myImage);
+          //   console.log("received these pixels", data.pixels)
+          //   setInitialPixels(data.pixels);
+          // };
         }
 
       })

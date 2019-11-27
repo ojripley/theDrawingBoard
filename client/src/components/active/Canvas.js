@@ -51,8 +51,6 @@ function reducer(state, action) {
 
         let pixels = state.pixelArrays[user]
         for (let i in pixels) {
-          // console.log(pixels[i]);
-
           state.ctx.beginPath(); //start drawing a single line
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
             state.ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
@@ -87,7 +85,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   //State for drawing canvas:
   const drawCanvasRef = useRef({});
   let [paint, setPaint] = useState(false);
-  const myCode = useRef(Math.floor(Math.random() * 1000), [])
+  // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
   const [, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
@@ -101,12 +99,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
+      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
       dispatch({ type: REDRAW });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width; //ensure canvas is to scale
+    drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -121,9 +119,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
   }, [isLoaded, imageEl]);
 
-
-
-  // const mapToRelativeUnits = useCallback(
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
     let h = drawCanvasRef.current.height;
@@ -131,8 +126,6 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     pixel.y = pixel.y / h;
     return pixel;
   }
-  //   [drawCanvasRef.current.width, drawCanvasRef.current.height],
-  // );
 
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
@@ -147,8 +140,8 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     if (socketOpen) {
       socket.on('drawClick', data => {
-        if (myCode.current !== data.code) {
-          dispatch({ type: SET_PIXEL, payload: { user: data.user, pixel: data.pixel } });
+        if (user.id !== data.user.id) {
+          dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
       });
@@ -156,7 +149,20 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         socket.off('drawClick');
       };
     }
-  }, [socket, socketOpen, user.username]);
+  }, [socket, socketOpen, user.id]);
+
+  useEffect(() => {
+    if (socketOpen) {
+      socket.on('redraw', (data) => {
+        console.log('redrawing pixels!');
+        dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
+        dispatch({ type: REDRAW });
+      });
+      return () => {
+        socket.off('drawClick');
+      };
+    }
+  }, [socket, socketOpen, user.id]);
 
   const endMeeting = () => {
     console.log('meeting ended');
@@ -175,7 +181,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
     setImageCtx(prev => {
       imageCanvasRef.current.width = window.innerWidth;
-      imageCanvasRef.current.height = imageEl.height * window.innerWidth / imageEl.width;
+      imageCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
       prev = imageCanvasRef.current.getContext('2d');
       prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
@@ -190,7 +196,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       y: y,
       dragging: dragging
     };
-    dispatch({ type: SET_PIXEL, payload: { user: myCode.current, pixel: mapToRelativeUnits(pixel) } });
+    dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
     dispatch({ type: REDRAW });
     // mergeWithImage();
   };
@@ -198,11 +204,11 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const handleMouseDown = e => {
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
-    setPaint(true);
     addClick(mouseX, mouseY);
     let pixel = { x: mouseX, y: mouseY, dragging: false };
+    setPaint(true);
     mapToRelativeUnits(pixel);
-    socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: myCode.current });
+    socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
   }
 
   const handleMouseMove = e => { //Change to useCallback??
@@ -212,37 +218,38 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       addClick(mouseX, mouseY, true);
       let pixel = { x: mouseX, y: mouseY, dragging: true };
       mapToRelativeUnits(pixel);
-      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: myCode.current });
+      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
     }
   }
 
   return (
-      <div id='canvas-container'>
-        <canvas
-          id='image'
-          ref={imageCanvasRef}
-        >
-        </canvas>
-        <canvas
-          id='drawCanvas'
-          ref={drawCanvasRef}
-          onMouseDown={e => handleMouseDown(e.nativeEvent)}
-          onMouseMove={e => handleMouseMove(e.nativeEvent)}
-          onMouseUp={e => setPaint(false)}
-          onMouseLeave={e => setPaint(false)}
-          onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
-          onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
-          onTouchEnd={e => setPaint(false)}
-        >
-        </canvas>
-        {user.id === ownerId && <Button
-          variant='contained'
-          color='secondary'
-          className={classes.endMeeting}
-          onClick={endMeeting}
-        >
-          End Meeting
+    <div id='canvas-container'>
+      <canvas
+        id='image'
+        ref={imageCanvasRef}
+      >
+      </canvas>
+      <canvas
+        id='drawCanvas'
+        ref={drawCanvasRef}
+        onMouseDown={e => handleMouseDown(e.nativeEvent)}
+        onMouseMove={e => handleMouseMove(e.nativeEvent)}
+        onMouseUp={e => setPaint(false)}
+        // onMouseUp={e => handleMouseUp(e.nativeEvent)}
+        onMouseLeave={e => setPaint(false)}
+        onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
+        onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
+        onTouchEnd={e => setPaint(false)}
+      >
+      </canvas>
+      {user.id === ownerId && <Button
+        variant='contained'
+        color='secondary'
+        className={classes.endMeeting}
+        onClick={endMeeting}
+      >
+        End Meeting
         </Button>}
-      </div>
+    </div>
   );
 }

@@ -203,7 +203,6 @@ io.on('connection', (client) => {
 
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
-    console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   })
 
@@ -273,38 +272,38 @@ io.on('connection', (client) => {
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          //Check if pdf
-          if (data.file.name.search(/\.pdf$/ig) !== -1) {
+          console.log(data.filename);
+          if (data.file.name) { //Only save the file if one exists, otherwise just have an empty folder
+            //Check if pdf
+            if (data.file.name.search(/\.pdf$/ig) !== -1) {
 
-            console.log(data.file.name);
-            fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-              if (err) {
-                console.log('problem');
-                throw err;
-              }
-              console.log('The file has been saved!');
+              console.log(data.file.name);
+              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+                if (err) {
+                  console.log('problem');
+                  throw err;
+                }
+                console.log('The file has been saved!');
 
-              let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+                let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
 
-              // console.log(pdfImage);
+                // console.log(pdfImage);
 
-              pdfImage.convertPage(0).then(function(imagePath) {
-                // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                fs.existsSync("/tmp/slide-0.png") // => true\
-                console.log(imagePath);
-              })
-                .catch((error) => {
-                  console.log(error);
+                pdfImage.convertPage(0).then(function(imagePath) {
+                  // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                  fs.existsSync("/tmp/slide-0.png") // => true\
+                  console.log(imagePath);
                 })
-            }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
-
-
-
-          } else {
-            fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-              if (err) throw err;
-              console.log('The file has been saved!');
-            }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+                  .catch((error) => {
+                    console.log(error);
+                  })
+              }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+            } else {
+              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+                if (err) throw err;
+                console.log('The file has been saved!');
+              }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+            }
           }
         });
         const promiseArray = [];
@@ -374,30 +373,43 @@ io.on('connection', (client) => {
     }
     console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
-    let img;
-    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-    } else {
-      img = meetingDetails.link_to_initial_doc;
-    }
-
-    fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
-      if (err) {
-        console.error;
-        image = "";
+    let img = "";
+    if (meetingDetails.link_to_initial_doc) {
+      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+      } else {
+        img = meetingDetails.link_to_initial_doc;
       }
-      console.log("sending these pixels");
-      console.log(meetingDetails.userPixels);
+      fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
+        if (err) {
+          console.error;
+          image = "";
+        }
+        console.log("sending these pixels");
+        console.log(meetingDetails.userPixels);
 
+        db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+          .then((res) => {
+
+            client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+
+            client.join(data.meetingId);
+            io.to(data.meetingId).emit('newParticipant', (data.user));
+          });
+      });
+    } else {
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
 
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
 
           client.join(data.meetingId);
           io.to(data.meetingId).emit('newParticipant', (data.user));
-        })
-    });
+        });
+    }
+
+
+
   });
 
   client.on('saveDebouncedNotes', (data) => {
@@ -504,7 +516,6 @@ io.on('connection', (client) => {
       .then(() => {
         for (let contactId of data.attendeeIds) {
           if (activeUsers[contactId]) {
-            // console.log(`${contactId} should now rerender`);
             activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
           }
         }
@@ -519,7 +530,6 @@ io.on('connection', (client) => {
     }
 
     client.emit('attendanceChanged', { meetingId: data.meetingId });
-
   });
 
   client.on('dismissNotification', (data) => {
@@ -536,5 +546,33 @@ io.on('connection', (client) => {
     console.log('dismissing notification by type', data.userId, data.type);
     db.removeNotificationsByType(data.userId, data.type);
   });
-});
 
+  client.on('undoLine', (data) => {
+
+    if (activeMeetings[data.meetingId]) {
+      const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
+
+      if (pixels.length > 0) {
+        while (pixels[pixels.length - 1].dragging !== false) {
+          pixels.pop();
+        }
+        if (pixels[pixels.length - 1].dragging === false) {
+          // remove last pixel
+          pixels.pop();
+        }
+      }
+    }
+
+    io.to(data.meetingId).emit('redraw', { meetingId: data.meetingId, pixels: activeMeetings[data.meetingId].userPixels, user: data.user })
+  });
+
+  client.on('msgToMeeting', (data) => {
+    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user, time: Date.now()});
+  });
+
+  client.on(`msgToUser`, (data) => {
+    if (activeUsers[data.contactId]) {
+      activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user });
+    }
+  });
+});
