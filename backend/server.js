@@ -17,6 +17,7 @@ const io = require('socket.io')(server, { cookie: "yo" });
 const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
+const colors = require('./colors.json')["colors"];
 
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
@@ -351,28 +352,7 @@ io.on('connection', (client) => {
             // set meeting pixel log
             meeting['userPixels'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
-            meeting['userColors'] = [
-              {
-                r: 255,
-                g: 255,
-                b: 0
-              },
-              {
-                r: 0,
-                g: 255,
-                b: 0
-              },
-              {
-                r: 0,
-                g: 0,
-                b: 255
-              },
-              {
-                r: 0,
-                g: 255,
-                b: 255
-              }
-            ]
+            meeting['userColors'] = colors;
             // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['counter'] = 0;
             meeting['colorMapping'] = {};
