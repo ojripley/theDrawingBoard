@@ -101,10 +101,17 @@ export default function CanvasDrawer(props) {
     props.setStrokeWidth(n);
     props.setHighlighting(false);
     handleClose();
+    setOpenDrawer(false);
+  }
+
+  const handleHighlighting = n => {
+    props.setStrokeWidth(n);
+    props.setHighlighting(true);
+    handleClose();
+    setOpenDrawer(false);
   }
 
   const handleMessage = event => {
-    // props.setMessageMode(prev => !prev);
     setMessage(event.target.value);
     console.log(message);
   };
@@ -169,11 +176,24 @@ export default function CanvasDrawer(props) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleStrokeWidth(2)}>Small</MenuItem>
-              <MenuItem onClick={() => handleStrokeWidth(4)}>Medium</MenuItem>
-              <MenuItem onClick={() => handleStrokeWidth(8)}>Large</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(1)}>Small</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(2)}>Medium</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(4)}>Large</MenuItem>
             </Menu>
-            <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem>
+            {/* <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem> */}
+            <ListItem button aria-controls="simple-menu2" aria-haspopup="true" onClick={handleClick}>Highlighter</ListItem>
+            <Menu
+              id="simple-menu2"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={() => handleHighlighting(4)}>Small</MenuItem>
+              <MenuItem onClick={() => handleHighlighting(8)}>Medium</MenuItem>
+              <MenuItem onClick={() => handleHighlighting(16)}>Large</MenuItem>
+            </Menu>
+
             <ListItem button>Pointer</ListItem>
           </List>
           <Divider />

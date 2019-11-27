@@ -54,18 +54,24 @@ function reducer(state, action) {
         let pixels = state.pixelArrays[Number(user)];
         // state.ctx.beginPath();
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
-        let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.5)`
-        // state.ctx.lineJoin = "round";
-        // state.ctx.linecap = "square";
-        // state.ctx.globalCopositeOperation = 'multiply'; //for highlighting
+        let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.3)`
+        state.ctx.lineJoin = "round";
+        state.ctx.globalCompositionOperation = 'multiply'; //for highlighting
+
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
           if (pixels[i].highlighting) {
-            state.ctx.strokeStyle = col;
+            // console.log("lighting")
+            state.ctx.lineCap = 'round';
+
+            state.ctx.strokeStyle = highlightCol;
             state.ctx.lineWidth = pixels[i].strokeWidth * 2 || 1;
             state.ctx.lineHeight = pixels[i].strokeWidth * 2 || 1;
           } else {
-            state.ctx.strokeStyle = highlightCol;
+            // console.log("not lighting")
+            state.ctx.lineCap = 'round';
+
+            state.ctx.strokeStyle = col;
             state.ctx.lineWidth = pixels[i].strokeWidth || 1;
           }
           // pixels[i].highlighting ? console.log("HIIII") : console.log("LOOOO");
@@ -73,13 +79,15 @@ function reducer(state, action) {
           if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
             state.ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
           } else { //else use the current pixel, offset by 1px to the left
-            state.ctx.moveTo(pixels[i].x * w - 1, pixels[i].y * h);
+            state.ctx.moveTo(pixels[i].x * w, pixels[i].y * h - 1);
           }
           state.ctx.lineTo(pixels[i].x * w, pixels[i].y * h);//draw a line from point mentioned above to the current pixel
           // state.ctx.save();
+          // state.ctx.fillRect(pixels[i].x * w, pixels[i].y * h, 10, 10); // fill in the pixel at (10,10)
+
           state.ctx.stroke();//draw the line
-          // state.ctx.closePath();//end the line
-          out.push(state.color[Number(user)]);
+          state.ctx.closePath();//end the line
+          // out.push(state.color[Number(user)]);
         }
         // console.log(out);
       }
@@ -259,7 +267,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const handleMouseMove = e => { //Change to useCallback??
     if (paint) {
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
-      let mouseY = e.pageY - drawCanvasRef.current.offsetTop
+      let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
       addClick(mouseX, mouseY, true);
       let pixel = {
         x: mouseX,

@@ -353,8 +353,8 @@ io.on('connection', (client) => {
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = [
               {
-                r: 0,
-                g: 0,
+                r: 255,
+                g: 255,
                 b: 0
               },
               {
