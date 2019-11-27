@@ -31,6 +31,7 @@ export default function NavBar(props) {
   const handleLogout = () => {
     document.cookie = 'sid=""'; //clear the cookie
     props.setUser(null);
+    props.setLoading(false);
   };
 
 

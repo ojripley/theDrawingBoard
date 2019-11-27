@@ -160,6 +160,8 @@ io.on('connection', (client) => {
       } catch (err) {
         console.error('Cookie authentication failed!');
       }
+    } else {
+      client.emit('cookieResponse', null);
     }
   });
 

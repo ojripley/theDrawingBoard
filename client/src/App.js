@@ -141,8 +141,9 @@ export default function App() {
       })
 
       socket.on('cookieResponse', data => {
-        setUser(data);
+        console.log('received cookie response')
         setLoading(false);
+        setUser(data);
       });
 
       return () => {
@@ -150,7 +151,7 @@ export default function App() {
         socket.off('meeting');
       }
     }
-  }, [socket, socketOpen]);
+  }, [socket, socketOpen, setLoading]);
 
   // if (user) {
   //   if (inMeeting) {
@@ -222,10 +223,10 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <NavBar user={user} setUser={setUser} setMode={setMode}/>
+      {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
       {!user ?
-        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+        loading ? <Loading /> : <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
         : inMeeting ?
         <ActiveMeeting
             meetingId={meetingId}
