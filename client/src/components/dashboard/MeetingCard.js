@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
@@ -12,27 +12,69 @@ import Attendee from './Attendee';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
-    flexShrink: 0,
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
+    width: '100%'
   },
   active: {
-    backgroundColor: 'orange'
+    backgroundColor: theme.palette.tertiary.main
   },
   scheduled: {
     backgroundColor: 'white'
   },
   button: {
-    margin: theme.spacing(1),
+    margin: 0
+  },
+  enterButton: {
+    margin: '1em 0 0'
+  },
+  meetingSummary: {
+    height: 'auto',
+    verticalAlign: 'center',
+    padding: '1em',
+  },
+  meetingSummaryContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    margin: 0,
+  },
+  date: {
+    flexBasis: '75%'
+  },
+  time: {
+    flexBasis: '25%',
+    alignSelf: 'center'
+  },
+  name: {
+    flexBasis: '100%',
+    minWidth: '0',
+  },
+  description: {
+    overflowWrap: 'break-word',
+    hyphens: 'auto',
+    flexGrow: 1
+  },
+  meetingExpanded: {
+    height: 'auto',
+    verticalAlign: 'center',
+    padding: '1em',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    margin: 0,
+  },
+  attendees: {
+    flexBasis: '33.33%'
   }
 }));
+
+const ExpansionPanelSummary = withStyles({
+  content: {
+    '&$expanded': {
+      margin: '0px 0',
+    },
+  },
+  expanded: {},
+})(MuiExpansionPanelSummary);
 
 export default function MeetingCard({
   id,
@@ -73,6 +115,7 @@ export default function MeetingCard({
     socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
   }
 
+  const date = new Date(startTime);
 
   useEffect(() => {
     if (socketOpen) {
@@ -117,7 +160,7 @@ export default function MeetingCard({
         socket.off('enteredMeeting');
       };
     }
-  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels]);
+  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
     socket.on('meetingStarted', res => {
@@ -132,6 +175,15 @@ export default function MeetingCard({
     };
   }, [socket, id, activeMeeting])
 
+  const attendances = [];
+  const attendeeNames = attendees.map((attendee) => {
+    let attendance = attendee.attendance === 'invited' ? 'invited' : 'accepted';
+    attendances.push(<li className={`${attendance} attendees`} key={`attendance-${attendee.id}`}> {attendee.attendance}</li>)
+    return <li className='attendees' key={`name-${attendee.id}`}>
+        {attendee.username}
+      </li>
+  })
+
   return (
     <div className={classes.root}>
       <ExpansionPanel className={activeMeeting ? classes.active : classes.scheduled} expanded={expanded === `panel${id}`} onChange={handleChange(`panel${id}`)}>
@@ -139,23 +191,38 @@ export default function MeetingCard({
           expandIcon={<ExpandMoreIcon />}
           aria-controls={`panel${id}bh-content`}
           id={`panel${id}bh-header`}
+          classes={{
+            root: classes.meetingSummary,
+            content: classes.meetingSummaryContent
+          }}
         >
-          <Typography className={classes.heading}>{startTime}</Typography>
-          <Typography className={classes.secondaryHeading}>{name}</Typography>
-          <Typography variant="body2" component="p">{owner}</Typography>
-          <Typography variant="body2" component="p">{attendees.length} Attendees</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Typography variant="body2" component="p">
-            Description: {description}
+          <Typography classes={{ root: classes.date }} variant='h6'>{date.toLocaleString('en-US', {
+              weekday: 'short',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })}
           </Typography>
-          <Typography variant="body2" component="p">Attendees</Typography>
+          <Typography classes={{ root: classes.time }} align='right' variant='subtitle2'>{date.toLocaleString('en-US', {
+              hour: 'numeric',
+              minute: 'numeric'
+            })}
+          </Typography>
+          <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
+          <Typography variant="subtitle2">Host: {owner}</Typography>
+          {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails classes={{ root: classes.meetingExpanded }}>
+          <Typography classes={{ root: classes.name }} variant="subtitle2">
+            Description:
+            <Typography classes={{ root: classes.description }} variant="body2">{description}</Typography>
+          </Typography>
+          <Typography className={'attendees'} variant="subtitle2">Attendees ({attendees.length})</Typography>
           <ul>
-            {attendees.map((attendee) => (
-              <li className='attendee' key={attendee.id}>
-                {attendee.username}
-                <span className='attendee-attendance'>  {attendee.attendance}</span>
-              </li>))}
+            {attendeeNames}
+          </ul>
+          <ul>
+            {attendances}
           </ul>
           {user.username === owner ?
             <Owner
@@ -173,7 +240,7 @@ export default function MeetingCard({
               attendance={user.attendance}
             />
           }
-          {activeMeeting && <Button variant="contained" color="primary" className={classes.button} onClick={enterMeeting}>
+          {activeMeeting && <Button variant="contained" color="primary" className={classes.enterButton} onClick={enterMeeting}>
             Enter Meeting
           </Button>}
         </ExpansionPanelDetails>

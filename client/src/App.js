@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
-import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Box';
 import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
 import { store } from 'react-notifications-component';
+
+import theme from './theme/muiTheme';
+import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
 
 // COMPONENTS
@@ -149,63 +152,68 @@ export default function App() {
   if (user) {
     if (inMeeting) {
       return (
-        <ActiveMeeting
-          meetingId={meetingId}
-          ownerId={ownerId}
-          user={user}
-          socket={socket}
-          socketOpen={socketOpen}
-          initialNotes={meetingNotes}
-          setMeetingNotes={setMeetingNotes}
-          setInMeeting={setInMeeting}
-          setMeetingId={setMeetingId}
-          imageLoaded={imageLoaded}
-          backgroundImage={backgroundImage}
-          setMode={setMode}
-          initialPixels={initialPixels}
-        />
+        <ThemeProvider theme={theme}>
+          <ActiveMeeting
+            meetingId={meetingId}
+            ownerId={ownerId}
+            user={user}
+            socket={socket}
+            socketOpen={socketOpen}
+            initialNotes={meetingNotes}
+            setMeetingNotes={setMeetingNotes}
+            setInMeeting={setInMeeting}
+            setMeetingId={setMeetingId}
+            imageLoaded={imageLoaded}
+            backgroundImage={backgroundImage}
+            setMode={setMode}
+            initialPixels={initialPixels}
+          />
+        </ThemeProvider>
       );
     } else {
       return (
-        <Box>
+        <ThemeProvider theme={theme}>
           <ReactNotification />
+          <NavBar user={user} setUser={setUser} setMode={setMode}/>
+          <Container>
 
-          <NavBar user={user} setUser={setUser} />
-          {mode === DASHBOARD &&
-            <Dashboard
-              socket={socket}
-              socketOpen={socketOpen}
-              user={user}
-              setInMeeting={setInMeeting}
-              setMeetingId={setMeetingId}
-              setMeetingNotes={setMeetingNotes}
-              setOwnerId={setOwnerId}
-              setBackgroundImage={setBackgroundImage}
-              setImageLoaded={setImageLoaded}
-              setInitialPixels={setInitialPixels}
-            />}
-          {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-          {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-          {mode === NOTIFICATIONS &&
-            <Notifications
-              socket={socket}
-              socketOpen={socketOpen}
-              user={user}
-              notificationList={notificationList}
-              setNotificationList={setNotificationList}
-              setMode={setMode}
-            />}
+            {mode === DASHBOARD &&
+              <Dashboard
+                socket={socket}
+                socketOpen={socketOpen}
+                user={user}
+                setInMeeting={setInMeeting}
+                setMeetingId={setMeetingId}
+                setMeetingNotes={setMeetingNotes}
+                setOwnerId={setOwnerId}
+                setBackgroundImage={setBackgroundImage}
+                setImageLoaded={setImageLoaded}
+                setInitialPixels={setInitialPixels}
+              />}
+            {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+            {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+            {mode === NOTIFICATIONS &&
+              <Notifications
+                socket={socket}
+                socketOpen={socketOpen}
+                user={user}
+                notificationList={notificationList}
+                setNotificationList={setNotificationList}
+                setMode={setMode}
+              />}
+
+          </Container>
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-        </Box >
+        </ThemeProvider>
 
       );
     }
   } else {
     return (
-      <Box>
+      <ThemeProvider theme={theme}>
         <NavBar user={null} />
         <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </Box>
+      </ThemeProvider>
     );
 
   }

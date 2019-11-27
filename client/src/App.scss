@@ -1,22 +1,20 @@
-.App {
-  text-align: center;
+.MuiBox-root {
+  padding-bottom: 56px;
+  width: 94%;
+  max-width: 1024px;
 }
 
-.App-logo {
-  height: 40vmin;
+.makeStyles-title-203:hover {
+  cursor: pointer;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.MuiBadge-anchorOriginTopRightRectangle, .MuiBadge-badge, .MuiBadge-anchorOriginTopRightRectangle, .MuiBadge-colorPrimary {
+  margin-left: 11px;
+  margin-right: 10px;
+  margin-top: 4px;
 }
 
-.App-link {
-  color: #09d3ac;
+#page-header {
+  margin-top: 16px;
+  margin-bottom: 10px;
 }
