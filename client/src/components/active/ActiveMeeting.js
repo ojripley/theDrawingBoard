@@ -85,16 +85,23 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   useEffect(() => {
+
+    socket.on('loadTheSpinnerPls', () => {
+      setLoading(true);
+    });
+
     socket.on('requestNotes', res => {
       setLoading(true);
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
+
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
       setMeetingId(null);
       setBackgroundImage(new Image());
       setLoading(false);
-    })
+    });
+
     return () => {
       socket.off('requestNotes');
       socket.off('concludedMeetingId');

@@ -165,6 +165,12 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     }
   }, [socket, socketOpen, user.id]);
 
+  const loadSpinner = () => {
+    socket.emit('savingMeeting', {meetingId: meetingId});
+    setLoading(true);
+    endMeeting();
+  };
+
   const endMeeting = () => {
     console.log('meeting ended');
     mergeWithImage();

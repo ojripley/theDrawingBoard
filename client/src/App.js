@@ -227,65 +227,65 @@ export default function App() {
   return (
     <>
     {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
-    <ThemeProvider theme={theme}>
-      {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
+      <ThemeProvider theme={theme}>
+        {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
-      {!user ?
-        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-        : inMeeting ?
-          <ActiveMeeting
-            meetingId={meetingId}
-            ownerId={ownerId}
-            user={user}
-            socket={socket}
-            socketOpen={socketOpen}
-            initialNotes={meetingNotes}
-            setMeetingNotes={setMeetingNotes}
-            setInMeeting={setInMeeting}
-            setMeetingId={setMeetingId}
-            imageLoaded={imageLoaded}
-            setImageLoaded={setImageLoaded}
-            backgroundImage={backgroundImage}
-            setBackgroundImage={setBackgroundImage}
-            setMode={setMode}
-            initialPixels={initialPixels}
-            setLoading={setLoading}
-            />
-          : <>
-            <div id='app-container'>
-            <ReactNotification />
-              {mode === DASHBOARD &&
-                <Dashboard
-                  socket={socket}
-                  socketOpen={socketOpen}
-                  user={user}
-                  setInMeeting={setInMeeting}
-                  setMeetingId={setMeetingId}
-                  setMeetingNotes={setMeetingNotes}
-                  setOwnerId={setOwnerId}
-                  setBackgroundImage={setBackgroundImage}
-                  setImageLoaded={setImageLoaded}
-                  setInitialPixels={setInitialPixels}
-                  loading={loading}
-                  setLoading={setLoading}
-                />}
-              {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-              {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-              {mode === NOTIFICATIONS &&
-                <Notifications
-                  socket={socket}
-                  socketOpen={socketOpen}
-                  user={user}
-                  notificationList={notificationList}
-                  setNotificationList={setNotificationList}
-                  setMode={setMode}
-                />}
+        {!user ?
+          <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+          : inMeeting ?
+            <ActiveMeeting
+              meetingId={meetingId}
+              ownerId={ownerId}
+              user={user}
+              socket={socket}
+              socketOpen={socketOpen}
+              initialNotes={meetingNotes}
+              setMeetingNotes={setMeetingNotes}
+              setInMeeting={setInMeeting}
+              setMeetingId={setMeetingId}
+              imageLoaded={imageLoaded}
+              setImageLoaded={setImageLoaded}
+              backgroundImage={backgroundImage}
+              setBackgroundImage={setBackgroundImage}
+              setMode={setMode}
+              initialPixels={initialPixels}
+              setLoading={setLoading}
+              />
+            : <>
+              <div id='app-container'>
+              <ReactNotification />
+                {mode === DASHBOARD &&
+                  <Dashboard
+                    socket={socket}
+                    socketOpen={socketOpen}
+                    user={user}
+                    setInMeeting={setInMeeting}
+                    setMeetingId={setMeetingId}
+                    setMeetingNotes={setMeetingNotes}
+                    setOwnerId={setOwnerId}
+                    setBackgroundImage={setBackgroundImage}
+                    setImageLoaded={setImageLoaded}
+                    setInitialPixels={setInitialPixels}
+                    loading={loading}
+                    setLoading={setLoading}
+                  />}
+                {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+                {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+                {mode === NOTIFICATIONS &&
+                  <Notifications
+                    socket={socket}
+                    socketOpen={socketOpen}
+                    user={user}
+                    notificationList={notificationList}
+                    setNotificationList={setNotificationList}
+                    setMode={setMode}
+                  />}
 
-            </div>
-          <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-        </>
-      }
-    </ThemeProvider>
+              </div>
+            <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
+          </>
+        }
+      </ThemeProvider>
     </>
   )
 }
