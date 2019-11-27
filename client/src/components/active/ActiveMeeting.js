@@ -111,9 +111,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     }
   }, [ writeMode])
 
-  if (imageLoaded) {
     return (
-      <div className={classes.root}>
+      imageLoaded ? <div className={classes.root}>
         <CanvasDrawer
           user={user}
           socket={socket}
@@ -153,10 +152,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           </div>
         }
       </div>
+      : <>
+        <div></div>
+        <Loading />
+      </>
     )
-  } else {
-    return (
-      <Loading />
-    )
-  }
 }
