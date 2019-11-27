@@ -420,7 +420,7 @@ io.on('connection', (client) => {
           client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
 
           client.join(data.meetingId);
-          io.to(data.meetingId).emit('newParticipant', (data.user));
+          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
 

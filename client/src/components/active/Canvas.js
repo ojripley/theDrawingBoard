@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
 
+const ADD_USER = "REDRAW";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
 const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
@@ -73,6 +74,15 @@ function reducer(state, action) {
       }
 
       return { ...state };
+    }
+    case ADD_USER: {
+      return {
+        ...state,
+        color: {
+          ...state.color,
+          [action.payload.user]: action.payload.color
+        }
+      };
     }
     default:
       throw new Error();
@@ -170,6 +180,14 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
         dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
         dispatch({ type: REDRAW });
       });
+
+      socket.on('newParticipant', data => {
+        console.log('New user joined jlkjlkjlkjlkjlk', data);
+        console.log(data.color);
+        dispatch({ type: ADD_USER, payload: { user: data.user, color: data.color } });
+      });
+
+
       return () => {
         socket.off('drawClick');
       };
