@@ -585,10 +585,10 @@ io.on('connection', (client) => {
   });
 
   client.on('msgToMeeting', (data) => {
-    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user });
+    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user, time: Date.now()});
   });
 
-  client.on('msgToUser', (data) => {
+  client.on(`msgToUser`, (data) => {
     if (activeUsers[data.contactId]) {
       activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user });
     }
