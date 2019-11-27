@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'white'
   },
   button: {
-    margin: theme.spacing(1),
+    margin: 0
   },
   meetingSummary: {
     height: 'auto',
@@ -42,7 +42,13 @@ const useStyles = makeStyles(theme => ({
     alignSelf: 'center'
   },
   name: {
-    flexBasis: '100%'
+    flexBasis: '100%',
+    minWidth: '0',
+  },
+  description: {
+    overflowWrap: 'break-word',
+    hyphens: 'auto',
+    flexGrow: 1
   },
   meetingExpanded: {
     height: 'auto',
@@ -198,8 +204,9 @@ export default function MeetingCard({
           {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{ root: classes.meetingExpanded }}>
-          <Typography classes={{ root: classes.name }} variant="body2">
-            Description: {description}
+          <Typography classes={{ root: classes.name }} variant="subtitle2">
+            Description:
+            <Typography classes={{ root: classes.description }} variant="body2">{description}</Typography>
           </Typography>
           <Typography className={'attendees'} variant="subtitle2">Attendees ({attendees.length})</Typography>
           <ul>
