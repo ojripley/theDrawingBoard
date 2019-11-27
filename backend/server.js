@@ -443,10 +443,14 @@ io.on('connection', (client) => {
     let meetingDetails = activeMeetings[data.meetingId];
 
     let img;
-    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+    if (meetingDetails.link_to_initial_doc) {
+      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+      } else {
+        img = meetingDetails.link_to_initial_doc;
+      }
     } else {
-      img = meetingDetails.link_to_initial_doc;
+      img = 'blank.png'
     }
 
     fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
