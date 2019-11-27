@@ -75,6 +75,7 @@ export default function CanvasDrawer(props) {
 
   const handleClick = event => {
     setAnchorEl(event.currentTarget);
+    debugger;
   };
 
   const handleClose = () => {
@@ -93,12 +94,25 @@ export default function CanvasDrawer(props) {
 
   const handleUndo = () => {
     if (props.socketOpen) {
-      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId});
+      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId });
     }
   }
 
+  const handleStrokeWidth = n => {
+    props.setStrokeWidth(n);
+    props.setHighlighting(false);
+    handleClose();
+    setOpenDrawer(false);
+  }
+
+  const handleHighlighting = n => {
+    props.setStrokeWidth(n);
+    props.setHighlighting(true);
+    handleClose();
+    setOpenDrawer(false);
+  }
+
   const handleMessage = event => {
-    // props.setMessageMode(prev => !prev);
     setMessage(event.target.value);
     console.log(message);
   };
@@ -155,19 +169,32 @@ export default function CanvasDrawer(props) {
           </List>
           <List>
             <ListItem button onClick={handleUndo}>Undo</ListItem>
-            <ListItem button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>Pen</ListItem>
+            <ListItem id="penSelector" button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>Pen</ListItem>
             <Menu
               id="simple-menu"
               anchorEl={anchorEl}
               keepMounted
-              open={Boolean(anchorEl)}
+              open={Boolean(anchorEl) && anchorEl.id === "penSelector"}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Small</MenuItem>
-              <MenuItem onClick={handleClose}>Medium</MenuItem>
-              <MenuItem onClick={handleClose}>Large</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(1)}>Small</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(2)}>Medium</MenuItem>
+              <MenuItem onClick={() => handleStrokeWidth(4)}>Large</MenuItem>
             </Menu>
-            <ListItem button>Highlighter</ListItem>
+            {/* <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem> */}
+            <ListItem id="highlighterSelector" button aria-controls="simple-menu2" aria-haspopup="true" onClick={handleClick}>Highlighter</ListItem>
+            <Menu
+              id="simple-menu2"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl) && anchorEl.id === "highlighterSelector"}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={() => handleHighlighting(4)}>Small highlighter</MenuItem>
+              <MenuItem onClick={() => handleHighlighting(8)}>Medium</MenuItem>
+              <MenuItem onClick={() => handleHighlighting(16)}>Large</MenuItem>
+            </Menu>
+
             <ListItem button>Pointer</ListItem>
           </List>
           <Divider />
