@@ -101,8 +101,11 @@ export default function App() {
         time: (new Date()).toLocaleDateString()
       },
 
-    ])
-    ;
+    ]);
+
+  useEffect(() => {
+    console.log('loading', loading)
+  }, [loading])
 
 
   useEffect(() => {
@@ -222,11 +225,13 @@ export default function App() {
   // }
 
   return (
+    <>
+    {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
     <ThemeProvider theme={theme}>
       {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
       {!user ?
-        loading ? <Loading /> : <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
         : inMeeting ?
           <ActiveMeeting
             meetingId={meetingId}
@@ -249,7 +254,6 @@ export default function App() {
           : <>
             <div id='app-container'>
             <ReactNotification />
-
               {mode === DASHBOARD &&
                 <Dashboard
                   socket={socket}
@@ -262,6 +266,8 @@ export default function App() {
                   setBackgroundImage={setBackgroundImage}
                   setImageLoaded={setImageLoaded}
                   setInitialPixels={setInitialPixels}
+                  loading={loading}
+                  setLoading={setLoading}
                 />}
               {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
               {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
@@ -279,8 +285,8 @@ export default function App() {
           <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
         </>
       }
-
     </ThemeProvider>
+    </>
   )
 }
 

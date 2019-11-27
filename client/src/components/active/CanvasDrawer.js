@@ -139,7 +139,7 @@ export default function CanvasDrawer(props) {
           role="presentation"
         >
           <List>
-            <ListItem className='meeting-chat' className={classes.center}>
+            <ListItem className={`meeting-chat ${classes.center}`}>
               <section className='messages-display'>{msgs}</section>
               <TextareaAutosize
                 ref={textareaRef}

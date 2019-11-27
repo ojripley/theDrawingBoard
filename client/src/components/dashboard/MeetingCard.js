@@ -98,6 +98,7 @@ export default function MeetingCard({
   setImageLoaded,
   setInitialPixels,
   setMeetingNotes,
+  setLoading
 }) {
 
   const classes = useStyles();
@@ -114,6 +115,7 @@ export default function MeetingCard({
 
   const enterMeeting = () => {
     socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
+    setLoading(true);
   }
 
   const date = new Date(startTime);
@@ -128,6 +130,7 @@ export default function MeetingCard({
         setMeetingId(res.id);
         console.log(data.notes);
         setMeetingNotes(data.notes);
+        setLoading(false);
         setInMeeting(true);
 
         if (data.image) {//if image
@@ -146,13 +149,6 @@ export default function MeetingCard({
           setBackgroundImage(myImage);
           setImageLoaded(true);
           setInitialPixels(data.pixels);
-
-          // myImage.onload = () => {
-          //   setImageLoaded(true);
-          //   setBackgroundImage(myImage);
-          //   console.log("received these pixels", data.pixels)
-          //   setInitialPixels(data.pixels);
-          // };
         }
 
       })

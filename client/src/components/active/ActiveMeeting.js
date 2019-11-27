@@ -56,7 +56,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading }) {
 
   const classes = useStyles();
 
@@ -67,6 +67,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
   // const backgroundCanvas = useRef(null);
+
 
   const textareaRef = useRef(null);
 
@@ -85,12 +86,14 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   useEffect(() => {
     socket.on('requestNotes', res => {
+      setLoading(true);
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
       setMeetingId(null);
       setBackgroundImage(new Image());
+      setLoading(false);
     })
     return () => {
       socket.off('requestNotes');
@@ -113,7 +116,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [ writeMode])
 
     return (
-      imageLoaded ? <div className={classes.root}>
+      imageLoaded && <div className={classes.root}>
         <CanvasDrawer
           user={user}
           socket={socket}
@@ -134,6 +137,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           imageLoaded={imageLoaded}
           meetingId={meetingId}
           initialPixels={initialPixels}
+          setLoading={setLoading}
         />
         {writeMode &&
           <div className={classes.center}>
@@ -155,9 +159,5 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           </div>
         }
       </div>
-      : <>
-        <div></div>
-        <Loading />
-      </>
     )
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-
+import Loading from '../Loading';
 
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
 const SET_PIXEL = "SET_PIXEL";
@@ -70,7 +70,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -87,7 +87,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   let [paint, setPaint] = useState(false);
   // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
-  const [_, dispatch] = useReducer(reducer, {
+  const [, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: undefined
   });
@@ -180,7 +180,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
-
     setImageCtx(prev => {
       imageCanvasRef.current.width = window.innerWidth;
       imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
@@ -253,5 +252,5 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         End Meeting
         </Button>}
     </div>
-  );
+  )
 }
