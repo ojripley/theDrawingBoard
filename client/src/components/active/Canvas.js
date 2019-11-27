@@ -70,7 +70,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
+export default function Canvas({ backgroundImage, setBackgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -99,12 +99,12 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+      drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       dispatch({ type: REDRAW });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+    drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -117,7 +117,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
     }
 
 
-  }, [isLoaded, imageEl]);
+  }, [imageLoaded, backgroundImage]);
 
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
@@ -130,10 +130,10 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
   const mergeWithImage = () => {
     setImageCtx(prev => { //adds the click to the image canvas
       prev = imageCanvasRef.current.getContext('2d')
-      imageCanvasRef.current.width = imageEl.width;
-      imageCanvasRef.current.height = imageEl.height;
-      prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-      prev.drawImage(drawCanvasRef.current, 0, 0, imageEl.width, imageEl.height);
+      imageCanvasRef.current.width = backgroundImage.width;
+      imageCanvasRef.current.height = backgroundImage.height;
+      prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
     });
   }
 
@@ -182,13 +182,13 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
 
     setImageCtx(prev => {
       imageCanvasRef.current.width = window.innerWidth;
-      imageCanvasRef.current.height = imageEl.height === 0 ? window.innerHeight : (imageEl.height * window.innerWidth / imageEl.width);
+      imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       prev = imageCanvasRef.current.getContext('2d');
-      prev.drawImage(imageEl, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
       dispatch({ type: REDRAW })
     });
-  }, [imageCtx, isLoaded, imageEl, initialPixels]);
+  }, [imageCtx, imageLoaded, backgroundImage, initialPixels]);
 
   const addClick = (x, y, dragging) => {
     //Uncomment this if you want the user to

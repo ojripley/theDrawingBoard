@@ -56,7 +56,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, setBackgroundImage, initialPixels }) {
 
   const classes = useStyles();
 
@@ -90,6 +90,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
       setMeetingId(null);
+      setBackgroundImage(new Image());
     })
     return () => {
       socket.off('requestNotes');
@@ -127,8 +128,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           ownerId={ownerId}
           socket={socket}
           socketOpen={socketOpen}
-          imageEl={backgroundImage}
-          isLoaded={imageLoaded}
+          backgroundImage={backgroundImage}
+          setBackgroundImage={setBackgroundImage}
+          imageLoaded={imageLoaded}
           meetingId={meetingId}
           initialPixels={initialPixels}
         />

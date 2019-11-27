@@ -37,7 +37,7 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
-  const [backgroundImage, setBackgroundImage] = useState(''); //Change this to "" later by def.
+  const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
   const [user, setUser] = useState(null);
@@ -240,6 +240,7 @@ export default function App() {
             setMeetingId={setMeetingId}
             imageLoaded={imageLoaded}
             backgroundImage={backgroundImage}
+            setBackgroundImage={setBackgroundImage}
             setMode={setMode}
             initialPixels={initialPixels}
             setLoading={setLoading}
