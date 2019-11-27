@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
 
-const ADD_USER = "REDRAW";
+const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
 const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
@@ -184,7 +184,7 @@ export default function Canvas({ imageEl, isLoaded, socket, socketOpen, user, me
       socket.on('newParticipant', data => {
         console.log('New user joined jlkjlkjlkjlkjlk', data);
         console.log(data.color);
-        dispatch({ type: ADD_USER, payload: { user: data.user, color: data.color } });
+        dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
       });
 
 
