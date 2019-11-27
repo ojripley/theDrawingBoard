@@ -203,7 +203,6 @@ io.on('connection', (client) => {
 
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
-    console.log(activeMeetings[data.meetingId].userPixels[data.user.id]);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   })
 
@@ -517,7 +516,6 @@ io.on('connection', (client) => {
       .then(() => {
         for (let contactId of data.attendeeIds) {
           if (activeUsers[contactId]) {
-            // console.log(`${contactId} should now rerender`);
             activeUsers[contactId].socket.emit('meetingDeleted', { id: data.meetingId });
           }
         }
@@ -550,7 +548,6 @@ io.on('connection', (client) => {
   });
 
   client.on('undoLine', (data) => {
-    console.log(`the client ${data.user.username} would like to undo their last drawn line in meeting ${data.meetingId}`);
 
     if (activeMeetings[data.meetingId]) {
       const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
