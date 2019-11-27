@@ -61,28 +61,11 @@ export default function NavBar(props) {
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
-                onClick={handleMenu}
+                onClick={handleLogout}
                 classes={{ root: classes.button }}
               >
-                {props.user.username.split(' ')[0]}
+                Logout
               </Button>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
           </>
           )}
         </Toolbar>
