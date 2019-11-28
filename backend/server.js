@@ -283,24 +283,27 @@ io.on('connection', (client) => {
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          for (let i in data.files) {
-            if (i === 'length') continue;
-            console.log('i:', i);
-            const file = data.files[i];
+          console.log(data.files);
+          let i = -1;
+          for (const [name, file] of Object.entries(data.files)) {
+            i++;
+            // if (i === 'length') continue;
+            console.log('name:', name);
+            // const file = data.files[i];
             console.log('file is:', file);
-            if (file.name) { //Only save the file if one exists, otherwise just have an empty folder
+            if (name) { //Only save the file if one exists, otherwise just have an empty folder
               //Check if pdf
-              if (file.name.search(/\.pdf$/ig) !== -1) {
+              if (name.search(/\.pdf$/ig) !== -1) {
 
-                console.log(file.name);
-                fs.writeFile(`meeting_files/${id}/image-${i}.${file.name.split('.')[1]}`, file, (err) => {
+                console.log(name);
+                fs.writeFile(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`, file, (err) => {
                   if (err) {
                     console.log('problem');
                     throw err;
                   }
                   console.log('The file has been saved!');
 
-                  let pdfImage = new PDFImage(`meeting_files/${id}/image-${i}.${file.name.split('.')[1]}`);
+                  let pdfImage = new PDFImage(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`);
 
                   pdfImage.convertFile().then(function(imagePath) {
                     // 0-th page (first page) of the slide.pdf is available as slide-0.png
@@ -311,7 +314,7 @@ io.on('connection', (client) => {
                     })
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               } else {
-                fs.writeFile(`meeting_files/${id}/image-${i}.${file.name.split('.')[1]}`, file, (err) => {
+                fs.writeFile(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`, file, (err) => {
                   if (err) throw err;
                   console.log('The file has been saved!');
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting

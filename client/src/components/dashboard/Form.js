@@ -120,7 +120,7 @@ export default function Form(props) {
   const handleFileUpload = event => {
     if (event.target.files) {
       console.log('event.target.files:', event.target.files);
-      props.setFiles({ name: event.target.files });
+      props.setFiles( event.target.files );
       // setFileArray(event.target.files.);
     }
   };

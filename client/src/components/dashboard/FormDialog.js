@@ -39,6 +39,21 @@ export default function FormDialog(props) {
 
   const handleSubmit = () => {
     console.log('files on submit:', files)
+    let filesObject = {};
+    // let nameArray = {};
+    for (let i = 0; i < files.length; i++) {
+
+      // // get item
+      // file = files.item(i);
+      // //or
+      let theFile = files.item(i);
+      filesObject[theFile.name] = theFile;
+      // fileArray.push(files.item(i));
+      // nameArray.push(files.item(i).name);
+
+      // alert(file.name);
+    }
+
     props.socket.emit('insertMeeting', {
       startTime: selectedDate,
       ownerId: props.user.id,
@@ -46,7 +61,7 @@ export default function FormDialog(props) {
       description: meetingDesc,
       status: 'scheduled',
       selectedContacts: [...selectedContacts, props.user],
-      files: files.name
+      files: filesObject
     });
 
     setOpen(false);
