@@ -71,6 +71,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
 
+  const [page, setPage] = useState(0);
+
   // const backgroundCanvas = useRef(null);
 
 
@@ -131,6 +133,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     imageLoaded && <div className={classes.root}>
       <CanvasDrawer //TODO: pass in setPage
         user={user}
+        ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
         meetingId={meetingId}
@@ -143,17 +146,20 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         setHighlighting={setHighlighting}
         setPointing={setPointing}
         setTool={setTool}
+        page={page}
+        totalPages={backgroundImage.length}
+        setPage={setPage}
       />
       <Canvas
         user={user}
         ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
-        backgroundImage={backgroundImage}//TODO: change to index (backgroundImage[page])
-        setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
+        backgroundImage={backgroundImage[page]}//TODO: change to index (backgroundImage[page])
+        // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
         imageLoaded={imageLoaded}
         meetingId={meetingId}
-        initialPixels={initialPixels}//TODO: change to index (backgroundImage[page])
+        initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
         setLoading={setLoading}
         pixelColor={pixelColor}
         strokeWidth={strokeWidth}

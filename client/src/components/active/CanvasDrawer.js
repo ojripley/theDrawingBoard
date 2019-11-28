@@ -10,10 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Slider from '@material-ui/core/Slider';
-
-
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 
 const useStyles = makeStyles({
   list: {
@@ -144,6 +142,14 @@ export default function CanvasDrawer(props) {
 
   const valueText = (value) => {
     return `${value}`;
+  };
+
+  const changePage = (direction) => {
+    if (direction === 'prev' && props.page !== 0) {
+      props.setPage(props.page - 1);
+    } else if (direction === 'next' && props.page !== (props.totalPages - 1)) {
+      props.setPage(props.page + 1);
+    }
   }
 
   return (
@@ -201,6 +207,17 @@ export default function CanvasDrawer(props) {
           <List>
             <ListItem button onClick={backToDash}>Leave Meeting</ListItem>
           </List>
+          {props.user.id === props.ownerId &&
+            <>
+            <Divider />
+            <List>
+              <ListItem>
+                <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />
+                Page {props.page + 1} of {props.totalPages}
+                <KeyboardArrowRightIcon onClick={() => changePage('next')} />
+              </ListItem>
+            </List>
+            </>}
         </div>
       </Drawer>
     </>

@@ -36,9 +36,9 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
-  const [backgroundImage, setBackgroundImage] = useState(new Image()); //TODO: Change to empty array
+  const [backgroundImage, setBackgroundImage] = useState([]); //TODO: Change to empty array - might need to contain 1 new Image()
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [initialPixels, setInitialPixels] = useState({}); //TODO: Change to array
+  const [initialPixels, setInitialPixels] = useState([]); //TODO: Change to array - array of objects
   const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
@@ -91,6 +91,10 @@ export default function App() {
       }
     }
   }, [socket, socketOpen, setLoading]);
+
+  useEffect(() => {
+    console.log('images', backgroundImage);
+  }, [backgroundImage])
 
   return (
     <>

@@ -166,9 +166,9 @@ export default function MeetingCard({
         } else {//if no image
           console.log("there is no image")
           let myImage = new Image();
-          setBackgroundImage(myImage);
+          setBackgroundImage(prev => [...prev, myImage]);
           setImageLoaded(true);
-          setInitialPixels(data.pixels);
+          setInitialPixels(prev => [...prev, data.pixels]);
         }
 
       })
