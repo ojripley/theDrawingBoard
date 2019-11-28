@@ -12,7 +12,6 @@ const express = require("express");
 const cors = require('cors');
 const bodyParser = require("body-parser");
 const app = express();
-app.use(cors());
 const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, { cookie: "yo" });
@@ -33,6 +32,9 @@ activeMeetings = new ActiveMeeting();
 
 // import db operations
 const db = require('./db/queries/queries');
+
+// CORS
+app.use(cors());
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
