@@ -290,9 +290,10 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         strokeWidth: strokeWidth,
         tool: tool
       };
-      dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
+      mapToRelativeUnits(pixel);
+      dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel } });
       dispatch({ type: REDRAW });
-      // mergeWithImage();
+      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
     }
   };
 
@@ -300,10 +301,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     addClick(mouseX, mouseY);
-    let pixel = { x: mouseX, y: mouseY, dragging: false, strokeWidth: strokeWidth, tool: tool };
     setPaint(true);
-    mapToRelativeUnits(pixel);
-    socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
   }
 
   const handleMouseMove = e => { //Change to useCallback??
@@ -311,15 +309,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
       addClick(mouseX, mouseY, true);
-      let pixel = {
-        x: mouseX,
-        y: mouseY,
-        dragging: true,
-        strokeWidth: strokeWidth,
-        tool: tool
-      };
-      mapToRelativeUnits(pixel);
-      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
     }
   }
 

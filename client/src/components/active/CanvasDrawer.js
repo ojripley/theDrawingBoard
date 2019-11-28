@@ -171,9 +171,9 @@ export default function CanvasDrawer(props) {
               open={Boolean(anchorEl) && anchorEl.id === 'penSelector'}
               onClose={handleClose}
             >
+              <MenuItem onClick={() => handleTool(1, 'pen')}>Small</MenuItem>
               <MenuItem onClick={() => handleTool(2, 'pen')}>Medium</MenuItem>
               <MenuItem onClick={() => handleTool(4, 'pen')}>Large</MenuItem>
-              <MenuItem onClick={() => handleTool(1, 'pen')}>Small</MenuItem>
             </Menu>
             {/* <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem> */}
             <ListItem id='highlighterSelector' button aria-controls='simple-menu2' aria-haspopup='true' onClick={handleClick}>Highlighter</ListItem>
@@ -184,7 +184,7 @@ export default function CanvasDrawer(props) {
               open={Boolean(anchorEl) && anchorEl.id === 'highlighterSelector'}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleTool(4, 'highlighter')}>Small highlighter</MenuItem>
+              <MenuItem onClick={() => handleTool(4, 'highlighter')}>Small</MenuItem>
               <MenuItem onClick={() => handleTool(8, 'highlighter')}>Medium</MenuItem>
               <MenuItem onClick={() => handleTool(16, 'highlighter')}>Large</MenuItem>
             </Menu>
