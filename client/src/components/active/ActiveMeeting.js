@@ -137,6 +137,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         setImageLoaded={setImageLoaded}
         setInMeeting={setInMeeting}
         setWriteMode={setWriteMode}
+        strokeWidth={strokeWidth}
         setStrokeWidth={setStrokeWidth}
         setHighlighting={setHighlighting}
         setPointing={setPointing}
