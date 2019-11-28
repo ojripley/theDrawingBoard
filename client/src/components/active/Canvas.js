@@ -95,7 +95,7 @@ function reducer(state, action) {
           // state.ctx.arc(state.pointers[user].x * w, state.pointers[user].y * h, 20, 0, 2 * Math.PI);//center, r, stangle, endangle
           let x = state.pointers[user].x * w;
           let y = state.pointers[user].y * h;
-          let r = state.pointers[user].strokeWidth/2;
+          let r = state.pointers[user].strokeWidth / 2;
 
           let gradient = state.ctx.createRadialGradient(x, y, r, x, y, 10 * r);
           let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
@@ -272,7 +272,10 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       imageCanvasRef.current.width = window.innerWidth;
       imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       prev = imageCanvasRef.current.getContext('2d');
-      prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+
+      if (backgroundImage.src) {
+        prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      }
       dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
       dispatch({ type: REDRAW })
     });
