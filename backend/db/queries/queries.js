@@ -323,8 +323,6 @@ const updateMeetingActiveState = function(meeting_id, active) {
 const updateMeetingById = function(meeting_id, end_time, active, status, link_to_final_doc) {
   const vars = [meeting_id, end_time, active, status, link_to_final_doc];
 
-  console.log(link_to_final_doc);
-
   return db.query(`
     UPDATE meetings
     SET

@@ -82,10 +82,8 @@ const notify = function(userId, notification) {
   notification.userId = userId;
 
   if (notification.type === 'meeting') {
-    console.log(notification);
     db.insertMeetingNotification(userId, notification)
       .then(res => {
-        console.log(res);
         notification.id = res[0].id;
         notification.time = res[0].time;
 
@@ -147,8 +145,6 @@ io.on('connection', (client) => {
             client.emit('cookieResponse', user);
             db.fetchNotificationsByUser(user.id)
               .then(res => {
-                console.log('sending');
-                console.log(res);
                 client.emit('allNotifications', res);
               })
             activeUsers.addUser(user, client);
@@ -415,12 +411,14 @@ io.on('connection', (client) => {
         console.log("sending these pixels");
         console.log(meetingDetails.userPixels);
 
+        console.log()
         db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
           .then((res) => {
 
             client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
             client.join(data.meetingId);
+
             io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
           });
       });
@@ -431,6 +429,7 @@ io.on('connection', (client) => {
           client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
 
           client.join(data.meetingId);
+
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
