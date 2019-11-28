@@ -56,6 +56,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading, pixelColor }) {
+  //TODO: Add state for page
 
   const classes = useStyles();
 
@@ -128,7 +129,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   return (
     imageLoaded && <div className={classes.root}>
-      <CanvasDrawer
+      <CanvasDrawer //TODO: pass in setPage
         user={user}
         socket={socket}
         socketOpen={socketOpen}
@@ -148,11 +149,11 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
-        backgroundImage={backgroundImage}
-        setBackgroundImage={setBackgroundImage}
+        backgroundImage={backgroundImage}//TODO: change to index (backgroundImage[page])
+        setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
         imageLoaded={imageLoaded}
         meetingId={meetingId}
-        initialPixels={initialPixels}
+        initialPixels={initialPixels}//TODO: change to index (backgroundImage[page])
         setLoading={setLoading}
         pixelColor={pixelColor}
         strokeWidth={strokeWidth}

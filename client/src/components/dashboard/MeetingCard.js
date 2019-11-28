@@ -134,7 +134,7 @@ export default function MeetingCard({
         setInMeeting(true);
         console.log(res['colorMapping']);
         setPixelColor(res['colorMapping']);
-
+//TODO: wait for all to load
         if (data.image) {//if image
           console.log("there is an image")
           let myImage = new Image();
