@@ -29,6 +29,13 @@ const theme = createMuiTheme({
       textTransform: "uppercase",
       textAlign: 'center'
     },
+    h6: {
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+      fontWeight: 500,
+      fontSize: "1rem",
+      lineHeight: 1.6,
+      letterSpacing: "0.0075em",
+    }
   },
   overrides: {
     MuiExpansionPanelSummary: {

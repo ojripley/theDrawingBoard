@@ -15,7 +15,8 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     flexGrow: 1,
-    fontFamily: "'Molle', cursive"
+    fontFamily: "'Molle', cursive",
+    fontSize: '1.25rem'
   },
   username: {
     marginRight: '0.5em'
@@ -37,7 +38,7 @@ export default function NavBar(props) {
         {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
           <MenuIcon />
         </IconButton> */}
-        <Typography variant="h6" className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
+        <Typography className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
           The Drawing Board
         </Typography>
         {props.user && (

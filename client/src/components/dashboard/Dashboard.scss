@@ -12,17 +12,19 @@
 
 #create-new-meeting {
   width: 100vw;
-  height: 50px;
+  height: 48px;
   position: fixed;
   bottom: 56px;
-  display: block;
+  display: inline-block;
   padding-top: 1em;
   background-color: white;
   z-index: 999;
+  outline: solid white 2px;
 }
 
 #create-new-meeting button {
   width: 94%;
+  justify-content: center;
   max-width: 1024px;
 }
 
