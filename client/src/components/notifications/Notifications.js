@@ -8,8 +8,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
-
-
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
   list: {
@@ -37,11 +37,6 @@ const useStyles = makeStyles(theme => ({
     display: 'inline',
     float: 'right',
     margin: theme.spacing(1),
-  },
-  header: {
-    fontSize: '2em',
-    fontWeight: 'bold'
-
   },
   header2: {
     fontSize: '1.5em',
@@ -121,7 +116,10 @@ export default function Notifications(props) {
 
   return (
     <>
-      <span className={classes.header}>Notifications </span>
+      <div id='page-header'>
+        <Typography variant='h2' color='primary'>Notifications</Typography>
+        <Divider />
+      </div>
       <Button variant="outlined" color="secondary" onClick={removeAllNotifications}> Dismiss all</Button>
 
       {props.notificationList.length === 0 && <h2> No new notifications</h2>}
