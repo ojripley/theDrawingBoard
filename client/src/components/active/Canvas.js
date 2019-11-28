@@ -47,7 +47,6 @@ function reducer(state, action) {
       // state.ctx.strokeStyle = state.color;
       // console.log(state);
       for (let user in state.pixelArrays) {
-        let out = [];
         // console.log(user);
         // if (Number(user) === 2) continue;
         let pixels = state.pixelArrays[Number(user)];
@@ -55,11 +54,11 @@ function reducer(state, action) {
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
         let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.1)`
         state.ctx.lineJoin = "round";
-        state.ctx.globalCompositionOperation = 'multiply'; //for highlighting
+        // state.ctx.globalCompositionOperat`ion = 'multiply'; //for highlighting
 
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
-          if (pixels[i].highlighting) {
+          if (pixels[i].tool === "highlighter") {
             // console.log("lighting")
             // state.ctx.globalAlpha = 0.2;
             state.ctx.lineCap = 'butt';
@@ -104,7 +103,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, highlighting, pointing }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, tool, pointing }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -256,7 +255,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         y: y,
         dragging: dragging,
         strokeWidth: strokeWidth,
-        highlighting: highlighting
+        tool: tool
       };
       dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
       dispatch({ type: REDRAW });
@@ -268,7 +267,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     addClick(mouseX, mouseY);
-    let pixel = { x: mouseX, y: mouseY, dragging: false, strokeWidth: strokeWidth };
+    let pixel = { x: mouseX, y: mouseY, dragging: false, strokeWidth: strokeWidth, tool: tool };
     setPaint(true);
     mapToRelativeUnits(pixel);
     socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
@@ -284,7 +283,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         y: mouseY,
         dragging: true,
         strokeWidth: strokeWidth,
-        highlighting: highlighting
+        tool: tool
       };
       mapToRelativeUnits(pixel);
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });

@@ -65,6 +65,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
+  const [tool, setTool] = useState("pen");
   const [strokeWidth, setStrokeWidth] = useState(1);
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
@@ -125,56 +126,58 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     }
   }, [writeMode])
 
-    return (
-      imageLoaded && <div className={classes.root}>
-        <CanvasDrawer
-          user={user}
-          socket={socket}
-          socketOpen={socketOpen}
-          meetingId={meetingId}
-          setMode={setMode}
-          setImageLoaded={setImageLoaded}
-          setInMeeting={setInMeeting}
-          setWriteMode={setWriteMode}
-          setStrokeWidth={setStrokeWidth}
-          setHighlighting={setHighlighting}
-          setPointing={setPointing}
-        />
-        <Canvas
-          user={user}
-          ownerId={ownerId}
-          socket={socket}
-          socketOpen={socketOpen}
-          backgroundImage={backgroundImage}
-          setBackgroundImage={setBackgroundImage}
-          imageLoaded={imageLoaded}
-          meetingId={meetingId}
-          initialPixels={initialPixels}
-          setLoading={setLoading}
-          pixelColor={pixelColor}
-          strokeWidth={strokeWidth}
-          highlighting={highlighting}
-          pointing={pointing}
-        />
-        {writeMode &&
-          <div className={classes.center}>
-            <TextareaAutosize
-              ref={textareaRef}
-              aria-label='empty textarea'
-              placeholder='Empty'
-              defaultValue={meetingNotes}
-              className={classes.textareaAutosize}
-              onChange={event => handleInput(event)}
-              onFocus={handleCaret}
-            />
-            <InputIcon onClick={() => setWriteMode(prev => !prev)} />
-          </div>
-        }
-        {saving &&
-          <div className={classes.saving}>
-            <CircularProgress color='secondary' />
-          </div>
-        }
-      </div>
-    )
+  return (
+    imageLoaded && <div className={classes.root}>
+      <CanvasDrawer
+        user={user}
+        socket={socket}
+        socketOpen={socketOpen}
+        meetingId={meetingId}
+        setMode={setMode}
+        setImageLoaded={setImageLoaded}
+        setInMeeting={setInMeeting}
+        setWriteMode={setWriteMode}
+        setStrokeWidth={setStrokeWidth}
+        setHighlighting={setHighlighting}
+        setPointing={setPointing}
+        setTool={setTool}
+      />
+      <Canvas
+        user={user}
+        ownerId={ownerId}
+        socket={socket}
+        socketOpen={socketOpen}
+        backgroundImage={backgroundImage}
+        setBackgroundImage={setBackgroundImage}
+        imageLoaded={imageLoaded}
+        meetingId={meetingId}
+        initialPixels={initialPixels}
+        setLoading={setLoading}
+        pixelColor={pixelColor}
+        strokeWidth={strokeWidth}
+        highlighting={highlighting}
+        pointing={pointing}
+        tool={tool}
+      />
+      {writeMode &&
+        <div className={classes.center}>
+          <TextareaAutosize
+            ref={textareaRef}
+            aria-label='empty textarea'
+            placeholder='Empty'
+            defaultValue={meetingNotes}
+            className={classes.textareaAutosize}
+            onChange={event => handleInput(event)}
+            onFocus={handleCaret}
+          />
+          <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+        </div>
+      }
+      {saving &&
+        <div className={classes.saving}>
+          <CircularProgress color='secondary' />
+        </div>
+      }
+    </div>
+  )
 }
