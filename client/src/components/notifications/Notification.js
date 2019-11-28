@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 export default function Contact(props) {
 
   const dismissNotification = function(e) {
-    console.log("DISMISS THIS");
     e.stopPropagation(); //Prevents default card actions
     //Remove the element
     props.socket.emit('dismissNotification', { id: props.id }); //props.user?

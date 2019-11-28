@@ -43,6 +43,7 @@ export default function App() {
   const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
+  const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
 
   useEffect(() => {
     console.log('loading', loading)
@@ -99,7 +100,7 @@ export default function App() {
 
   return (
     <>
-    {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
+      {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
       <ThemeProvider theme={theme}>
         {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
@@ -124,10 +125,10 @@ export default function App() {
               initialPixels={initialPixels}
               setLoading={setLoading}
               pixelColor={pixelColor}
-              />
+            />
             : <>
               <div id='app-container'>
-              <ReactNotification />
+                <ReactNotification />
                 {mode === DASHBOARD &&
                   <Dashboard
                     socket={socket}
@@ -143,6 +144,7 @@ export default function App() {
                     loading={loading}
                     setLoading={setLoading}
                     setPixelColor={setPixelColor}
+                    initialExpandedMeeting={initialExpandedMeeting}
                   />}
                 {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
                 {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
@@ -154,11 +156,12 @@ export default function App() {
                     notificationList={notificationList}
                     setNotificationList={setNotificationList}
                     setMode={setMode}
+                    setInitialExpandedMeeting={setInitialExpandedMeeting}
                   />}
 
               </div>
-            <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-          </>
+              <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
+            </>
         }
       </ThemeProvider>
     </>
