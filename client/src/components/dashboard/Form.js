@@ -189,12 +189,13 @@ export default function Form(props) {
             {contactsList}
           </Select>
         </FormControl>
-          <Input
+          <input
             id='upload-initial-doc'
             className={classes.file}
             type='file'
             onChange={handleFileUpload}
             accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
+            multiple
           />
           <label className={classes.label} htmlFor='upload-initial-doc'>
             <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
