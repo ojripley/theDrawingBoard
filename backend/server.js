@@ -9,8 +9,10 @@ require('dotenv').config();
 // server config
 const PORT = process.env.PORT || 8080;
 const express = require("express");
+const cors = require('cors');
 const bodyParser = require("body-parser");
 const app = express();
+app.use(cors());
 const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, { cookie: "yo" });
