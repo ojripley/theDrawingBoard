@@ -62,32 +62,36 @@ export default function Contact(props) {
     }
   }
 
-  // const toDisplayOrNotDisplay = function() {
-  //   if (relationStatus === 'pending') {
-  //     return 'decline-contact-request';
-  //   }
-  //   else {
-  //     return 'decline-contact-request-not-visible';
-  //   }
-  // }
+  const toDisplayOrNotDisplay = function() {
+    console.log(relationStatus)
+    if (relationStatus === 'pending') {
+      console.log('inside the if', relationStatus);
+      return 'decline-contact-request';
+    } else {
+      console.log('inside the else', relationStatus);
+      return 'decline-contact-request-not-visible';
+    }
+  };
 
   return (
     <Card classes={{ root: 'contact-card' }}>
-      <PersonIcon className='contact-icon' />
-      <Typography className='contact-username' variant='h6'>{props.contact.username} </Typography>
-      <Typography className='contact-email' variant='overline'>{props.contact.email}</Typography>
+      <div className='contact-info'>
+        <PersonIcon className='contact-icon' />
+        <Typography className='contact-username' variant='h6'>{props.contact.username} </Typography>
+        <Typography className='contact-email' variant='body2'>{props.contact.email}</Typography>
+      </div>
 
       <div className='contact-buttons'>
         <Button variant="outlined" color="primary" size='small' onClick={changeRelation}>
-        {relationStatus === undefined ? 'Add Friend'
-        : relationStatus === 'accepted' ? 'Remove Friend'
-        : relationStatus === 'requested' ? 'Friend Request Sent'
-        : relationStatus === 'pending' ? 'Accept Friend Request'
+        {relationStatus === undefined ? 'Add'
+        : relationStatus === 'accepted' ? 'Remove'
+        : relationStatus === 'requested' ? 'Request Sent'
+        : relationStatus === 'pending' ? 'Accept Request'
         : 'add contact'}
         </Button>
 
-        <Button className={relationStatus === 'pending' ? 'decline-hidden' : 'decline'} variant="outlined" color="secondary" size='small' onClick={declineRelation} >
-          Decline Friend Request
+        <Button className={toDisplayOrNotDisplay()} variant="outlined" color="secondary" size='small' onClick={declineRelation} >
+          Decline Request
         </Button>
       </div>
 

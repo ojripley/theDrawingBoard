@@ -20,41 +20,28 @@
 .contact-card {
   margin-bottom: 0.5em;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
   padding: 16px;
-  justify-content: flex-start;
-  align-content: center;
 }
 
-.contact-username {
-  flex-basis: 45%;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-.contact-email {
-  flex-basis: 45%;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-.contact-icon {
-  justify-self: left;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-right: 1em;
+.contact-info {
+  display: grid;
+  grid-template-columns: 10% 50% 40%;
+  align-items: center;
 }
 
 .contact-buttons {
   margin-top: 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
-.decline-hidden {
+button.decline-contact-request-not-visible {
   display: none;
 }
 
-.decline {
+button.decline-contact-request {
   margin-left: 1em;
 }
 

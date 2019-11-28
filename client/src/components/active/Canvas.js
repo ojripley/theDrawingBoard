@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Loading from '../Loading';
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -48,7 +47,7 @@ function reducer(state, action) {
       // state.ctx.strokeStyle = state.color;
       // console.log(state);
       for (let user in state.pixelArrays) {
-        let out = [];
+        // let out = [];
         // console.log(user);
         // if (Number(user) === 2) continue;
         let pixels = state.pixelArrays[Number(user)];

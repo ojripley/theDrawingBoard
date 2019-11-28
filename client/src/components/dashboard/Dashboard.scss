@@ -6,6 +6,7 @@
 
 .meeting-list-item {
   list-style-type: none;
+  margin-bottom: 0.5em;
 }
 
 #create-new-meeting {
@@ -38,12 +39,13 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 #owner-controls button {
   margin: 0;
   margin-top: 1em;
+  margin-left: 0.8em;
 }
 
 .attendees {

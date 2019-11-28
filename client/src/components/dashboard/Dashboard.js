@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import './Dashboard.scss';
 
-import Container from '@material-ui/core/Container';
 import MeetingCard from './MeetingCard';
 import FormDialog from './FormDialog';
 import Typography from '@material-ui/core/Typography';
