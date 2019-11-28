@@ -87,8 +87,8 @@ export default function MeetingCard({
   description,
   active,
   user,
-  // expanded,
-  // setExpanded,
+  expanded,
+  setExpanded,
   socket,
   socketOpen,
   setInMeeting,
@@ -105,7 +105,6 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  const [expanded, setExpanded] = useState(false);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -210,7 +209,6 @@ export default function MeetingCard({
           </Typography>
           <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
           <Typography variant="subtitle2">Host: {owner}</Typography>
-          {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{ root: classes.meetingExpanded }}>
           <Typography classes={{ root: classes.name }} variant="subtitle2">

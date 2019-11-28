@@ -12,7 +12,7 @@ export default function Dashboard(props) {
   const currentUser = props.user;
 
   const [meetings, setMeetings] = useState([]);
-  // const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -73,8 +73,8 @@ export default function Dashboard(props) {
           description={meeting.description}
           active={meeting.active}
           user={currentUser}
-          // expanded={expanded}
-          // setExpanded={setExpanded}
+          expanded={expanded}
+          setExpanded={setExpanded}
           socket={props.socket}
           socketOpen={props.socketOpen}
           setInMeeting={props.setInMeeting}
