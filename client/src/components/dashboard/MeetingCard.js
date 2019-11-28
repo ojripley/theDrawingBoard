@@ -137,6 +137,7 @@ export default function MeetingCard({
         setPixelColor(res['colorMapping']);
         if (data.images) {//if image
           setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
+          setInitialPixels(data.pixels);//assuming server is sending us array of pixel
           for (let i in data.images) {
             console.log("there is an image")
             let myImage = new Image();
@@ -145,6 +146,11 @@ export default function MeetingCard({
               setBackgroundImage(prev => {
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
               });
+              // setInitialPixels(prev => { //if grabbing initial pixels doesn't work
+              //   prev[i] = data.pixels
+              // });
+
+
               setLoadingCounter(prev => {
                 let newCount = prev++;
                 if (prev == data.images.length) {//done loading!
@@ -154,7 +160,6 @@ export default function MeetingCard({
                 return newCount;
               });
               console.log("received these pixels", data.pixels)
-              setInitialPixels(data.pixels);
             };
             myImage.src = data.images[i]; //pull this from socket
           }
