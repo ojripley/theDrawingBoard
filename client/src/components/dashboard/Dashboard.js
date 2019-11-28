@@ -12,9 +12,7 @@ export default function Dashboard(props) {
   const currentUser = props.user;
 
   const [meetings, setMeetings] = useState([]);
-  const [expanded, setExpanded] = useState(false);
-
-
+  // const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -75,8 +73,8 @@ export default function Dashboard(props) {
           description={meeting.description}
           active={meeting.active}
           user={currentUser}
-          expanded={expanded}
-          setExpanded={setExpanded}
+          // expanded={expanded}
+          // setExpanded={setExpanded}
           socket={props.socket}
           socketOpen={props.socketOpen}
           setInMeeting={props.setInMeeting}
@@ -95,17 +93,19 @@ export default function Dashboard(props) {
 
   return (
     <>
-      <FormDialog
-        socket={props.socket}
-        socketOpen={props.socketOpen}
-        user={currentUser}
-      />
       <div>
         <Typography id='page-header' variant='h2' color='primary'>Upcoming Meetings</Typography>
         <Divider />
       </div>
       {meetings.length < 1 ? <p className='app-message'>You have no meetings scheduled!</p>
         : <ul className='meeting-list'>{meetingsList}</ul>}
+      <div id='create-new-meeting'>
+        <FormDialog
+          socket={props.socket}
+          socketOpen={props.socketOpen}
+          user={currentUser}
+        />
+      </div>
     </>
   );
 }

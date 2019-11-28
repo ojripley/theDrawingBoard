@@ -87,8 +87,8 @@ export default function MeetingCard({
   description,
   active,
   user,
-  expanded,
-  setExpanded,
+  // expanded,
+  // setExpanded,
   socket,
   socketOpen,
   setInMeeting,
@@ -105,6 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
+  const [expanded, setExpanded] = useState(false);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
