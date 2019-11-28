@@ -85,7 +85,7 @@ export default function Form(props) {
   const theme = useTheme();
 
   const [contacts, setContacts] = useState([]);
-  const [fileName, setFileName] = useState('No File Selected');
+  // const [fileArray, setFileArray] = useState([]);
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -118,9 +118,10 @@ export default function Form(props) {
   };
 
   const handleFileUpload = event => {
-    if (event.target.files[0]) {
-      props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
-      setFileName(event.target.files[0].name);
+    if (event.target.files) {
+      console.log('event.target.files:', event.target.files);
+      props.setFiles({ name: event.target.files });
+      // setFileArray(event.target.files.);
     }
   };
 
@@ -201,7 +202,6 @@ export default function Form(props) {
             <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
               Upload
             </Button>
-            {fileName}
           </label>
       </div>
   );

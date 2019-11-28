@@ -82,7 +82,7 @@ const notify = function(userId, notification) {
   notification.userId = userId;
 
   if (notification.type === 'meeting') {
-    console.log(notification);
+    // console.log(notification);
     db.insertMeetingNotification(userId, notification)
       .then(res => {
         console.log(res);
@@ -274,6 +274,7 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
+    console.log('files', data.files)
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, "image.png") //we no longer need the link_to_initial_doc column
       .then(res => {
         client.emit('newMeeting', res[0]);
@@ -282,20 +283,24 @@ io.on('connection', (client) => {
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          for (let file of data.files) {
+          for (let i in data.files) {
+            if (i === 'length') continue;
+            console.log('i:', i);
+            const file = data.files[i];
+            console.log('file is:', file);
             if (file.name) { //Only save the file if one exists, otherwise just have an empty folder
               //Check if pdf
               if (file.name.search(/\.pdf$/ig) !== -1) {
 
                 console.log(file.name);
-                fs.writeFile(`meeting_files/${id}/${file.name}`, file.payload, (err) => {
+                fs.writeFile(`meeting_files/${id}/image-${i}.${file.name.split('.')[1]}`, file, (err) => {
                   if (err) {
                     console.log('problem');
                     throw err;
                   }
                   console.log('The file has been saved!');
 
-                  let pdfImage = new PDFImage(`meeting_files/${id}/${file.name}`);
+                  let pdfImage = new PDFImage(`meeting_files/${id}/image-${i}.${file.name.split('.')[1]}`);
 
                   pdfImage.convertFile().then(function(imagePath) {
                     // 0-th page (first page) of the slide.pdf is available as slide-0.png
@@ -306,14 +311,13 @@ io.on('connection', (client) => {
                     })
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               } else {
-                fs.writeFile(`meeting_files/${id}/${file.name}`, file.payload, (err) => {
+                fs.writeFile(`meeting_files/${id}/image-${i}.${file.name.split('.')[1]}`, file, (err) => {
                   if (err) throw err;
                   console.log('The file has been saved!');
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               }
             }
           }
-          console.log(filename);
         });
         const promiseArray = [];
 
