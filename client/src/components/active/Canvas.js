@@ -249,7 +249,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
   const addClick = (x, y, dragging) => {
     if (pointing) {
-
+      console.log('here');
     } else {
       let pixel = {
         x: x,

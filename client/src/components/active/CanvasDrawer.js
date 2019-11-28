@@ -195,7 +195,7 @@ export default function CanvasDrawer(props) {
               <MenuItem onClick={() => handleHighlighting(16)}>Large</MenuItem>
             </Menu>
 
-            <ListItem onClick={props.setPointing(true)} button>Pointer</ListItem>
+            <ListItem onClick={()=> props.setPointing(true)} button>Pointer</ListItem>
           </List>
           <Divider />
           <List>
