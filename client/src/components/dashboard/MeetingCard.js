@@ -105,6 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
+  const [loadingCounter, setLoadingCounter] = useState(0);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -134,17 +135,29 @@ export default function MeetingCard({
         setInMeeting(true);
         console.log(res['colorMapping']);
         setPixelColor(res['colorMapping']);
-//TODO: wait for all to load
-        if (data.image) {//if image
-          console.log("there is an image")
-          let myImage = new Image();
-          myImage.onload = () => {
-            setImageLoaded(true);
-            setBackgroundImage(myImage);
-            console.log("received these pixels", data.pixels)
-            setInitialPixels(data.pixels);
-          };
-          myImage.src = data.image; //pull this from socket
+        if (data.images) {//if image
+          setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
+          for (let i in data.images) {
+            console.log("there is an image")
+            let myImage = new Image();
+            myImage.onload = () => {
+              // setImageLoaded(true);
+              setBackgroundImage(prev => {
+                prev[i] = myImage; //sets the image in the proper index (maintaining order)
+              });
+              setLoadingCounter(prev => {
+                let newCount = prev++;
+                if (prev == data.images.length) {//done loading!
+                  console.log(`Loaded ${i} images`)
+                  setImageLoaded(true);
+                }
+                return newCount;
+              });
+              console.log("received these pixels", data.pixels)
+              setInitialPixels(data.pixels);
+            };
+            myImage.src = data.images[i]; //pull this from socket
+          }
         } else {//if no image
           console.log("there is no image")
           let myImage = new Image();
@@ -179,8 +192,8 @@ export default function MeetingCard({
     let attendance = attendee.attendance === 'invited' ? 'invited' : 'accepted';
     attendances.push(<li className={`${attendance} attendees`} key={`attendance-${attendee.id}`}> {attendee.attendance}</li>)
     return <li className='attendees' key={`name-${attendee.id}`}>
-        {attendee.username}
-      </li>
+      {attendee.username}
+    </li>
   })
 
   return (
@@ -196,16 +209,16 @@ export default function MeetingCard({
           }}
         >
           <Typography classes={{ root: classes.date }} variant='h6'>{date.toLocaleString('en-US', {
-              weekday: 'short',
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })}
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
           </Typography>
           <Typography classes={{ root: classes.time }} align='right' variant='subtitle2'>{date.toLocaleString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric'
-            })}
+            hour: 'numeric',
+            minute: 'numeric'
+          })}
           </Typography>
           <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
           <Typography variant="subtitle2">Host: {owner}</Typography>
