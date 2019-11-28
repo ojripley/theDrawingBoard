@@ -10,8 +10,9 @@ import Badge from '@material-ui/core/Badge';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
+    width: '100vw',
     position: 'fixed',
+    overflowX: 'hidden',
     bottom: 0,
     backgroundColor: theme.palette.tertiary.main
   },
