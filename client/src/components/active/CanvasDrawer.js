@@ -10,10 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Slider from '@material-ui/core/Slider';
-
-
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 
 const useStyles = makeStyles({
   list: {
@@ -200,6 +198,14 @@ export default function CanvasDrawer(props) {
           <Divider />
           <List>
             <ListItem button onClick={backToDash}>Leave Meeting</ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem>
+              <KeyboardArrowLeftIcon />
+              Page {props.page + 1} of {props.totalPages}
+              <KeyboardArrowRightIcon />
+            </ListItem>
           </List>
         </div>
       </Drawer>

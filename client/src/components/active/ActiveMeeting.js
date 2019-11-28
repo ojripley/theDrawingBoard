@@ -145,6 +145,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         setHighlighting={setHighlighting}
         setPointing={setPointing}
         setTool={setTool}
+        page={page}
+        totalPages={backgroundImage.length}
         setPage={setPage}
       />
       <Canvas
