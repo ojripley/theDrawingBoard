@@ -363,12 +363,12 @@ io.on('connection', (client) => {
             const meeting = res[0];
 
             // set meeting pixel log
-            meeting['userPixels'] = {};
-            meeting['pointers'] = {};
+            meeting['userPixels'] = [{}];
+            meeting['pointers'] = [{}];
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = colors;
             // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
-            meeting['counter'] = 0;
+            meeting['counter'] = 0; //counts number of users currenly in user
             meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
@@ -430,7 +430,7 @@ io.on('connection', (client) => {
             io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
           });
       });
-    } else {
+    } else { //No image 
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
 

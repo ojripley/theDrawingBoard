@@ -105,7 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  const [loadingCounter, setLoadingCounter] = useState(0);
+  const [, setLoadingCounter] = useState(0);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -153,7 +153,7 @@ export default function MeetingCard({
 
               setLoadingCounter(prev => {
                 let newCount = prev++;
-                if (prev == data.images.length) {//done loading!
+                if (prev === data.images.length) {//done loading!
                   console.log(`Loaded ${i} images`)
                   setImageLoaded(true);
                 }
