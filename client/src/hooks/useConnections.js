@@ -1,7 +1,7 @@
 import { useState, uesEffect } from 'react';
 import Peer from 'peerjs';
 
-export const useConnection = () => {
+export const useConnections = () => {
 
   const [connections, setConnections] = useState({});
 
