@@ -15,7 +15,7 @@ const theme = createMuiTheme({
       contrastText: '#FFF3E8'
     },
     tertiary: {
-      main: '#FFF3E8',
+      main: '#F5F0EB',
       contrastText: '#36363E',
     }
   },
