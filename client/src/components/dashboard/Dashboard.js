@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import './Dashboard.scss';
 
-import Container from '@material-ui/core/Container';
 import MeetingCard from './MeetingCard';
 import FormDialog from './FormDialog';
 import Typography from '@material-ui/core/Typography';
@@ -14,8 +13,6 @@ export default function Dashboard(props) {
 
   const [meetings, setMeetings] = useState([]);
   const [expanded, setExpanded] = useState(props.initialExpandedMeeting);
-
-
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -96,17 +93,19 @@ export default function Dashboard(props) {
 
   return (
     <>
-      <FormDialog
-        socket={props.socket}
-        socketOpen={props.socketOpen}
-        user={currentUser}
-      />
       <div>
         <Typography id='page-header' variant='h2' color='primary'>Upcoming Meetings</Typography>
         <Divider />
       </div>
       {meetings.length < 1 ? <p className='app-message'>You have no meetings scheduled!</p>
         : <ul className='meeting-list'>{meetingsList}</ul>}
+      <div id='create-new-meeting'>
+        <FormDialog
+          socket={props.socket}
+          socketOpen={props.socketOpen}
+          user={currentUser}
+        />
+      </div>
     </>
   );
 }
