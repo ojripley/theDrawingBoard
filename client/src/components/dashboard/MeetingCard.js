@@ -68,6 +68,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ExpansionPanelSummary = withStyles({
+  root: {},
   content: {
     '&$expanded': {
       margin: '0px 0',
@@ -97,6 +98,8 @@ export default function MeetingCard({
   setImageLoaded,
   setInitialPixels,
   setMeetingNotes,
+  setLoading,
+  setPixelColor
 }) {
 
   const classes = useStyles();
@@ -113,6 +116,7 @@ export default function MeetingCard({
 
   const enterMeeting = () => {
     socket.emit('enterMeeting', { user: user, meetingId: id, attendeeIds: attendeeIds })
+    setLoading(true);
   }
 
   const date = new Date(startTime);
@@ -121,13 +125,15 @@ export default function MeetingCard({
     if (socketOpen) {
 
       socket.on('enteredMeeting', data => {
-        // console.log('Meeting is: ', res);
-        let res = data.meeting;
+
+        let res = data.meeting; //can send this object instead
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
-        console.log(data.notes);
         setMeetingNotes(data.notes);
+        setLoading(false);
         setInMeeting(true);
+        console.log(res['colorMapping']);
+        setPixelColor(res['colorMapping']);
 
         if (data.image) {//if image
           console.log("there is an image")
@@ -145,13 +151,6 @@ export default function MeetingCard({
           setBackgroundImage(myImage);
           setImageLoaded(true);
           setInitialPixels(data.pixels);
-
-          // myImage.onload = () => {
-          //   setImageLoaded(true);
-          //   setBackgroundImage(myImage);
-          //   console.log("received these pixels", data.pixels)
-          //   setInitialPixels(data.pixels);
-          // };
         }
 
       })
@@ -210,7 +209,6 @@ export default function MeetingCard({
           </Typography>
           <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
           <Typography variant="subtitle2">Host: {owner}</Typography>
-          {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{ root: classes.meetingExpanded }}>
           <Typography classes={{ root: classes.name }} variant="subtitle2">

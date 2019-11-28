@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default function DetailedHistory(props) {
 
@@ -47,7 +48,8 @@ export default function DetailedHistory(props) {
         <FileCopyIcon onClick={copyToClipboard} />
       </div>}
       <h4>Group Notes</h4>
-      <img className='meeting-image' src={image} alt='meeting-notes' />
+      {image ? <img className='meeting-image' src={image} alt='meeting-notes' />
+        : <CircularProgress color='secondary' />}
       <Button variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
     </Box>
   );

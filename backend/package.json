@@ -20,6 +20,7 @@
     "dotenv": "^2.0.0",
     "ejs": "^2.6.2",
     "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
     "morgan": "^1.9.1",
     "node-sass-middleware": "^0.11.0",
     "pdf-image": "^2.0.0",

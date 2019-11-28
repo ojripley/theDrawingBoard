@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, backgroundImage, initialPixels }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading, pixelColor }) {
 
   const classes = useStyles();
 
@@ -69,6 +69,14 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
+
+  const [tool, setTool] = useState("pen");
+  const [strokeWidth, setStrokeWidth] = useState(3);
+  const [highlighting, setHighlighting] = useState(false);
+  const [pointing, setPointing] = useState(false);
+
+  // const backgroundCanvas = useRef(null);
+
 
   const textareaRef = useRef(null);
 
@@ -273,18 +281,28 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   useEffect(() => {
+
+    socket.on('loadTheSpinnerPls', () => {
+      setLoading(true);
+    });
+
     socket.on('requestNotes', res => {
+      setLoading(true);
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
     });
+
     socket.on('concludedMeetingId', res => {
       setInMeeting(false);
       setMeetingId(null);
-    })
+      setBackgroundImage(new Image());
+      setLoading(false);
+    });
+
     return () => {
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
     };
-  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user])
+  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading])
 
   useEffect(() => {
     if (socketOpen) {
@@ -298,7 +316,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [ writeMode])
+  }, [writeMode])
 
   const incomingStreams = Object.keys(streams).map((key) => {
     const stream = streams[key];
@@ -321,18 +339,31 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         socketOpen={socketOpen}
         meetingId={meetingId}
         setMode={setMode}
+        setImageLoaded={setImageLoaded}
         setInMeeting={setInMeeting}
         setWriteMode={setWriteMode}
+        strokeWidth={strokeWidth}
+        setStrokeWidth={setStrokeWidth}
+        setHighlighting={setHighlighting}
+        setPointing={setPointing}
+        setTool={setTool}
       />
       <Canvas
         user={user}
         ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
-        imageEl={backgroundImage}
-        isLoaded={imageLoaded}
+        backgroundImage={backgroundImage}
+        setBackgroundImage={setBackgroundImage}
+        imageLoaded={imageLoaded}
         meetingId={meetingId}
         initialPixels={initialPixels}
+        setLoading={setLoading}
+        pixelColor={pixelColor}
+        strokeWidth={strokeWidth}
+        highlighting={highlighting}
+        pointing={pointing}
+        tool={tool}
       />
       {writeMode &&
         <div className={classes.center}>
@@ -350,7 +381,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       }
       {saving &&
         <div className={classes.saving}>
-          <CircularProgress />
+          <CircularProgress color='secondary' />
         </div>
       }
     </div>

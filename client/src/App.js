@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
-import Container from '@material-ui/core/Box';
 import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
 import { store } from 'react-notifications-component';
@@ -8,10 +7,10 @@ import { store } from 'react-notifications-component';
 import theme from './theme/muiTheme';
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
-
 // COMPONENTS
 import TabBar from './TabBar';
 import NavBar from './NavBar';
+import Loading from './components/Loading';
 import ActiveMeeting from './components/active/ActiveMeeting';
 import Notifications from './components/notifications/Notifications';
 import Contacts from './components/contacts/Contacts';
@@ -28,6 +27,7 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const NOTIFICATIONS = 'NOTIFICATIONS';
   const [mode, setMode] = useState(DASHBOARD);
+  const [loading, setLoading] = useState(true);
 
   const { socket, socketOpen } = useSocket();
 
@@ -39,69 +39,14 @@ export default function App() {
   const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState({});
+  const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
-  // const [notificationList, setNotificationList] = useState([]);
-  const [notificationList, setNotificationList] = useState(
-    [
-      {
-        id: 1,
-        userId: 1,
-        type: "meeting",
-        meetingId: 0,
-        title: "example",
-        msg: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 2,
-        userId: 1,
-        type: "meeting",
-        title: "example2",
-        msg: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 3,
-        type: "meeting",
-        title: "example3",
-        message: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 4,
-        type: "contacts",
-        title: "new contact",
-        message: "you have a new contact",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 5,
-        type: "contacts",
-        title: "accepted your friend request",
-        message: "onetwothree",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 7,
-        userId: 4, //id, email
-        type: "contacts",
-        senderId: 0, //Either an id or
-        title: "Friend added",
-        msg: "Someone has added you",
-        time: (new Date()).toLocaleDateString()
-      },
-      {
-        id: 8,
-        userId: 2, //id, email
-        type: "dm",
-        senderId: 0, //Either an id or
-        title: "New message from ...",
-        msg: "...",
-        time: (new Date()).toLocaleDateString()
-      },
+  const [notificationList, setNotificationList] = useState([]);
+  const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
 
-    ])
-    ;
+  useEffect(() => {
+    console.log('loading', loading)
+  }, [loading])
 
 
   useEffect(() => {
@@ -127,7 +72,7 @@ export default function App() {
         store.addNotification({
           title: `${data.type}`,
           message: `${data.msg}`,
-          type: "success",
+          type: "custom",
           insert: "top",
           container: "top-right",
           animationIn: ["animated", "fadeIn"],
@@ -140,81 +85,89 @@ export default function App() {
       })
 
       socket.on('cookieResponse', data => {
+        console.log('received cookie response')
+        setLoading(false);
         setUser(data);
       });
+
       return () => {
         socket.off('cookieResponse');
         socket.off('meeting');
       }
     }
-  }, [socket, socketOpen]);
+  }, [socket, socketOpen, setLoading]);
 
-  if (user) {
-    if (inMeeting) {
-      return (
-        <ThemeProvider theme={theme}>
-          <ActiveMeeting
-            meetingId={meetingId}
-            ownerId={ownerId}
-            user={user}
-            socket={socket}
-            socketOpen={socketOpen}
-            initialNotes={meetingNotes}
-            setMeetingNotes={setMeetingNotes}
-            setInMeeting={setInMeeting}
-            setMeetingId={setMeetingId}
-            imageLoaded={imageLoaded}
-            backgroundImage={backgroundImage}
-            setMode={setMode}
-            initialPixels={initialPixels}
-          />
-        </ThemeProvider>
-      );
-    } else {
-      return (
-        <ThemeProvider theme={theme}>
-          <ReactNotification />
-          <NavBar user={user} setUser={setUser} setMode={setMode}/>
-          <Container>
-
-            {mode === DASHBOARD &&
-              <Dashboard
-                socket={socket}
-                socketOpen={socketOpen}
-                user={user}
-                setInMeeting={setInMeeting}
-                setMeetingId={setMeetingId}
-                setMeetingNotes={setMeetingNotes}
-                setOwnerId={setOwnerId}
-                setBackgroundImage={setBackgroundImage}
-                setImageLoaded={setImageLoaded}
-                setInitialPixels={setInitialPixels}
-              />}
-            {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-            {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
-            {mode === NOTIFICATIONS &&
-              <Notifications
-                socket={socket}
-                socketOpen={socketOpen}
-                user={user}
-                notificationList={notificationList}
-                setNotificationList={setNotificationList}
-                setMode={setMode}
-              />}
-
-          </Container>
-          <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
-        </ThemeProvider>
-
-      );
-    }
-  } else {
-    return (
+  return (
+    <>
+      {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
       <ThemeProvider theme={theme}>
-        <NavBar user={null} />
-        <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
-      </ThemeProvider>
-    );
+        {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
-  }
+        {!user ?
+          <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+          : inMeeting ?
+            <ActiveMeeting
+              meetingId={meetingId}
+              ownerId={ownerId}
+              user={user}
+              socket={socket}
+              socketOpen={socketOpen}
+              initialNotes={meetingNotes}
+              setMeetingNotes={setMeetingNotes}
+              setInMeeting={setInMeeting}
+              setMeetingId={setMeetingId}
+              imageLoaded={imageLoaded}
+              setImageLoaded={setImageLoaded}
+              backgroundImage={backgroundImage}
+              setBackgroundImage={setBackgroundImage}
+              setMode={setMode}
+              initialPixels={initialPixels}
+              setLoading={setLoading}
+              pixelColor={pixelColor}
+            />
+            : <>
+              <div id='app-container'>
+                <ReactNotification
+                  types={[{
+                    htmlClasses: ['notification-custom'],
+                    name: 'custom'
+                  }]}
+                />
+                {mode === DASHBOARD &&
+                  <Dashboard
+                    socket={socket}
+                    socketOpen={socketOpen}
+                    user={user}
+                    setInMeeting={setInMeeting}
+                    setMeetingId={setMeetingId}
+                    setMeetingNotes={setMeetingNotes}
+                    setOwnerId={setOwnerId}
+                    setBackgroundImage={setBackgroundImage}
+                    setImageLoaded={setImageLoaded}
+                    setInitialPixels={setInitialPixels}
+                    loading={loading}
+                    setLoading={setLoading}
+                    setPixelColor={setPixelColor}
+                    initialExpandedMeeting={initialExpandedMeeting}
+                  />}
+                {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
+                {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+                {mode === NOTIFICATIONS &&
+                  <Notifications
+                    socket={socket}
+                    socketOpen={socketOpen}
+                    user={user}
+                    notificationList={notificationList}
+                    setNotificationList={setNotificationList}
+                    setMode={setMode}
+                    setInitialExpandedMeeting={setInitialExpandedMeeting}
+                  />}
+
+              </div>
+              <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
+            </>
+        }
+      </ThemeProvider>
+    </>
+  )
 }

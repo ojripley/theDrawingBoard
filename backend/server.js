@@ -17,6 +17,7 @@ const io = require('socket.io')(server, { cookie: "yo" });
 const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
+const colors = require('./colors.json')["colors"];
 
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
@@ -156,6 +157,8 @@ io.on('connection', (client) => {
       } catch (err) {
         console.error('Cookie authentication failed!');
       }
+    } else {
+      client.emit('cookieResponse', null);
     }
   });
 
@@ -202,7 +205,12 @@ io.on('connection', (client) => {
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
-  })
+  });
+
+  client.on('setPointer', data => {
+    activeMeetings[data.meetingId].pointers[data.user.id] = data.pixel;
+    io.to(data.meetingId).emit('setPointer', data); //pass message along
+  });
 
   //End of test
   client.on('msg', (data) => {
@@ -346,6 +354,12 @@ io.on('connection', (client) => {
 
             // set meeting pixel log
             meeting['userPixels'] = {};
+            meeting['pointers'] = {};
+            // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
+            meeting['userColors'] = colors;
+            // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
+            meeting['counter'] = 0;
+            meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
 
@@ -369,6 +383,17 @@ io.on('connection', (client) => {
     if (!meetingDetails.userPixels[data.user.id]) {
       meetingDetails.userPixels[data.user.id] = [];
     }
+
+    //Select a color:
+    let col = meetingDetails['colorMapping'][data.user.id];
+    if (!col) {
+      col = meetingDetails['userColors'][(meetingDetails['counter']++) % colors.length];
+      meetingDetails['colorMapping'][data.user.id] = col;
+    }
+
+
+
+
     console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
     let img = "";
@@ -393,8 +418,8 @@ io.on('connection', (client) => {
             client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
             client.join(data.meetingId);
-            console.log('new participant', data.user);
-            io.to(data.meetingId).emit('newParticipant', { user: data.user });
+
+            io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
           });
       });
     } else {
@@ -404,8 +429,8 @@ io.on('connection', (client) => {
           client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
 
           client.join(data.meetingId);
-          console.log('new participant', data.user);
-          io.to(data.meetingId).emit('newParticipant', { user: data.user });
+
+          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
 
@@ -420,15 +445,23 @@ io.on('connection', (client) => {
   });
 
   // gotta handle the end meeting event
+  client.on('savingMeeting', data => {
+    io.to(data.meetingId).emit('loadTheSpinnerPls');
+  })
+
   client.on('endMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
 
     let img;
-    if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-      img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+    if (meetingDetails.link_to_initial_doc) {
+      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+      } else {
+        img = meetingDetails.link_to_initial_doc;
+      }
     } else {
-      img = meetingDetails.link_to_initial_doc;
+      img = 'blank.png'
     }
 
     fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
@@ -441,7 +474,7 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
     for (let id of meetingDetails.invited_users) {
-      notify(activeUsers[id].id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
+      notify(id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
     }
     activeMeetings.removeMeeting(data.meetingId);
 
@@ -570,7 +603,7 @@ io.on('connection', (client) => {
   });
 
   client.on('msgToMeeting', (data) => {
-    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user, time: Date.now()});
+    io.to(data.meetingId).emit('meetingMsg', { msg: data.msg, user: data.user, time: Date.now() });
   });
 
   client.on(`msgToUser`, (data) => {

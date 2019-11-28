@@ -115,12 +115,14 @@ export default function Form(props) {
 
   const handleMeetingDescChange = event => {
     props.setMeetingDesc(event.target.value);
-  }
+  };
 
   const handleFileUpload = event => {
-    props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
-    setFileName(event.target.files[0].name);
-  }
+    if (event.target.files[0]) {
+      props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
+      setFileName(event.target.files[0].name);
+    }
+  };
 
   const contactsList = contacts.map(contact => {
 

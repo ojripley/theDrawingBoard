@@ -9,6 +9,8 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import Slider from '@material-ui/core/Slider';
+
 
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -24,7 +26,7 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     position: 'relative',
     zIndex: 2,
-    width: "100%",
+    width: '100%',
   },
   textareaAutosize: {
     resize: 'none',
@@ -82,6 +84,7 @@ export default function CanvasDrawer(props) {
   };
 
   const backToDash = () => {
+    props.setImageLoaded(false);
     props.setInMeeting(false);
     props.setMode('DASHBOARD');
   };
@@ -93,12 +96,18 @@ export default function CanvasDrawer(props) {
 
   const handleUndo = () => {
     if (props.socketOpen) {
-      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId});
+      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId });
     }
   }
 
+
+  const handleTool = (tool) => {
+    props.setTool(tool);
+    handleClose();
+    setOpenDrawer(false);
+  }
+
   const handleMessage = event => {
-    // props.setMessageMode(prev => !prev);
     setMessage(event.target.value);
     console.log(message);
   };
@@ -118,6 +127,10 @@ export default function CanvasDrawer(props) {
     }
   }
 
+  const handleChange = (event, n) => {
+    props.setStrokeWidth(n);
+  };
+
   const msgs = messages.map((message) => {
     return (
       <Message
@@ -129,16 +142,20 @@ export default function CanvasDrawer(props) {
     )
   });
 
+  const valueText = (value) => {
+    return `${value}`;
+  }
+
   return (
     <>
       <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
-      <Drawer anchor="right" open={openDrawer} onClose={() => setOpenDrawer(false)}>
+      <Drawer anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <div
           className={classes.list}
-          role="presentation"
+          role='presentation'
         >
           <List>
-            <ListItem className='meeting-chat' className={classes.center}>
+            <ListItem className={`meeting-chat ${classes.center}`}>
               <section className='messages-display'>{msgs}</section>
               <TextareaAutosize
                 ref={textareaRef}
@@ -155,20 +172,26 @@ export default function CanvasDrawer(props) {
           </List>
           <List>
             <ListItem button onClick={handleUndo}>Undo</ListItem>
-            <ListItem button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>Pen</ListItem>
-            <Menu
-              id="simple-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={handleClose}>Small</MenuItem>
-              <MenuItem onClick={handleClose}>Medium</MenuItem>
-              <MenuItem onClick={handleClose}>Large</MenuItem>
-            </Menu>
-            <ListItem button>Highlighter</ListItem>
-            <ListItem button>Pointer</ListItem>
+            <ListItem id='penSelector' button aria-controls='simple-menu' aria-haspopup='true' onClick={() => handleTool('pen')}>Pen</ListItem>
+
+            {/* <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem> */}
+            <ListItem id='highlighterSelector' button aria-controls='simple-menu2' aria-haspopup='true' onClick={() => handleTool('highlighter')}>Highlighter</ListItem>
+
+            <ListItem onClick={() => handleTool('pointer')} button>Pointer</ListItem>
+            <ListItem>
+              Size
+              <Slider
+                defaultValue={props.strokeWidth}
+                getAriaValueText={valueText}
+                aria-labelledby="discrete-slider-small-steps"
+                step={1}
+                marks
+                min={0}
+                max={20}
+                valueLabelDisplay="auto"
+                onChange={handleChange}
+              />
+            </ListItem>
           </List>
           <Divider />
           <List>
