@@ -23,6 +23,7 @@ export default function FormDialog(props) {
   const handleClose = () => {
     setOpen(false);
     setSelectedContacts([]);
+    setSelectedDate(new Date());
   };
 
   useEffect(() => {
@@ -52,8 +53,8 @@ export default function FormDialog(props) {
   };
 
   return (
-    <div>
-      <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
+    <>
+      <Button variant="outlined" color="secondary" onClick={() => setOpen(true)}>
         Create New Meeting
       </Button>
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -86,6 +87,6 @@ export default function FormDialog(props) {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }

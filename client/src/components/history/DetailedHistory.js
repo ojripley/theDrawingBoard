@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default function DetailedHistory(props) {
 
@@ -23,7 +24,7 @@ export default function DetailedHistory(props) {
 
       return () => props.socket.off('notes');
     }
-  }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc]);
+  }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc, props.socketOpen]);
 
   const copyToClipboard = () => {
     console.log(notesRef.current.value)
@@ -43,11 +44,12 @@ export default function DetailedHistory(props) {
       <p>{props.meeting.description}</p>
       {notes && notes.length > 0 && <div className='personal-notes'>
         <h4>My Notes</h4>
-        <textarea className='notes-text' ref={notesRef} value={notes}>{notes}</textarea>
+        <textarea className='notes-text' ref={notesRef} value={notes} readOnly>{notes}</textarea>
         <FileCopyIcon onClick={copyToClipboard} />
       </div>}
       <h4>Group Notes</h4>
-      <img className='meeting-image' src={image} alt='meeting-notes' />
+      {image ? <img className='meeting-image' src={image} alt='meeting-notes' />
+        : <CircularProgress color='secondary' />}
       <Button variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
     </Box>
   );

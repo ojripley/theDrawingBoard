@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
 // Material UI - Text Inputs
-import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import Button from '@material-ui/core/Button';
+
 
 // Material UI - Date & Time Pickers
 import 'date-fns';
-import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
+  KeyboardDateTimePicker,
 } from '@material-ui/pickers';
 
 // Material UI - Name Selector
@@ -26,17 +26,14 @@ import Chip from '@material-ui/core/Chip';
 const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
   },
   textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 200,
+    minWidth: '240px',
+    height: 'auto'
   },
   formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-    maxWidth: 300,
+    minWidth: '240px'
   },
   chips: {
     display: 'flex',
@@ -44,15 +41,21 @@ const useStyles = makeStyles(theme => ({
   },
   chip: {
     margin: 2,
+    backgroundColor: theme.palette.tertiary.main
   },
   button: {
-    margin: theme.spacing(1),
+    marginRight: '1em'
   },
   file: {
-    marginTop: '1em',
-    width: 200,
-    padding: '2em',
-    border: 'solid 1px gray'
+    width: '0.1px',
+    height: '0.1px',
+    opacity: 0,
+    overflow: 'hidden',
+    position: 'absolute',
+    zIndex: '-1',
+  },
+  label : {
+    marginTop: '1em'
   }
 }));
 
@@ -82,6 +85,7 @@ export default function Form(props) {
   const theme = useTheme();
 
   const [contacts, setContacts] = useState([]);
+  const [fileName, setFileName] = useState('No File Selected');
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -111,11 +115,14 @@ export default function Form(props) {
 
   const handleMeetingDescChange = event => {
     props.setMeetingDesc(event.target.value);
-  }
+  };
 
   const handleFileUpload = event => {
-    props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
-  }
+    if (event.target.files[0]) {
+      props.setFile({ name: event.target.files[0].name, payload: event.target.files[0] });
+      setFileName(event.target.files[0].name);
+    }
+  };
 
   const contactsList = contacts.map(contact => {
 
@@ -131,51 +138,36 @@ export default function Form(props) {
   });
 
   return (
-    <Box className={classes.container} noValidate autoComplete="off">
-      <div>
+      <div className={classes.container} noValidate autoComplete="off">
         <TextField
           label="Name"
           placeholder='Meeting Name'
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingNameChange}
+          inputProps={{ maxLength: 30 }}
+          required
         />
         <TextField
           label="Description"
+          multiline
           placeholder='Meeting Description'
           className={classes.textField}
           margin="normal"
           onChange={handleMeetingDescChange}
         />
-      </div>
-      <div>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <Grid container justify="space-around">
-            <KeyboardDatePicker
-              margin="normal"
-              id="date-picker-dialog"
-              label="date"
-              format="MM/dd/yyyy"
-              value={props.selectedDate}
-              onChange={handleDateChange}
-              KeyboardButtonProps={{
-                'aria-label': 'change date',
-              }}
-            />
-            <KeyboardTimePicker
-              margin="normal"
-              id="time-picker"
-              label="Time"
-              value={props.selectedDate}
-              onChange={handleDateChange}
-              KeyboardButtonProps={{
-                'aria-label': 'change time',
-              }}
-            />
-          </Grid>
+          <KeyboardDateTimePicker
+            margin="normal"
+            id="date-picker-dialog"
+            label="Date &amp; Time"
+            format="yyyy/MM/dd hh:mm a"
+            value={props.selectedDate}
+            onChange={handleDateChange}
+            disablePast
+            orientation='portrait'
+          />
         </MuiPickersUtilsProvider>
-      </div>
-      <div>
         <FormControl className={classes.formControl}>
           <InputLabel id="demo-mutiple-chip-label">Contacts</InputLabel>
           <Select
@@ -196,9 +188,20 @@ export default function Form(props) {
           >
             {contactsList}
           </Select>
-          <input className={classes.file} type='file' onChange={handleFileUpload} accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg" />
         </FormControl>
+          <Input
+            id='upload-initial-doc'
+            className={classes.file}
+            type='file'
+            onChange={handleFileUpload}
+            accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
+          />
+          <label className={classes.label} htmlFor='upload-initial-doc'>
+            <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
+              Upload
+            </Button>
+            {fileName}
+          </label>
       </div>
-    </Box>
   );
 }

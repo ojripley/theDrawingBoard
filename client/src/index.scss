@@ -8,12 +8,22 @@ body {
   overflow: auto;
 
   height: 100%;
+  overflow: auto;
+  color: #36363E;
 }
 html {
   height: 100%;
   overflow: hidden;
+  color: #36363E;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+#root {
+  display: grid;
+  height: 100vh;
+  grid-template-rows: 56px auto 56px;
+  justify-items: center;
 }

@@ -5,18 +5,17 @@ import useDebounce from "../../hooks/useDebounce";
 
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
   textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 200,
+    flexBasis: '100%',
+    width: 'auto',
+    height: 'auto',
+    alignSelf: 'center',
+    justifySelf: 'center'
   },
 }));
 
@@ -87,7 +86,7 @@ export default function Contacts(props) {
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {
       console.log(friend.username, friend.id);
-
+      console.log(friend);
       return (<Contact
         key={friend.id}
         contact={friend}
@@ -101,28 +100,31 @@ export default function Contacts(props) {
 
   return (
     <>
-      <h1>Contacts</h1>
-      <TextField
-        id="outlined-name"
-        label="Contacts"
-        className={classes.textField}
-        value={searchTerm}
-        onChange={handleSearchTermChange}
-        margin="normal"
-        variant="outlined"
-      />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={globalSearch}
-            onChange={handleGlobalSearchChange}
-            value="checked"
-            color="primary"
-          />
-        }
-        label={globalSearch ? 'Search: Find Friends' : 'Search: My Friends'}
-      />
-      <ul>
+      <div>
+        <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography>
+        <Divider />
+      </div>
+      <div id='search-container'>
+        <TextField
+          id="outlined-name"
+          label="Search"
+          className={classes.textField}
+          value={searchTerm}
+          onChange={handleSearchTermChange}
+          margin="normal"
+        />
+        <label className='search-label' htmlFor='upload-initial-doc'>
+          <Typography variant='overline'>{globalSearch ? 'Search: All Users' : 'Search: Contacts'}</Typography>
+        </label>
+        <Switch
+          id='toggle-global-search'
+          checked={globalSearch}
+          onChange={handleGlobalSearchChange}
+          value="checked"
+          color="secondary"
+        />
+      </div>
+      <ul className='contact-list'>
         {contacts}
       </ul>
     </>

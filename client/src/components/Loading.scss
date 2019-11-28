@@ -1,0 +1,13 @@
+#loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999999;
+  background-color: white;
+  width: 100vw;
+  height: 100vh;
+}

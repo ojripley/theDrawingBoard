@@ -86,7 +86,10 @@ export default function Notifications(props) {
         type={notif.type}
         title={notif.title}
         message={notif.msg}
-        onClick={() => props.setMode("DASHBOARD")}
+        onClick={() => {
+          props.setInitialExpandedMeeting(`panel${notif.meetingId}`);
+          props.setMode("DASHBOARD");
+        }}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
