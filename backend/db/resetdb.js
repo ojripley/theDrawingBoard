@@ -44,7 +44,7 @@ const clearMeetingData = function() {
 
   fs.writeFile('./meeting_files/.gitignore', data, (err) => {
     if (err) throw err;
-    console.log('The gitignore has be rewritten!');
+    console.log('Meeting files have been cleared!');
   });
 }
 

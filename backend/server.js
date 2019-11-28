@@ -385,7 +385,7 @@ io.on('connection', (client) => {
     //Select a color:
     let col = meetingDetails['colorMapping'][data.user.id];
     if (!col) {
-      col = meetingDetails['userColors'][meetingDetails['counter']++];
+      col = meetingDetails['userColors'][(meetingDetails['counter']++) % colors.length];
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
