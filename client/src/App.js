@@ -36,9 +36,9 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
-  const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
+  const [backgroundImage, setBackgroundImage] = useState(new Image()); //TODO: Change to empty array
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [initialPixels, setInitialPixels] = useState({});
+  const [initialPixels, setInitialPixels] = useState({}); //TODO: Change to array
   const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
