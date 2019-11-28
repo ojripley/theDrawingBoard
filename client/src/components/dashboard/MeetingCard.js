@@ -140,17 +140,17 @@ export default function MeetingCard({
           let myImage = new Image();
           myImage.onload = () => {
             setImageLoaded(true);
-            setBackgroundImage(myImage);
+            setBackgroundImage(prev => [...prev, myImage]);
             console.log("received these pixels", data.pixels)
-            setInitialPixels(data.pixels);
+            setInitialPixels(prev => [...prev, data.pixels]);
           };
           myImage.src = data.image; //pull this from socket
         } else {//if no image
           console.log("there is no image")
           let myImage = new Image();
-          setBackgroundImage(myImage);
+          setBackgroundImage(prev => [...prev, myImage]);
           setImageLoaded(true);
-          setInitialPixels(data.pixels);
+          setInitialPixels(prev => [...prev, data.pixels]);
         }
 
       })

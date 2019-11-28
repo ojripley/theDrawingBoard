@@ -153,7 +153,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         socket={socket}
         socketOpen={socketOpen}
         backgroundImage={backgroundImage[page]}//TODO: change to index (backgroundImage[page])
-        setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
+        // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
         imageLoaded={imageLoaded}
         meetingId={meetingId}
         initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
