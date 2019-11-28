@@ -13,4 +13,4 @@
 
 [build.environment]
   REACT_APP_API_BASE_URL = "https://thedrawingboard-backend.herokuapp.com/"
-  REACT_APP_WEBSOCKET_URL = "https://thedrawingboard-backend.herokuapp.com/:8080"
+  REACT_APP_WEBSOCKET_URL = "https://thedrawingboard-backend.herokuapp.com/"
