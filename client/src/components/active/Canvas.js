@@ -312,7 +312,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         variant='contained'
         color='secondary'
         className={classes.endMeeting}
-        onClick={endMeeting}
+        onClick={loadSpinner}
       >
         End Meeting
         </Button>}

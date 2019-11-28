@@ -1,20 +1,40 @@
+@import '../../theme/variables';
+
+#search-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: center;
+}
+
+.search-label {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.contact-list {
+  padding: 0;
+}
+
 .contact-card {
-  padding: 1em;
-  margin-top: 0.5em;
-  margin-right: 1em;
-  width: 90%;
+  margin-bottom: 0.5em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 16px;
+  justify-content: space-between;
+  align-content: center;
+}
 
+.contact-username {
+  font-size: 1.25em;
+}
 
-  .contact-username {
-    font-size: 1.25em;
-  }
+.contact-icon {
+}
 
-  .contact-icon {
-    margin: .5em;
-  }
-
-  .decline-contact-request-not-visible {
-    display: none;
-  }
+.decline-contact-request-not-visible {
+  display: none;
 }
 
