@@ -78,6 +78,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const textareaRef = useRef(null);
 
+  console.log('at 0', initialPixels[0])
+
 
   const handleInput = (e) => {
     console.log(e.target.value)

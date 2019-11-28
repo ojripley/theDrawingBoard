@@ -149,7 +149,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     color: pixelColor,
     pointers: {} //if needed make take the initial state from server
   });
-
+  console.log('initialPixels:', initialPixels)
   //State for image canvas:
   const imageCanvasRef = useRef(null);
   let [imageCtx, setImageCtx] = useState();

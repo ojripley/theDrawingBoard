@@ -415,7 +415,8 @@ io.on('connection', (client) => {
         meetingDetails.userPixels[i][data.user.id] = [];
       }
     }
-    // console.log("Looking for", `meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`);
+
+    console.log('meeting details', meetingDetails);
 
     if (meetingDetails['numPages'] !== 0) {
       for (let i = 0; i < meetingDetails['numPages']; i++) {
@@ -434,7 +435,7 @@ io.on('connection', (client) => {
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
 
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: images });
+          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });

@@ -105,7 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  const [, setLoadingCounter] = useState(0);
+  let [loadingCounter, setLoadingCounter] = useState(0);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -126,8 +126,9 @@ export default function MeetingCard({
     if (socketOpen) {
 
       socket.on('enteredMeeting', data => {
-
+        console.log(data);
         let res = data.meeting; //can send this object instead
+        console.log(res);
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
         setMeetingNotes(data.notes);
@@ -137,6 +138,7 @@ export default function MeetingCard({
         setPixelColor(res['colorMapping']);
         if (data.images) {//if image
           setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
+          console.log('data.pixels:', data.pixels);
           setInitialPixels(data.pixels);//assuming server is sending us array of pixel
           for (let i in data.images) {
             console.log("there is an image")
@@ -145,20 +147,23 @@ export default function MeetingCard({
               // setImageLoaded(true);
               setBackgroundImage(prev => {
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
+                return prev;
               });
               // setInitialPixels(prev => { //if grabbing initial pixels doesn't work
               //   prev[i] = data.pixels
               // });
 
 
-              setLoadingCounter(prev => {
-                let newCount = prev++;
-                if (prev === data.images.length) {//done loading!
-                  console.log(`Loaded ${i} images`)
-                  setImageLoaded(true);
-                }
-                return newCount;
-              });
+              // setLoadingCounter(prev => {
+              setLoadingCounter(loadingCounter++);
+              // loadingCounter++;
+
+              if (loadingCounter === data.images.length) {//done loading!
+                console.log(`Loaded ${i} images`)
+                setImageLoaded(true);
+              }
+              // return 1;
+              // });
               console.log("received these pixels", data.pixels)
             };
             myImage.src = data.images[i]; //pull this from socket
