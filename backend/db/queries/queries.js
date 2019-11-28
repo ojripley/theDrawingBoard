@@ -203,12 +203,12 @@ const insertUser = function(username, email, password) {
     });
 };
 
-const insertMeeting = function(start_time, owner_id, name, description, status, file_names, num_pages) {
+const insertMeeting = function(start_time, owner_id, name, description, status, extensions, num_pages) {
 
-  const vars = [start_time, owner_id, name, description, status, file_names, num_pages];
+  const vars = [start_time, owner_id, name, description, status, extensions, num_pages];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, description, status, file_names, num_pages)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, extensions, num_pages)
     VALUES($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `, vars)

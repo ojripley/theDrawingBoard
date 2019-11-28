@@ -275,7 +275,7 @@ io.on('connection', (client) => {
 
   client.on('insertMeeting', data => {
     // console.log('files', Object.keys(data.files).length)
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length) //we no longer need the link_to_initial_doc column
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files).map(name => name.split('.')[1]), Object.keys(data.files).length) //we no longer need the link_to_initial_doc column
       .then(res => {
         client.emit('newMeeting', res[0]);
         console.log(res[0]);
@@ -361,6 +361,7 @@ io.on('connection', (client) => {
         db.fetchMeetingById(data.id)
           .then(res => { // meeting has been retrieved
             const meeting = res[0];
+            console.log('meeting:', meeting)
 
             // set meeting pixel log
             meeting['numPages'] = meeting.num_pages;
@@ -398,18 +399,8 @@ io.on('connection', (client) => {
 
   client.on('enterMeeting', (data) => {
 
-
-
-
     let meetingDetails = activeMeetings[data.meetingId];
-
-    for (let i = 0; i < meeting['numPages']; i++) {
-      if (!meetingDetails.userPixels[i][data.user.id]) {
-        meetingDetails.userPixels[i][data.user.id] = [];
-      }
-
-    }
-
+    console.log('meetingDetails:', meetingDetails)
     //Select a color:
     let col = meetingDetails['colorMapping'][data.user.id];
     if (!col) {
@@ -417,35 +408,38 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-    console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
-    let img = "";
-    if (meeting['numPages'] !== 0) {
-      // if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-      //   img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      // } else {
-      //   img = meetingDetails.link_to_initial_doc;
-      // }
+    let images = [];
+    for (let i = 0; i < meetingDetails['numPages']; i++) {
+      if (!meetingDetails.userPixels[i][data.user.id]) {
+        meetingDetails.userPixels[i][data.user.id] = [];
+      }
+    }
+    // console.log("Looking for", `meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`);
 
-      img = `image-${i}`;
-      fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
-        if (err) {
-          console.error;
-          image = "";
-        }
-        console.log("sending these pixels");
-        console.log(meetingDetails.userPixels);
+    if (meetingDetails['numPages'] !== 0) {
+      for (let i = 0; i < meetingDetails['numPages']; i++) {
+        fs.readFile(`meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`, (err, image) => {
+          if (err) {
+            console.error;
+            // image = "";
+            images.push("");
+          }
+          console.log("sending these pixels");
+          console.log(meetingDetails.userPixels);
 
-        db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-          .then((res) => {
+          images.push("data:image/jpg;base64," + image.toString("base64"));
+        });
+      }
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
 
-            client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: images });
 
-            client.join(data.meetingId);
-            io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
-          });
-      });
-    } else { //No image
+          client.join(data.meetingId);
+          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
+        }).catch(err => console.error);
+    } else { //FIX LOGIC
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
 
@@ -455,8 +449,6 @@ io.on('connection', (client) => {
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
-
-
 
   });
 
