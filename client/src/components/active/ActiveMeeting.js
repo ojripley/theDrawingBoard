@@ -67,6 +67,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const debouncedNotes = useDebounce(meetingNotes, 400);
   const [strokeWidth, setStrokeWidth] = useState(1);
   const [highlighting, setHighlighting] = useState(false);
+  const [pointing, setPointing] = useState(false);
 
   // const backgroundCanvas = useRef(null);
 
@@ -137,6 +138,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           setWriteMode={setWriteMode}
           setStrokeWidth={setStrokeWidth}
           setHighlighting={setHighlighting}
+          setPointing={setPointing}
         />
         <Canvas
           user={user}
@@ -152,6 +154,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           pixelColor={pixelColor}
           strokeWidth={strokeWidth}
           highlighting={highlighting}
+          pointing={pointing}
         />
         {writeMode &&
           <div className={classes.center}>

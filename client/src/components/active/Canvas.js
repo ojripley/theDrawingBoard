@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useReducer } from 'react';
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Loading from '../Loading';
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -105,7 +104,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading,pixelColor, strokeWidth, highlighting }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, highlighting, pointing }) {
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -125,7 +124,8 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   const [, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: undefined,
-    color: pixelColor
+    color: pixelColor,
+    pointing: {} //if needed make take the initial state from server
   });
 
   //State for image canvas:
@@ -212,7 +212,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   }, [socket, socketOpen, user.id]);
 
   const loadSpinner = () => {
-    socket.emit('savingMeeting', {meetingId: meetingId});
+    socket.emit('savingMeeting', { meetingId: meetingId });
     setLoading(true);
     endMeeting();
   };
@@ -248,17 +248,20 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   }, [imageCtx, imageLoaded, backgroundImage, initialPixels]);
 
   const addClick = (x, y, dragging) => {
-    //Uncomment this if you want the user to
-    let pixel = {
-      x: x,
-      y: y,
-      dragging: dragging,
-      strokeWidth: strokeWidth,
-      highlighting: highlighting
-    };
-    dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
-    dispatch({ type: REDRAW });
-    // mergeWithImage();
+    if (pointing) {
+
+    } else {
+      let pixel = {
+        x: x,
+        y: y,
+        dragging: dragging,
+        strokeWidth: strokeWidth,
+        highlighting: highlighting
+      };
+      dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
+      dispatch({ type: REDRAW });
+      // mergeWithImage();
+    }
   };
 
   const handleMouseDown = e => {
@@ -312,7 +315,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         variant='contained'
         color='secondary'
         className={classes.endMeeting}
-        onClick={endMeeting}
+        onClick={loadSpinner}
       >
         End Meeting
         </Button>}
