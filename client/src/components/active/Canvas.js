@@ -55,6 +55,7 @@ function reducer(state, action) {
       // state.ctx.strokeStyle = state.color;
       console.log(state);
       for (let user in state.pixelArrays) {
+        console.log(user);
         let pixels = state.pixelArrays[user]; //gets users pixel array
         //Reads colors
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
