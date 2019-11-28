@@ -95,14 +95,15 @@ function reducer(state, action) {
           // state.ctx.arc(state.pointers[user].x * w, state.pointers[user].y * h, 20, 0, 2 * Math.PI);//center, r, stangle, endangle
           let x = state.pointers[user].x * w;
           let y = state.pointers[user].y * h;
+          let r = state.pointers[user].strokeWidth/2;
 
-          let gradient = state.ctx.createRadialGradient(x, y, 1, x, y, 10);
+          let gradient = state.ctx.createRadialGradient(x, y, r, x, y, 10 * r);
           let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
 
           gradient.addColorStop(0, col);
           gradient.addColorStop(1, 'white');
 
-          state.ctx.arc(x, y, 8, 0, 2 * Math.PI);
+          state.ctx.arc(x, y, 7 * r, 0, 2 * Math.PI);
           state.ctx.fillStyle = gradient;
           state.ctx.fill();
         }
