@@ -45,11 +45,6 @@ export default function App() {
   const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
 
   useEffect(() => {
-    console.log('loading', loading)
-  }, [loading])
-
-
-  useEffect(() => {
     if (socketOpen) {
       socket.emit('checkCookie');
       //Server says client is in a meeting:
