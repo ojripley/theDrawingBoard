@@ -110,7 +110,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
     };
-  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user])
+  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading])
 
   useEffect(() => {
     // console.log(debouncedNotes);
