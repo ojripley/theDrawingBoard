@@ -298,8 +298,11 @@ io.on('connection', (client) => {
                 let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
 
                 // console.log(pdfImage);
-
-                pdfImage.convertPage(0).then(function(imagePath) {
+                // var pdfImage2 = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+                // pdfImage2.convertFile().then(function(imagePaths) {
+                //   // [ /tmp/slide-0.png, /tmp/slide-1.png ]
+                // });
+                pdfImage.convertFile().then(function(imagePath) {
                   // 0-th page (first page) of the slide.pdf is available as slide-0.png
                   fs.existsSync("/tmp/slide-0.png") // => true\
                   console.log(imagePath);
