@@ -296,14 +296,14 @@ io.on('connection', (client) => {
               if (name.search(/\.pdf$/ig) !== -1) {
 
                 console.log(name);
-                fs.writeFile(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`, file, (err) => {
+                fs.writeFile(`meeting_files/${id}/image.${name.split('.')[1]}`, file, (err) => {
                   if (err) {
                     console.log('problem');
                     throw err;
                   }
                   console.log('The file has been saved!');
 
-                  let pdfImage = new PDFImage(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`);
+                  let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
 
                   pdfImage.convertFile().then(function(imagePath) {
                     // 0-th page (first page) of the slide.pdf is available as slide-0.png
