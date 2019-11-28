@@ -133,6 +133,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     imageLoaded && <div className={classes.root}>
       <CanvasDrawer //TODO: pass in setPage
         user={user}
+        ownerId={ownerId}
         socket={socket}
         socketOpen={socketOpen}
         meetingId={meetingId}

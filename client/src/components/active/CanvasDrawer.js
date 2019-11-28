@@ -142,6 +142,14 @@ export default function CanvasDrawer(props) {
 
   const valueText = (value) => {
     return `${value}`;
+  };
+
+  const changePage = (direction) => {
+    if (direction === 'prev' && props.page !== 0) {
+      props.setPage(props.page - 1);
+    } else if (direction === 'next' && props.page !== (props.totalPages - 1)) {
+      props.setPage(props.page + 1);
+    }
   }
 
   return (
@@ -199,14 +207,17 @@ export default function CanvasDrawer(props) {
           <List>
             <ListItem button onClick={backToDash}>Leave Meeting</ListItem>
           </List>
-          <Divider />
-          <List>
-            <ListItem>
-              <KeyboardArrowLeftIcon />
-              Page {props.page + 1} of {props.totalPages}
-              <KeyboardArrowRightIcon />
-            </ListItem>
-          </List>
+          {props.user.id === props.ownerId &&
+            <>
+            <Divider />
+            <List>
+              <ListItem>
+                <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />
+                Page {props.page + 1} of {props.totalPages}
+                <KeyboardArrowRightIcon onClick={() => changePage('next')} />
+              </ListItem>
+            </List>
+            </>}
         </div>
       </Drawer>
     </>

@@ -92,6 +92,10 @@ export default function App() {
     }
   }, [socket, socketOpen, setLoading]);
 
+  useEffect(() => {
+    console.log('images', backgroundImage);
+  }, [backgroundImage])
+
   return (
     <>
       {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
