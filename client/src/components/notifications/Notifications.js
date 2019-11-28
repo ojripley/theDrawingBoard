@@ -1,49 +1,87 @@
 import React, { useState } from 'react';
 
 import Notification from './Notification';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import MuiExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+// import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+
 
 const useStyles = makeStyles(theme => ({
-  list: {
-    width: '100%'
-  },
-  section: {
-    margin: theme.spacing(1)
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
-    flexShrink: 0,
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
-  },
-  active: {
-    backgroundColor: 'orange'
-  },
-  scheduled: {
-    backgroundColor: 'white'
-  },
-  button: {
-    display: 'inline',
-    float: 'right',
-    margin: theme.spacing(1),
-  },
-  header2: {
-    fontSize: '1.5em',
-    fontWeight: 'bold'
-
-  }
+  // list: {
+  //   width: '100%'
+  // },
+  // section: {
+  //   margin: theme.spacing(1)
+  // },
+  // heading: {
+  //   fontSize: theme.typography.pxToRem(15),
+  //   flexBasis: '33.33%',
+  //   flexShrink: 0,
+  // },
+  // secondaryHeading: {
+  //   fontSize: theme.typography.pxToRem(15),
+  //   color: theme.palette.text.secondary,
+  // },
+  // active: {
+  //   backgroundColor: 'orange'
+  // },
+  // scheduled: {
+  //   backgroundColor: 'white'
+  // },
+  // button: {
+  //   display: 'inline',
+  //   float: 'right',
+  //   margin: theme.spacing(1),
+  // },
+  // header2: {
+  //   fontSize: '1.5em',
+  //   fontWeight: 'bold'
+  // }
+  // panel: {
+  //   margin: 0,
+  //   '&expanded' : {
+  //     margin: 0
+  //   }
+  // }
 }));
+
+const ExpansionPanelSummary = withStyles({
+  root: {
+    height: 'auto',
+    verticalAlign: 'center',
+    padding: '1em',
+    height: '54px'
+  },
+  content: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    margin: 0,
+    '&$expanded': {
+      margin: 0,
+      height: '54px'
+    },
+  },
+  expanded: {},
+})(MuiExpansionPanelSummary);
+
+const ExpansionPanel = withStyles({
+  root: {
+    '&$expanded': {
+      margin: 0,
+      padding: 0
+    }
+  },
+  content: {},
+  expanded: {},
+})(MuiExpansionPanel);
 
 export default function Notifications(props) {
 
@@ -120,19 +158,19 @@ export default function Notifications(props) {
         <Typography variant='h2' color='primary'>Notifications</Typography>
         <Divider />
       </div>
-      <Button variant="outlined" color="secondary" onClick={removeAllNotifications}> Dismiss all</Button>
+      <Button variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
 
-      {props.notificationList.length === 0 && <h2> No new notifications</h2>}
+      {props.notificationList.length === 0 && <Typography variant='h6'> No new notifications</Typography>}
 
       {meetings.length > 0 &&
-        <ExpansionPanel expanded={meetingExpanded} onChange={() => setMeetingExpanded(!meetingExpanded)}>
+        <ExpansionPanel expanded={meetingExpanded} onChange={() => setMeetingExpanded(!meetingExpanded)} classes={{ root: classes.panel }} >
           <ExpansionPanelSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls={`panel1bh-content`}
             id={`panel1bh-header`}
           >
-            <span className={classes.header2}> {`Meeting Notifications (${meetings.length})`}</span>
-            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("meeting")}> Dismiss meeting notifications</Button>
+            <Typography variant='button'>{`Meeting Notifications (${meetings.length})`}</Typography>
+            <Button variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("meeting")}> Dismiss meeting notifications</Button>
 
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
@@ -151,8 +189,8 @@ export default function Notifications(props) {
             aria-controls={`panel1bh-content`}
             id={`panel1bh-header`}
           >
-            <h2 className={classes.section}> {`Contact Notifications (${contacts.length})`}</h2>
-            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("contact")}> Dismiss contact notifications</Button>
+            <Typography variant='button'>{`Contact Notifications (${contacts.length})`}</Typography>
+            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("contact")}>Dismiss contact notifications</Button>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <ul className={classes.list}>
