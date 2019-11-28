@@ -8,6 +8,7 @@ const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
 const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
+const SET_POINTER = "SET_POINTER";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -38,23 +39,27 @@ function reducer(state, action) {
     }
     case SET_CTX:
       return { ...state, ctx: action.payload };
+    case SET_POINTER:
+      return {
+        ...state,
+        pointing: {
+          ...state.pointing,
+          [action.payload.user]: action.payload.pixel
+        }
+      };
     case REDRAW: {
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;
-      //Sets the properties (change this part for custom pixel colors)
 
       // state.ctx.strokeStyle = state.color;
-      // console.log(state);
+      console.log(state);
       for (let user in state.pixelArrays) {
-        // console.log(user);
-        // if (Number(user) === 2) continue;
-        let pixels = state.pixelArrays[Number(user)];
-        // state.ctx.beginPath();
+        let pixels = state.pixelArrays[user]; //gets users pixel array
+        //Reads colors
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
         let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.1)`
         state.ctx.lineJoin = "round";
-        // state.ctx.globalCompositionOperat`ion = 'multiply'; //for highlighting
 
         for (let i in pixels) {
           state.ctx.beginPath(); //start drawing a single line
@@ -82,9 +87,22 @@ function reducer(state, action) {
 
           state.ctx.stroke();//draw the line
           state.ctx.closePath();//end the line
-          // out.push(state.color[Number(user)]);
         }
-        // console.log(out);
+        if (state.pointing[user] && state.pointing[user].x) {
+          state.ctx.beginPath();
+          // state.ctx.arc(state.pointing[user].x * w, state.pointing[user].y * h, 20, 0, 2 * Math.PI);//center, r, stangle, endangle
+          let x = state.pointing[user].x * w;
+          let y = state.pointing[user].y * h;
+
+          let gradient = state.ctx.createRadialGradient(x, y, 1, x, y, 10);
+          gradient.addColorStop(0, col);
+          gradient.addColorStop(1, 'white');
+
+          state.ctx.arc(x, y, 8, 0, 2 * Math.PI);
+          state.ctx.fillStyle = gradient;
+          state.ctx.fill();
+        }
+
       }
 
       return { ...state };
@@ -103,7 +121,8 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, tool, pointing }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, tool }) {
+  const TRIGGER_ZONE = 15;
 
   const useStyles = makeStyles(theme => ({
     endMeeting: {
@@ -120,7 +139,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   let [paint, setPaint] = useState(false);
   // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
-  const [, dispatch] = useReducer(reducer, {
+  const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: undefined,
     color: pixelColor,
@@ -247,8 +266,22 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   }, [imageCtx, imageLoaded, backgroundImage, initialPixels]);
 
   const addClick = (x, y, dragging) => {
-    if (pointing) {
-      console.log('here');
+    if (tool === "pointer") {
+      let pixel =
+      {
+        x: x,
+        y: y,
+        strokeWidth: strokeWidth //may not use
+      };
+      let prevPix = canvasState.pointing[user.id];
+      let w = drawCanvasRef.current.width;
+      let h = drawCanvasRef.current.height;
+
+      if (!prevPix ||
+        (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
+        dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
+        dispatch({ type: REDRAW });
+      }
     } else {
       let pixel = {
         x: x,
@@ -290,6 +323,13 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     }
   }
 
+  const handleMouseUp = e => {
+    setPaint(false);
+    //Clear the pointer pixel:
+    dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
+    dispatch({ type: REDRAW });
+  }
+
   return (
     <div id='canvas-container'>
       <canvas
@@ -302,12 +342,11 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         ref={drawCanvasRef}
         onMouseDown={e => handleMouseDown(e.nativeEvent)}
         onMouseMove={e => handleMouseMove(e.nativeEvent)}
-        onMouseUp={e => setPaint(false)}
-        // onMouseUp={e => handleMouseUp(e.nativeEvent)}
-        onMouseLeave={e => setPaint(false)}
+        onMouseUp={e => handleMouseUp(e.nativeEvent)}
+        onMouseLeave={e => handleMouseUp}
         onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
         onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
-        onTouchEnd={e => setPaint(false)}
+        onTouchEnd={e => handleMouseUp(e.nativeEvent.touches[0])}
       >
       </canvas>
       {user.id === ownerId && <Button
