@@ -23,18 +23,38 @@
   flex-direction: row;
   flex-wrap: wrap;
   padding: 16px;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-content: center;
 }
 
 .contact-username {
-  font-size: 1.25em;
+  flex-basis: 45%;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.contact-email {
+  flex-basis: 45%;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .contact-icon {
+  justify-self: left;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 1em;
 }
 
-.decline-contact-request-not-visible {
+.contact-buttons {
+  margin-top: 1em;
+}
+
+.decline-hidden {
   display: none;
+}
+
+.decline {
+  margin-left: 1em;
 }
 

@@ -62,23 +62,22 @@ export default function Contact(props) {
     }
   }
 
-  const toDisplayOrNotDisplay = function() {
-    if (relationStatus === 'pending') {
-      return 'decline-contact-request';
-    }
-
-    else {
-      return 'decline-contact-request-not-visible';
-    }
-  }
+  // const toDisplayOrNotDisplay = function() {
+  //   if (relationStatus === 'pending') {
+  //     return 'decline-contact-request';
+  //   }
+  //   else {
+  //     return 'decline-contact-request-not-visible';
+  //   }
+  // }
 
   return (
-      <Card classes={{ root: 'contact-card' }}>
-        <PersonIcon className='contact-icon' />
-        <Typography className='contact-username' variant='h6'>{props.contact.username} </Typography>
-        <Typography className='contact-email' variant='body2'>{props.contact.email}</Typography>
+    <Card classes={{ root: 'contact-card' }}>
+      <PersonIcon className='contact-icon' />
+      <Typography className='contact-username' variant='h6'>{props.contact.username} </Typography>
+      <Typography className='contact-email' variant='overline'>{props.contact.email}</Typography>
 
-
+      <div className='contact-buttons'>
         <Button variant="outlined" color="primary" size='small' onClick={changeRelation}>
         {relationStatus === undefined ? 'Add Friend'
         : relationStatus === 'accepted' ? 'Remove Friend'
@@ -87,11 +86,11 @@ export default function Contact(props) {
         : 'add contact'}
         </Button>
 
-      <Button className={toDisplayOrNotDisplay()} variant="outlined" color="secondary" size='small' onClick={declineRelation} >
-        Decline Friend Request
-      </Button>
+        <Button className={relationStatus === 'pending' ? 'decline-hidden' : 'decline'} variant="outlined" color="secondary" size='small' onClick={declineRelation} >
+          Decline Friend Request
+        </Button>
+      </div>
 
-
-      </Card>
+    </Card>
   );
 }

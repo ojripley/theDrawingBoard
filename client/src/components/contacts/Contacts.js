@@ -87,7 +87,7 @@ export default function Contacts(props) {
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {
       console.log(friend.username, friend.id);
-
+      console.log(friend);
       return (<Contact
         key={friend.id}
         contact={friend}
