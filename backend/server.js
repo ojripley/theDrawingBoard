@@ -274,11 +274,11 @@ io.on('connection', (client) => {
   });
 
   client.on('insertMeeting', data => {
-    console.log('files', data.files)
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, "image.png") //we no longer need the link_to_initial_doc column
+    // console.log('files', Object.keys(data.files).length)
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length) //we no longer need the link_to_initial_doc column
       .then(res => {
         client.emit('newMeeting', res[0]);
-        // console.log(res[0].id);
+        console.log(res[0]);
         return res[0].id;
       })
       .then((id) => {
@@ -363,8 +363,16 @@ io.on('connection', (client) => {
             const meeting = res[0];
 
             // set meeting pixel log
-            meeting['userPixels'] = [{}];
-            meeting['pointers'] = [{}];
+            meeting['numPages'] = meeting.num_pages;
+            meeting['userPixels'] = [];
+            // var n = 100;
+            // var sample = new Array();
+            for (var i = 0; i < meeting.num_pages; i++) {
+              meeting['userPixels'].push(new Object());
+            }
+
+
+            meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = colors;
             // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
@@ -389,9 +397,17 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
+
+
+
+
     let meetingDetails = activeMeetings[data.meetingId];
-    if (!meetingDetails.userPixels[data.user.id]) {
-      meetingDetails.userPixels[data.user.id] = [];
+
+    for (let i = 0; i < meeting['numPages']; i++) {
+      if (!meetingDetails.userPixels[i][data.user.id]) {
+        meetingDetails.userPixels[i][data.user.id] = [];
+      }
+
     }
 
     //Select a color:
@@ -401,18 +417,17 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-
-
-
     console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
     let img = "";
-    if (meetingDetails.link_to_initial_doc) {
-      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      } else {
-        img = meetingDetails.link_to_initial_doc;
-      }
+    if (meeting['numPages'] !== 0) {
+      // if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
+      //   img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
+      // } else {
+      //   img = meetingDetails.link_to_initial_doc;
+      // }
+
+      img = `image-${i}`;
       fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
         if (err) {
           console.error;
@@ -430,7 +445,7 @@ io.on('connection', (client) => {
             io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
           });
       });
-    } else { //No image 
+    } else { //No image
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
 

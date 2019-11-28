@@ -203,13 +203,13 @@ const insertUser = function(username, email, password) {
     });
 };
 
-const insertMeeting = function(start_time, owner_id, name, description, status, num_pages) {
+const insertMeeting = function(start_time, owner_id, name, description, status, file_names, num_pages) {
 
-  const vars = [start_time, owner_id, name, description, status, num_pages];
+  const vars = [start_time, owner_id, name, description, status, file_names, num_pages];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, description, status, num_pages)
-    VALUES($1, $2, $3, $4, $5, $6)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, file_names, num_pages)
+    VALUES($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `, vars)
     .then(res => {
@@ -323,7 +323,6 @@ const updateMeetingActiveState = function(meeting_id, active) {
 const updateMeetingById = function(meeting_id, end_time, active, status) {
   const vars = [meeting_id, end_time, active, status];
 
-  console.log(link_to_final_doc);
 
   return db.query(`
     UPDATE meetings

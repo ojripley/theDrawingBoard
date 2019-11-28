@@ -10,6 +10,7 @@ CREATE TABLE meetings
   end_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   status VARCHAR(255),
   active BOOLEAN NOT NULL DEFAULT FALSE,
-  link_to_initial_doc VARCHAR(255),
+  file_names TEXT
+  [],
   num_pages INTEGER
 );
