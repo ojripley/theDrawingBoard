@@ -24,7 +24,7 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     position: 'relative',
     zIndex: 2,
-    width: "100%",
+    width: '100%',
   },
   textareaAutosize: {
     resize: 'none',
@@ -98,16 +98,10 @@ export default function CanvasDrawer(props) {
     }
   }
 
-  const handleStrokeWidth = n => {
-    props.setStrokeWidth(n);
-    props.setHighlighting(false);
-    handleClose();
-    setOpenDrawer(false);
-  }
 
-  const handleHighlighting = n => {
+  const handleTool = (n, tool) => {
+    props.setTool(tool);
     props.setStrokeWidth(n);
-    props.setHighlighting(true);
     handleClose();
     setOpenDrawer(false);
   }
@@ -146,10 +140,10 @@ export default function CanvasDrawer(props) {
   return (
     <>
       <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
-      <Drawer anchor="right" open={openDrawer} onClose={() => setOpenDrawer(false)}>
+      <Drawer anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <div
           className={classes.list}
-          role="presentation"
+          role='presentation'
         >
           <List>
             <ListItem className={`meeting-chat ${classes.center}`}>
@@ -169,33 +163,33 @@ export default function CanvasDrawer(props) {
           </List>
           <List>
             <ListItem button onClick={handleUndo}>Undo</ListItem>
-            <ListItem id="penSelector" button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>Pen</ListItem>
+            <ListItem id='penSelector' button aria-controls='simple-menu' aria-haspopup='true' onClick={handleClick}>Pen</ListItem>
             <Menu
-              id="simple-menu"
+              id='simple-menu'
               anchorEl={anchorEl}
               keepMounted
-              open={Boolean(anchorEl) && anchorEl.id === "penSelector"}
+              open={Boolean(anchorEl) && anchorEl.id === 'penSelector'}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleStrokeWidth(1)}>Small</MenuItem>
-              <MenuItem onClick={() => handleStrokeWidth(2)}>Medium</MenuItem>
-              <MenuItem onClick={() => handleStrokeWidth(4)}>Large</MenuItem>
+              <MenuItem onClick={() => handleTool(1, 'pen')}>Small</MenuItem>
+              <MenuItem onClick={() => handleTool(2, 'pen')}>Medium</MenuItem>
+              <MenuItem onClick={() => handleTool(4, 'pen')}>Large</MenuItem>
             </Menu>
             {/* <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem> */}
-            <ListItem id="highlighterSelector" button aria-controls="simple-menu2" aria-haspopup="true" onClick={handleClick}>Highlighter</ListItem>
+            <ListItem id='highlighterSelector' button aria-controls='simple-menu2' aria-haspopup='true' onClick={handleClick}>Highlighter</ListItem>
             <Menu
-              id="simple-menu2"
+              id='simple-menu2'
               anchorEl={anchorEl}
               keepMounted
-              open={Boolean(anchorEl) && anchorEl.id === "highlighterSelector"}
+              open={Boolean(anchorEl) && anchorEl.id === 'highlighterSelector'}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleHighlighting(4)}>Small highlighter</MenuItem>
-              <MenuItem onClick={() => handleHighlighting(8)}>Medium</MenuItem>
-              <MenuItem onClick={() => handleHighlighting(16)}>Large</MenuItem>
+              <MenuItem onClick={() => handleTool(4, 'highlighter')}>Small</MenuItem>
+              <MenuItem onClick={() => handleTool(8, 'highlighter')}>Medium</MenuItem>
+              <MenuItem onClick={() => handleTool(16, 'highlighter')}>Large</MenuItem>
             </Menu>
 
-            <ListItem button>Pointer</ListItem>
+            <ListItem onClick={() => handleTool(4, 'pointer')} button>Pointer</ListItem>
           </List>
           <Divider />
           <List>
