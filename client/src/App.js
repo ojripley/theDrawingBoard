@@ -7,7 +7,6 @@ import { store } from 'react-notifications-component';
 import theme from './theme/muiTheme';
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
-
 // COMPONENTS
 import TabBar from './TabBar';
 import NavBar from './NavBar';
@@ -73,7 +72,7 @@ export default function App() {
         store.addNotification({
           title: `${data.type}`,
           message: `${data.msg}`,
-          type: "success",
+          type: "custom",
           insert: "top",
           container: "top-right",
           animationIn: ["animated", "fadeIn"],
@@ -128,7 +127,12 @@ export default function App() {
             />
             : <>
               <div id='app-container'>
-                <ReactNotification />
+                <ReactNotification
+                  types={[{
+                    htmlClasses: ['notification-custom'],
+                    name: 'custom'
+                  }]}
+                />
                 {mode === DASHBOARD &&
                   <Dashboard
                     socket={socket}
