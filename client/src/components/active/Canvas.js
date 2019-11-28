@@ -42,8 +42,8 @@ function reducer(state, action) {
     case SET_POINTER:
       return {
         ...state,
-        pointing: {
-          ...state.pointing,
+        pointers: {
+          ...state.pointers,
           [action.payload.user]: action.payload.pixel
         }
       };
@@ -88,13 +88,17 @@ function reducer(state, action) {
           state.ctx.stroke();//draw the line
           state.ctx.closePath();//end the line
         }
-        if (state.pointing[user] && state.pointing[user].x) {
+      }
+      for (let user in state.pointers) {
+        if (state.pointers[user] && state.pointers[user].x) {
           state.ctx.beginPath();
-          // state.ctx.arc(state.pointing[user].x * w, state.pointing[user].y * h, 20, 0, 2 * Math.PI);//center, r, stangle, endangle
-          let x = state.pointing[user].x * w;
-          let y = state.pointing[user].y * h;
+          // state.ctx.arc(state.pointers[user].x * w, state.pointers[user].y * h, 20, 0, 2 * Math.PI);//center, r, stangle, endangle
+          let x = state.pointers[user].x * w;
+          let y = state.pointers[user].y * h;
 
           let gradient = state.ctx.createRadialGradient(x, y, 1, x, y, 10);
+          let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
+
           gradient.addColorStop(0, col);
           gradient.addColorStop(1, 'white');
 
@@ -102,9 +106,7 @@ function reducer(state, action) {
           state.ctx.fillStyle = gradient;
           state.ctx.fill();
         }
-
       }
-
       return { ...state };
     }
     case ADD_USER: {
@@ -113,7 +115,7 @@ function reducer(state, action) {
         color: {
           ...state.color,
           [action.payload.user]: action.payload.color
-        }
+        },
       };
     }
     default:
@@ -143,7 +145,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     pixelArrays: { ...initialPixels },
     ctx: undefined,
     color: pixelColor,
-    pointing: {} //if needed make take the initial state from server
+    pointers: {} //if needed make take the initial state from server
   });
 
   //State for image canvas:
@@ -202,6 +204,16 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
           dispatch({ type: REDRAW });
         }
       });
+
+      socket.on('setPointer', data => {
+        if (user.id !== data.user.id) {
+          console.log("Other person is pointing", data.user.id);
+          dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
+          dispatch({ type: REDRAW });
+        }
+      });
+
+
       return () => {
         socket.off('drawClick');
       };
@@ -273,14 +285,16 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         y: y,
         strokeWidth: strokeWidth //may not use
       };
-      let prevPix = canvasState.pointing[user.id];
+      let prevPix = canvasState.pointers[user.id];
       let w = drawCanvasRef.current.width;
       let h = drawCanvasRef.current.height;
 
       if (!prevPix ||
         (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
-        dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: mapToRelativeUnits(pixel) } });
+        mapToRelativeUnits(pixel);
+        dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: pixel } });
         dispatch({ type: REDRAW });
+        socket.emit('setPointer', { user: user, pixel: pixel, meetingId: meetingId });
       }
     } else {
       let pixel = {
@@ -293,7 +307,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       mapToRelativeUnits(pixel);
       dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel } });
       dispatch({ type: REDRAW });
-      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, code: user.id });
+      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId });
     }
   };
 
@@ -301,11 +315,13 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     addClick(mouseX, mouseY);
+    // if (tool !== "pointer") { //potentially fixes bug where initial pixel would sometime be in dragging state
     setPaint(true);
+    // }
   }
 
   const handleMouseMove = e => { //Change to useCallback??
-    if (paint) {
+    if (paint /*|| tool === "pointer"*/) { //add commented line if pointer should always be on when selected.
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
       addClick(mouseX, mouseY, true);
@@ -317,6 +333,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     //Clear the pointer pixel:
     dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
     dispatch({ type: REDRAW });
+    socket.emit('setPointer', { user: user, pixel: undefined, meetingId: meetingId });
   }
 
   return (
@@ -332,7 +349,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         onMouseDown={e => handleMouseDown(e.nativeEvent)}
         onMouseMove={e => handleMouseMove(e.nativeEvent)}
         onMouseUp={e => handleMouseUp(e.nativeEvent)}
-        onMouseLeave={e => handleMouseUp}
+        onMouseLeave={e => handleMouseUp(e.nativeEvent)}
         onTouchStart={e => handleMouseDown(e.nativeEvent.touches[0])}
         onTouchMove={e => handleMouseMove(e.nativeEvent.touches[0])}
         onTouchEnd={e => handleMouseUp(e.nativeEvent.touches[0])}

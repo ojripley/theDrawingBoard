@@ -209,7 +209,12 @@ io.on('connection', (client) => {
   client.on('addClick', data => {
     activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
-  })
+  });
+
+  client.on('setPointer', data => {
+    activeMeetings[data.meetingId].pointers[data.user.id] = data.pixel;
+    io.to(data.meetingId).emit('setPointer', data); //pass message along
+  });
 
   //End of test
   client.on('msg', (data) => {
@@ -353,6 +358,7 @@ io.on('connection', (client) => {
 
             // set meeting pixel log
             meeting['userPixels'] = {};
+            meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = colors;
             // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
