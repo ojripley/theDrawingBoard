@@ -209,7 +209,6 @@ export default function MeetingCard({
           </Typography>
           <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
           <Typography variant="subtitle2">Host: {owner}</Typography>
-          {!expanded && <Typography variant="subtitle2">{attendees.length} Attendees</Typography>}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{ root: classes.meetingExpanded }}>
           <Typography classes={{ root: classes.name }} variant="subtitle2">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,7 +15,8 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     flexGrow: 1,
-    fontFamily: "'Molle', cursive"
+    fontFamily: "'Molle', cursive",
+    fontSize: '1.25rem'
   },
   username: {
     marginRight: '0.5em'
@@ -25,22 +26,10 @@ const useStyles = makeStyles(theme => ({
 export default function NavBar(props) {
   const classes = useStyles();
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
   const handleLogout = () => {
     document.cookie = 'sid=""'; //clear the cookie
     props.setUser(null);
     props.setLoading(false);
-  };
-
-
-  const handleMenu = event => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
   };
 
   return (
@@ -49,7 +38,7 @@ export default function NavBar(props) {
         {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
           <MenuIcon />
         </IconButton> */}
-        <Typography variant="h6" className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
+        <Typography className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
           The Drawing Board
         </Typography>
         {props.user && (

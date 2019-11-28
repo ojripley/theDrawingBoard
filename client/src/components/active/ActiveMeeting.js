@@ -65,8 +65,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
-  const [tool, setTool] = useState("pointer");
-  const [strokeWidth, setStrokeWidth] = useState(1);
+  const [tool, setTool] = useState("pen");
+  const [strokeWidth, setStrokeWidth] = useState(3);
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
 

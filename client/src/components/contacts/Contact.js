@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
 import Card from '@material-ui/core/Card';
-import PersonOutlineOutlinedIcon from '@material-ui/icons/PersonOutlineOutlined';
+import PersonIcon from '@material-ui/icons/Person';
 import Button from '@material-ui/core/Button';
-
+import Typography from '@material-ui/core/Typography';
 
 
 import './Contacts.scss';
@@ -11,32 +11,23 @@ import './Contacts.scss';
 
 export default function Contact(props) {
 
-  // console.log(props.contact.username, props.contact.relation);
   const [relationStatus, setRelationStatus] = useState(props.contact.relation);
 
   useEffect(() => {
-    // console.log('something changed!');
     if (props.socketOpen) {
       props.socket.on('relationChanged', (data) => {
 
-        // console.log('contact id of operation', data.contactId);
-        // console.log('contct id of this card', props.contact.id);
-
         if (data.contactId === props.contact.id) {
           console.log('changing a relation for ', props.contact.id);
-            // if (!data.relation) {
-            //   data.relation = undefined;
-            // }
-
           setRelationStatus(data.relation);
 
         }
       });
 
-      return () => {
-        // console.log('the clean up function has been run for', props.contact.username);
-        // props.socket.off('relationChanged');
-      };
+      // return () => {
+      //   // console.log('the clean up function has been run for', props.contact.username);
+      //   // props.socket.off('relationChanged');
+      // };
     }
   }, [relationStatus, props.contact, props.socket, props.socketOpen]);
 
@@ -72,35 +63,38 @@ export default function Contact(props) {
   }
 
   const toDisplayOrNotDisplay = function() {
+    console.log(relationStatus)
     if (relationStatus === 'pending') {
+      console.log('inside the if', relationStatus);
       return 'decline-contact-request';
-    }
-
-    else {
+    } else {
+      console.log('inside the else', relationStatus);
       return 'decline-contact-request-not-visible';
     }
-  }
+  };
 
-  return(
-      <Card className='contact-card'>
-        <PersonOutlineOutlinedIcon className='contact-icon'></PersonOutlineOutlinedIcon>
-        <span className='contact-username'>{props.contact.username} </span>
-        <span className='contact-email'>{props.contact.email}</span>
+  return (
+    <Card classes={{ root: 'contact-card' }}>
+      <div className='contact-info'>
+        <PersonIcon className='contact-icon' />
+        <Typography className='contact-username' variant='h6'>{props.contact.username} </Typography>
+        <Typography className='contact-email' variant='body2'>{props.contact.email}</Typography>
+      </div>
 
-
-        <Button variant="outlined" color="primary" onClick={changeRelation}>
-        {relationStatus === undefined ? 'Add Friend'
-        : relationStatus === 'accepted' ? 'Remove Friend'
-        : relationStatus === 'requested' ? 'Friend Request Sent'
-        : relationStatus === 'pending' ? 'Accept Friend Request'
+      <div className='contact-buttons'>
+        <Button variant="outlined" color="primary" size='small' onClick={changeRelation}>
+        {relationStatus === undefined ? 'Add'
+        : relationStatus === 'accepted' ? 'Remove'
+        : relationStatus === 'requested' ? 'Request Sent'
+        : relationStatus === 'pending' ? 'Accept Request'
         : 'add contact'}
         </Button>
 
-      <Button className={toDisplayOrNotDisplay()} variant="outlined" color="secondary" onClick={declineRelation} >
-        Decline Friend Request
-      </Button>
+        <Button className={toDisplayOrNotDisplay()} variant="outlined" color="secondary" size='small' onClick={declineRelation} >
+          Decline Request
+        </Button>
+      </div>
 
-
-      </Card>
+    </Card>
   );
 }

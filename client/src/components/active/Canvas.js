@@ -267,18 +267,18 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
-    setImageCtx(prev => {
+    // setImageCtx(prev => {
 
-      imageCanvasRef.current.width = window.innerWidth;
-      imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-      prev = imageCanvasRef.current.getContext('2d');
+    imageCanvasRef.current.width = window.innerWidth;
+    imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+    imageCtx = imageCanvasRef.current.getContext('2d');
 
-      if (backgroundImage.src) {
-        prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-      }
-      dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
-      dispatch({ type: REDRAW })
-    });
+    if (backgroundImage.src) {
+      imageCtx.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+    }
+    dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
+    dispatch({ type: REDRAW })
+    // });
   }, [imageCtx, imageLoaded, backgroundImage, initialPixels]);
 
   const addClick = (x, y, dragging) => {
