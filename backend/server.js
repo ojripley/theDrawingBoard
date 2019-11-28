@@ -63,7 +63,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // this is super important
 app.get("/", (req, res) => {
-  res.send('get outta my backend!');
+  res.send('backend');
 });
 
 // start server listening
