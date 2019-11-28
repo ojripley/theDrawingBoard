@@ -13,7 +13,7 @@ export default function Dashboard(props) {
   const currentUser = props.user;
 
   const [meetings, setMeetings] = useState([]);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(props.initialExpandedMeeting);
 
 
 

@@ -37,7 +37,8 @@ const runSeedFiles = function() {
 };
 
 const clearMeetingData = function() {
-  console.log(`Cleaning ./meeting_files`);
+  console.log(chalk.cyan(`-> Cleaning ./meeting_files ...`));
+
   fs.emptyDirSync('./meeting_files');
 
   let data = `# Ignore everything in this directory\n*\n# Except this file\n!.gitignore\n`;
