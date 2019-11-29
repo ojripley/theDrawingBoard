@@ -606,7 +606,7 @@ io.on('connection', (client) => {
   client.on('undoLine', (data) => {
 
     if (activeMeetings[data.meetingId]) {
-      const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
+      const pixels = activeMeetings[data.meetingId].userPixels[data.page][data.user.id];
 
       if (pixels.length > 0) {
         while (pixels[pixels.length - 1].dragging !== false) {

@@ -199,7 +199,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   const handleMouseDown = e => {
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
-    addClick(mouseX, mouseY);
+    addClick(mouseX, mouseY, false);
     // if (tool !== "pointer") { //potentially fixes bug where initial pixel would sometime be in dragging state
     setPaint(true);
     // }

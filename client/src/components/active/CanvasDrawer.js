@@ -95,7 +95,7 @@ export default function CanvasDrawer(props) {
 
   const handleUndo = () => {
     if (props.socketOpen) {
-      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId });
+      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId, page: props.page });
     }
   }
 
