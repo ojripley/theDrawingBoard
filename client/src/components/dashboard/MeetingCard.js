@@ -164,17 +164,22 @@ export default function MeetingCard({
   }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
-    socket.on(`meetingStarted${id}`, res => {
-      if (id === res.meetingId) {
-        setActiveMeeting(true);
-        console.log('meeting started');
-      }
-    });
+    console.log('id of meeting', id);
+    if (id) {
+      socket.on(`meetingStarted${id}`, res => {
+        if (id === res.meetingId) {
+          setActiveMeeting(true);
+          console.log('meeting started');
+        }
+      });
+    }
 
     return () => {
-      socket.off(`meetingStarted${id}`);
+      if (id) {
+        socket.off(`meetingStarted${id}`);
+      }
     };
-  }, [socket, id, activeMeeting])
+  }, [socket, id, activeMeeting]);
 
   const attendances = [];
   const attendeeNames = attendees.map((attendee) => {

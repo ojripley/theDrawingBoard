@@ -1,4 +1,4 @@
-class ActiveMeeting {
+class ActiveMeetings {
 
   // meetings will be added to this object with their ids as the key
 
@@ -11,4 +11,4 @@ class ActiveMeeting {
   }
 }
 
-module.exports = { ActiveMeeting };
+module.exports = { ActiveMeetings };
