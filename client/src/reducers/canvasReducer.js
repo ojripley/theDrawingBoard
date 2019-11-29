@@ -178,7 +178,8 @@ export default function reducer(state, action) {
           ctx.closePath();//end the line
         }
       }
-      return { ...state, ctx: ctx, finishedSaving: ++state.finishedSaving };
+      state.finishedSaving[action.payload.page] = ctx.canvas.toDataURL();
+      return { ...state, ctx: ctx };
     }
     case ADD_USER: {
       return {

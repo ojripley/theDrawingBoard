@@ -89,7 +89,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     ctx: {},
     color: pixelColor,
     pointers: {}, //if needed make take the initial state from server
-    finishedSaving: []
+    finishedSaving: Array(backgroundImage.length)
   });
   // const [dataURL,setDataURL] = useState([]); //stores files to be sent
   // let dataURL = Array(backgroundImage.length);
@@ -144,24 +144,26 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   useEffect(() => {
 
-    console.log('finishedSaving:', canvasState.finishedSaving)
-    if (canvasState.finishedSaving > 0) {
+    console.log('finishedSaving:', canvasState.finishedSaving);
+    console.log('why am i using reduce:', canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0));
+    console.log('background length:', backgroundImage.length);
+    if (canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0) === backgroundImage.length) {
       // dataURL.push(canvasState.ctx.canvas.toDataURL());
-      setDataURL([...dataURL, canvasState.ctx.canvas.toDataURL()])
-    }
+      // setDataURL([...dataURL, canvasState.ctx.canvas.toDataURL()])
+      // }
 
-    if (dataURL.length === backgroundImage.length) {
-      console.log("TRUEEEE", dataURL);
+      // if (dataURL.length === backgroundImage.length) {
+      // console.log("TRUEEEE", dataURL);
       console.log("bkgdimage", backgroundImage.length);
 
       socket.emit('endMeeting', {
         meetingId: meetingId,
         endTime: new Date(Date.now()),
-        image: dataURL
+        image: canvasState.finishedSaving
       })
     }
 
-  }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas, dataURL])
+  }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
 
 
   const loadSpinner = () => {
