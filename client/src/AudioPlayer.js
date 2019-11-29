@@ -12,7 +12,7 @@ export default function AudioPlayer(props) {
 
   // console.log('the audio track', audio);
 
-  const body = document.querySelector('body');
+  // const body = document.querySelector('body');
 
   const root = document.getElementById('root');
 
@@ -30,8 +30,8 @@ export default function AudioPlayer(props) {
         <source src={props.stream} type='audio/ogg'></source>
         <source src={props.stream} type='audio/mpeg'></source>
       </audio> */}
-{/*
-      <audio autoPlay>
+
+      {/* <audio autoPlay>
       </audio> */}
     </>
   )
