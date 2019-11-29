@@ -357,7 +357,8 @@ io.on('connection', (client) => {
           .then(res => { // meeting has been retrieved
             const meeting = res[0];
 
-            // set meeting pixel log
+            // set meeting properties
+            meeting['liveUsers'] = {};
             meeting['userPixels'] = {};
             meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
@@ -367,6 +368,8 @@ io.on('connection', (client) => {
             meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
+
+            console.log(meeting);
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
@@ -384,6 +387,10 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
+
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = true;
+    console.log(activeMeetings[data.meetingId].liveUsers);
+
     let meetingDetails = activeMeetings[data.meetingId];
     if (!meetingDetails.userPixels[data.user.id]) {
       meetingDetails.userPixels[data.user.id] = [];
@@ -615,5 +622,17 @@ io.on('connection', (client) => {
     if (activeUsers[data.contactId]) {
       activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user });
     }
+  });
+
+  client.on('peacingOutYo', (data) => {
+
+    // user leaves room
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = false;
+    client.leave(data.meetingId);
+
+    // tell the room who left
+    io.to(data.meetingId).emit('userLeft', {user: data.user, meetingId: data.meetingId});
+    console.log(activeMeetings[data.meetingId].liveUsers);
+    console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });
 });

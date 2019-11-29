@@ -17,6 +17,7 @@ export default function AudioPlayer(props) {
   const audioStream = document.createElement('audio');
   audioStream.setAttribute('id', 'stream');
   audioStream.setAttribute('autoPlay', true);
+  audioStream.setAttribute('display', 'none');
   body.prepend(audioStream);
   audioStream.srcObject = props.stream;
 
