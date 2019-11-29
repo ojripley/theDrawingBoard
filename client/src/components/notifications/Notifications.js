@@ -57,6 +57,8 @@ const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
     backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+    flexDirection: 'column',
   }
 }));
 
@@ -145,15 +147,14 @@ export default function Notifications(props) {
             aria-labelledby="meetings-notifications"
             className={classes.root}
           >
-            <ListItem onClick={() => setMeetingExpanded(!meetingExpanded)}>
+            <ListItem className='section-header' onClick={() => setMeetingExpanded(!meetingExpanded)}>
               <Typography variant='button'>Meeting Notifications</Typography>
+              <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("meeting")}>Dismiss</Typography>
               {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
             <Collapse in={meetingExpanded} timeout="auto" unmountOnExit>
               <List disablePadding>
-                <ListItem className={classes.nested}>
-                  {meetings}
-                </ListItem>
+                {meetings}
               </List>
             </Collapse>
           </List>
@@ -164,15 +165,14 @@ export default function Notifications(props) {
             aria-labelledby="contacts-notifications"
             className={classes.root}
           >
-            <ListItem onClick={() => setContactsExpanded(!contactsExpanded)}>
+            <ListItem className='section-header' onClick={() => setContactsExpanded(!contactsExpanded)}>
               <Typography variant='button'>Contacts Notifications</Typography>
-              {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
+              <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("contact")}>Dismiss</Typography>
+              {contactsExpanded ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
             <Collapse in={contactsExpanded} timeout="auto" unmountOnExit>
               <List disablePadding>
-                <ListItem className={classes.nested}>
-                  {contacts}
-                </ListItem>
+                {contacts}
               </List>
             </Collapse>
           </List>

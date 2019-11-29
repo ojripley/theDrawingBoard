@@ -17,12 +17,17 @@
   justify-self: end;
 }
 
-li.MuiListItem-root.MuiListItem-gutters {
+li.MuiListItem-root.MuiListItem-gutters.section-header {
   padding: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
-li.MuiListItem-root.MuiListItem-gutters.MuiListItem-alignItemsFlexStart {
+li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexStart {
   padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 #notifications-container {

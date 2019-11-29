@@ -30,7 +30,7 @@ export default function Contact(props) {
 
   return (
     <>
-      <ListItem className='notification' alignItems="flex-start">
+      <ListItem className='notification'>
         <ListItemText
           primary={props.title}
           secondary={
