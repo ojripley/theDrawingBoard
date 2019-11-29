@@ -54,16 +54,24 @@ export default function reducer(state, action) {
         }
       };
     case REDRAW: {
-      state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
+      if (action.payload.clear) { //clear the page unless its the final send
+        state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
+      } else {
+
+        console.log("SAVING!!");
+        console.log('state:', state);
+        console.log('action:', action)
+      }
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;
+      console.log("redraw thinks the width is ", w);
 
       // state.ctx.strokeStyle = state.color;
       console.log(state);
 
-      for (let user in state.pixelArrays[action.payload]) {
+      for (let user in state.pixelArrays[action.payload.page]) {
         console.log(user);
-        let pixels = state.pixelArrays[action.payload][user]; //gets users pixel array
+        let pixels = state.pixelArrays[action.payload.page][user]; //gets users pixel array
         //Reads colors
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
         let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.1)`

@@ -158,6 +158,7 @@ export default function CanvasDrawer(props) {
   return (
     <>
       <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
+      
       <Drawer anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <div
           className={classes.list}
@@ -220,6 +221,14 @@ export default function CanvasDrawer(props) {
                   <KeyboardArrowRightIcon onClick={() => changePage('next')} />
                 </ListItem>
               </List>
+             <Button
+        variant='contained'
+        color='secondary'
+        className={classes.endMeeting}
+        onClick={props.loadSpinner}
+      >
+        End Meeting
+        </Button>}
             </>}
         </div>
       </Drawer>

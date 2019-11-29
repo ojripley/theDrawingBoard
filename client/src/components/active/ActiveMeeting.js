@@ -82,6 +82,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [pointing, setPointing] = useState(false);
 
   const [page, setPage] = useState(0);
+  const finalCanvasRef = useRef(null);
 
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
@@ -109,6 +110,70 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     e.target.value = ''
     e.target.value = temp_value
   }
+
+  // const mergeWithImage = (imageCanvas) => {
+
+  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
+  //   // setImageCtx(prev => { //adds the click to the image canvas
+  //   // prev = imageCanvasRef.current.getContext('2d')
+  //   // imageCanvasRef.current.width = backgroundImage.width;
+  //   // imageCanvasRef.current.height = backgroundImage.height;
+  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
+  //   // });
+  // }
+
+  const endMeeting = () => {
+    //TODO: handle case with no image
+    // mergeWithImage();
+    let dataURL = "";
+    // let sendingCanvas = (<canvas></canvas>);
+
+    finalCanvasRef.current.width = backgroundImage[0].width;
+    finalCanvasRef.current.height = backgroundImage[0].height;
+    let sendingCtx = finalCanvasRef.current.getContext('2d');
+    // console.log(backgroundImage)
+    console.log('finalCanvasRef.current.width :', finalCanvasRef.current.width);
+    // finalCanvasRef.current.console.log('final canvas width:', width);
+    dispatch({
+      type: SET_CTX,
+      payload: sendingCtx
+    });
+
+    canvasState.ctx.drawImage(backgroundImage[0], 0, 0, backgroundImage[0].width, backgroundImage[0].height);
+    dispatch({ type: REDRAW, payload: { page: 0, clear: false } });
+    console.log('canvasState.ctx.canvas.width:', canvasState.ctx.canvas.width)
+
+    dataURL = canvasState.ctx.canvas.toDataURL();
+
+    // setTimeout(() => {
+    socket.emit('endMeeting', {
+      meetingId: meetingId,
+      endTime: new Date(Date.now()),
+      image: dataURL
+    })
+
+    // }, 10000)
+
+    // if (backgroundImage[0].width === 0) {
+    //   dataURL = drawCanvasRef.current.toDataURL();
+    // } else {
+    //   dataURL = imageCanvasRef.current.toDataURL();
+    // }
+    // socket.emit('endMeeting', {
+    //   meetingId: meetingId,
+    //   endTime: new Date(Date.now()),
+    //   image: dataURL
+    // });
+
+  }
+
+  const loadSpinner = () => {
+    socket.emit('savingMeeting', { meetingId: meetingId });
+    setLoading(true);
+    endMeeting();
+  };
 
   useEffect(() => {
 
@@ -178,6 +243,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         page={page}
         totalPages={backgroundImage.length}
         setPage={setPage}
+        loadSpinner={loadSpinner}
       />
       <Canvas
         user={user}
@@ -213,11 +279,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           <InputIcon onClick={() => setWriteMode(prev => !prev)} />
         </div>
       }
+      {/* <canvas id="mergingCanvas"></canvas> */}
       {saving &&
         <div className={classes.saving}>
           <CircularProgress color='secondary' />
         </div>
       }
+      <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas>
     </div>
   )
 }

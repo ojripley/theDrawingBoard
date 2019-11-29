@@ -23,6 +23,7 @@ const colors = require('./colors.json')["colors"];
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
 const { ActiveMeeting } = require('./objects/activeMeetings');
+const { reset } = require('./db/resetdb');
 
 // instantiate objects
 activeUsers = new ActiveUsers();
@@ -36,7 +37,7 @@ const db = require('./db/queries/queries');
 // 'dev' = Concise output colored by response status for development use.
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
-
+reset(); //REMOVE THIS (TEMP FOR TESTING)
 const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
 const iv = new Buffer.from("XFf9bYQkLKtwD4QD"); //Could use random bytes, would refresh on server refresh
 
@@ -63,7 +64,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send('get outta my backend!');
 });
-
+app.get("/reset", (req, res) => {
+  reset();
+  res.send('get outta my backend!');
+});
 // start server listening
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

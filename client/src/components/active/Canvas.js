@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Canvas.scss';
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -39,7 +38,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
       drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-      dispatch({ type: REDRAW, payload: page });
+      dispatch({ type: REDRAW, payload: { page: page, clear: true } });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
@@ -49,7 +48,8 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       type: SET_CTX,
       payload: newCtx
     });
-    dispatch({ type: REDRAW, payload: page });
+    dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+
 
     return () => {
       window.onresize = undefined;
@@ -66,15 +66,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     return pixel;
   }
 
-  const mergeWithImage = () => {
-    setImageCtx(prev => { //adds the click to the image canvas
-      prev = imageCanvasRef.current.getContext('2d')
-      imageCanvasRef.current.width = backgroundImage.width;
-      imageCanvasRef.current.height = backgroundImage.height;
-      prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-      prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
-    });
-  }
+
 
   useEffect(() => {
     if (socketOpen) {
@@ -83,7 +75,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
           console.log("Other person is drawing", data.user.id);
 
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel, page: page } });
-          dispatch({ type: REDRAW, payload: page });
+          dispatch({ type: REDRAW, payload: { page: page, clear: true } });
         }
       });
 
@@ -91,7 +83,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         if (user.id !== data.user.id) {
           console.log("Other person is pointing", data.user.id);
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
-          dispatch({ type: REDRAW, payload: page });
+          dispatch({ type: REDRAW, payload: { page: page, clear: true } });
         }
       });
 
@@ -107,7 +99,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       socket.on('redraw', (data) => {
         console.log('redrawing pixels!');
         dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
-        dispatch({ type: REDRAW, payload: page });
+        dispatch({ type: REDRAW, payload: { page: page, clear: true } });
       });
 
       socket.on('newParticipant', data => {
@@ -123,28 +115,9 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     }
   }, [socket, socketOpen, user.id]);
 
-  const loadSpinner = () => {
-    socket.emit('savingMeeting', { meetingId: meetingId });
-    setLoading(true);
-    endMeeting();
-  };
 
-  const endMeeting = () => {
-    console.log('meeting ended');
-    mergeWithImage();
-    let dataURL = "";
-    if (backgroundImage.width === 0) {
-      dataURL = drawCanvasRef.current.toDataURL();
-    } else {
-      dataURL = imageCanvasRef.current.toDataURL();
-    }
-    socket.emit('endMeeting', {
-      meetingId: meetingId,
-      endTime: new Date(Date.now()),
-      image: dataURL
-    });
 
-  }
+
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
@@ -158,7 +131,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       imageCtx.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
     }
     // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
-    dispatch({ type: REDRAW, payload: page })
+    dispatch({ type: REDRAW, payload: { page: page, clear: true } });
     // });
   }, [imageCtx, imageLoaded, backgroundImage]);
 
@@ -178,7 +151,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
         mapToRelativeUnits(pixel);
         dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: pixel } });
-        dispatch({ type: REDRAW, payload: page });
+        dispatch({ type: REDRAW, payload: { page: page, clear: true } });
         socket.emit('setPointer', { user: user, pixel: pixel, meetingId: meetingId, page: page });
       }
     } else {
@@ -191,7 +164,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       };
       mapToRelativeUnits(pixel);
       dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel, page: page } });
-      dispatch({ type: REDRAW, payload: page });
+      dispatch({ type: REDRAW, payload: { page: page, clear: true } });
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, page: page });
     }
   };
@@ -217,7 +190,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     setPaint(false);
     //Clear the pointer pixel:
     dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
-    dispatch({ type: REDRAW, payload: page });
+    dispatch({ type: REDRAW, payload: { page: page, clear: true } });
     socket.emit('setPointer', { user: user, pixel: undefined, meetingId: meetingId });
   }
 
@@ -240,14 +213,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         onTouchEnd={e => handleMouseUp(e.nativeEvent.touches[0])}
       >
       </canvas>
-      {user.id === ownerId && <Button
-        variant='contained'
-        color='secondary'
-        className={classes.endMeeting}
-        onClick={loadSpinner}
-      >
-        End Meeting
-        </Button>}
+
     </div>
   )
 }
