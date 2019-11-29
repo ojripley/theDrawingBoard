@@ -50,3 +50,7 @@ li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexS
   cursor: pointer;
   color: $color-5-hex;
 }
+
+button.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.dismiss-button-hidden.MuiButton-outlinedSecondary.MuiButton-outlinedSizeSmall.MuiButton-sizeSmall {
+  display: none;
+}
