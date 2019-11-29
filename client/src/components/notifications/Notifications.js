@@ -59,7 +59,6 @@ export default function Notifications(props) {
         title={notif.title}
         message={notif.msg}
         setInitialExpandedMeeting={props.setInitialExpandedMeeting}
-        setMode={props.setMode}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
@@ -80,7 +79,6 @@ export default function Notifications(props) {
         type={notif.type}
         title={notif.title}
         message={notif.msg}
-        setMode={props.setMode}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
