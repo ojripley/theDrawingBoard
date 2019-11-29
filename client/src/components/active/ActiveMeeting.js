@@ -10,12 +10,12 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import CanvasDrawer from './CanvasDrawer';
 
 import reducer, {
-  ADD_USER,
   SET_INITIAL_PIXELS,
   SET_PIXEL,
   SET_CTX,
   REDRAW,
-  SET_POINTER
+  SET_POINTER,
+  SAVE
 } from "../../reducers/canvasReducer";
 
 
@@ -88,7 +88,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     pixelArrays: { ...initialPixels },
     ctx: undefined,
     color: pixelColor,
-    pointers: {} //if needed make take the initial state from server
+    pointers: {}, //if needed make take the initial state from server
+    finishedSaving: false
   });
 
   // const backgroundCanvas = useRef(null);
@@ -127,7 +128,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const endMeeting = () => {
     //TODO: handle case with no image
     // mergeWithImage();
-    let dataURL = "";
     // let sendingCanvas = (<canvas></canvas>);
 
     finalCanvasRef.current.width = backgroundImage[0].width;
@@ -136,23 +136,22 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     // console.log(backgroundImage)
     console.log('finalCanvasRef.current.width :', finalCanvasRef.current.width);
     // finalCanvasRef.current.console.log('final canvas width:', width);
-    dispatch({
-      type: SET_CTX,
-      payload: sendingCtx
-    });
+    // dispatch({
+    //   type: SET_CTX,
+    //   payload: sendingCtx
+    // });
+    console.log("1> ", canvasState);
 
     canvasState.ctx.drawImage(backgroundImage[0], 0, 0, backgroundImage[0].width, backgroundImage[0].height);
-    dispatch({ type: REDRAW, payload: { page: 0, clear: false } });
-    console.log('canvasState.ctx.canvas.width:', canvasState.ctx.canvas.width)
+    dispatch({ type: SAVE, payload: { page: 0, ctx: sendingCtx, backgroundImage: backgroundImage[0] } });
+    console.log("2> ", canvasState);
 
-    dataURL = canvasState.ctx.canvas.toDataURL();
+    console.log('canvasState.ctx.canvas.width:', canvasState.ctx.canvas.width);
+    console.log("3> ", canvasState);
+
 
     // setTimeout(() => {
-    socket.emit('endMeeting', {
-      meetingId: meetingId,
-      endTime: new Date(Date.now()),
-      image: dataURL
-    })
+
 
     // }, 10000)
 
@@ -168,6 +167,24 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     // });
 
   }
+
+  useEffect(() => {
+    let dataURL = "";
+
+    console.log('finishedSaving:', canvasState.finishedSaving)
+    if (canvasState.finishedSaving) {
+      console.log("TRUEEEE");
+      dataURL = canvasState.ctx.canvas.toDataURL();
+
+      socket.emit('endMeeting', {
+        meetingId: meetingId,
+        endTime: new Date(Date.now()),
+        image: dataURL
+      })
+    }
+
+  }, [canvasState.finishedSaving, meetingId, socket])
+
 
   const loadSpinner = () => {
     socket.emit('savingMeeting', { meetingId: meetingId });

@@ -38,7 +38,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
       drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-      dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+      dispatch({ type: REDRAW, payload: { page: page} });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
@@ -48,7 +48,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       type: SET_CTX,
       payload: newCtx
     });
-    dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+    dispatch({ type: REDRAW, payload: { page: page} });
 
 
     return () => {
@@ -75,7 +75,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
           console.log("Other person is drawing", data.user.id);
 
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel, page: page } });
-          dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+          dispatch({ type: REDRAW, payload: { page: page} });
         }
       });
 
@@ -83,7 +83,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         if (user.id !== data.user.id) {
           console.log("Other person is pointing", data.user.id);
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
-          dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+          dispatch({ type: REDRAW, payload: { page: page} });
         }
       });
 
@@ -99,7 +99,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       socket.on('redraw', (data) => {
         console.log('redrawing pixels!');
         dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
-        dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+        dispatch({ type: REDRAW, payload: { page: page} });
       });
 
       socket.on('newParticipant', data => {
@@ -131,7 +131,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       imageCtx.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
     }
     // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
-    dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+    dispatch({ type: REDRAW, payload: { page: page} });
     // });
   }, [imageCtx, imageLoaded, backgroundImage]);
 
@@ -151,7 +151,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
         mapToRelativeUnits(pixel);
         dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: pixel } });
-        dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+        dispatch({ type: REDRAW, payload: { page: page} });
         socket.emit('setPointer', { user: user, pixel: pixel, meetingId: meetingId, page: page });
       }
     } else {
@@ -164,7 +164,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       };
       mapToRelativeUnits(pixel);
       dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel, page: page } });
-      dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+      dispatch({ type: REDRAW, payload: { page: page} });
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, page: page });
     }
   };
@@ -190,7 +190,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     setPaint(false);
     //Clear the pointer pixel:
     dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
-    dispatch({ type: REDRAW, payload: { page: page, clear: true } });
+    dispatch({ type: REDRAW, payload: { page: page} });
     socket.emit('setPointer', { user: user, pixel: undefined, meetingId: meetingId });
   }
 

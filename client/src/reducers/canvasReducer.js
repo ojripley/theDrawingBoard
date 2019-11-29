@@ -5,6 +5,7 @@ const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 const SET_POINTER = "SET_POINTER";
+const SAVE = "SAVE";
 
 export default function reducer(state, action) {
   switch (action.type) {
@@ -54,14 +55,14 @@ export default function reducer(state, action) {
         }
       };
     case REDRAW: {
-      if (action.payload.clear) { //clear the page unless its the final send
-        state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
-      } else {
+      // if (action.payload.clear) { //clear the page unless its the final send
+      state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
+      // } else {
 
-        console.log("SAVING!!");
-        console.log('state:', state);
-        console.log('action:', action)
-      }
+      //   console.log("SAVING!!");
+      //   console.log('state:', state);
+      //   console.log('action:', action)
+      // }
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;
       console.log("redraw thinks the width is ", w);
@@ -126,6 +127,59 @@ export default function reducer(state, action) {
       }
       return { ...state };
     }
+    case SAVE: {
+      let ctx = action.payload.ctx;
+      console.log("SAVING!!");
+      console.log('state:', state);
+      console.log('action:', action)
+      // }
+      ctx.drawImage(action.payload.backgroundImage, 0, 0, action.payload.backgroundImage.width, action.payload.backgroundImage.height);
+
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      console.log("redraw thinks the width is ", w);
+
+      // ctx.strokeStyle = state.color;
+      console.log(state);
+
+      for (let user in state.pixelArrays[action.payload.page]) {
+        console.log(user);
+        let pixels = state.pixelArrays[action.payload.page][user]; //gets users pixel array
+        //Reads colors
+        let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
+        let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.1)`
+        ctx.lineJoin = "round";
+
+        for (let i in pixels) {
+          ctx.beginPath(); //start drawing a single line
+          if (pixels[i].tool === "highlighter") {
+            // console.log("lighting")
+            // ctx.globalAlpha = 0.2;
+            ctx.lineCap = 'butt';
+            ctx.strokeStyle = highlightCol;
+          } else {
+            // console.log("not lighting")
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = col;
+          }
+          ctx.lineWidth = pixels[i].strokeWidth || 1;
+          // pixels[i].highlighting ? console.log("HIIII") : console.log("LOOOO");
+          // console.log(state.color[user])
+          if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
+            ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
+          } else { //else use the current pixel, offset by 1px to the left
+            ctx.moveTo(pixels[i].x * w, pixels[i].y * h - 1);
+          }
+          ctx.lineTo(pixels[i].x * w, pixels[i].y * h);//draw a line from point mentioned above to the current pixel
+          // ctx.save();
+          // ctx.fillRect(pixels[i].x * w, pixels[i].y * h, 10, 10); // fill in the pixel at (10,10)
+
+          ctx.stroke();//draw the line
+          ctx.closePath();//end the line
+        }
+      }
+      return { ...state, ctx: ctx, finishedSaving: true };
+    }
     case ADD_USER: {
       return {
         ...state,
@@ -148,5 +202,6 @@ export {
   SET_PIXEL,
   SET_CTX,
   REDRAW,
-  SET_POINTER
+  SET_POINTER,
+  SAVE
 }
