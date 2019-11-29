@@ -125,7 +125,7 @@ function reducer(state, action) {
   }
 }
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, tool }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, initialPixels, ownerId, setLoading, pixelColor, strokeWidth, tool, page }) {
   const TRIGGER_ZONE = 15;
 
   const useStyles = makeStyles(theme => ({
@@ -299,7 +299,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         mapToRelativeUnits(pixel);
         dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: pixel } });
         dispatch({ type: REDRAW });
-        socket.emit('setPointer', { user: user, pixel: pixel, meetingId: meetingId });
+        socket.emit('setPointer', { user: user, pixel: pixel, meetingId: meetingId, page: page });
       }
     } else {
       let pixel = {
@@ -312,7 +312,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       mapToRelativeUnits(pixel);
       dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel } });
       dispatch({ type: REDRAW });
-      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId });
+      socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, page: page });
     }
   };
 

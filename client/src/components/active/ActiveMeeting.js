@@ -111,11 +111,21 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       setLoading(false);
     });
 
+
+    socket.on('changingPage', data => {
+      console.log('trying to change page');
+      if (data.user.id !== user.id) { //Don't need to change the owner too
+        console.log(`Changing page to ${data.page}`, data.page)
+        setPage(data.page);
+      }
+    });
+
     return () => {
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
+      socket.off('changingPage');
     };
-  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading])
+  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading, setPage])
 
   useEffect(() => {
     // console.log(debouncedNotes);
@@ -168,6 +178,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         highlighting={highlighting}
         pointing={pointing}
         tool={tool}
+        page={page}
       />
       {writeMode &&
         <div className={classes.center}>

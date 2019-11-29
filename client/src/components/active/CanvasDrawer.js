@@ -57,6 +57,7 @@ export default function CanvasDrawer(props) {
       props.socket.on('meetingMsg', (data) => {
         setMessages(prev => [data, ...prev]);
       });
+
     }
     return () => {
       props.socket.off('meetingMsg');
@@ -147,8 +148,10 @@ export default function CanvasDrawer(props) {
   const changePage = (direction) => {
     if (direction === 'prev' && props.page !== 0) {
       props.setPage(props.page - 1);
+      props.socket.emit('changePage', { meetingId: props.meetingId, user: props.user, page: props.page - 1 });
     } else if (direction === 'next' && props.page !== (props.totalPages - 1)) {
       props.setPage(props.page + 1);
+      props.socket.emit('changePage', { meetingId: props.meetingId, user: props.user, page: props.page + 1 });
     }
   }
 
@@ -209,14 +212,14 @@ export default function CanvasDrawer(props) {
           </List>
           {props.user.id === props.ownerId &&
             <>
-            <Divider />
-            <List>
-              <ListItem>
-                <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />
-                Page {props.page + 1} of {props.totalPages}
-                <KeyboardArrowRightIcon onClick={() => changePage('next')} />
-              </ListItem>
-            </List>
+              <Divider />
+              <List>
+                <ListItem>
+                  <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />
+                  Page {props.page + 1} of {props.totalPages}
+                  <KeyboardArrowRightIcon onClick={() => changePage('next')} />
+                </ListItem>
+              </List>
             </>}
         </div>
       </Drawer>

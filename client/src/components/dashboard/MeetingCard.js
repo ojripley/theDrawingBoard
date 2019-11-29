@@ -134,22 +134,18 @@ export default function MeetingCard({
         setMeetingNotes(data.notes);
         // setLoading(false);
         // setInMeeting(true);
-        console.log(res['colorMapping']);
         setPixelColor(res['colorMapping']);
         if (data.images) {//if image
           setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
           console.log('data.pixels:', data.pixels);
           setInitialPixels(data.pixels);//assuming server is sending us array of pixel
           for (let i in data.images) {
-            console.log("there is an image");
             let myImage = new Image();
             myImage.onload = () => {
               // setImageLoaded(true);
               console.log(data.images);
               setBackgroundImage(prev => {
-                console.log('setting bckgd image');
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
-                console.log("bckgd image is currently", prev);
                 return prev;
               });
 
@@ -161,7 +157,6 @@ export default function MeetingCard({
                 console.log(temp);
                 console.log(data.images[i]);
                 // prev += 1;
-                console.log("HELLO");
                 console.log("temp vs data.images.length", temp, data.images.length);
                 if (temp === data.images.length) {//done loading!
                   console.log(`Loaded ${i} images`);

@@ -207,7 +207,8 @@ io.on('connection', (client) => {
   });
 
   client.on('addClick', data => {
-    activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
+    console.log(data);
+    activeMeetings[data.meetingId].userPixels[data.page][data.user.id].push(data.pixel);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   });
 
@@ -216,9 +217,13 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('setPointer', data); //pass message along
   });
 
-  //End of test
   client.on('msg', (data) => {
     console.log(data);
+  });
+
+  client.on('changePage', data => {
+    console.log('changing page', data);
+    io.to(data.meetingId).emit('changingPage', data);
   });
 
   client.on('fetchUser', (data) => {
