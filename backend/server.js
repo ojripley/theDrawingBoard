@@ -256,6 +256,7 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
+    console.log("FETCHING MEETING: ", data);
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
@@ -485,14 +486,15 @@ io.on('connection', (client) => {
         img = meetingDetails.link_to_initial_doc;
       }
     } else {
-      img = 'blank.png'
+      img = 'image.png'
     }
 
     fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
       if (err) throw err;
       console.log('The file has been saved!');
+      console.log("this is meetingid", data.meetingId);
       console.log(`markup_${img}`);
-      db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
+      db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
     });
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
@@ -510,7 +512,11 @@ io.on('connection', (client) => {
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
-      });
+      }).
+      catch((e) => {
+        console.error("Updating notes failed", e);
+      })
+      ;
   });
 
   client.on('fetchNotes', (data) => {

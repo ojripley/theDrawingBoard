@@ -329,14 +329,14 @@ const updateMeetingById = function(meeting_id, end_time, active, status) {
     SET
       end_time = $2,
       active = $3,
-      status = $4,
+      status = $4
     WHERE id = $1;
   `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      console.error('Query Error in update', error);
     });
 }
 

@@ -133,38 +133,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     finalCanvasRef.current.width = backgroundImage[0].width;
     finalCanvasRef.current.height = backgroundImage[0].height;
     let sendingCtx = finalCanvasRef.current.getContext('2d');
-    // console.log(backgroundImage)
-    console.log('finalCanvasRef.current.width :', finalCanvasRef.current.width);
-    // finalCanvasRef.current.console.log('final canvas width:', width);
-    // dispatch({
-    //   type: SET_CTX,
-    //   payload: sendingCtx
-    // });
-    console.log("1> ", canvasState);
 
     canvasState.ctx.drawImage(backgroundImage[0], 0, 0, backgroundImage[0].width, backgroundImage[0].height);
     dispatch({ type: SAVE, payload: { page: 0, ctx: sendingCtx, backgroundImage: backgroundImage[0] } });
-    console.log("2> ", canvasState);
-
-    console.log('canvasState.ctx.canvas.width:', canvasState.ctx.canvas.width);
-    console.log("3> ", canvasState);
-
-
-    // setTimeout(() => {
-
-
-    // }, 10000)
-
-    // if (backgroundImage[0].width === 0) {
-    //   dataURL = drawCanvasRef.current.toDataURL();
-    // } else {
-    //   dataURL = imageCanvasRef.current.toDataURL();
-    // }
-    // socket.emit('endMeeting', {
-    //   meetingId: meetingId,
-    //   endTime: new Date(Date.now()),
-    //   image: dataURL
-    // });
 
   }
 
