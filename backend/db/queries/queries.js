@@ -194,6 +194,7 @@ const insertUser = function(username, email, password) {
   return db.query(`
     INSERT INTO users (username, email, password)
     VALUES ($1, $2, $3);
+    RETURNING *;
   `, vars)
     .then(res => {
       return res.rows;

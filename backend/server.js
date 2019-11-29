@@ -15,7 +15,7 @@ const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, { cookie: "yo" });
-const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
+const crypto = require('crypto');
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 const colors = require('./colors.json')["colors"];
@@ -136,6 +136,8 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
+  console.log('client headers', client.request.headers.cookie);
+
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
   if (client.request.headers.cookie) {
@@ -176,6 +178,14 @@ io.on('connection', (client) => {
       }
     } else {
       client.emit('cookieResponse', null);
+    }
+  });
+
+  client.on('registrationAttempt', (data) => {
+    if (data.username) {
+      client.emit('WelcomeYaBogeyBastard', (data));
+    } else {
+
     }
   });
 

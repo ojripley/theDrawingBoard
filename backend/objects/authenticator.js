@@ -18,6 +18,16 @@ class Authenticator {
         }
       });
   }
+
+  register(username, email, password) {
+
+    hashedPassword = bcrypt.hashSync(password, 10);
+
+    return db.insertUser(username, email, hashedPassword)
+      .then(user => {
+        return user;
+      });
+  }
 }
 
 module.exports = { Authenticator };
