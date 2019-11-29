@@ -53,7 +53,7 @@ function reducer(state, action) {
       const h = state.ctx.canvas.height;
 
       // state.ctx.strokeStyle = state.color;
-      console.log(state);
+      // console.log(state);
       for (let user in state.pixelArrays) {
         let pixels = state.pixelArrays[user]; //gets users pixel array
         //Reads colors
@@ -199,7 +199,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
-          console.log("Other person is drawing", data.user.id);
+          // console.log("Other person is drawing", data.user.id);
 
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW });
@@ -208,7 +208,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
       socket.on('setPointer', data => {
         if (user.id !== data.user.id) {
-          console.log("Other person is pointing", data.user.id);
+          // console.log("Other person is pointing", data.user.id);
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW });
         }
