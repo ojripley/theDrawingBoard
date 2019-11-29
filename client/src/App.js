@@ -29,8 +29,6 @@ export default function App() {
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
   const NOTIFICATIONS = 'NOTIFICATIONS';
-  const [mode, setMode] = useState(DASHBOARD);
-  const [loading, setLoading] = useState(true);
 
   const { socket, socketOpen } = useSocket();
 
