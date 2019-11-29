@@ -21,6 +21,15 @@ export default function Contact(props) {
     //Remove the element
     props.socket.emit('dismissNotification', { id: props.id }); //props.user?
     props.onRemove(props.id);
+  };
+
+  const handleClick = () => {
+    if (props.type === 'contact' || props.type === 'dm') {
+      props.setMode("CONTACTS");
+    } else if (props.type === 'meeting') {
+        props.setInitialExpandedMeeting(`panel${props.meetingId}`);
+        props.setMode("DASHBOARD");
+    }
   }
 
   // console.log(props.timestamp)
@@ -28,34 +37,35 @@ export default function Contact(props) {
   // console.log('timeElapsed:', timeElapsed)
 
   return (
-    <>
-      <ListItem className='notification'>
-        <ListItemText
-          primary={props.title}
-          secondary={
-            <React.Fragment>
-              <Typography
-                component="span"
-                variant="body2"
-                className={classes.inline}
-                color="textPrimary"
-              >
-                {props.message}
-              </Typography>
-              <br/>
-              {`Received on ${new Date(props.timestamp).toLocaleString('en-US', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric'
-              })}`}
-            </React.Fragment>
-          }
-        />
-        <CloseIcon onClick={dismissNotification}></CloseIcon>
-      </ListItem>
-    </>
+    <ListItem
+      className='notification'
+      onClick={handleClick}
+    >
+      <ListItemText
+        primary={props.title}
+        secondary={
+          <React.Fragment>
+            <Typography
+              component="span"
+              variant="body2"
+              className={classes.inline}
+              color="textPrimary"
+            >
+              {props.message}
+            </Typography>
+            <br/>
+            {`Received on ${new Date(props.timestamp).toLocaleString('en-US', {
+              weekday: 'short',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric'
+            })}`}
+          </React.Fragment>
+        }
+      />
+      <CloseIcon onClick={dismissNotification}></CloseIcon>
+    </ListItem>
   )
 }

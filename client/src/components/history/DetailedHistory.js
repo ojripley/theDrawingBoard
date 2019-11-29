@@ -32,7 +32,7 @@ export default function DetailedHistory(props) {
       props.socket.on('notesFetched', res => {
         console.log('on notes', res)
         setNotes(res.usersMeetings.notes);
-        setImages(prev => [...prev, res.image]);
+        // setImages(prev => [...prev, res.image]);
       });
 
       return () => props.socket.off('notes');
