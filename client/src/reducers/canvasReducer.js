@@ -8,21 +8,22 @@ const SET_POINTER = "SET_POINTER";
 const SAVE = "SAVE";
 
 export default function reducer(state, action) {
+  console.log("---ACTION---", action);
+  console.log('state:', state);
+
   switch (action.type) {
     case SET_INITIAL_PIXELS: {
       let whatIshappening = {
         ...state,
         pixelArrays: action.payload
       };
-      console.log('whatIshappening:', whatIshappening)
       return {
         ...state,
         pixelArrays: action.payload
       }
     }
     case SET_PIXEL: {
-      console.log('state:', state);
-      console.log('action:', action);
+
       if (state.pixelArrays[action.payload.page][action.payload.user]) {
         return {
           ...state,
@@ -38,8 +39,11 @@ export default function reducer(state, action) {
         return {
           ...state,
           pixelArrays: {
-            ...state.pixelArrays[action.payload.page],
-            [action.payload.user]: [action.payload.pixel]
+            ...state.pixelArrays,
+            [action.payload.page]: {
+              ...state.pixelArrays[action.payload.page],
+              [action.payload.user]: [action.payload.pixel]
+            }
           }
         }
       }
@@ -55,23 +59,11 @@ export default function reducer(state, action) {
         }
       };
     case REDRAW: {
-      // if (action.payload.clear) { //clear the page unless its the final send
-      state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); // Clears the drawCanvas
-      // } else {
-
-      //   console.log("SAVING!!");
-      //   console.log('state:', state);
-      //   console.log('action:', action)
-      // }
+      state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); //Clears canvas
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;
-      console.log("redraw thinks the width is ", w);
-
-      // state.ctx.strokeStyle = state.color;
-      console.log(state);
 
       for (let user in state.pixelArrays[action.payload.page]) {
-        console.log(user);
         let pixels = state.pixelArrays[action.payload.page][user]; //gets users pixel array
         //Reads colors
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
@@ -129,21 +121,14 @@ export default function reducer(state, action) {
     }
     case SAVE: {
       let ctx = action.payload.ctx;
-      console.log("SAVING!!");
-      console.log('state:', state);
-      console.log('action:', action)
-      // }
+
       ctx.drawImage(action.payload.backgroundImage, 0, 0, action.payload.backgroundImage.width, action.payload.backgroundImage.height);
 
       const w = ctx.canvas.width;
       const h = ctx.canvas.height;
-      console.log("redraw thinks the width is ", w);
-
-      // ctx.strokeStyle = state.color;
-      console.log(state);
 
       for (let user in state.pixelArrays[action.payload.page]) {
-        console.log(user);
+
         let pixels = state.pixelArrays[action.payload.page][user]; //gets users pixel array
         //Reads colors
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`

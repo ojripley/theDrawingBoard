@@ -138,18 +138,9 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   useEffect(() => {
-
-    console.log('finishedSaving:', canvasState.finishedSaving);
-    console.log('why am i using reduce:', canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0));
-    console.log('background length:', backgroundImage.length);
+    //Checks if all the saved images are done loading. FinishedSaving is an array of length equal to the length of the background images, intially with undefined values
+    //As images are prepped for saving, the entry is replaced with the data (base64) for the img. The below reduce counts the number of elements that are not undefined, and once that reaches the number of images an emit is made to the server with the data as an array
     if (canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0) === backgroundImage.length) {
-      // dataURL.push(canvasState.ctx.canvas.toDataURL());
-      // setDataURL([...dataURL, canvasState.ctx.canvas.toDataURL()])
-      // }
-
-      // if (dataURL.length === backgroundImage.length) {
-      // console.log("TRUEEEE", dataURL);
-      console.log("bkgdimage", backgroundImage.length);
 
       socket.emit('endMeeting', {
         meetingId: meetingId,
@@ -195,6 +186,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     });
 
     return () => {
+      socket.off('loadTheSpinnerPls');
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
       socket.off('changingPage');

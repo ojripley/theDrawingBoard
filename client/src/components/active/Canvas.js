@@ -82,6 +82,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
       return () => {
         socket.off('drawClick');
+        socket.off('setPointer');
       };
     }
   }, [socket, socketOpen, user.id, dispatch, page]);
@@ -182,9 +183,11 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   const handleMouseUp = e => {
     setPaint(false);
     //Clear the pointer pixel:
-    dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
-    dispatch({ type: REDRAW, payload: { page: page } });
-    socket.emit('setPointer', { user: user, pixel: undefined, meetingId: meetingId });
+    if (tool === "pointer") {
+      dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
+      socket.emit('setPointer', { user: user, pixel: undefined, meetingId: meetingId });
+      dispatch({ type: REDRAW, payload: { page: page } });
+    }
   }
 
   return (

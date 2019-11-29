@@ -472,25 +472,15 @@ io.on('connection', (client) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
 
-    // if (meetingDetails['numPages'] !== 0) {
     for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-      // let img;
-      // if (meetingDetails.link_to_initial_doc) {
-      //   if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-      //     img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      //   } else {
-      //     img = meetingDetails.link_to_initial_doc;
-      //   }
-      // } else {
       let img = `image-${i}.png`;
-      // }
 
       fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image[i].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
         if (err) throw err;
       });
     }
-    // }
+    
     db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
