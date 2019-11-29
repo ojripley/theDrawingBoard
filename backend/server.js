@@ -587,6 +587,7 @@ io.on('connection', (client) => {
 
     if (activeMeetings[data.meetingId]) {
       const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
+      console.log('pixels:', pixels)
 
       if (pixels.length > 0) {
         while (pixels[pixels.length - 1].dragging !== false) {

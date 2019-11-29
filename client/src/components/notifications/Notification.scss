@@ -1,23 +1,52 @@
-.card {
-  position: relative;
-  padding: 1em;
-  margin-top: 0.5em;
-  margin-right: 1em;
-  width: 90%;
+@import '../../theme/variables';
 
-  h1 {
-    font-size: 1.5em;
-  }
+.notifications-header {
+  // display: grid;
+  // grid-template-columns: 33.3% 33.3% 33.3%;
+  // justify-items: center;
+  margin-bottom: 0.5em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 
-  button {
-    float: right;
-  }
-  .timestamp {
-    color: gray;
-    position: absolute;
-    right: 0;
-    margin: 1em;
-    bottom: 0;
-    text-align: right;
-  }
+// .notifications-header h2 {
+//   grid-column-start: 2;
+//   grid-column-end: 3;
+//   justify-self: center;
+// }
+
+// .notifications-header button {
+//   grid-column-start: 3;
+//   grid-column-end: 4;
+//   justify-self: end;
+// }
+
+li.MuiListItem-root.MuiListItem-gutters.section-header {
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid $color-5-hex;
+}
+
+li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexStart {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#notifications-container {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.MuiTypography-root.clear-notifications.MuiTypography-overline {
+  margin-right: 2em;
+}
+
+.clear-notifications:hover {
+  cursor: pointer;
+  color: $color-5-hex;
 }
