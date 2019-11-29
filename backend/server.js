@@ -256,13 +256,13 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('fetchMeeting', (data) => {
-    db.fetchMeetingById(data.id)
-      .then(res => {
-        console.log(res);
-        client.emit('meeting', res);
-      });
-  });
+  // client.on('fetchMeeting', (data) => {
+  //   db.fetchMeetingById(data.id)
+  //     .then(res => {
+  //       console.log(res);
+  //       client.emit('meeting', res);
+  //     });
+  // });
 
   client.on('addUser', (data) => {
 
@@ -280,7 +280,6 @@ io.on('connection', (client) => {
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
       .then(res => {
         client.emit('newMeeting', res[0]);
-        // console.log(res[0].id);
         return res[0].id;
       })
       .then((id) => {
@@ -429,7 +428,7 @@ io.on('connection', (client) => {
         db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
           .then((res) => {
 
-            client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+            client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
 
             client.join(data.meetingId);
 
@@ -440,7 +439,7 @@ io.on('connection', (client) => {
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
 
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
 
           client.join(data.meetingId);
 
