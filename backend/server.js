@@ -23,12 +23,12 @@ const colors = require('./colors.json')["colors"];
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
-const { ActiveMeeting } = require('./objects/activeMeetings');
+const { ActiveMeetings } = require('./objects/activeMeetings');
 
 // instantiate objects
 activeUsers = new ActiveUsers();
 authenticator = new Authenticator();
-activeMeetings = new ActiveMeeting();
+activeMeetings = new ActiveMeetings();
 
 // import db operations
 const db = require('./db/queries/queries');

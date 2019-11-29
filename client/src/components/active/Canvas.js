@@ -59,9 +59,9 @@ function reducer(state, action) {
       for (let user in state.pixelArrays) {
         let pixels = state.pixelArrays[user]; //gets users pixel array
         //Reads colors
-        console.log('Logging state and user:');
-        console.log(user);
-        console.log(state);
+        // console.log('Logging state and user:');
+        // console.log(user);
+        // console.log(state);
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
         let highlightCol = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},0.1)`
         state.ctx.lineJoin = "round";
