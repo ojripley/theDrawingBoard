@@ -29,9 +29,9 @@ VALUES
 (2, 3, 'accepted'),
 (3, 2, 'accepted'),
 
--- ta and town bicyle
-(2, 4, 'accepted'),
-(4, 2, 'accepted');
+-- oj and town bicyle
+(1, 4, 'accepted'),
+(4, 1, 'accepted');
 
 -- INSERT INTO meetings (owner_id, name, description, status)
 -- VALUES

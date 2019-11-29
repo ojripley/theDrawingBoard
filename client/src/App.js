@@ -53,25 +53,38 @@ export default function App() {
 
   // webrtc related state
   const { peer, setPeer } = usePeer();
-  const [newPeer, setNewPeer] = useState(null);
+  // const [newPeer, setNewPeer] = useState(null);
   const [streams, setStreams] = useState({});
   const [calls, setCalls] = useState({});
-  const [newCall, setNewCall] = useState(null);
-  const [isCaller, setIsCaller] = useState(null);
+  // const [newCall, setNewCall] = useState(false);
+  // const [isCaller, setIsCaller] = useState(false);
 
+  const [newCall, setNewCall] = useState({
+    newPeer: null,
+    isCaller: false
+  });
+
+  // const [newParticipant, setNewParticipant] = useState(false);
+  // const [sentCall, setSentCall] = useState(false);
+
+
+
+  // SET PEER ON ENTER MEETING
   useEffect(() => {
     if (user && inMeeting) {
-      console.log('im making a new peer');
+      // console.log('im making a new peer');
       // assign the user a Peer object when they join the meeting
       setPeer(new Peer(String(user.id), { key: 'peerjs' }));
     }
-  }, [user, inMeeting]);
+  }, [user, inMeeting, setPeer]);
 
+
+  //
   useEffect(() => {
 
-    // make sure the user has been assigned a Peer object
-    if (peer) {
-      console.log('i am peer', peer);
+    // make sure the user has been assigned a Peer object and they are in a meeting
+    if (peer && inMeeting) {
+      // console.log('i am peer', peer);
 
       peer.on('open', (id) => {
         console.log('PeerServer thinks i am:', id);
@@ -80,44 +93,59 @@ export default function App() {
       // listen for incoming calls
       peer.on('call', (call) => {
 
+        console.log('someone is calling me, time to accept');
+
         const callerId = call.peer;
 
-        setIsCaller(false);
-        setNewCall(callerId);
         setCalls(prev => ({
           ...prev,
           [callerId]: call
         }));
+        setNewCall({
+          newPeer: callerId,
+          isCaller: false
+        });
       });
 
-      if (socketOpen) {
+      if (socketOpen && !newCall.newPeer) {
         // when someone new joins
+        console.log('im listening for new users');
         socket.on('newParticipant', (data) => {
+          // setNewParticipant(true);
 
           // log who that is
           console.log('new user', data.user.username);
 
           // make sure it isn't yourself
           if (data.user.id !== user.id) {
+            // if (sentCall !== data.user.id);
+
+            console.log('new user is not me, i am going to call', data.user.username);
 
             // assign the new user's id to use as a peerId
             const peerId = data.user.id;
 
             // start an audio call with them
-            console.log('asking for media');
             navigator.mediaDevices.getUserMedia({ video: false, audio: true })
               .then((stream) => {
                 console.log('this is my media stream, now waiting on answer', stream);
                 const call = peer.call(String(peerId), stream);
-                setIsCaller(true);
-                setNewCall(peerId);
+                // setSentCall(peerId);
+                console.log('new call', call);
                 setCalls(prev => ({
                   ...prev,
                   [peerId]: call
                 }));
+                setNewCall({
+                  newPeer: peerId,
+                  isCaller: true
+                });
               }, (error) => {
                 console.error('Failed to get media stream', error);
               });
+          } else {
+            console.log('user is me, disregard');
+            // setNewParticipant(false);
           }
         });
       }
@@ -127,56 +155,60 @@ export default function App() {
         socket.off('newParticipant');
       }
     }
-  }, [peer, streams]);
+  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer]); // newParticipant
 
 
   useEffect(() => {
-    if (peer && newCall && inMeeting) {
-      if (isCaller) {
-        console.log('new call is with', newCall);
+    // console.log('newCall', newCall);
+    console.log('newPeer', newCall.newPeer);
+    console.log('isCaller', newCall.isCaller);
+    if (peer && newCall.newPeer) {
+
+      if (newCall.isCaller) { // && !sentCall
+
+        console.log('new call is with', newCall.newPeer);
         console.log(calls);
-        calls[newCall].on('stream', (incomingStream) => {
+        calls[newCall.newPeer].on('stream', (incomingStream) => {
           // play audio
           console.log('adding stream to state');
           setStreams(prev => ({
             ...prev,
-            [newCall]: incomingStream
+            [newCall.newPeer]: incomingStream
           }));
-          console.log('this is where you play audio');
+          // setSentCall(false);
+          console.log('cleaning up state to reset for new users');
+          setNewCall({
+            newPeer: null,
+            isCaller: false
+          });
         });
 
-      } else if (!newPeer) { // the user is the receiver
+      } else { // the user is the receiver of a new call          peer && inMeeting
 
-        console.log('someone is calling me');
-
-        // answer the call. Uncle Same needs YOU!
+        // answer the call. Uncle Sam needs YOU!
         console.log('answering the call');
         navigator.mediaDevices.getUserMedia({ video: false, audio: true })
           .then((stream) => {
             console.log('got stream');
-            calls[newCall].answer(stream);
-            calls[newCall].on('stream', (incomingStream) => {
+            calls[newCall.newPeer].answer(stream);
+            calls[newCall.newPeer].on('stream', (incomingStream) => {
               console.log('adding stream to state');
               setStreams(prev => ({
                 ...prev,
-                [newCall]: incomingStream
+                [newCall.newPeer]: incomingStream
               }));
+              console.log('cleaning up state to reset for new users');
+              setNewCall({
+                newPeer: null,
+                isCaller: false
+              });
             });
           }, (error) => {
-            console.error('Failed to get media stream');
+            console.error('Failed to get media stream', error);
           });
       }
-    } else if (peer && !inMeeting) {
-      console.log('deleting the peer');
-      console.log('my streams', streams);
-      setStreams({});
-      setCalls({});
-      peer.destroy();
-      setPeer(null);
-      console.log('streams after delete', streams);
     }
-
-  }, [calls, inMeeting]);
+  }, [inMeeting, peer, calls, newCall]);
 
   useEffect(() => {
     if (socketOpen) {
@@ -184,37 +216,315 @@ export default function App() {
         console.log('user has left', data.user.username);
 
         const tempStreams = streams;
+        const tempCalls = calls;
 
         console.log('removing call with', data.user.username);
         console.log(streams);
-        console.log(tempStreams[data.user.id]);
-        delete tempStreams[data.user.id];
-        setNewPeer(null);
-        setStreams(tempStreams);
 
+        console.log(tempStreams[data.user.id]);
+
+        delete tempStreams[data.user.id];
+        delete tempCalls[data.user.id];
+
+        setStreams(tempStreams);
+        setCalls(tempCalls);
+
+        console.log('streams', streams);
         console.log('calls', calls);
 
-        // var elem = document.querySelector('#some-element');
-        // elem.parentNode.removeChild(elem);
+        setNewCall({
+          newPeer: null,
+          isCaller: false
+        });
 
+        const peerStream = document.querySelectorAll(`.stream${data.user.id}`);
+        // const peerStream = document.getElementsByClassName(`stream${data.user.id}`);
+
+        for (let el of peerStream) {
+          console.log(el);
+          el.parentNode.removeChild(el);
+        }
       });
     }
 
     return () => {
       if (socketOpen) {
-        socket.off('useLeft');
+        socket.off('userLeft');
       }
     }
-  }, [socket, socketOpen]);
+  }, [socket, socketOpen, calls, streams]);
+
+
+  useEffect(() => {
+    if (peer && !inMeeting) {
+
+      console.log('deleting the peer');
+      console.log('my streams', streams);
+      setStreams({});
+      setCalls({});
+      peer.destroy();
+      setNewCall({
+        newPeer: null,
+        isCaller: false
+      });
+      setPeer(null);
+      console.log('streams after delete', streams);
+
+
+      const streamElements = document.querySelectorAll('audio');
+
+      // const streamElements = document.getElementsByClassName('stream');
+
+      console.log(streamElements);
+
+      // streamElements.forEach((element) => {
+      //   element.remove();
+      // });
+
+
+
+      for (let el of streamElements) {
+        console.log(el);
+        el.parentNode.removeChild(el);
+      }
+
+    }
+  }, [peer, inMeeting, streams, calls, newCall, setPeer]);
+
 
   useEffect(() => {
     console.log('my streams have changed', streams);
-
   }, [streams]);
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // // SET PEER ON ENTER MEETING
+  // useEffect(() => {
+  //   if (user && inMeeting) {
+  //     // console.log('im making a new peer');
+  //     // assign the user a Peer object when they join the meeting
+  //     setPeer(new Peer(String(user.id), { key: 'peerjs' }));
+  //   }
+  // }, [user, inMeeting, setPeer]);
+
+
+  // //
+  // useEffect(() => {
+
+  //   // make sure the user has been assigned a Peer object and they are in a meeting
+  //   if (peer && inMeeting) {
+  //     // console.log('i am peer', peer);
+
+  //     peer.on('open', (id) => {
+  //       console.log('PeerServer thinks i am:', id);
+  //     });
+
+  //     // listen for incoming calls
+  //     peer.on('call', (call) => {
+
+  //       console.log('someone is calling me, time to accept');
+
+  //       const callerId = call.peer;
+
+  //       setCalls(prev => ({
+  //         ...prev,
+  //         [callerId]: call
+  //       }));
+  //       setNewPeer(callerId);
+  //       setNewCall(true);
+  //       setIsCaller(false);
+  //     });
+
+  //     if (socketOpen && !newPeer) {
+  //       // when someone new joins
+  //       console.log('im listening for new users');
+  //       socket.on('newParticipant', (data) => {
+  //         // setNewParticipant(true);
+
+  //         // log who that is
+  //         console.log('new user', data.user.username);
+
+  //         // make sure it isn't yourself
+  //         if (data.user.id !== user.id) {
+  //           // if (sentCall !== data.user.id);
+
+  //           console.log('new user is not me, i am going to call', data.user.username);
+
+  //           // assign the new user's id to use as a peerId
+  //           const peerId = data.user.id;
+
+  //           // start an audio call with them
+  //           navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+  //           .then((stream) => {
+  //             console.log('this is my media stream, now waiting on answer', stream);
+  //             const call = peer.call(String(peerId), stream);
+  //             // setSentCall(peerId);
+  //             console.log('new call', call);
+  //               setCalls(prev => ({
+  //                 ...prev,
+  //                 [peerId]: call
+  //               }));
+  //               setNewPeer(peerId);
+  //               setNewCall(true);
+  //               setIsCaller(true);
+  //             }, (error) => {
+  //               console.error('Failed to get media stream', error);
+  //             });
+  //         } else {
+  //           console.log('user is me, disregard');
+  //           // setNewParticipant(false);
+  //         }
+  //       });
+  //     }
+  //   }
+  //   return () => {
+  //     if (socketOpen) {
+  //       socket.off('newParticipant');
+  //     }
+  //   }
+  // }, [peer, streams, socket, socketOpen, user, inMeeting]); // newParticipant
+
+
+  // useEffect(() => {
+  //   console.log('newCall', newCall);
+  //   console.log('newPeer', newPeer);
+  //   console.log('isCaller', isCaller);
+  //   if (peer && newPeer && newCall) {
+
+  //     if (isCaller) { // && !sentCall
+
+  //       console.log('new call is with', newPeer);
+  //       console.log(calls);
+  //       calls[newPeer].on('stream', (incomingStream) => {
+  //         // play audio
+  //         console.log('adding stream to state');
+  //         setStreams(prev => ({
+  //           ...prev,
+  //           [newPeer]: incomingStream
+  //         }));
+  //         // setSentCall(false);
+  //         console.log('cleaning up state to reset for new users');
+  //         setNewPeer(null);
+  //         setNewCall(false);
+  //         setIsCaller(false);
+  //       });
+
+  //     } else if (newCall) { // the user is the receiver of a new call
+
+  //       // answer the call. Uncle Sam needs YOU!
+  //       console.log('answering the call');
+  //       navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+  //         .then((stream) => {
+  //           console.log('got stream');
+  //           calls[newPeer].answer(stream);
+  //           calls[newPeer].on('stream', (incomingStream) => {
+  //             console.log('adding stream to state');
+  //             setStreams(prev => ({
+  //               ...prev,
+  //               [newPeer]: incomingStream
+  //             }));
+  //             console.log('cleaning up state to reset for new users');
+  //             setNewPeer(null);
+  //             setNewCall(false);
+  //           });
+  //         }, (error) => {
+  //           console.error('Failed to get media stream', error);
+  //         });
+  //     }
+  //   } else if (peer && !inMeeting) {
+  //     console.log('deleting the peer');
+  //     console.log('my streams', streams);
+  //     setStreams({});
+  //     setCalls({});
+  //     peer.destroy();
+  //     setIsCaller(false);
+  //     setNewCall(false);
+  //     setPeer(null);
+  //     setNewPeer(null);
+  //     console.log('streams after delete', streams);
+
+
+  //     const streamElements = document.querySelectorAll('audio');
+
+  //     // const streamElements = document.getElementsByClassName('stream');
+
+  //     console.log(streamElements);
+
+  //     // streamElements.forEach((element) => {
+  //     //   element.remove();
+  //     // });
+
+
+
+  //     for (let el of streamElements) {
+  //       console.log(el);
+  //       el.parentNode.removeChild(el);
+  //     }
+
+  //   }
+
+  // }, [calls, inMeeting, isCaller, newPeer, peer, setPeer, streams, newCall]);
+
+  // useEffect(() => {
+  //   if (socketOpen) {
+  //     socket.on('userLeft', (data) => {
+  //       console.log('user has left', data.user.username);
+
+  //       const tempStreams = streams;
+  //       const tempCalls = calls;
+
+  //       console.log('removing call with', data.user.username);
+  //       console.log(streams);
+
+  //       console.log(tempStreams[data.user.id]);
+
+  //       delete tempStreams[data.user.id];
+  //       delete tempCalls[data.user.id];
+
+  //       setStreams(tempStreams);
+  //       setCalls(tempCalls);
+
+  //       console.log('streams', streams);
+  //       console.log('calls', calls);
+
+  //       const peerStream = document.querySelectorAll(`.stream${data.user.id}`);
+  //       // const peerStream = document.getElementsByClassName(`stream${data.user.id}`);
+
+  //       for (let el of peerStream) {
+  //         console.log(el);
+  //         el.parentNode.removeChild(el);
+  //       }
+  //     });
+  //   }
+
+  //   return () => {
+  //     if (socketOpen) {
+  //       socket.off('userLeft');
+  //     }
+  //   }
+  // }, [socket, socketOpen, calls, streams]);
+
+  // useEffect(() => {
+  //   console.log('my streams have changed', streams);
+  // }, [streams]);
 
 
   useEffect(() => {
@@ -270,7 +580,10 @@ export default function App() {
     return (
       <AudioPlayer
         key={key}
-        stream={stream}></AudioPlayer>
+        stream={stream}
+        peerId={key}
+      ></AudioPlayer>
+
     )
   })
 

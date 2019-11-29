@@ -1,4 +1,4 @@
-import {useState, uesEffect} from 'react';
+import {useState} from 'react';
 import Peer from 'peerjs';
 
 export const usePeer = () => {
