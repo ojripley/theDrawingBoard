@@ -78,13 +78,10 @@ const ExpansionPanel = withStyles({
       margin: 0,
       padding: 0
     }
-  },
-  content: {},
-  expanded: {},
+  }
 })(MuiExpansionPanel);
 
 export default function Notifications(props) {
-
 
   const classes = useStyles();
   const [meetingExpanded, setMeetingExpanded] = useState(true);
@@ -155,22 +152,23 @@ export default function Notifications(props) {
   return (
     <>
       <div id='page-header'>
-        <Typography variant='h2' color='primary'>Notifications</Typography>
+        <div className='notifications-header'>
+          <Typography variant='h2' color='primary'>Notifications</Typography>
+          <Button variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
+        </div>
         <Divider />
       </div>
-      <Button variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
 
       {props.notificationList.length === 0 && <Typography variant='h6'> No new notifications</Typography>}
 
       {meetings.length > 0 &&
         <ExpansionPanel expanded={meetingExpanded} onChange={() => setMeetingExpanded(!meetingExpanded)} classes={{ root: classes.panel }} >
           <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
             aria-controls={`panel1bh-content`}
             id={`panel1bh-header`}
           >
             <Typography variant='button'>{`Meeting Notifications (${meetings.length})`}</Typography>
-            <Button variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("meeting")}> Dismiss meeting notifications</Button>
+            <Button className='dismiss-all' variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("meeting")}>Dismiss</Button>
 
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
@@ -185,12 +183,11 @@ export default function Notifications(props) {
       {contacts.length > 0 &&
         <ExpansionPanel expanded={contactsExpanded} onChange={() => setContactsExpanded(!contactsExpanded)}>
           <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
             aria-controls={`panel1bh-content`}
             id={`panel1bh-header`}
           >
             <Typography variant='button'>{`Contact Notifications (${contacts.length})`}</Typography>
-            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("contact")}>Dismiss contact notifications</Button>
+            <Button variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("contact")}>Dismiss</Button>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <ul className={classes.list}>
