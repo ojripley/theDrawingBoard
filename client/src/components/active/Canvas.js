@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Canvas.scss';
-import { makeStyles } from '@material-ui/core/styles';
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
@@ -12,15 +11,7 @@ const SET_POINTER = "SET_POINTER";
 export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, ownerId, setLoading, pixelColor, strokeWidth, tool, page, canvasState, dispatch }) {
   const TRIGGER_ZONE = 15;
 
-  const useStyles = makeStyles(theme => ({
-    endMeeting: {
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      zIndex: 10
-    }
-  }));
-  const classes = useStyles();
+
 
   //State for drawing canvas:
   const drawCanvasRef = useRef({});
@@ -31,14 +22,14 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   // console.log('initialPixels:', initialPixels)
   //State for image canvas:
   const imageCanvasRef = useRef(null);
-  let [imageCtx, setImageCtx] = useState();
+  let [imageCtx,] = useState();
 
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
       drawCanvasRef.current.width = window.innerWidth;
       drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-      dispatch({ type: REDRAW, payload: { page: page} });
+      dispatch({ type: REDRAW, payload: { page: page } });
     }
 
     drawCanvasRef.current.width = window.innerWidth;
@@ -48,7 +39,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       type: SET_CTX,
       payload: newCtx
     });
-    dispatch({ type: REDRAW, payload: { page: page} });
+    dispatch({ type: REDRAW, payload: { page: page } });
 
 
     return () => {
@@ -56,7 +47,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     }
 
 
-  }, [imageLoaded, backgroundImage]);
+  }, [imageLoaded, backgroundImage, dispatch, page]);
 
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
@@ -75,7 +66,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
           console.log("Other person is drawing", data.user.id);
 
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel, page: page } });
-          dispatch({ type: REDRAW, payload: { page: page} });
+          dispatch({ type: REDRAW, payload: { page: page } });
         }
       });
 
@@ -83,7 +74,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         if (user.id !== data.user.id) {
           console.log("Other person is pointing", data.user.id);
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
-          dispatch({ type: REDRAW, payload: { page: page} });
+          dispatch({ type: REDRAW, payload: { page: page } });
         }
       });
 
@@ -92,14 +83,14 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         socket.off('drawClick');
       };
     }
-  }, [socket, socketOpen, user.id]);
+  }, [socket, socketOpen, user.id, dispatch, page]);
 
   useEffect(() => {
     if (socketOpen) {
       socket.on('redraw', (data) => {
         console.log('redrawing pixels!');
         dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
-        dispatch({ type: REDRAW, payload: { page: page} });
+        dispatch({ type: REDRAW, payload: { page: page } });
       });
 
       socket.on('newParticipant', data => {
@@ -113,7 +104,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         socket.off('drawClick');
       };
     }
-  }, [socket, socketOpen, user.id]);
+  }, [socket, socketOpen, user.id, dispatch, page]);
 
 
 
@@ -131,7 +122,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       imageCtx.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
     }
     // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
-    dispatch({ type: REDRAW, payload: { page: page} });
+    dispatch({ type: REDRAW, payload: { page: page } });
     // });
   }, [imageCtx, imageLoaded, backgroundImage]);
 
@@ -151,7 +142,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
         mapToRelativeUnits(pixel);
         dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: pixel } });
-        dispatch({ type: REDRAW, payload: { page: page} });
+        dispatch({ type: REDRAW, payload: { page: page } });
         socket.emit('setPointer', { user: user, pixel: pixel, meetingId: meetingId, page: page });
       }
     } else {
@@ -164,7 +155,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       };
       mapToRelativeUnits(pixel);
       dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel, page: page } });
-      dispatch({ type: REDRAW, payload: { page: page} });
+      dispatch({ type: REDRAW, payload: { page: page } });
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, page: page });
     }
   };
@@ -190,7 +181,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     setPaint(false);
     //Clear the pointer pixel:
     dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
-    dispatch({ type: REDRAW, payload: { page: page} });
+    dispatch({ type: REDRAW, payload: { page: page } });
     socket.emit('setPointer', { user: user, pixel: undefined, meetingId: meetingId });
   }
 

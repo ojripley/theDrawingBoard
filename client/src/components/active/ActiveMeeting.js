@@ -10,11 +10,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import CanvasDrawer from './CanvasDrawer';
 
 import reducer, {
-  SET_INITIAL_PIXELS,
-  SET_PIXEL,
-  SET_CTX,
-  REDRAW,
-  SET_POINTER,
   SAVE
 } from "../../reducers/canvasReducer";
 
