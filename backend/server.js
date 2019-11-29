@@ -430,17 +430,11 @@ io.on('connection', (client) => {
 
     if (meetingDetails['numPages'] !== 0) {
       for (let i = 0; i < meetingDetails['numPages']; i++) {
-        fs.readFile(`meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`, (err, image) => {
-          if (err) {
-            console.error;
-            // image = "";
-            images.push("");
-          }
-          console.log("sending these pixels");
-          console.log(meetingDetails.userPixels);
 
-          images.push("data:image/jpg;base64," + image.toString("base64"));
-        });
+        try {
+          //reads the files sychronously
+          images.push("data:image/jpg;base64," + fs.readFileSync(`meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`).toString("base64"))
+        } catch { (e => console.error("error reading files", e)) };
       }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
@@ -498,7 +492,7 @@ io.on('connection', (client) => {
     }
     // }
     db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
-    
+
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
     for (let id of meetingDetails.invited_users) {
