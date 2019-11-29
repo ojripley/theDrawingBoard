@@ -468,7 +468,7 @@ const fetchStartedMeetings = function() {
   return db.query(`
     SELECT id, owner_id, name
     FROM meetings
-    WHERE start_time BETWEEN (now() at time zone 'utc') - INTERVAL '60 seconds' AND (now() at time zone 'utc')
+    WHERE start_time BETWEEN now() - INTERVAL '60 seconds' AND now()
     AND active = false
     AND status = 'scheduled';
   `).then(res => {
