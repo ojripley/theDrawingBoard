@@ -112,6 +112,21 @@ const notify = function(userId, notification) {
       });
   }
 }
+// setInterval to notify owner to start their meeting - every 60 seconds
+// get all meetings (owner id and meeting id, maybe name?) in database where status is scheduled and active is false and start time is in the past
+// if owner is online, notify
+
+setInterval(() => {
+  db.fetchStartedMeetings()
+  .then(res => {
+    for (let meeting of res) {
+      if (activeUsers[meeting.owner_id]) {
+        // notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
+      }
+    }
+  })
+}, 10000);
+
 
 
 
@@ -636,4 +651,5 @@ io.on('connection', (client) => {
     console.log(activeMeetings[data.meetingId].liveUsers);
     console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });
+
 });

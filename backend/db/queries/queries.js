@@ -464,6 +464,21 @@ const removeNotificationsByType = function(user_id, type) {
     });
 }
 
+const fetchStartedMeetings = function() {
+  return db.query(`
+    SELECT id, owner_id, name
+    FROM meetings
+    WHERE status = 'scheduled'
+    AND active = false
+    AND start_time > now() - '9 seconds'::interval;
+  `).then(res => {
+    console.log('res.rows', res.rows)
+    return res.rows;
+  }).catch(err => {
+    console.error('Query Error', err);
+  })
+}
+
 
 module.exports = {
   fetchUserByEmail,
@@ -490,5 +505,6 @@ module.exports = {
   fetchNotificationsByUser,
   removeNotificationById,
   removeNotificationsByUserId,
-  removeNotificationsByType
+  removeNotificationsByType,
+  fetchStartedMeetings
 };
