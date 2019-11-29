@@ -15,7 +15,7 @@ const theme = createMuiTheme({
       contrastText: '#FFF3E8'
     },
     tertiary: {
-      main: '#FFF3E8',
+      main: '#F5F0EB',
       contrastText: '#36363E',
     }
   },
@@ -27,7 +27,7 @@ const theme = createMuiTheme({
       lineHeight: 1.75,
       letterSpacing: "0.02857em",
       textTransform: "uppercase",
-      textAlign: 'center'
+      textAlign: 'left'
     },
     h6: {
       fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
