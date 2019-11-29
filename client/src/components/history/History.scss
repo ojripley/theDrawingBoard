@@ -6,6 +6,17 @@
 .history-list-item {
   list-style-type: none;
   margin-bottom: 1em;
+  padding: 1em 1em calc(1em - 4px) 1em;
+}
+
+div.MuiCardContent-root {
+  &:last-child {
+    padding: 0;
+  }
+}
+
+.MuiButtonBase-root.MuiButton-root.MuiButton-text.view-more.MuiButton-textSizeSmall.MuiButton-sizeSmall {
+  float: right;
 }
 
 .MuiSvgIcon-root:hover {

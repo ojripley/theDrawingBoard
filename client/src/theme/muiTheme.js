@@ -48,6 +48,14 @@ const theme = createMuiTheme({
       root: {
         backgroundColor: 'rgba(2,104,115, 0.5)',
       }
+    },
+    MuiButton: {
+      textSizeSmall: {
+        fontSize: '0.75rem'
+      },
+      outlinedSizeSmall: {
+        fontSize: '0.75rem'
+      }
     }
   }
 });

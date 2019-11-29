@@ -34,14 +34,13 @@ export default function History(props) {
 
   const historyList = meetings.map(meeting => {
     return (
-      <li className='history-list-item' key={meeting.id}>
-        <HistoryCard
-          id={meeting.id}
-          name={meeting.name}
-          date={meeting.start_time}
-          displayDetailedHistory={displayDetailedHistory}
-        />
-      </li>
+      <HistoryCard
+        key={meeting.id}
+        id={meeting.id}
+        name={meeting.name}
+        date={meeting.start_time}
+        displayDetailedHistory={displayDetailedHistory}
+      />
     )
   });
 
