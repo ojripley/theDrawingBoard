@@ -178,7 +178,7 @@ export default function reducer(state, action) {
           ctx.closePath();//end the line
         }
       }
-      return { ...state, ctx: ctx, finishedSaving: true };
+      return { ...state, ctx: ctx, finishedSaving: ++state.finishedSaving };
     }
     case ADD_USER: {
       return {

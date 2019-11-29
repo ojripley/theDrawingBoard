@@ -86,12 +86,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
-    ctx: undefined,
+    ctx: {},
     color: pixelColor,
     pointers: {}, //if needed make take the initial state from server
-    finishedSaving: false
+    finishedSaving: []
   });
-
+  // const [dataURL,setDataURL] = useState([]); //stores files to be sent
+  // let dataURL = Array(backgroundImage.length);
   // const backgroundCanvas = useRef(null);
 
 
@@ -129,23 +130,29 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     //TODO: handle case with no image
     // mergeWithImage();
     // let sendingCanvas = (<canvas></canvas>);
-
-    finalCanvasRef.current.width = backgroundImage[0].width;
-    finalCanvasRef.current.height = backgroundImage[0].height;
-    let sendingCtx = finalCanvasRef.current.getContext('2d');
-
-    canvasState.ctx.drawImage(backgroundImage[0], 0, 0, backgroundImage[0].width, backgroundImage[0].height);
-    dispatch({ type: SAVE, payload: { page: 0, ctx: sendingCtx, backgroundImage: backgroundImage[0] } });
+    for (let i in backgroundImage) {
+      console.log("working on", i);
+      let bkgdImg = backgroundImage[i];
+      finalCanvasRef.current.width = bkgdImg.width;
+      finalCanvasRef.current.height = bkgdImg.height;
+      let sendingCtx = finalCanvasRef.current.getContext('2d');
+      canvasState.ctx.drawImage(bkgdImg, 0, 0, bkgdImg.width, bkgdImg.height);
+      dispatch({ type: SAVE, payload: { page: i, ctx: sendingCtx, backgroundImage: bkgdImg } });
+    }
 
   }
 
   useEffect(() => {
-    let dataURL = "";
 
     console.log('finishedSaving:', canvasState.finishedSaving)
-    if (canvasState.finishedSaving) {
-      console.log("TRUEEEE");
-      dataURL = canvasState.ctx.canvas.toDataURL();
+    if (canvasState.finishedSaving > 0) {
+      // dataURL.push(canvasState.ctx.canvas.toDataURL());
+      setDataURL([...dataURL, canvasState.ctx.canvas.toDataURL()])
+    }
+
+    if (dataURL.length === backgroundImage.length) {
+      console.log("TRUEEEE", dataURL);
+      console.log("bkgdimage", backgroundImage.length);
 
       socket.emit('endMeeting', {
         meetingId: meetingId,
@@ -154,7 +161,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       })
     }
 
-  }, [canvasState.finishedSaving, meetingId, socket])
+  }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas, dataURL])
 
 
   const loadSpinner = () => {
