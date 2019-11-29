@@ -55,8 +55,8 @@ export default function DetailedHistory(props) {
 
   const time = props.meeting.start_time;
 
-  const displayImages = images.map(image => (
-    <img className='meeting-image' src={image} alt='meeting-notes' />
+  const displayImages = images.map((image, index) => (
+    <img key={index} className='meeting-image' src={image} alt='meeting-notes' />
   ));
 
   return (
