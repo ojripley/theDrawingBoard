@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+import { useTheme } from '@material-ui/styles';
 import Button from '@material-ui/core/Button';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -6,15 +8,23 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import MobileStepper from '@material-ui/core/MobileStepper';
+
 
 export default function DetailedHistory(props) {
 
   console.log('props for details', props);
 
   const notesRef = useRef(null);
+  const theme = useTheme();
 
   const [notes, setNotes] = useState('');
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
+
+  const [viewPage, setViewPage] = useState(0);
+  const maxPages = images.length;
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -22,7 +32,7 @@ export default function DetailedHistory(props) {
       props.socket.on('notesFetched', res => {
         console.log('on notes', res)
         setNotes(res.usersMeetings.notes);
-        setImage(res.image);
+        setImages(prev => [...prev, res.image]);
       });
 
       return () => props.socket.off('notes');
@@ -33,9 +43,21 @@ export default function DetailedHistory(props) {
     console.log(notesRef.current.value)
     notesRef.current.select();
     document.execCommand('copy');
-  }
+  };
+
+  const changePage = (direction) => {
+    if (direction === 'prev') {
+      setViewPage(viewPage - 1);
+    } else if (direction === 'next') {
+      setViewPage(viewPage + 1);
+    }
+  };
 
   const time = props.meeting.start_time;
+
+  const displayImages = images.map(image => (
+    <img className='meeting-image' src={image} alt='meeting-notes' />
+  ));
 
   return (
     <div id='detailed-history-container'>
@@ -54,7 +76,7 @@ export default function DetailedHistory(props) {
         })}
       </Typography>
 
-      {!image ? <CircularProgress color='secondary' /> :
+      {images.length === 0 ? <CircularProgress color='secondary' /> :
         <>
           <div className='detailed-section'>
             <Typography variant='h6'>Hosted By</Typography>
@@ -81,12 +103,30 @@ export default function DetailedHistory(props) {
 
           <div className='detailed-section group-notes'>
             <Typography variant='h6'>Group Notes</Typography>
-            <img className='meeting-image' src={image} alt='meeting-notes' />
+            {displayImages}
+            <MobileStepper
+              steps={maxPages}
+              position="static"
+              variant="text"
+              activeStep={viewPage}
+              nextButton={
+                <Button size="small" onClick={() => changePage('prev')} disabled={viewPage === maxPages - 1}>
+                  Next
+                  {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+                </Button>
+              }
+              backButton={
+                <Button size="small" onClick={() => changePage('next')} disabled={viewPage === 0}>
+                  {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+                  Back
+                </Button>
+              }
+            />
           </div>
         </>
       }
 
-      <Button variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
+      <Button className='back-to-history' variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
     </div>
   );
 }
