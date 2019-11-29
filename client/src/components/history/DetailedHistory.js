@@ -32,7 +32,7 @@ export default function DetailedHistory(props) {
       props.socket.on('notesFetched', res => {
         console.log('on notes', res)
         setNotes(res.usersMeetings.notes);
-        // setImages(prev => [...prev, res.image]);
+        setImages(prev => [...prev, res.image]);
       });
 
       return () => props.socket.off('notes');
@@ -76,7 +76,7 @@ export default function DetailedHistory(props) {
         })}
       </Typography>
 
-      {images.length === 0 ? <CircularProgress color='secondary' /> :
+      {images.length === 0 ? <CircularProgress className='history-spinner' color='secondary' /> :
         <>
           <div className='detailed-section'>
             <Typography variant='h6'>Hosted By</Typography>
@@ -126,7 +126,7 @@ export default function DetailedHistory(props) {
         </>
       }
 
-      <Button className='back-to-history' variant="contained" onClick={() => props.setViewMeeting(0)}>Back</Button>
+      <Button className='back-to-history' variant="outlined" color='primary' onClick={() => props.setViewMeeting(0)}>Back</Button>
     </div>
   );
 }
