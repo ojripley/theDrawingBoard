@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -8,6 +8,16 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
+
+import reducer, {
+  ADD_USER,
+  SET_INITIAL_PIXELS,
+  SET_PIXEL,
+  SET_CTX,
+  REDRAW,
+  SET_POINTER
+} from "../../reducers/canvasReducer";
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -72,6 +82,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [pointing, setPointing] = useState(false);
 
   const [page, setPage] = useState(0);
+
+  const [canvasState, dispatch] = useReducer(reducer, {
+    pixelArrays: { ...initialPixels },
+    ctx: undefined,
+    color: pixelColor,
+    pointers: {} //if needed make take the initial state from server
+  });
 
   // const backgroundCanvas = useRef(null);
 
@@ -171,7 +188,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
         imageLoaded={imageLoaded}
         meetingId={meetingId}
-        initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
+        // initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
         setLoading={setLoading}
         pixelColor={pixelColor}
         strokeWidth={strokeWidth}
@@ -179,6 +196,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         pointing={pointing}
         tool={tool}
         page={page}
+        canvasState={canvasState}
+        dispatch={dispatch}
       />
       {writeMode &&
         <div className={classes.center}>
