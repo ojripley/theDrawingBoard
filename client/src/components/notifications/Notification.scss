@@ -39,7 +39,7 @@ li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexS
 #notifications-container {
   width: 100%;
   padding: 0;
-  margin: 0;
+  margin: 0 0 70px 0;
 }
 
 .MuiTypography-root.clear-notifications.MuiTypography-overline {
@@ -49,4 +49,8 @@ li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexS
 .clear-notifications:hover {
   cursor: pointer;
   color: $color-5-hex;
+}
+
+button.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.dismiss-button-hidden.MuiButton-outlinedSecondary.MuiButton-outlinedSizeSmall.MuiButton-sizeSmall {
+  display: none;
 }

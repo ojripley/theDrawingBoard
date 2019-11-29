@@ -464,6 +464,21 @@ const removeNotificationsByType = function(user_id, type) {
     });
 }
 
+const fetchStartedMeetings = function() {
+  return db.query(`
+    SELECT id, owner_id, name
+    FROM meetings
+    WHERE start_time BETWEEN (now() at time zone 'utc') - INTERVAL '60 seconds' AND (now() at time zone 'utc')
+    AND active = false
+    AND status = 'scheduled';
+  `).then(res => {
+    console.log('res.rows', res.rows)
+    return res.rows;
+  }).catch(err => {
+    console.error('Query Error', err);
+  });
+}
+
 const clearToHistory = function () {
   // const vars = [user_id, type];
 
@@ -511,5 +526,6 @@ module.exports = {
   removeNotificationById,
   removeNotificationsByUserId,
   removeNotificationsByType,
+  fetchStartedMeetings,
   clearToHistory
 };

@@ -52,15 +52,14 @@ export default function Notifications(props) {
       return (<Notification
         key={notif.id}
         id={notif.id}
+        meetingId={notif.meetingId}
         user={props.user}
         userId={notif.userId}
         type={notif.type}
         title={notif.title}
         message={notif.msg}
-        onClick={() => {
-          props.setInitialExpandedMeeting(`panel${notif.meetingId}`);
-          props.setMode("DASHBOARD");
-        }}
+        setInitialExpandedMeeting={props.setInitialExpandedMeeting}
+        setMode={props.setMode}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
@@ -81,7 +80,7 @@ export default function Notifications(props) {
         type={notif.type}
         title={notif.title}
         message={notif.msg}
-        onClick={() => props.setMode("CONTACTS")}
+        setMode={props.setMode}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
@@ -95,12 +94,12 @@ export default function Notifications(props) {
       <div id='page-header'>
         <div className='notifications-header'>
           <Typography variant='h2' color='primary'>Notifications</Typography>
-          <Button variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
+          <Button className={(props.notificationList.length < 1) ? 'dismiss-button-hidden' : null} variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
         </div>
         <Divider />
       </div>
       <div id='notifications-container'>
-        {props.notificationList.length === 0 && <Typography variant='h6'>No new notifications!</Typography>}
+        {props.notificationList.length === 0 && <p className='app-message'>No new notifications!</p>}
 
         {meetings.length > 0 &&
           <List

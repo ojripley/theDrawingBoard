@@ -115,6 +115,16 @@ const notify = function(userId, notification) {
   }
 }
 
+setInterval(() => {
+  db.fetchStartedMeetings()
+    .then(res => {
+      for (let meeting of res) {
+        notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
+      }
+    })
+}, 60000);
+
+
 
 
 ///////////////////
@@ -637,4 +647,5 @@ io.on('connection', (client) => {
     console.log(activeMeetings[data.meetingId].liveUsers);
     console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });
+
 });

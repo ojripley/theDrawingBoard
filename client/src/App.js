@@ -34,6 +34,9 @@ export default function App() {
 
   const { socket, socketOpen } = useSocket();
 
+  const [mode, setMode] = useState(DASHBOARD);
+  const [loading, setLoading] = useState(true);
+
   //State required for meetings (to support auto-reconnect to meetings):
   const [inMeeting, setInMeeting] = useState(false);
   const [meetingId, setMeetingId] = useState(null);
@@ -329,23 +332,6 @@ export default function App() {
 
     setIncomingStreams(tempIncomingStreams);
   }, [streams]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   useEffect(() => {
     if (socketOpen) {

@@ -1,39 +1,27 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
-const useStyles = makeStyles({
-  card: {
-    minWidth: 275,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-});
-
 export default function HistoryCard(props) {
 
-  const classes = useStyles();
+  const date = new Date(props.date).toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  });
 
   return (
-    <Card className={classes.card}>
+    <Card className='history-list-item'>
       <CardContent>
-        <Typography variant="h5" component="h2">
-          {props.name}
-        </Typography>
-        <Typography className={classes.pos} color="textSecondary">
-          {props.date}
-        </Typography>
+        <Typography variant="h6">{props.name}</Typography>
+        <Typography variant='overline'>{date}</Typography>
+        <Button className='view-more' size="small" onClick={() => props.displayDetailedHistory(props.id)}>View More</Button>
       </CardContent>
-      <CardActions>
-        <Button size="small" onClick={() => {
-          console.log('display', props.id)
-          return props.displayDetailedHistory(props.id)}}>View More</Button>
-      </CardActions>
     </Card>
   );
 }
