@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 
 import Notification from './Notification';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
-import MuiExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-// import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import Collapse from '@material-ui/core/Collapse';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import ListItemText from '@material-ui/core/ListItemText';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
-
-const useStyles = makeStyles(theme => ({
+// const useStyles = makeStyles(theme => ({
   // list: {
   //   width: '100%'
   // },
@@ -50,36 +51,14 @@ const useStyles = makeStyles(theme => ({
   //     margin: 0
   //   }
   // }
-}));
+// }));
 
-const ExpansionPanelSummary = withStyles({
+const useStyles = makeStyles(theme => ({
   root: {
-    height: 'auto',
-    verticalAlign: 'center',
-    padding: '1em',
-    height: '54px'
-  },
-  content: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    margin: 0,
-    '&$expanded': {
-      margin: 0,
-      height: '54px'
-    },
-  },
-  expanded: {},
-})(MuiExpansionPanelSummary);
-
-const ExpansionPanel = withStyles({
-  root: {
-    '&$expanded': {
-      margin: 0,
-      padding: 0
-    }
+    width: '100%',
+    backgroundColor: theme.palette.background.paper,
   }
-})(MuiExpansionPanel);
+}));
 
 export default function Notifications(props) {
 
@@ -99,9 +78,9 @@ export default function Notifications(props) {
     props.setNotificationList([]);
   }
 
-  const removeMeetingNotifications = (type) => {
+  const removeNotificationsByType = (type) => {
     props.socket.emit('dismissNotificationType', { userId: props.user.id, type: type });
-    props.setNotificationList([]);
+    props.setNotificationList(prev => prev.filter(notification => notification.type !== type));
   }
 
 
@@ -158,45 +137,86 @@ export default function Notifications(props) {
         </div>
         <Divider />
       </div>
+      <div id='notifications-container'>
+        {props.notificationList.length === 0 && <Typography variant='h6'>No new notifications!</Typography>}
 
-      {props.notificationList.length === 0 && <Typography variant='h6'> No new notifications</Typography>}
-
-      {meetings.length > 0 &&
-        <ExpansionPanel expanded={meetingExpanded} onChange={() => setMeetingExpanded(!meetingExpanded)} classes={{ root: classes.panel }} >
-          <ExpansionPanelSummary
-            aria-controls={`panel1bh-content`}
-            id={`panel1bh-header`}
+        {meetings.length > 0 &&
+          <List
+            aria-labelledby="meetings-notifications"
+            className={classes.root}
           >
-            <Typography variant='button'>{`Meeting Notifications (${meetings.length})`}</Typography>
-            <Button className='dismiss-all' variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("meeting")}>Dismiss</Button>
+            <ListItem onClick={() => setMeetingExpanded(!meetingExpanded)}>
+              <Typography variant='button'>Meeting Notifications</Typography>
+              {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <Collapse in={meetingExpanded} timeout="auto" unmountOnExit>
+              <List disablePadding>
+                <ListItem className={classes.nested}>
+                  {meetings}
+                </ListItem>
+              </List>
+            </Collapse>
+          </List>
+        }
 
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <ul className={classes.list}>
-              {meetings}
-            </ul>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-
-      }
-
-      {contacts.length > 0 &&
-        <ExpansionPanel expanded={contactsExpanded} onChange={() => setContactsExpanded(!contactsExpanded)}>
-          <ExpansionPanelSummary
-            aria-controls={`panel1bh-content`}
-            id={`panel1bh-header`}
+        {contacts.length > 0 &&
+          <List
+            aria-labelledby="contacts-notifications"
+            className={classes.root}
           >
-            <Typography variant='button'>{`Contact Notifications (${contacts.length})`}</Typography>
-            <Button variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("contact")}>Dismiss</Button>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <ul className={classes.list}>
-              {contacts}
-            </ul>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+            <ListItem onClick={() => setContactsExpanded(!contactsExpanded)}>
+              <Typography variant='button'>Contacts Notifications</Typography>
+              {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <Collapse in={contactsExpanded} timeout="auto" unmountOnExit>
+              <List disablePadding>
+                <ListItem className={classes.nested}>
+                  {contacts}
+                </ListItem>
+              </List>
+            </Collapse>
+          </List>
+        }
+      </div>
 
-      }
     </>
   );
 }
+
+
+// {meetings.length > 0 &&
+//   <ExpansionPanel expanded={meetingExpanded} onChange={() => setMeetingExpanded(!meetingExpanded)} classes={{ root: classes.panel }} >
+//     <ExpansionPanelSummary
+//       aria-controls={`panel1bh-content`}
+//       id={`panel1bh-header`}
+//     >
+//       <Typography variant='button'>{`Meeting Notifications (${meetings.length})`}</Typography>
+//       <Button className='dismiss-all' variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("meeting")}>Dismiss</Button>
+
+//     </ExpansionPanelSummary>
+//     <ExpansionPanelDetails>
+//       <ul className={classes.list}>
+//         {meetings}
+//       </ul>
+//     </ExpansionPanelDetails>
+//   </ExpansionPanel>
+
+// }
+
+// {contacts.length > 0 &&
+//   <ExpansionPanel expanded={contactsExpanded} onChange={() => setContactsExpanded(!contactsExpanded)}>
+//     <ExpansionPanelSummary
+//       aria-controls={`panel1bh-content`}
+//       id={`panel1bh-header`}
+//     >
+//       <Typography variant='button'>{`Contact Notifications (${contacts.length})`}</Typography>
+//       <Button variant="outlined" color="secondary" size='small' onClick={() => removeMeetingNotifications("contact")}>Dismiss</Button>
+//     </ExpansionPanelSummary>
+//     <ExpansionPanelDetails>
+//       <ul className={classes.list}>
+//         {contacts}
+//       </ul>
+//     </ExpansionPanelDetails>
+//   </ExpansionPanel>
+
+// }
