@@ -124,7 +124,9 @@ export default function MeetingCard({
   useEffect(() => {
     if (socketOpen) {
 
-      socket.on('enteredMeeting', data => {
+      socket.on(`enteredMeeting${id}`, data => {
+
+        console.log('okay im going in');
 
         let res = data.meeting; //can send this object instead
         setOwnerId(res.owner_id);
@@ -156,21 +158,21 @@ export default function MeetingCard({
       })
 
       return () => {
-        socket.off('enteredMeeting');
+        socket.off(`enteredMeeting${id}`);
       };
     }
   }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
-    socket.on('meetingStarted', res => {
-      // console.log('res', res)
+    socket.on(`meetingStarted${id}`, res => {
       if (id === res.meetingId) {
         setActiveMeeting(true);
+        console.log('meeting started');
       }
-    })
+    });
 
     return () => {
-      socket.off('meetingStarted');
+      socket.off(`meetingStarted${id}`);
     };
   }, [socket, id, activeMeeting])
 
