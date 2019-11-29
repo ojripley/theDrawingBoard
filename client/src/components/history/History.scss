@@ -1,23 +1,69 @@
 .history-list {
-  padding: 10px;
-}
-.history-list-item {
-  list-style-type: none;
-}
-.meeting-image {
-  max-width: 100%;
+  padding: 0;
+  margin-bottom: 70px;
 }
 
-.notes-text {
-  border: none;
-  overflow: auto;
-  outline: none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  resize: none;
+.history-list-item {
+  list-style-type: none;
+  margin-bottom: 1em;
+}
+
+.meeting-image {
+  max-width: 100%;
 }
 
 .MuiSvgIcon-root:hover {
   cursor: pointer;
 }
+
+#detailed-history-container {
+  padding: 0;
+  margin-bottom: 70px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detailed-section > .MuiTypography-root.MuiTypography-body2 {
+  width: 94vw;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+#notes-text {
+  width: 100%;
+  resize: none;
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #36363E;
+  flex-basis: 90%;
+  height: auto;
+}
+
+.MuiTypography-root.detailed-date.MuiTypography-button {
+  margin-top: 1em;
+}
+
+.detailed-section {
+  margin-top: 1em;
+}
+
+.personal-notes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.personal-notes h6 {
+  flex-basis: 100%;
+}
+
+.personal-notes svg {
+  flex-basis: 10%;
+  align-self: flex-end;
+}
+
+// #detailed-description {
+
+// }

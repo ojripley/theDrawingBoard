@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Box from '@material-ui/core/Box';
 import HistoryCard from './HistoryCard';
 import DetailedHistory from './DetailedHistory';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 import './History.scss';
 
@@ -45,10 +46,13 @@ export default function History(props) {
   });
 
   return (
-    <Box>
+    <>
       {viewMeeting === 0 ? (
         <>
-          <h1>History</h1>
+          <div>
+            <Typography id='page-header' variant='h2' color='primary'>History</Typography>
+            <Divider color='primary' />
+          </div>
           <ul className='history-list'>
             {historyList}
           </ul>
@@ -61,7 +65,7 @@ export default function History(props) {
         socketOpen={props.socketOpen}
       />
     }
-    </Box>
+    </>
 
   );
 }

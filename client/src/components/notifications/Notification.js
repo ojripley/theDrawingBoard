@@ -23,9 +23,9 @@ export default function Contact(props) {
     props.onRemove(props.id);
   }
 
-  console.log(props.timestamp)
-  const timeElapsed = Math.round(Date.now() - new Date(props.timestamp) / (1000 * 60));
-  console.log('timeElapsed:', timeElapsed)
+  // console.log(props.timestamp)
+  // const timeElapsed = Math.round(Date.now() - new Date(props.timestamp) / (1000 * 60));
+  // console.log('timeElapsed:', timeElapsed)
 
   return (
     <>
