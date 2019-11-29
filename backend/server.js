@@ -33,6 +33,8 @@ activeMeetings = new ActiveMeeting();
 // import db operations
 const db = require('./db/queries/queries');
 
+db.clearToHistory();
+
 // CORS
 app.use(cors());
 
@@ -379,7 +381,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               if (activeUsers[id]) {
-                activeUsers[id].socket.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
+                activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });

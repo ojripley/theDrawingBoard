@@ -162,7 +162,7 @@ export default function MeetingCard({
   }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
-    socket.on('meetingStarted', res => {
+    socket.on(`meetingStarted${id}`, res => {
       // console.log('res', res)
       if (id === res.meetingId) {
         setActiveMeeting(true);
@@ -170,7 +170,7 @@ export default function MeetingCard({
     })
 
     return () => {
-      socket.off('meetingStarted');
+      socket.off(`meetingStarted${id}`);
     };
   }, [socket, id, activeMeeting])
 

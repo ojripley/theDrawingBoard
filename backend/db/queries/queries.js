@@ -464,6 +464,26 @@ const removeNotificationsByType = function(user_id, type) {
     });
 }
 
+const clearToHistory = function () {
+  // const vars = [user_id, type];
+
+  console.log('-- SERVER STARTUP: CLEARING STALE MEETINGS --');
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      active = 'false',
+      status = 'past'
+    WHERE active = 'true'
+  `)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
 
 module.exports = {
   fetchUserByEmail,
@@ -490,5 +510,6 @@ module.exports = {
   fetchNotificationsByUser,
   removeNotificationById,
   removeNotificationsByUserId,
-  removeNotificationsByType
+  removeNotificationsByType,
+  clearToHistory
 };
