@@ -27,7 +27,6 @@ export default function Contact(props) {
   const timeElapsed = Math.round(Date.now() - new Date(props.timestamp) / (1000 * 60));
   console.log('timeElapsed:', timeElapsed)
 
-
   return (
     <>
       <ListItem className='notification'>
@@ -59,15 +58,4 @@ export default function Contact(props) {
       </ListItem>
     </>
   )
-
 }
-
-{/* <Card className='card' onClick={props.onClick}>
-<h1 className='title'>{props.title}
-  <Button variant="outlined" color="secondary" onClick={(e) => dismissNotification(e)} >
-    X
-</Button>
-</h1>
-<p className='message'>{props.message}</p>
-<footer className='timestamp'>{props.timestamp}</footer>
-</Card > */}
