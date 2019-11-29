@@ -22,7 +22,8 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   // console.log('initialPixels:', initialPixels)
   //State for image canvas:
   const imageCanvasRef = useRef(null);
-  let [imageCtx,] = useState();
+  // let [imageCtx,] = useState();
+  let imageCtx = useRef(undefined);
 
   //Loads the initial drawing canvas
   useEffect(() => {
@@ -101,7 +102,8 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
 
       return () => {
-        socket.off('drawClick');
+        socket.off('redraw');
+        socket.off('newParticipant');
       };
     }
   }, [socket, socketOpen, user.id, dispatch, page]);
@@ -116,15 +118,15 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
     imageCanvasRef.current.width = window.innerWidth;
     imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-    imageCtx = imageCanvasRef.current.getContext('2d');
+    imageCtx.current = imageCanvasRef.current.getContext('2d');
 
     if (backgroundImage.src) {
-      imageCtx.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
     }
     // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
     dispatch({ type: REDRAW, payload: { page: page } });
     // });
-  }, [imageCtx, imageLoaded, backgroundImage]);
+  }, [imageCtx.current, imageLoaded, backgroundImage]);
 
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {
