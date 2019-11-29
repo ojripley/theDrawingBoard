@@ -87,6 +87,7 @@ export default function CanvasDrawer(props) {
     props.setImageLoaded(false);
     props.setInMeeting(false);
     props.setMode('DASHBOARD');
+    props.socket.emit('peacingOutYo', { user: props.user, meetingId: props.meetingId});
   };
 
   const handleWrite = () => {

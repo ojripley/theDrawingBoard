@@ -14,10 +14,13 @@ export default function AudioPlayer(props) {
 
   const body = document.querySelector('body');
 
+  const root = document.getElementById('root');
+
   const audioStream = document.createElement('audio');
-  audioStream.setAttribute('id', 'stream');
+  audioStream.setAttribute('class', `stream${props.peerId}`);
   audioStream.setAttribute('autoPlay', true);
-  body.prepend(audioStream);
+  audioStream.setAttribute('display', 'none');
+  root.prepend(audioStream);
   audioStream.srcObject = props.stream;
 
   return (
