@@ -25,6 +25,14 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   // let [imageCtx,] = useState();
   let imageCtx = useRef(undefined);
 
+  // const getScaledDimensions = (h,w,bh,bw)=>{ //possible scaling 
+  //   if(bw > bh){
+  //     return [w, bh === 0 ? h : (bh * w / bw)]
+  //   }else{
+  //     return [ bw === 0 ? w : (bw * h / bh),h]
+  //   }
+  // }
+
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
