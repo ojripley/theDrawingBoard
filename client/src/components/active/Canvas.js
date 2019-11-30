@@ -16,6 +16,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   //State for drawing canvas:
   const drawCanvasRef = useRef({});
   let [paint, setPaint] = useState(false);
+  let [orientation, setOrientation] = useState('portrait')
   // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
 
@@ -25,24 +26,29 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   // let [imageCtx,] = useState();
   let imageCtx = useRef(undefined);
 
-  // const getScaledDimensions = (h,w,bh,bw)=>{ //possible scaling 
-  //   if(bw > bh){
-  //     return [w, bh === 0 ? h : (bh * w / bw)]
-  //   }else{
-  //     return [ bw === 0 ? w : (bw * h / bh),h]
-  //   }
-  // }
+  const getScaledDimensions = (h, w, bh, bw) => { //possible scaling
+    if (bw > bh) {
+      setOrientation('landscape');
+      return [w, bh === 0 ? h : (bh * w / bw)]
+    } else {
+      setOrientation('portrait');
+      return [bw === 0 ? w : (bw * h / bh), h]
+    }
+  }
 
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
-      drawCanvasRef.current.width = window.innerWidth;
-      drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+      // drawCanvasRef.current.width = window.innerWidth;
+      // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+
+      [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
       dispatch({ type: REDRAW, payload: { page: page } });
     }
 
-    drawCanvasRef.current.width = window.innerWidth;
-    drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+    // drawCanvasRef.current.width = window.innerWidth;
+    // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+    [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
       type: SET_CTX,
@@ -125,8 +131,10 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   useEffect(() => {
     // setImageCtx(prev => {
 
-    imageCanvasRef.current.width = window.innerWidth;
-    imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+    // imageCanvasRef.current.width = window.innerWidth;
+    // imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+
+    [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
     imageCtx.current = imageCanvasRef.current.getContext('2d');
 
     if (backgroundImage.src) {
@@ -202,12 +210,14 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     <div id='canvas-container'>
       <canvas
         id='image'
+        className={orientation}
         ref={imageCanvasRef}
       >
       </canvas>
       <canvas
         id='drawCanvas'
         ref={drawCanvasRef}
+        className={orientation}
         onMouseDown={e => handleMouseDown(e.nativeEvent)}
         onMouseMove={e => handleMouseMove(e.nativeEvent)}
         onMouseUp={e => handleMouseUp(e.nativeEvent)}
