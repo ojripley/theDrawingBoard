@@ -481,7 +481,7 @@ const clearToHistory = function () {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error => {
       throw error;
     });
 }
