@@ -20,7 +20,7 @@ export default function AudioPlayer(props) {
   audioStream.setAttribute('class', `stream${props.peerId}`);
   audioStream.setAttribute('autoPlay', true);
   audioStream.setAttribute("playsinline", true);
-  audioStream.setAttribute("controls", true);
+  // audioStream.setAttribute("controls", true);
   audioStream.setAttribute('display', 'none');
   root.prepend(audioStream);
   audioStream.srcObject = props.stream;
