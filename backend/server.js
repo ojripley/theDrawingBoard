@@ -23,6 +23,7 @@ const colors = require('./colors.json')["colors"];
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
+const { reset } = require('./db/resetdb');
 const { ActiveMeetings } = require('./objects/activeMeetings');
 
 // instantiate objects
@@ -43,7 +44,7 @@ app.use(cors());
 // 'dev' = Concise output colored by response status for development use.
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
-
+reset(); //REMOVE THIS (TEMP FOR TESTING)
 const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
 const iv = new Buffer.from("XFf9bYQkLKtwD4QD"); //Could use random bytes, would refresh on server refresh
 
@@ -70,7 +71,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send('backend');
 });
-
+app.get("/reset", (req, res) => {
+  reset();
+  res.send('get outta my backend!');
+});
 // start server listening
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
@@ -185,7 +189,7 @@ io.on('connection', (client) => {
       .then(res => {
         console.log('registration attempt', res);
         delete res[0].password;
-          client.emit('WelcomeYaBogeyBastard', (res[0]));
+        client.emit('WelcomeYaBogeyBastard', (res[0]));
       })
       .catch(error => {
         client.emit('InvalidCredentials', ('Sorry, those credentials are taken'));
@@ -234,7 +238,8 @@ io.on('connection', (client) => {
   });
 
   client.on('addClick', data => {
-    activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
+    console.log(data);
+    activeMeetings[data.meetingId].userPixels[data.page][data.user.id].push(data.pixel);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   });
 
@@ -243,9 +248,13 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('setPointer', data); //pass message along
   });
 
-  //End of test
   client.on('msg', (data) => {
     console.log(data);
+  });
+
+  client.on('changePage', data => {
+    console.log('changing page', data);
+    io.to(data.meetingId).emit('changingPage', data);
   });
 
   client.on('fetchUser', (data) => {
@@ -274,6 +283,7 @@ io.on('connection', (client) => {
   })
 
   client.on('fetchMeetings', (data) => {
+    console.log("FETCHING MEETING: ", data);
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
@@ -292,45 +302,80 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('insertMeeting', data => {
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
+  const saveImages = async (files) => { //Function to be used
+
+    let filenames = [];//Returns list of filenames
+    for (const [name, file] of Object.entries(files)) {
+      if (name.search(/\.pdf$/ig) !== -1) {
+        let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
+        try {
+          images = await pdfImage.convertFile();
+          images.then((imagePath) => filenames.push(...imagePath));
+        } catch (err) {
+          console.error("Error saving pdf", error);
+        }
+
+      } else {
+        fs.writeFileSync(`meeting_files/${id}/${name}}`, file).catch((err) => {
+          console.log(err);
+        });
+        console.log('meeting_files/${id}/${name}} has been saved!');
+        console.log('meeting_files/${id}/${name}} has been saved!');
+        filenames.push(name);
+      }
+    }
+    return filenames;
+  }
+
+  client.on('insertMeeting', async (data) => {
+    // console.log('files', Object.keys(data.files).length)
+
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length)
       .then(res => {
         client.emit('newMeeting', res[0]);
         return res[0].id;
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          console.log(data.filename);
-          if (data.file.name) { //Only save the file if one exists, otherwise just have an empty folder
-            //Check if pdf
-            if (data.file.name.search(/\.pdf$/ig) !== -1) {
+          console.log(data.files);
+          let i = -1;
+          for (const [name, file] of Object.entries(data.files)) {
+            i++;
+            // if (i === 'length') continue;
+            console.log('name:', name);
+            // const file = data.files[i];
+            console.log('file is:', file);
+            if (name !== "DEFAULT_IMAGE") { //Only save the file if one exists, otherwise just have an empty folder
+              //Check if pdf
+              if (name.search(/\.pdf$/ig) !== -1) {
 
-              console.log(data.file.name);
-              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-                if (err) {
-                  console.log('problem');
-                  throw err;
-                }
-                console.log('The file has been saved!');
+                console.log(name);
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
+                  if (err) {
+                    console.log('problem');
+                    throw err;
+                  }
+                  console.log('The file has been saved!');
 
-                let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+                  let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
 
-                // console.log(pdfImage);
 
-                pdfImage.convertPage(0).then(function(imagePath) {
-                  // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                  fs.existsSync("/tmp/slide-0.png") // => true\
-                  console.log(imagePath);
-                })
-                  .catch((error) => {
-                    console.log(error);
+                  pdfImage.convertFile().then(function(imagePath) {
+                    // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                    db.updatePagesByMeetingId(id, imagePath.length, imagePath);
+                    console.log(imagePath);
                   })
-              }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
-            } else {
-              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-                if (err) throw err;
-                console.log('The file has been saved!');
-              }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+                    .catch((error) => {
+                      console.log(error);
+                    })
+                }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+              } else {
+                //Regular images get saved as image-#
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
+                  if (err) throw err;
+                  console.log('The file has been saved!');
+                }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+              }
             }
           }
         });
@@ -373,15 +418,29 @@ io.on('connection', (client) => {
         db.fetchMeetingById(data.id)
           .then(res => { // meeting has been retrieved
             const meeting = res[0];
+            console.log('meeting:', meeting)
 
-            // set meeting properties
+            // set meeting pixel log
+            meeting['numPages'] = meeting.num_pages;
+            meeting['link_to_initial_files'] = meeting.link_to_initial_files;
+            meeting['userPixels'] = [];
+
+            if (meeting.num_pages === 0) { //blank canvas
+              meeting['userPixels'].push(new Object()); //create a single page
+            }
+
+            for (var i = 0; i < meeting.num_pages; i++) {
+              meeting['userPixels'].push(new Object());
+            }
+
             meeting['liveUsers'] = {};
-            meeting['userPixels'] = {};
+
+
             meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = colors;
             // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
-            meeting['counter'] = 0;
+            meeting['counter'] = 0; //counts number of users currenly in user
             meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
@@ -404,15 +463,11 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
-
     activeMeetings[data.meetingId].liveUsers[data.user.id] = true;
     console.log(activeMeetings[data.meetingId].liveUsers);
 
-    let meetingDetails = activeMeetings[data.meetingId];
-    if (!meetingDetails.userPixels[data.user.id]) {
-      meetingDetails.userPixels[data.user.id] = [];
-    }
 
+    let meetingDetails = activeMeetings[data.meetingId];
     //Select a color:
     let col = meetingDetails['colorMapping'][data.user.id];
     if (!col) {
@@ -420,39 +475,43 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-    console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
-
-    let img = "";
-    if (meetingDetails.link_to_initial_doc) {
-      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      } else {
-        img = meetingDetails.link_to_initial_doc;
+    if (meetingDetails['numPages'] === 0) {
+      if (!meetingDetails.userPixels[0][data.user.id]) {
+        meetingDetails.userPixels[0][data.user.id] = [];
       }
-      fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
-        if (err) {
-          console.error;
-          image = "";
-        }
-        console.log("sending these pixels");
-        console.log(meetingDetails.userPixels);
+    }
 
-        console.log()
-        db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-          .then((res) => {
+    for (let i = 0; i < meetingDetails['numPages']; i++) { //for each page
+      //Create userPixels array for that user if it doesn't already exist
+      if (!meetingDetails.userPixels[i][data.user.id]) {
+        meetingDetails.userPixels[i][data.user.id] = [];
+      }
+    }
 
-            client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+    let images = [];
+    if (meetingDetails['numPages'] !== 0) {
+      for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-            client.join(data.meetingId);
-
-            io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
-          });
-      });
-    } else {
+        try {
+          //reads the files sychronously
+          console.log(`searching for ./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`)
+          images.push("data:image/jpg;base64," + fs.readFileSync(`./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`).toString("base64"))
+        } catch { e => console.error("error reading files", e) };
+      }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
+          console.log('images:', images)
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
-          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
+          client.join(data.meetingId);
+          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
+        }).catch(err => console.error);
+    } else { //FIX LOGIC
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
+          images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
+
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
 
@@ -475,24 +534,16 @@ io.on('connection', (client) => {
   client.on('endMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
+    for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-    let img;
-    if (meetingDetails.link_to_initial_doc) {
-      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      } else {
-        img = meetingDetails.link_to_initial_doc;
-      }
-    } else {
-      img = 'blank.png'
+      let img = meetingDetails['link_to_initial_files'][i];//`image-${i}.png`;
+
+      fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image[i].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
+        if (err) throw err;
+      });
     }
 
-    fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
-      if (err) throw err;
-      console.log('The file has been saved!');
-      console.log(`markup_${img}`);
-      db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
-    });
+    db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
@@ -509,19 +560,40 @@ io.on('connection', (client) => {
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
-      });
+      }).
+      catch((e) => {
+        console.error("Updating notes failed", e);
+      })
+      ;
   });
 
   client.on('fetchNotes', (data) => {
+    //client side code should send extensions
+    console.log('fetchnotes data', data);
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
-          if (err) {
-            console.error;
-            image = "";
-          }
-          client.emit('notesFetched', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
-        });
+        let meetingDetails = res[0];
+        console.log(meetingDetails);
+        let images = [];
+        console.log(data.link_to_initial_files.length);
+        console.log(data.link_to_initial_files);
+        for (let i = 0; i < data.link_to_initial_files.length; i++) { //replace 3 with data.extensions.length
+          try {
+            console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`)
+            let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`);
+            console.log('image is', image)
+            images.push("data:image/jpg;base64," + image.toString("base64"))
+          } catch (err) {
+            console.error("error reading files", err)
+          };
+        }
+        // console.log('images.map(image =>"data:image/jpg;base64," + image.toString("base64")):', images.map(image => "data:image/jpg;base64," + image.toString("base64")));
+        console.log('length of images sent', images.length);
+        client.emit('notesFetched',
+          {
+            usersMeetings: res[0],
+            images: images
+          });
       });
   });
 
@@ -609,8 +681,7 @@ io.on('connection', (client) => {
   client.on('undoLine', (data) => {
 
     if (activeMeetings[data.meetingId]) {
-      const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
-      console.log('pixels:', pixels)
+      const pixels = activeMeetings[data.meetingId].userPixels[data.page][data.user.id];
 
       if (pixels.length > 0) {
         while (pixels[pixels.length - 1].dragging !== false) {
@@ -643,7 +714,7 @@ io.on('connection', (client) => {
     client.leave(data.meetingId);
 
     // tell the room who left
-    io.to(data.meetingId).emit('userLeft', {user: data.user, meetingId: data.meetingId});
+    io.to(data.meetingId).emit('userLeft', { user: data.user, meetingId: data.meetingId });
     console.log(activeMeetings[data.meetingId].liveUsers);
     console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });

@@ -105,6 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
+  let [, setLoadingCounter] = useState(0);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -127,32 +128,46 @@ export default function MeetingCard({
       socket.on(`enteredMeeting${id}`, data => {
 
         console.log('okay im going in');
-
-        let res = data.meeting; //can send this object instead
+        let res = data.meeting;
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
         setMeetingNotes(data.notes);
-        setLoading(false);
-        setInMeeting(true);
-        console.log(res['colorMapping']);
-        setPixelColor(res['colorMapping']);
 
-        if (data.image) {//if image
-          console.log("there is an image")
-          let myImage = new Image();
-          myImage.onload = () => {
-            setImageLoaded(true);
-            setBackgroundImage(myImage);
-            console.log("received these pixels", data.pixels)
-            setInitialPixels(data.pixels);
-          };
-          myImage.src = data.image; //pull this from socket
+        setPixelColor(res['colorMapping']);
+        if (data.images) {//if image
+          setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
+          console.log('data.pixels:', data.pixels);
+          setInitialPixels(data.pixels);//assuming server is sending us array of pixel
+          for (let i in data.images) {
+            let myImage = new Image();
+            myImage.onload = () => {
+              console.log(data.images);
+              setBackgroundImage(prev => {
+                prev[i] = myImage; //sets the image in the proper index (maintaining order)
+                return prev;
+              });
+
+              setLoadingCounter(prev => {
+                let temp = prev + 1;
+                console.log("temp vs data.images.length", temp, data.images.length);
+                if (temp === data.images.length) {
+                  console.log(`Loaded ${i} images`);
+                  setImageLoaded(true);
+                  setLoading(false);
+                  setInMeeting(true);
+                }
+                return temp;
+              });
+              console.log("received these pixels", data.pixels)
+            };
+            myImage.src = data.images[i];
+          }
         } else {//if no image
           console.log("there is no image")
           let myImage = new Image();
-          setBackgroundImage(myImage);
+          setBackgroundImage(prev => [...prev, myImage]);
           setImageLoaded(true);
-          setInitialPixels(data.pixels);
+          setInitialPixels(prev => [...prev, data.pixels]);
         }
 
       })
@@ -186,8 +201,8 @@ export default function MeetingCard({
     let attendance = attendee.attendance === 'invited' ? 'invited' : 'accepted';
     attendances.push(<li className={`${attendance} attendees`} key={`attendance-${attendee.id}`}> {attendee.attendance}</li>)
     return <li className='attendees' key={`name-${attendee.id}`}>
-        {attendee.username}
-      </li>
+      {attendee.username}
+    </li>
   })
 
   return (
@@ -203,16 +218,16 @@ export default function MeetingCard({
           }}
         >
           <Typography classes={{ root: classes.date }} variant='h6'>{date.toLocaleString('en-US', {
-              weekday: 'short',
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })}
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
           </Typography>
           <Typography classes={{ root: classes.time }} align='right' variant='subtitle2'>{date.toLocaleString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric'
-            })}
+            hour: 'numeric',
+            minute: 'numeric'
+          })}
           </Typography>
           <Typography classes={{ root: classes.name }} variant='overline'>{name}</Typography>
           <Typography variant="subtitle2">Host: {owner}</Typography>

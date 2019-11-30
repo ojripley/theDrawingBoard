@@ -61,4 +61,18 @@ try {
   client.end();
 }
 
+const reset = () => {
+  try {
+    console.log(`-> Connecting to PG using ${connectionString} ...`);
+    client.connectSync(connectionString);
+    runSchemaFiles();
+    runSeedFiles();
+    clearMeetingData();
+    client.end();
+  } catch (err) {
+    console.error(chalk.red(`Failed due to error: ${err}`));
+    client.end();
+  }
+}
 
+module.exports = { reset }

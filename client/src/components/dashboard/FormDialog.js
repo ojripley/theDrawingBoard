@@ -14,7 +14,7 @@ export default function FormDialog(props) {
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [meetingName, setMeetingName] = useState('');
   const [meetingDesc, setMeetingDesc] = useState('');
-  const [file, setFile] = useState({});
+  const [files, setFiles] = useState({});
 
   // const handleClickOpen = () => {
   //   setOpen(true);
@@ -38,15 +38,30 @@ export default function FormDialog(props) {
   }, [props.socketOpen, props.socket, setSelectedContacts]);
 
   const handleSubmit = () => {
+    console.log('files on submit:', files)
+    let filesObject = {};
+    // let nameArray = {};
+    for (let i = 0; i < files.length; i++) {
+
+      // // get item
+      // file = files.item(i);
+      // //or
+      let theFile = files.item(i);
+      filesObject[theFile.name] = theFile;
+      // fileArray.push(files.item(i));
+      // nameArray.push(files.item(i).name);
+
+      // alert(file.name);
+    }
+
     props.socket.emit('insertMeeting', {
       startTime: selectedDate,
       ownerId: props.user.id,
       name: meetingName,
       description: meetingDesc,
       status: 'scheduled',
-      linkToInitialDoc: null,
       selectedContacts: [...selectedContacts, props.user],
-      file: file
+      files: filesObject
     });
 
     setOpen(false);
@@ -72,7 +87,7 @@ export default function FormDialog(props) {
             setMeetingName={setMeetingName}
             meetingDesc={meetingDesc}
             setMeetingDesc={setMeetingDesc}
-            setFile={setFile}
+            setFiles={setFiles}
           />
         </DialogContent>
         <DialogActions>

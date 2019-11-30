@@ -40,9 +40,9 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
-  const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
+  const [backgroundImage, setBackgroundImage] = useState([]); //TODO: Change to empty array - might need to contain 1 new Image()
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [initialPixels, setInitialPixels] = useState({});
+  const [initialPixels, setInitialPixels] = useState([]); //TODO: Change to array - array of objects
   const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
@@ -357,16 +357,16 @@ export default function App() {
         {!user ?
           <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
           : inMeeting ?
-          <>
-            <div>{incomingStreams}</div>
-            <ActiveMeeting
-            meetingId={meetingId}
-            ownerId={ownerId}
-            user={user}
-            socket={socket}
-            socketOpen={socketOpen}
-            initialNotes={meetingNotes}
-            setMeetingNotes={setMeetingNotes}
+            <>
+              <div>{incomingStreams}</div>
+              <ActiveMeeting
+                meetingId={meetingId}
+                ownerId={ownerId}
+                user={user}
+                socket={socket}
+                socketOpen={socketOpen}
+                initialNotes={meetingNotes}
+                setMeetingNotes={setMeetingNotes}
                 setInMeeting={setInMeeting}
                 inMeeting={inMeeting}
                 setMeetingId={setMeetingId}
