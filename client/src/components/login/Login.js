@@ -23,7 +23,7 @@ export default function Login(props) {
     if (props.socketOpen) {
       console.log('attempting to log in')
       console.log(email, password)
-      props.socket.emit('loginAttempt', { email: email, password: password });
+      props.socket.emit('loginAttempt', { email: email.trim().toLowerCase(), password: password.trim() });
     }
   };
 
@@ -31,10 +31,12 @@ export default function Login(props) {
     if (props.socketOpen) {
       console.log('attempting to register');
       console.log(username, email, password, confirmPassword);
-      if (password === confirmPassword) {
-        props.socket.emit('registrationAttempt', { username: username, email: email, password: password });
-      } else {
-        console.log('could not register');
+      if (username.length > 0 && email.length > 0 && password.length > 0) {
+        if (password === confirmPassword) {
+          props.socket.emit('registrationAttempt', { username: username.trim(), email: email.trim().toLowerCase(), password: password.trim() });
+        } else {
+          console.log('could not register');
+        }
       }
     }
   };
