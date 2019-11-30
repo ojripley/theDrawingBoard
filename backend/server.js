@@ -122,6 +122,9 @@ setInterval(() => {
         notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
       }
     })
+    .catch(error => {
+      handleError(error, client);
+    });
 }, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
 
 
@@ -191,9 +194,8 @@ io.on('connection', (client) => {
           client.emit('WelcomeYaBogeyBastard', (res[0]));
       })
       .catch(error => {
-        client.emit('InvalidCredentials', ('Sorry, those credentials are taken'));
-        console.log(error.constraint);
-      })
+        handleError(error, client);
+      });
   });
 
   // handles logging in and activeUsers
@@ -232,7 +234,13 @@ io.on('connection', (client) => {
             console.log('sending');
             console.log(res);
             client.emit('allNotifications', res);
+          })
+          .catch(error => {
+            handleError(error, client);
           });
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
