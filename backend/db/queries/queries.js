@@ -201,7 +201,7 @@ const insertUser = function(username, email, password) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
