@@ -4,7 +4,7 @@ import color from '@material-ui/core/colors/amber';
 const theme = createMuiTheme({
   palette: {
     common: {
-      black: '#000',
+      black: '#36363E',
       white: '#fff',
     },
     primary: {
@@ -19,6 +19,9 @@ const theme = createMuiTheme({
     tertiary: {
       main: '#F5F0EB',
       contrastText: '#36363E',
+    },
+    background: {
+      default: '#F5F0EB'
     }
   },
   typography: {
@@ -60,6 +63,19 @@ const theme = createMuiTheme({
       },
       outlinedSizeSmall: {
         fontSize: '0.75rem'
+      },
+      root: {
+        color: '#36363E'
+      }
+    },
+    MuiPaper: {
+      root: {
+        color: '#36363E'
+      }
+    },
+    MuiButtonBase: {
+      root: {
+        color: '#36363E'
       }
     }
   }

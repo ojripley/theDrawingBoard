@@ -564,7 +564,10 @@ io.on('connection', (client) => {
         let images = [];
         for (let i = 0; i < data.link_to_initial_files.length; i++) { //replace 3 with data.extensions.length
           try {
-            let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`);
+            console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`)
+            let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`);
+            console.log('image is', image)
+            
             images.push("data:image/jpg;base64," + image.toString("base64"))
           } catch (err) {
             console.error("error reading files", err)
