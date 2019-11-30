@@ -78,7 +78,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
-          console.log("Other person is drawing", data.user.id);
+          // console.log("Other person is drawing", data.user.id);
 
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel, page: page } });
           dispatch({ type: REDRAW, payload: { page: page } });
@@ -87,7 +87,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
       socket.on('setPointer', data => {
         if (user.id !== data.user.id) {
-          console.log("Other person is pointing", data.user.id);
+          // console.log("Other person is pointing", data.user.id);
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW, payload: { page: page } });
         }

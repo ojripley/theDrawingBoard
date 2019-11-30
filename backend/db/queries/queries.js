@@ -193,9 +193,11 @@ const insertUser = function(username, email, password) {
 
   return db.query(`
     INSERT INTO users (username, email, password)
-    VALUES ($1, $2, $3);
+    VALUES ($1, $2, $3)
+    RETURNING *;
   `, vars)
     .then(res => {
+      console.log(res)
       return res.rows;
     })
     .catch(error => {
@@ -323,7 +325,10 @@ const updateMeetingActiveState = function(meeting_id, active) {
 const updateMeetingById = function(meeting_id, end_time, active, status) {
   const vars = [meeting_id, end_time, active, status];
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
   return db.query(`
     UPDATE meetings
     SET
@@ -479,6 +484,56 @@ const removeNotificationsByType = function(user_id, type) {
     });
 }
 
+const fetchStartedMeetings = function() {
+  return db.query(`
+    SELECT id, owner_id, name
+    FROM meetings
+    WHERE start_time BETWEEN now() - INTERVAL '60 seconds' AND now()
+    AND active = false
+    AND status = 'scheduled';
+  `).then(res => {
+    console.log('res.rows', res.rows)
+    return res.rows;
+  }).catch(err => {
+    console.error('Query Error', err);
+  });
+}
+
+const clearToHistory = function () {
+  // const vars = [user_id, type];
+
+  console.log('-- SERVER STARTUP: CLEARING STALE MEETINGS --');
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      active = 'false',
+      status = 'past'
+    WHERE active = 'true'
+  `)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
+
+const insertIntoDms = function(userId, senderId, msg, timestamp) {
+  const vars = [userId, senderId, msg, timestamp];
+
+  return db.query(`
+    INSERT INTO dms (user_id, sender_id, msg, timestamp)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
 
 module.exports = {
   fetchUserByEmail,
@@ -506,5 +561,8 @@ module.exports = {
   fetchNotificationsByUser,
   removeNotificationById,
   removeNotificationsByUserId,
-  removeNotificationsByType
+  removeNotificationsByType,
+  fetchStartedMeetings,
+  clearToHistory,
+  insertIntoDms
 };

@@ -106,6 +106,7 @@ export default function Form(props) {
   };
 
   const handleDateChange = date => {
+    console.log('date:', date)
     props.setSelectedDate(date);
   };
 

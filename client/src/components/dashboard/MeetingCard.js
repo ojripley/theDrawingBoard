@@ -125,8 +125,15 @@ export default function MeetingCard({
   useEffect(() => {
     if (socketOpen) {
 
+<<<<<<< HEAD
       socket.on('enteredMeeting', data => {
         console.log(data);
+=======
+      socket.on(`enteredMeeting${id}`, data => {
+
+        console.log('okay im going in');
+
+>>>>>>> master
         let res = data.meeting; //can send this object instead
         console.log(res);
         setOwnerId(res.owner_id);
@@ -181,23 +188,28 @@ export default function MeetingCard({
       })
 
       return () => {
-        socket.off('enteredMeeting');
+        socket.off(`enteredMeeting${id}`);
       };
     }
   }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
-    socket.on('meetingStarted', res => {
-      // console.log('res', res)
-      if (id === res.meetingId) {
-        setActiveMeeting(true);
-      }
-    })
+    console.log('id of meeting', id);
+    if (id) {
+      socket.on(`meetingStarted${id}`, res => {
+        if (id === res.meetingId) {
+          setActiveMeeting(true);
+          console.log('meeting started');
+        }
+      });
+    }
 
     return () => {
-      socket.off('meetingStarted');
+      if (id) {
+        socket.off(`meetingStarted${id}`);
+      }
     };
-  }, [socket, id, activeMeeting])
+  }, [socket, id, activeMeeting]);
 
   const attendances = [];
   const attendeeNames = attendees.map((attendee) => {

@@ -6,14 +6,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: contain; //prevents page from refreshing when user scrolls up
   overflow: auto;
-
   height: 100%;
-  overflow: auto;
   color: #36363E;
 }
 html {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
   color: #36363E;
 }
 

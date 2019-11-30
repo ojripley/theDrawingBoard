@@ -3,55 +3,26 @@ import React, { useState } from 'react';
 import Notification from './Notification';
 import { makeStyles } from '@material-ui/core/styles';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
-
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
+import Collapse from '@material-ui/core/Collapse';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
 
 const useStyles = makeStyles(theme => ({
-  list: {
-    width: '100%'
-  },
-  section: {
-    margin: theme.spacing(1)
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
-    flexShrink: 0,
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
-  },
-  active: {
-    backgroundColor: 'orange'
-  },
-  scheduled: {
-    backgroundColor: 'white'
-  },
-  button: {
-    display: 'inline',
-    float: 'right',
-    margin: theme.spacing(1),
-  },
-  header: {
-    fontSize: '2em',
-    fontWeight: 'bold'
-
-  },
-  header2: {
-    fontSize: '1.5em',
-    fontWeight: 'bold'
-
+  root: {
+    width: '100%',
+    backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+    flexDirection: 'column',
   }
 }));
 
 export default function Notifications(props) {
-
 
   const classes = useStyles();
   const [meetingExpanded, setMeetingExpanded] = useState(true);
@@ -69,9 +40,9 @@ export default function Notifications(props) {
     props.setNotificationList([]);
   }
 
-  const removeMeetingNotifications = (type) => {
+  const removeNotificationsByType = (type) => {
     props.socket.emit('dismissNotificationType', { userId: props.user.id, type: type });
-    props.setNotificationList([]);
+    props.setNotificationList(prev => prev.filter(notification => notification.type !== type));
   }
 
 
@@ -81,15 +52,13 @@ export default function Notifications(props) {
       return (<Notification
         key={notif.id}
         id={notif.id}
+        meetingId={notif.meetingId}
         user={props.user}
         userId={notif.userId}
         type={notif.type}
         title={notif.title}
         message={notif.msg}
-        onClick={() => {
-          props.setInitialExpandedMeeting(`panel${notif.meetingId}`);
-          props.setMode("DASHBOARD");
-        }}
+        setInitialExpandedMeeting={props.setInitialExpandedMeeting}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
@@ -110,7 +79,6 @@ export default function Notifications(props) {
         type={notif.type}
         title={notif.title}
         message={notif.msg}
-        onClick={() => props.setMode("CONTACTS")}
         onRemove={removeNotification}
         timestamp={notif.time}
         setMode={props.setMode}
@@ -121,49 +89,56 @@ export default function Notifications(props) {
 
   return (
     <>
-      <span className={classes.header}>Notifications </span>
-      <Button variant="outlined" color="secondary" onClick={removeAllNotifications}> Dismiss all</Button>
+      <div id='page-header'>
+        <div className='notifications-header'>
+          <Typography variant='h2' color='primary'>Notifications</Typography>
+          <Button className={(props.notificationList.length < 1) ? 'dismiss-button-hidden' : null} variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
+        </div>
+        <Divider />
+      </div>
+      <div id='notifications-container'>
+        {props.notificationList.length === 0 && <p className='app-message'>No new notifications!</p>}
 
-      {props.notificationList.length === 0 && <h2> No new notifications</h2>}
-
-      {meetings.length > 0 &&
-        <ExpansionPanel expanded={meetingExpanded} onChange={() => setMeetingExpanded(!meetingExpanded)}>
-          <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls={`panel1bh-content`}
-            id={`panel1bh-header`}
+        {meetings.length > 0 &&
+          <List
+            aria-labelledby="meetings-notifications"
+            className={classes.root}
           >
-            <span className={classes.header2}> {`Meeting Notifications (${meetings.length})`}</span>
-            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("meeting")}> Dismiss meeting notifications</Button>
+            <ListItem className='section-header' onClick={() => setMeetingExpanded(!meetingExpanded)}>
+              <Typography variant='button'>Meeting Notifications</Typography>
+              <div>
+                <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("meeting")}>Dismiss</Typography>
+                {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
+              </div>
+            </ListItem>
+            <Collapse in={meetingExpanded} timeout="auto" unmountOnExit>
+              <List disablePadding>
+                {meetings}
+              </List>
+            </Collapse>
+          </List>
+        }
 
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <ul className={classes.list}>
-              {meetings}
-            </ul>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-
-      }
-
-      {contacts.length > 0 &&
-        <ExpansionPanel expanded={contactsExpanded} onChange={() => setContactsExpanded(!contactsExpanded)}>
-          <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls={`panel1bh-content`}
-            id={`panel1bh-header`}
+        {contacts.length > 0 &&
+          <List
+            aria-labelledby="contacts-notifications"
+            className={classes.root}
           >
-            <h2 className={classes.section}> {`Contact Notifications (${contacts.length})`}</h2>
-            <Button variant="outlined" color="secondary" onClick={() => removeMeetingNotifications("contact")}> Dismiss contact notifications</Button>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <ul className={classes.list}>
-              {contacts}
-            </ul>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-
-      }
+            <ListItem className='section-header' onClick={() => setContactsExpanded(!contactsExpanded)}>
+              <Typography variant='button'>Contacts Notifications</Typography>
+              <div>
+                <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("contact")}>Dismiss</Typography>
+                {contactsExpanded ? <ExpandLess /> : <ExpandMore />}
+              </div>
+            </ListItem>
+            <Collapse in={contactsExpanded} timeout="auto" unmountOnExit>
+              <List disablePadding>
+                {contacts}
+              </List>
+            </Collapse>
+          </List>
+        }
+      </div>
     </>
   );
 }

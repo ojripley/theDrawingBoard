@@ -60,17 +60,16 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading, pixelColor }) {
-  //TODO: Add state for page
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, setLoading, pixelColor }) {
 
   const classes = useStyles();
 
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
   const [writeMode, setWriteMode] = useState(false);
-
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
+
   const [tool, setTool] = useState("pen");
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [highlighting, setHighlighting] = useState(false);
@@ -194,82 +193,89 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading, setPage])
 
   useEffect(() => {
-    // console.log(debouncedNotes);
-    console.log('requesting note save');
-    socket.emit('saveDebouncedNotes', { user: user, meetingId: meetingId, notes: debouncedNotes });
-    // socket.on('receiveOkay') //can have a socket on when received
-    setSaving(false);
-  }, [socket, debouncedNotes, user, meetingId])
+    if (socketOpen) {
+      console.log('requesting note save');
+      socket.emit('saveDebouncedNotes', { user: user, meetingId: meetingId, notes: debouncedNotes });
+      setSaving(false);
+    }
+  }, [socket, socketOpen, debouncedNotes, user, meetingId])
 
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [writeMode])
+  }, [writeMode]);
+
+
+
 
   return (
-    imageLoaded && <div className={classes.root}>
-      <CanvasDrawer //TODO: pass in setPage
-        user={user}
-        ownerId={ownerId}
-        socket={socket}
-        socketOpen={socketOpen}
-        meetingId={meetingId}
-        setMode={setMode}
-        setImageLoaded={setImageLoaded}
-        setInMeeting={setInMeeting}
-        setWriteMode={setWriteMode}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
-        setHighlighting={setHighlighting}
-        setPointing={setPointing}
-        setTool={setTool}
-        page={page}
-        totalPages={backgroundImage.length}
-        setPage={setPage}
-        loadSpinner={loadSpinner}
-      />
-      <Canvas
-        user={user}
-        ownerId={ownerId}
-        socket={socket}
-        socketOpen={socketOpen}
-        backgroundImage={backgroundImage[page]}//TODO: change to index (backgroundImage[page])
-        // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
-        imageLoaded={imageLoaded}
-        meetingId={meetingId}
-        // initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
-        setLoading={setLoading}
-        pixelColor={pixelColor}
-        strokeWidth={strokeWidth}
-        highlighting={highlighting}
-        pointing={pointing}
-        tool={tool}
-        page={page}
-        canvasState={canvasState}
-        dispatch={dispatch}
-      />
-      {writeMode &&
-        <div className={classes.center}>
-          <TextareaAutosize
-            ref={textareaRef}
-            aria-label='empty textarea'
-            placeholder='Empty'
-            defaultValue={meetingNotes}
-            className={classes.textareaAutosize}
-            onChange={event => handleInput(event)}
-            onFocus={handleCaret}
+    <>
+      {imageLoaded &&
+        <div className={classes.root}>
+          <CanvasDrawer
+            user={user}
+            ownerId={ownerId}
+            socket={socket}
+            socketOpen={socketOpen}
+            meetingId={meetingId}
+            setMode={setMode}
+            setImageLoaded={setImageLoaded}
+            setInMeeting={setInMeeting}
+            setWriteMode={setWriteMode}
+            strokeWidth={strokeWidth}
+            setStrokeWidth={setStrokeWidth}
+            setHighlighting={setHighlighting}
+            setPointing={setPointing}
+            setTool={setTool}
+            page={page}
+            totalPages={backgroundImage.length}
+            setPage={setPage}
+            loadSpinner={loadSpinner}
           />
-          <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+          <Canvas
+            user={user}
+            ownerId={ownerId}
+            socket={socket}
+            socketOpen={socketOpen}
+            backgroundImage={backgroundImage[page]}//TODO: change to index (backgroundImage[page])
+            // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
+            imageLoaded={imageLoaded}
+            meetingId={meetingId}
+            // initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
+            setLoading={setLoading}
+            pixelColor={pixelColor}
+            strokeWidth={strokeWidth}
+            highlighting={highlighting}
+            pointing={pointing}
+            tool={tool}
+            page={page}
+            canvasState={canvasState}
+            dispatch={dispatch}
+          />
+          {writeMode &&
+            <div className={classes.center}>
+              <TextareaAutosize
+                ref={textareaRef}
+                aria-label='empty textarea'
+                placeholder='Empty'
+                defaultValue={meetingNotes}
+                className={classes.textareaAutosize}
+                onChange={event => handleInput(event)}
+                onFocus={handleCaret}
+              />
+              <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+            </div>
+          }
+          {/* <canvas id="mergingCanvas"></canvas> */}
+          {saving &&
+            <div className={classes.saving}>
+              <CircularProgress color='secondary' />
+            </div>
+          }
+          <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas>
         </div>
       }
-      {/* <canvas id="mergingCanvas"></canvas> */}
-      {saving &&
-        <div className={classes.saving}>
-          <CircularProgress color='secondary' />
-        </div>
-      }
-      <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas>
-    </div>
+    </>
   )
 }

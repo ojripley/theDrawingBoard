@@ -27,7 +27,7 @@ const theme = createMuiTheme({
       lineHeight: 1.75,
       letterSpacing: "0.02857em",
       textTransform: "uppercase",
-      textAlign: 'center'
+      textAlign: 'left'
     },
     h6: {
       fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
@@ -47,6 +47,14 @@ const theme = createMuiTheme({
     MuiDivider: {
       root: {
         backgroundColor: 'rgba(2,104,115, 0.5)',
+      }
+    },
+    MuiButton: {
+      textSizeSmall: {
+        fontSize: '0.75rem'
+      },
+      outlinedSizeSmall: {
+        fontSize: '0.75rem'
       }
     }
   }

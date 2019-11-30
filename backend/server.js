@@ -9,12 +9,13 @@ require('dotenv').config();
 // server config
 const PORT = process.env.PORT || 8080;
 const express = require("express");
+const cors = require('cors');
 const bodyParser = require("body-parser");
 const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, { cookie: "yo" });
-const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
+const crypto = require('crypto');
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 const colors = require('./colors.json')["colors"];
@@ -22,16 +23,22 @@ const colors = require('./colors.json')["colors"];
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
-const { ActiveMeeting } = require('./objects/activeMeetings');
 const { reset } = require('./db/resetdb');
+const { ActiveMeetings } = require('./objects/activeMeetings');
 
 // instantiate objects
 activeUsers = new ActiveUsers();
 authenticator = new Authenticator();
-activeMeetings = new ActiveMeeting();
+activeMeetings = new ActiveMeetings();
 
 // import db operations
 const db = require('./db/queries/queries');
+
+db.clearToHistory();
+
+// CORS
+app.use(cors());
+
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
@@ -49,7 +56,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  console.log('decryptiv', text.iv)
+  console.log('decryptiv', text.iv);
   let iv = Buffer.from(text.iv, 'hex');
   let encryptedText = Buffer.from(text.encryptedData, 'hex');
   let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -62,7 +69,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // this is super important
 app.get("/", (req, res) => {
-  res.send('get outta my backend!');
+  res.send('backend');
 });
 app.get("/reset", (req, res) => {
   reset();
@@ -86,10 +93,8 @@ const notify = function(userId, notification) {
   notification.userId = userId;
 
   if (notification.type === 'meeting') {
-    // console.log(notification);
     db.insertMeetingNotification(userId, notification)
       .then(res => {
-        console.log(res);
         notification.id = res[0].id;
         notification.time = res[0].time;
 
@@ -114,6 +119,16 @@ const notify = function(userId, notification) {
   }
 }
 
+setInterval(() => {
+  db.fetchStartedMeetings()
+    .then(res => {
+      for (let meeting of res) {
+        notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
+      }
+    })
+}, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
+
+
 
 
 ///////////////////
@@ -124,6 +139,8 @@ const notify = function(userId, notification) {
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
+
+  console.log('client headers', client.request.headers.cookie);
 
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
@@ -151,8 +168,6 @@ io.on('connection', (client) => {
             client.emit('cookieResponse', user);
             db.fetchNotificationsByUser(user.id)
               .then(res => {
-                console.log('sending');
-                console.log(res);
                 client.emit('allNotifications', res);
               })
             activeUsers.addUser(user, client);
@@ -161,13 +176,21 @@ io.on('connection', (client) => {
               activeUsers.removeUser(user.id);
             });
           });
-
       } catch (err) {
         console.error('Cookie authentication failed!');
       }
     } else {
       client.emit('cookieResponse', null);
     }
+  });
+
+  client.on('registrationAttempt', (data) => {
+    authenticator.register(data.username, data.email, data.password)
+      .then(res => {
+        console.log('registration attempt', res)
+        delete res[0].password;
+        client.emit('WelcomeYaBogeyBastard', (res[0]));
+      });
   });
 
   // handles logging in and activeUsers
@@ -263,14 +286,6 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('fetchMeeting', (data) => {
-    db.fetchMeetingById(data.id)
-      .then(res => {
-        console.log(res);
-        client.emit('meeting', res);
-      });
-  });
-
   client.on('addUser', (data) => {
 
     const credentials = {
@@ -314,7 +329,6 @@ io.on('connection', (client) => {
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length)
       .then(res => {
         client.emit('newMeeting', res[0]);
-        console.log(res[0]);
         return res[0].id;
       })
       .then((id) => {
@@ -415,6 +429,8 @@ io.on('connection', (client) => {
               meeting['userPixels'].push(new Object());
             }
 
+            meeting['liveUsers'] = {};
+
 
             meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
@@ -425,6 +441,8 @@ io.on('connection', (client) => {
 
             const attendeeIds = meeting.invited_users;
 
+            console.log(meeting);
+
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
             // console.log(activeMeetings[meeting.id]);
@@ -433,7 +451,7 @@ io.on('connection', (client) => {
             for (let id of attendeeIds) {
               notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               if (activeUsers[id]) {
-                activeUsers[id].socket.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
+                activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
@@ -441,6 +459,9 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = true;
+    console.log(activeMeetings[data.meetingId].liveUsers);
+
 
     let meetingDetails = activeMeetings[data.meetingId];
     //Select a color:
@@ -486,13 +507,13 @@ io.on('connection', (client) => {
         .then((res) => {
           images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
 
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
 
           client.join(data.meetingId);
+
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
-
   });
 
   client.on('saveDebouncedNotes', (data) => {
@@ -675,4 +696,26 @@ io.on('connection', (client) => {
       activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user });
     }
   });
+
+  client.on('peacingOutYo', (data) => {
+
+    // user leaves room
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = false;
+    client.leave(data.meetingId);
+
+    // tell the room who left
+    io.to(data.meetingId).emit('userLeft', { user: data.user, meetingId: data.meetingId });
+    console.log(activeMeetings[data.meetingId].liveUsers);
+    console.log(`${data.user.username} has left meeting ${data.meetingId}`);
+  });
+
+  client.on('sendDm', (data) => {
+    client.emit('dm', (data));
+
+    if (activeUsers[data.recipientId]) {
+      activeUsers[data.recipientId].socket.emit('dm', (data));
+    }
+
+    db.insertIntoDms(data.userId, data.senderId, data.msg, data.timestamp);
+  })
 });
