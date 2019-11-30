@@ -203,12 +203,12 @@ const insertUser = function(username, email, password) {
     });
 };
 
-const insertMeeting = function(start_time, owner_id, name, description, status, extensions, num_pages) {
+const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_files, num_pages) {
 
-  const vars = [start_time, owner_id, name, description, status, extensions, num_pages];
+  const vars = [start_time, owner_id, name, description, status, link_to_initial_files, num_pages];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, description, status, extensions, num_pages)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_files, num_pages)
     VALUES($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `, vars)
@@ -340,14 +340,14 @@ const updateMeetingById = function(meeting_id, end_time, active, status) {
     });
 }
 
-const updatePagesByMeetingId = function(meeting_id, num_pages, extensions) {
-  const vars = [meeting_id, num_pages, extensions];
+const updatePagesByMeetingId = function(meeting_id, num_pages, link_to_initial_files) {
+  const vars = [meeting_id, num_pages, link_to_initial_files];
 
   return db.query(`
     UPDATE meetings
     SET
       num_pages = $2,
-      extensions = $3
+      link_to_initial_files = $3
     WHERE id = $1;
   `, vars)
     .catch(error => {
