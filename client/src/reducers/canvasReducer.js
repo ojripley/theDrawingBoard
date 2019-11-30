@@ -167,8 +167,6 @@ export default function reducer(state, action) {
   }
 }
 
-
-
 export {
   ADD_USER,
   SET_INITIAL_PIXELS,
