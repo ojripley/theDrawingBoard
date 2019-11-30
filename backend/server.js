@@ -315,8 +315,10 @@ io.on('connection', (client) => {
 
                   let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
 
+
                   pdfImage.convertFile().then(function(imagePath) {
                     // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                    db.updatePagesByMeetingId(id, imagePath.length);
                     console.log(imagePath);
                   })
                     .catch((error) => {
@@ -480,7 +482,7 @@ io.on('connection', (client) => {
         if (err) throw err;
       });
     }
-    
+
     db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);

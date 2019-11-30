@@ -340,6 +340,20 @@ const updateMeetingById = function(meeting_id, end_time, active, status) {
     });
 }
 
+const updatePagesByMeetingId = function(meeting_id, num_pages) {
+  const vars = [meeting_id, num_pages];
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      num_pages = $2
+    WHERE id = $1;
+  `, vars)
+    .catch(error => {
+      console.error('Query Error', error);
+    });
+}
+
 const deleteContact = function(user_id, contact_id) {
   const vars = [user_id, contact_id];
 
@@ -482,6 +496,7 @@ module.exports = {
   updateUsersMeetingsNotes,
   updateMeetingActiveState,
   updateMeetingById,
+  updatePagesByMeetingId,
   deleteContact,
   deleteMeeting,
   removeUserFromMeeting,
