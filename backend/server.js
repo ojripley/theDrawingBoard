@@ -497,7 +497,7 @@ io.on('connection', (client) => {
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
           console.log('images:', images)
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
@@ -507,7 +507,7 @@ io.on('connection', (client) => {
         .then((res) => {
           images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
 
-          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
 

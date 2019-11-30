@@ -49,8 +49,6 @@ export default function App() {
   const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
 
   useEffect(() => {
-<<<<<<< HEAD
-=======
     console.log('loading', loading);
   }, [loading]);
 
@@ -302,7 +300,6 @@ export default function App() {
   }, [streams]);
 
   useEffect(() => {
->>>>>>> master
     if (socketOpen) {
       socket.emit('checkCookie');
       //Server says client is in a meeting:
@@ -350,12 +347,6 @@ export default function App() {
     }
   }, [socket, socketOpen, setLoading]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    console.log('images', backgroundImage);
-  }, [backgroundImage])
-=======
->>>>>>> master
 
   return (
     <>
@@ -366,16 +357,16 @@ export default function App() {
         {!user ?
           <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
           : inMeeting ?
-          <>
-            <div>{incomingStreams}</div>
-            <ActiveMeeting
-            meetingId={meetingId}
-            ownerId={ownerId}
-            user={user}
-            socket={socket}
-            socketOpen={socketOpen}
-            initialNotes={meetingNotes}
-            setMeetingNotes={setMeetingNotes}
+            <>
+              <div>{incomingStreams}</div>
+              <ActiveMeeting
+                meetingId={meetingId}
+                ownerId={ownerId}
+                user={user}
+                socket={socket}
+                socketOpen={socketOpen}
+                initialNotes={meetingNotes}
+                setMeetingNotes={setMeetingNotes}
                 setInMeeting={setInMeeting}
                 inMeeting={inMeeting}
                 setMeetingId={setMeetingId}

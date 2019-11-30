@@ -125,15 +125,10 @@ export default function MeetingCard({
   useEffect(() => {
     if (socketOpen) {
 
-<<<<<<< HEAD
-      socket.on('enteredMeeting', data => {
-        console.log(data);
-=======
       socket.on(`enteredMeeting${id}`, data => {
 
         console.log('okay im going in');
 
->>>>>>> master
         let res = data.meeting; //can send this object instead
         console.log(res);
         setOwnerId(res.owner_id);
@@ -157,13 +152,7 @@ export default function MeetingCard({
               });
 
               setLoadingCounter(prev => {
-                // loadingCounter++;
-                // setLoadingCounter(loadingCounter);
-                //  loadingCounter++;
                 let temp = prev + 1;
-                console.log(temp);
-                console.log(data.images[i]);
-                // prev += 1;
                 console.log("temp vs data.images.length", temp, data.images.length);
                 if (temp === data.images.length) {//done loading!
                   console.log(`Loaded ${i} images`);

@@ -325,10 +325,6 @@ const updateMeetingActiveState = function(meeting_id, active) {
 const updateMeetingById = function(meeting_id, end_time, active, status) {
   const vars = [meeting_id, end_time, active, status];
 
-<<<<<<< HEAD
-
-=======
->>>>>>> master
   return db.query(`
     UPDATE meetings
     SET
@@ -499,7 +495,7 @@ const fetchStartedMeetings = function() {
   });
 }
 
-const clearToHistory = function () {
+const clearToHistory = function() {
   // const vars = [user_id, type];
 
   console.log('-- SERVER STARTUP: CLEARING STALE MEETINGS --');
