@@ -283,7 +283,32 @@ io.on('connection', (client) => {
       });
   });
 
-  client.on('insertMeeting', data => {
+  const saveImages = async (files) => { //Function to be used
+
+    let filenames = [];//Returns list of filenames
+    for (const [name, file] of Object.entries(files)) {
+      if (name.search(/\.pdf$/ig) !== -1) {
+        let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
+        try {
+          images = await pdfImage.convertFile();
+          images.then((imagePath) => filenames.push(...imagePath));
+        } catch (err) {
+          console.error("Error saving pdf", error);
+        }
+
+      } else {
+        fs.writeFileSync(`meeting_files/${id}/${name}}`, file).catch((err) => {
+          console.log(err);
+        });
+        console.log('meeting_files/${id}/${name}} has been saved!');
+        console.log('meeting_files/${id}/${name}} has been saved!');
+        filenames.push(name);
+      }
+    }
+    return filenames;
+  }
+
+  client.on('insertMeeting', async (data) => {
     // console.log('files', Object.keys(data.files).length)
     db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files).map(name => name.split('.')[1]), Object.keys(data.files).length) //we no longer need the link_to_initial_doc column
       .then(res => {
@@ -413,7 +438,6 @@ io.on('connection', (client) => {
   client.on('enterMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
-    console.log('meetingDetails:', meetingDetails);
     //Select a color:
     let col = meetingDetails['colorMapping'][data.user.id];
     if (!col) {
@@ -421,16 +445,14 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-
-    let images = [];
-    for (let i = 0; i < meetingDetails['numPages']; i++) {
+    for (let i = 0; i < meetingDetails['numPages']; i++) { //for each page
+      //Create userPixels array for that user if it doesn't already exist
       if (!meetingDetails.userPixels[i][data.user.id]) {
         meetingDetails.userPixels[i][data.user.id] = [];
       }
     }
 
-    console.log('meeting details', meetingDetails);
-
+    let images = [];
     if (meetingDetails['numPages'] !== 0) {
       for (let i = 0; i < meetingDetails['numPages']; i++) {
 
@@ -438,7 +460,7 @@ io.on('connection', (client) => {
           //reads the files sychronously
           console.log(`searching for ./meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`)
           images.push("data:image/jpg;base64," + fs.readFileSync(`meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`).toString("base64"))
-        } catch { (e => console.error("error reading files", e)) };
+        } catch { e => console.error("error reading files", e) };
       }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
@@ -510,15 +532,26 @@ io.on('connection', (client) => {
   });
 
   client.on('fetchNotes', (data) => {
+    //client side code should send extensions
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
-          if (err) {
-            console.error;
-            image = "";
-          }
-          client.emit('notesFetched', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
-        });
+        let meetingDetails = res[0];
+        console.log(meetingDetails);
+        let images = [];
+
+        for (let i = 0; i < 3; i++) { //replace 3 with data.extensions.length
+          try {
+            console.log(`meeting_files/${data.meetingId}/markup_image-${i}.png`)
+            images.push("data:image/jpg;base64," + fs.readFileSync(`meeting_files/${data.meetingId}/markup_image-${i}.png`).toString("base64"))
+          } catch { e => console.error("error reading files", e) };
+        }
+        console.log('images.map(image =>"data:image/jpg;base64," + image.toString("base64")):', images.map(image => "data:image/jpg;base64," + image.toString("base64")));
+        console.log('length of images sent', images.length);
+        client.emit('notesFetched',
+          {
+            usersMeetings: res[0],
+            images: images.map(image => "data:image/jpg;base64," + image.toString("base64"))
+          });
       });
   });
 
