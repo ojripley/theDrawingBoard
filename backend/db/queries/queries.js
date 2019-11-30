@@ -193,9 +193,11 @@ const insertUser = function(username, email, password) {
 
   return db.query(`
     INSERT INTO users (username, email, password)
-    VALUES ($1, $2, $3);
+    VALUES ($1, $2, $3)
+    RETURNING *;
   `, vars)
     .then(res => {
+      console.log(res)
       return res.rows;
     })
     .catch(error => {
@@ -499,6 +501,21 @@ const clearToHistory = function () {
     });
 }
 
+const insertIntoDms = function(userId, senderId, msg, timestamp) {
+  const vars = [userId, senderId, msg, timestamp];
+
+  return db.query(`
+    INSERT INTO dms (user_id, sender_id, msg, timestamp)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      console.error('Query Error', err);
+    });
+}
 
 module.exports = {
   fetchUserByEmail,
@@ -527,5 +544,6 @@ module.exports = {
   removeNotificationsByUserId,
   removeNotificationsByType,
   fetchStartedMeetings,
-  clearToHistory
+  clearToHistory,
+  insertIntoDms
 };
