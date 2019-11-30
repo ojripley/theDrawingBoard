@@ -22,6 +22,7 @@
 }
 
 .form-container {
+  background-color: #fff;
   position: absolute;
   left: 0;
   width: 100%;
@@ -35,6 +36,7 @@
 }
 
 .sign-up-container {
+  top: 0;
   height: 50%;
   opacity: 0;
   z-index: 1;
@@ -102,8 +104,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: row;
-  padding: 40px 0px;
+  flex-direction: column;
   text-align: center;
   left: 0;
   width: 100%;

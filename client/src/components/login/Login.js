@@ -148,12 +148,11 @@ export default function Login(props) {
 
   return (
     <div id='app-container'>
-      <div className={`container ${!showLogin && 'active-panel'}`} id="container">
+      <div className={`container ${!showLogin ? 'active-panel' : ''}`} id="container">
         <div className="form-container sign-up-container">
           <div className='form'>
 
             <Typography variant='h2' color='primary'>Register</Typography>
-            <Divider color='primary' />
             <TextField
               id="username"
               label="Username"
@@ -212,7 +211,6 @@ export default function Login(props) {
         <div className="form-container sign-in-container">
           <div className='form'>
             <Typography variant='h2' color='primary'>Login</Typography>
-            <Divider color='primary' />
             <TextField
               id="email"
               label="Email"
@@ -247,14 +245,13 @@ export default function Login(props) {
           <div className="overlay">
             <div className="overlay-panel overlay-top">
               <Typography variant='h2' color='secondary'>Welcome Back!</Typography>
-              <Divider color='primary' />
-              <Typography variant='overline'>To keep connected with us please login with your personal info</Typography>
-              <Button className="ghost" id="signIn" onClick={() => setShowLogin(true)}>Sign In</Button>
+              <Typography variant='overline'>Please login with your personal info</Typography>
+              <Button variant='contained' id="signIn" onClick={() => setShowLogin(true)}>Sign In</Button>
             </div>
             <div className="overlay-panel overlay-bottom">
               <Typography variant='h2' color='secondary'>Hello, Friend!</Typography>
-              <Typography variant='overline'>Enter your personal details and start journey with us</Typography>
-              <Button className="ghost" id="signUp" onClick={() => setShowLogin(false)}>Sign Up</Button>
+              <Typography variant='overline'>Start your journey with us</Typography>
+              <Button variant='contained' id="signUp" onClick={() => setShowLogin(false)}>Sign Up</Button>
             </div>
           </div>
         </div>
