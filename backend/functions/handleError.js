@@ -6,12 +6,11 @@ const handleError = function(error, client) {
   console.log(error);
   console.log('\n\n\nGerald the Error Herald has spoken.');
 
-
-
   const msg = generateErrorMessage(error);
 
   if (client) {
-    client.emit(msg, client);
+    console.log('sending error');
+    client.emit('fuckUSocketIO', { msg: msg });
   }
 }
 
