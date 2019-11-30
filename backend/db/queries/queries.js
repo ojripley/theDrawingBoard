@@ -183,7 +183,7 @@ const fetchMeetingWithUsersById = function(meeting_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 }
 
@@ -218,7 +218,7 @@ const insertMeeting = function(start_time, owner_id, name, description, status, 
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
