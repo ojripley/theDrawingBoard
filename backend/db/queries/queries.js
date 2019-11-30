@@ -42,7 +42,7 @@ const fetchContactsByUserId = function(user_id, username = '') {
 };
 
 
-const fetchUsersByUsername = function (username = '', id) {
+const fetchUsersByUsername = function(username = '', id) {
 
   const vars = [`%${username}%`, id];
 
@@ -70,7 +70,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
   const vars = [username, meeting_status];
 
   return db.query(`
-    SELECT start_time, end_time, name, description, active, link_to_final_doc, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids, array_agg(attendance) as attendances FROM meetings
+    SELECT start_time, end_time, name, description, active, link_to_initial_files, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids, array_agg(attendance) as attendances FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
@@ -102,7 +102,6 @@ const removeUserFromMeeting = function(user_id, meeting_id) {
     .catch(error => {
       throw error;
     });
-
 };
 
 const fetchMeetingById = function(meeting_id) {
@@ -122,6 +121,21 @@ const fetchMeetingById = function(meeting_id) {
       throw error;
     });
 };
+
+const updatePagesByMeetingId = function (meeting_id, num_pages, link_to_initial_files) {
+  const vars = [meeting_id, num_pages, link_to_initial_files];
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      num_pages = $2,
+      link_to_initial_files = $3
+    WHERE id = $1;
+  `, vars)
+    .catch(error => {
+      throw error;
+    });
+}
 
 const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
   const vars = [user_id, meeting_id];
@@ -179,13 +193,13 @@ const insertUser = function(username, email, password) {
     });
 };
 
-const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_doc) {
+const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_files, num_pages) {
 
-  const vars = [start_time, owner_id, name, description, status, link_to_initial_doc];
+  const vars = [start_time, owner_id, name, description, status, link_to_initial_files, num_pages];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_doc)
-    VALUES($1, $2, $3, $4, $5, $6)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_files, num_pages)
+    VALUES($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `, vars)
     .then(res => {
@@ -296,16 +310,15 @@ const updateMeetingActiveState = function(meeting_id, active) {
     });
 }
 
-const updateMeetingById = function(meeting_id, end_time, active, status, link_to_final_doc) {
-  const vars = [meeting_id, end_time, active, status, link_to_final_doc];
+const updateMeetingById = function(meeting_id, end_time, active, status) {
+  const vars = [meeting_id, end_time, active, status];
 
   return db.query(`
     UPDATE meetings
     SET
       end_time = $2,
       active = $3,
-      status = $4,
-      link_to_final_doc = $5
+      status = $4
     WHERE id = $1;
   `, vars)
     .then(res => {
@@ -506,6 +519,7 @@ module.exports = {
   updateUsersMeetingsNotes,
   updateMeetingActiveState,
   updateMeetingById,
+  updatePagesByMeetingId,
   deleteContact,
   deleteMeeting,
   removeUserFromMeeting,

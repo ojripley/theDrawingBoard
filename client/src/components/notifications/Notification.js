@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Notification.scss';
 import { makeStyles } from '@material-ui/styles';
 import ListItem from '@material-ui/core/ListItem';
@@ -16,6 +16,10 @@ export default function Contact(props) {
 
   const classes = useStyles();
 
+  useEffect(() => { //jumps to top of page on mount
+    window.scrollTo(0, 0)
+  }, []);
+
   const dismissNotification = function(e) {
     e.stopPropagation(); //Prevents default card actions
     //Remove the element
@@ -27,8 +31,8 @@ export default function Contact(props) {
     if (props.type === 'contact' || props.type === 'dm') {
       props.setMode("CONTACTS");
     } else if (props.type === 'meeting') {
-        props.setInitialExpandedMeeting(`panel${props.meetingId}`);
-        props.setMode("DASHBOARD");
+      props.setInitialExpandedMeeting(`panel${props.meetingId}`);
+      props.setMode("DASHBOARD");
     }
   }
 
@@ -53,7 +57,7 @@ export default function Contact(props) {
             >
               {props.message}
             </Typography>
-            <br/>
+            <br />
             {`Received on ${new Date(props.timestamp).toLocaleString('en-US', {
               weekday: 'short',
               year: 'numeric',

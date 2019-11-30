@@ -10,10 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Slider from '@material-ui/core/Slider';
-
-
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 
 const useStyles = makeStyles({
   list: {
@@ -59,6 +57,7 @@ export default function CanvasDrawer(props) {
       props.socket.on('meetingMsg', (data) => {
         setMessages(prev => [data, ...prev]);
       });
+
     }
     return () => {
       props.socket.off('meetingMsg');
@@ -97,7 +96,7 @@ export default function CanvasDrawer(props) {
 
   const handleUndo = () => {
     if (props.socketOpen) {
-      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId });
+      props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId, page: props.page });
     }
   }
 
@@ -145,11 +144,22 @@ export default function CanvasDrawer(props) {
 
   const valueText = (value) => {
     return `${value}`;
+  };
+
+  const changePage = (direction) => {
+    if (direction === 'prev' && props.page !== 0) {
+      props.setPage(props.page - 1);
+      props.socket.emit('changePage', { meetingId: props.meetingId, user: props.user, page: props.page - 1 });
+    } else if (direction === 'next' && props.page !== (props.totalPages - 1)) {
+      props.setPage(props.page + 1);
+      props.socket.emit('changePage', { meetingId: props.meetingId, user: props.user, page: props.page + 1 });
+    }
   }
 
   return (
     <>
       <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
+
       <Drawer anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <div
           className={classes.list}
@@ -202,6 +212,26 @@ export default function CanvasDrawer(props) {
           <List>
             <ListItem button onClick={backToDash}>Leave Meeting</ListItem>
           </List>
+          {props.user.id === props.ownerId &&
+            <>
+              <Divider />
+              <List>
+                <ListItem>
+                  <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />
+                  Page {props.page + 1} of {props.totalPages}
+                  <KeyboardArrowRightIcon onClick={() => changePage('next')} />
+                </ListItem>
+              </List>
+              <Button
+                variant='contained'
+                color='secondary'
+                className={classes.endMeeting}
+                onClick={props.loadSpinner}
+              >
+                End Meeting
+        </Button>
+        </>
+        }
         </div>
       </Drawer>
     </>

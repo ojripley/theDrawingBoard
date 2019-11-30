@@ -1,4 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles';
+import color from '@material-ui/core/colors/amber';
 
 const theme = createMuiTheme({
   palette: {
@@ -8,11 +9,12 @@ const theme = createMuiTheme({
     },
     primary: {
       main: '#026873',
-      contrastText: '#FFF3E8'
+      light: 'rgba(2,104,115, 0.4)',
+      contrastText: '#F5F0EB'
     },
     secondary: {
       main: '#D46337',
-      contrastText: '#FFF3E8'
+      contrastText: '#F5F0EB'
     },
     tertiary: {
       main: '#F5F0EB',
@@ -37,6 +39,9 @@ const theme = createMuiTheme({
       letterSpacing: "0.0075em",
     }
   },
+  zIndex: {
+    appBar: 1350
+  },
   overrides: {
     MuiExpansionPanelSummary: {
       content: {
@@ -46,7 +51,7 @@ const theme = createMuiTheme({
     },
     MuiDivider: {
       root: {
-        backgroundColor: 'rgba(2,104,115, 0.5)',
+        backgroundColor: 'rgba(2,104,115, 0.8)',
       }
     },
     MuiButton: {

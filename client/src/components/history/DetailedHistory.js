@@ -28,11 +28,11 @@ export default function DetailedHistory(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchNotes', {user: props.user, meetingId: props.meeting.id, linkToFinalDoc: props.meeting.link_to_final_doc});
+      props.socket.emit('fetchNotes', { user: props.user, meetingId: props.meeting.id, link_to_initial_files: props.meeting.link_to_initial_files });
       props.socket.on('notesFetched', res => {
         console.log('on notes', res)
         setNotes(res.usersMeetings.notes);
-        setImages(prev => [...prev, res.image]);
+        setImages(res.images);
       });
 
       return () => props.socket.off('notes');
@@ -67,13 +67,13 @@ export default function DetailedHistory(props) {
       </div>
 
       <Typography className='detailed-date' variant='button'>{new Date(time).toLocaleString('en-US', {
-          weekday: 'short',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric'
-        })}
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+      })}
       </Typography>
 
       {images.length === 0 ? <CircularProgress className='history-spinner' color='secondary' /> :
@@ -103,20 +103,20 @@ export default function DetailedHistory(props) {
 
           <div className='detailed-section group-notes'>
             <Typography variant='h6'>Group Notes</Typography>
-            {displayImages}
+            <img className='meeting-image' src={images[viewPage]} alt='meeting-notes' />
             <MobileStepper
               steps={maxPages}
               position="static"
               variant="text"
               activeStep={viewPage}
               nextButton={
-                <Button size="small" onClick={() => changePage('prev')} disabled={viewPage === maxPages - 1}>
+                <Button size="small" onClick={() => changePage('next')} disabled={viewPage === maxPages - 1}>
                   Next
                   {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
                 </Button>
               }
               backButton={
-                <Button size="small" onClick={() => changePage('next')} disabled={viewPage === 0}>
+                <Button size="small" onClick={() => changePage('back')} disabled={viewPage === 0}>
                   {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
                   Back
                 </Button>

@@ -14,6 +14,10 @@ export default function Dashboard(props) {
   const [meetings, setMeetings] = useState([]);
   const [expanded, setExpanded] = useState(props.initialExpandedMeeting);
 
+  useEffect(()=>{ //jumps to top of page on mount
+    window.scrollTo(0, 0)
+  }, []);
+
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'scheduled' });
