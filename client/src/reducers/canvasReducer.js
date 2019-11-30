@@ -35,7 +35,7 @@ export default function reducer(state, action) {
             }
           }
         }
-      } else {
+      } else { //if first pixel for user
         return {
           ...state,
           pixelArrays: {
@@ -110,7 +110,8 @@ export default function reducer(state, action) {
           let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
 
           gradient.addColorStop(0, col);
-          gradient.addColorStop(1, 'white');
+          // gradient.addColorStop(1, 'white');
+          gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
           state.ctx.arc(x, y, 7 * r, 0, 2 * Math.PI);
           state.ctx.fillStyle = gradient;
