@@ -5,10 +5,11 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   position: relative;
   overflow: hidden;
-  margin-top: 100px;
+  margin-top: 85px;
   width: 94%;
   max-width: 500px;
   height: 80vh;
+  min-height: 700px;
 }
 
 .form {
@@ -24,6 +25,10 @@
 
 button.MuiButtonBase-root.MuiButton-root.MuiButton-contained.login-button.MuiButton-containedSecondary {
   margin-top: 1.5em;
+}
+
+.MuiFormControl-root.MuiTextField-root {
+  margin-bottom: 0.5em;
 }
 
 input.MuiInputBase-input.MuiInput-input {
