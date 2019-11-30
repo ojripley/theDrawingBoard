@@ -1,11 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Peer from 'peerjs';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
-import AudioPlayer from './AudioPlayer';
-
-import { usePeer } from '../../hooks/usePeer';
-import { useConnections } from '../../hooks/useConnections';
 
 import { makeStyles } from '@material-ui/core/styles';
 import InputIcon from '@material-ui/icons/Input';
@@ -13,6 +8,11 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
+
+import reducer, {
+  SAVE
+} from "../../reducers/canvasReducer";
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, loading, setLoading, pixelColor }) {
+export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, setLoading, pixelColor }) {
 
   const classes = useStyles();
 
@@ -75,198 +75,25 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
 
+  const [page, setPage] = useState(0);
+  const finalCanvasRef = useRef(null);
+
+  const [canvasState, dispatch] = useReducer(reducer, {
+    pixelArrays: { ...initialPixels },
+    ctx: {},
+    color: pixelColor,
+    pointers: {}, //if needed make take the initial state from server
+    finishedSaving: Array(backgroundImage.length)
+  });
+  // const [dataURL,setDataURL] = useState([]); //stores files to be sent
+  // let dataURL = Array(backgroundImage.length);
   // const backgroundCanvas = useRef(null);
 
 
   const textareaRef = useRef(null);
 
-  // webrtc related state
-  const { peer, setPeer } = usePeer();
-  const { connections, setConnections } = useConnections();
-  const [newPeer, setNewPeer] = useState(null);
-  const [isInitiator, setIsInitiator] = useState(null);
-  const [streams, setStreams] = useState({});
-  const [calls, setCalls] = useState({});
-  const [newCall, setNewCall] = useState(null);
-  const [isCaller, setIsCaller] = useState(null);
+  console.log('at 0', initialPixels[0])
 
-
-  useEffect(() => {
-    // assign the user a Peer object when they join the meeting
-    setPeer(new Peer(String(user.id), {key: 'peerjs'}));
-    // navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-    // .then((audioStream) => {
-    //   setStream(audioStream);
-    // }, (error) => {
-    //   console.error('Failed to get media stream');
-    // });
-  }, []);
-
-  useEffect(() => {
-
-    // make sure the user has been assigned a Peer object
-    if (peer) {
-      console.log('i am peer', peer);
-
-      peer.on('open', (id) => {
-        console.log('PeerServer thinks i am:', id);
-      });
-
-      // listen for peers connecting to you
-      peer.on('connection', (conn) => {
-        console.log('someone is connecting to me');
-        console.log(conn.peer);
-        const peerId = conn.peer;
-
-        // setting the state needing for opening connections in useEffect
-        setIsInitiator(false);
-        setNewPeer(peerId);
-        setConnections(prev => ({
-          ...prev,
-          [peerId]: conn
-        }));
-      });
-
-      // listen for incoming calls
-      peer.on('call', (call) => {
-
-        const callerId = call.peer;
-
-        setIsCaller(false);
-        setNewCall(callerId);
-        setCalls(prev => ({
-          ...prev,
-          [callerId]: call
-        }));
-      });
-
-      if (socketOpen) {
-        // when someone new joins
-        socket.on('newParticipant', (data) => {
-
-          // log who that is
-          console.log('new user', data.user.username);
-
-          // make sure it isn't yourself
-          if (data.user.id !== user.id) {
-
-            // assign the new user's id to use as a peerId
-            const peerId = data.user.id;
-
-            // start a connection with them
-            console.log('i am trying to start a connection with', peerId);
-            const conn = peer.connect(String(peerId));
-
-            // setting the state needing for opening connections in third useEffect
-            setIsInitiator(true);
-            setNewPeer(peerId);
-            setConnections(prev => ({
-              ...prev,
-              [peerId]: conn
-            }));
-
-            // start an audio call with them
-            console.log('asking for media');
-            navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-            .then((stream) => {
-              console.log('this is my media stream, now waiting on answer', stream);
-              const call = peer.call(String(peerId), stream);
-              setIsCaller(true);
-              setNewCall(peerId);
-              setCalls(prev => ({
-                ...prev,
-                [peerId]: call
-              }));
-            }, (error) => {
-              console.error('Failed to get media stream', error);
-            });
-
-
-          }
-        });
-      }
-    }
-    return () => {
-      socket.off('newParticipant');
-    }
-  }, [peer]);
-
-
-  useEffect(() => {
-    if (peer && newCall) {
-      if (isCaller) {
-        console.log('new call is with', newCall);
-        console.log(calls);
-        calls[newCall].on('stream', (incomingStream) => {
-          // play audio
-          console.log('adding stream to state');
-          setStreams(prev => ({
-            ...prev,
-            [newPeer]: incomingStream
-          }));
-          console.log('this is where you play audio');
-        });
-
-      } else { // the user is the receiver
-
-        console.log('someone is calling me');
-
-        // answer the call. Uncle Same needs YOU!
-        console.log('answering the call');
-        navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-        .then((stream) => {
-          console.log('got stream');
-          calls[newCall].answer(stream);
-          calls[newCall].on('stream', (incomingStream) => {
-            console.log('adding stream to state');
-            setStreams(prev => ({
-              ...prev,
-              [newPeer]: incomingStream
-            }));
-            });
-        }, (error) => {
-          console.error('Failed to get media stream');
-        });
-      }
-    }
-  }, [calls]);
-
-
-  useEffect(() => {
-
-    // if user is a peer and a new connection has been made with a newPeer
-    if (peer && newPeer) {
-
-      // if the user is the initiator of the connection
-      if (isInitiator) {
-
-        // set a listener for when their initiated P2P connection has been opened
-        connections[newPeer].on('open', () => {
-
-          console.log('connection open');
-          connections[newPeer].send(`Hello from peer ${user.username}`);
-
-          // open a listener to recieve data from the peers
-          connections[newPeer].on('data', (data) => {
-            console.log(data);
-          });
-        });
-
-      } else { // if the user is the receiver of the connection
-
-        // set a listener for when the received P2P connection has been opened
-        connections[newPeer].on('open', () => {
-
-          // set a listener for recieving data from the peer
-          connections[newPeer].on('data', (data) => {
-            console.log(data);
-          });
-          connections[newPeer].send(`Hello from peer ${user.username}`);
-        });
-      }
-      console.log('connections:', connections);
-    }
-  }, [connections]);
 
   const handleInput = (e) => {
     console.log(e.target.value)
@@ -279,6 +106,56 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     e.target.value = ''
     e.target.value = temp_value
   }
+
+  // const mergeWithImage = (imageCanvas) => {
+
+  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
+  //   // setImageCtx(prev => { //adds the click to the image canvas
+  //   // prev = imageCanvasRef.current.getContext('2d')
+  //   // imageCanvasRef.current.width = backgroundImage.width;
+  //   // imageCanvasRef.current.height = backgroundImage.height;
+  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
+  //   // });
+  // }
+
+  const endMeeting = () => {
+    //TODO: handle case with no image
+    // mergeWithImage();
+    // let sendingCanvas = (<canvas></canvas>);
+    for (let i in backgroundImage) {
+      console.log("working on", i);
+      let bkgdImg = backgroundImage[i];
+      finalCanvasRef.current.width = bkgdImg.width;
+      finalCanvasRef.current.height = bkgdImg.height;
+      let sendingCtx = finalCanvasRef.current.getContext('2d');
+      canvasState.ctx.drawImage(bkgdImg, 0, 0, bkgdImg.width, bkgdImg.height);
+      dispatch({ type: SAVE, payload: { page: i, ctx: sendingCtx, backgroundImage: bkgdImg } });
+    }
+
+  }
+
+  useEffect(() => {
+    //Checks if all the saved images are done loading. FinishedSaving is an array of length equal to the length of the background images, intially with undefined values
+    //As images are prepped for saving, the entry is replaced with the data (base64) for the img. The below reduce counts the number of elements that are not undefined, and once that reaches the number of images an emit is made to the server with the data as an array
+    if (canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0) === backgroundImage.length) {
+
+      socket.emit('endMeeting', {
+        meetingId: meetingId,
+        endTime: new Date(Date.now()),
+        image: canvasState.finishedSaving
+      })
+    }
+
+  }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
+
+
+  const loadSpinner = () => {
+    socket.emit('savingMeeting', { meetingId: meetingId });
+    setLoading(true);
+    endMeeting();
+  };
 
   useEffect(() => {
 
@@ -298,11 +175,22 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       setLoading(false);
     });
 
+
+    socket.on('changingPage', data => {
+      console.log('trying to change page');
+      if (data.user.id !== user.id) { //Don't need to change the owner too
+        console.log(`Changing page to ${data.page}`, data.page)
+        setPage(data.page);
+      }
+    });
+
     return () => {
+      socket.off('loadTheSpinnerPls');
       socket.off('requestNotes');
       socket.off('concludedMeetingId');
+      socket.off('changingPage');
     };
-  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading])
+  }, [socket, setInMeeting, debouncedNotes, meetingId, meetingNotes, setMeetingId, user, setBackgroundImage, setLoading, setPage])
 
   useEffect(() => {
     if (socketOpen) {
@@ -316,76 +204,78 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [writeMode])
+  }, [writeMode]);
 
-  const incomingStreams = Object.keys(streams).map((key) => {
-    const stream = streams[key];
-    return (
-      <AudioPlayer
-      key={key}
-      stream={stream}></AudioPlayer>
-    )
-  })
+
 
 
   return (
     <>
-    <div>{incomingStreams}</div>
-    {imageLoaded &&
-    <div className={classes.root}>
-      <CanvasDrawer
-        user={user}
-        socket={socket}
-        socketOpen={socketOpen}
-        meetingId={meetingId}
-        setMode={setMode}
-        setImageLoaded={setImageLoaded}
-        setInMeeting={setInMeeting}
-        setWriteMode={setWriteMode}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
-        setHighlighting={setHighlighting}
-        setPointing={setPointing}
-        setTool={setTool}
-      />
-      <Canvas
-        user={user}
-        ownerId={ownerId}
-        socket={socket}
-        socketOpen={socketOpen}
-        backgroundImage={backgroundImage}
-        setBackgroundImage={setBackgroundImage}
-        imageLoaded={imageLoaded}
-        meetingId={meetingId}
-        initialPixels={initialPixels}
-        setLoading={setLoading}
-        pixelColor={pixelColor}
-        strokeWidth={strokeWidth}
-        highlighting={highlighting}
-        pointing={pointing}
-        tool={tool}
-      />
-      {writeMode &&
-        <div className={classes.center}>
-          <TextareaAutosize
-            ref={textareaRef}
-            aria-label='empty textarea'
-            placeholder='Empty'
-            defaultValue={meetingNotes}
-            className={classes.textareaAutosize}
-            onChange={event => handleInput(event)}
-            onFocus={handleCaret}
+      {imageLoaded &&
+        <div className={classes.root}>
+          <CanvasDrawer
+            user={user}
+            ownerId={ownerId}
+            socket={socket}
+            socketOpen={socketOpen}
+            meetingId={meetingId}
+            setMode={setMode}
+            setImageLoaded={setImageLoaded}
+            setInMeeting={setInMeeting}
+            setWriteMode={setWriteMode}
+            strokeWidth={strokeWidth}
+            setStrokeWidth={setStrokeWidth}
+            setHighlighting={setHighlighting}
+            setPointing={setPointing}
+            setTool={setTool}
+            page={page}
+            totalPages={backgroundImage.length}
+            setPage={setPage}
+            loadSpinner={loadSpinner}
           />
-          <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+          <Canvas
+            user={user}
+            ownerId={ownerId}
+            socket={socket}
+            socketOpen={socketOpen}
+            backgroundImage={backgroundImage[page]}//TODO: change to index (backgroundImage[page])
+            // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
+            imageLoaded={imageLoaded}
+            meetingId={meetingId}
+            // initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
+            setLoading={setLoading}
+            pixelColor={pixelColor}
+            strokeWidth={strokeWidth}
+            highlighting={highlighting}
+            pointing={pointing}
+            tool={tool}
+            page={page}
+            canvasState={canvasState}
+            dispatch={dispatch}
+          />
+          {writeMode &&
+            <div className={classes.center}>
+              <TextareaAutosize
+                ref={textareaRef}
+                aria-label='empty textarea'
+                placeholder='Empty'
+                defaultValue={meetingNotes}
+                className={classes.textareaAutosize}
+                onChange={event => handleInput(event)}
+                onFocus={handleCaret}
+              />
+              <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+            </div>
+          }
+          {/* <canvas id="mergingCanvas"></canvas> */}
+          {saving &&
+            <div className={classes.saving}>
+              <CircularProgress color='secondary' />
+            </div>
+          }
+          <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas>
         </div>
       }
-      {saving &&
-        <div className={classes.saving}>
-          <CircularProgress color='secondary' />
-        </div>
-      }
-    </div>
-    }
     </>
   )
 }

@@ -1,14 +1,7 @@
-// #canvas-container { //Use to center image and contain it when screen size changes
-//   position: relative;
-//   height: 80%;
-// }
-html {
-  // overflow: hidden;
-}
+@import "../../theme/variables";
+
 #drawCanvas {
   position: absolute;
-  width: 100%;
-  height: auto;
   top: 0;
   left: 0;
   background: transparent;
@@ -20,6 +13,19 @@ html {
   top: 0;
   left: 0;
   z-index: 1;
+}
+
+.portrait {
   width: 100%;
   height: auto;
+}
+.portrait {
+  width: auto;
+  height: 100%;
+}
+
+#canvas-container {
+  background-color: $color-4-hex;
+  width: 100vw;
+  height: 100vh;
 }

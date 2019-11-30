@@ -1,22 +1,27 @@
 import { createMuiTheme } from '@material-ui/core/styles';
+import color from '@material-ui/core/colors/amber';
 
 const theme = createMuiTheme({
   palette: {
     common: {
-      black: '#000',
+      black: '#36363E',
       white: '#fff',
     },
     primary: {
       main: '#026873',
-      contrastText: '#FFF3E8'
+      light: 'rgba(2,104,115, 0.4)',
+      contrastText: '#F5F0EB'
     },
     secondary: {
       main: '#D46337',
-      contrastText: '#FFF3E8'
+      contrastText: '#F5F0EB'
     },
     tertiary: {
-      main: '#FFF3E8',
+      main: '#F5F0EB',
       contrastText: '#36363E',
+    },
+    background: {
+      default: '#F5F0EB'
     }
   },
   typography: {
@@ -27,7 +32,7 @@ const theme = createMuiTheme({
       lineHeight: 1.75,
       letterSpacing: "0.02857em",
       textTransform: "uppercase",
-      textAlign: 'center'
+      textAlign: 'left'
     },
     h6: {
       fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
@@ -36,6 +41,9 @@ const theme = createMuiTheme({
       lineHeight: 1.6,
       letterSpacing: "0.0075em",
     }
+  },
+  zIndex: {
+    appBar: 1350
   },
   overrides: {
     MuiExpansionPanelSummary: {
@@ -46,7 +54,28 @@ const theme = createMuiTheme({
     },
     MuiDivider: {
       root: {
-        backgroundColor: 'rgba(2,104,115, 0.5)',
+        backgroundColor: 'rgba(2,104,115, 0.8)',
+      }
+    },
+    MuiButton: {
+      textSizeSmall: {
+        fontSize: '0.75rem'
+      },
+      outlinedSizeSmall: {
+        fontSize: '0.75rem'
+      },
+      root: {
+        color: '#36363E'
+      }
+    },
+    MuiPaper: {
+      root: {
+        color: '#36363E'
+      }
+    },
+    MuiButtonBase: {
+      root: {
+        color: '#36363E'
       }
     }
   }

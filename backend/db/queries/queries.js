@@ -12,7 +12,7 @@ const fetchUserByEmail = function(email) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -32,58 +32,37 @@ const fetchContactsByUserId = function(user_id, username = '') {
     OR (friends.user_id = $1
     AND username ILIKE $2
     AND friends.relation = 'accepted');
-
   `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
 
-const fetchUsersByUsername = function (username = '', id) {
+const fetchUsersByUsername = function(username = '', id) {
 
   const vars = [`%${username}%`, id];
 
   return db.query(`
-select id, username, relation from users left join friends on users.id = friends.user_id where username ilike $1 and (friend_id is null)
-union
-select id, username, null as relation from users join friends on users.id=friends.user_id where username ilike $1 and id != $2 group by id having($2 != all(array_agg(friend_id)));  `, vars)
+    select id, username, relation
+    from users left join friends on users.id = friends.user_id
+    where username ilike $1 and (friend_id is null)
+    union
+    select id, username, null as relation
+    from users join friends on users.id=friends.user_id
+    where username ilike $1 and id != $2
+    group by id having($2 != all(array_agg(friend_id)));
+  `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
-
-
-// const fetchMeetingsByUserId = function(username, meeting_status) {
-
-//   const vars = [username, meeting_status];
-
-//   return db.query(`
-//     SELECT start_time, end_time, name, description, active, link_to_final_doc, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids FROM meetings
-//     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
-//     JOIN users ON users.id = users_meetings.user_id
-//     WHERE meetings.status = $2
-//     GROUP BY meetings.id
-//     HAVING $1 = any(array_agg(users.username))
-//     ORDER BY start_time
-//     LIMIT 20;
-//   `, vars)
-//     .then(res => {
-//       return res.rows;
-//     })
-//     .catch(error => {
-//       console.error('Query Error', error);
-//     });
-// };
-
-
-
 
 
 const fetchMeetingsByUserId = function (username, meeting_status) {
@@ -91,7 +70,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
   const vars = [username, meeting_status];
 
   return db.query(`
-    SELECT start_time, end_time, name, description, active, link_to_final_doc, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids, array_agg(attendance) as attendances FROM meetings
+    SELECT start_time, end_time, name, description, active, link_to_initial_files, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids, array_agg(attendance) as attendances FROM meetings
     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
     JOIN users ON users.id = users_meetings.user_id
     WHERE meetings.status = $2
@@ -104,7 +83,7 @@ const fetchMeetingsByUserId = function (username, meeting_status) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -121,15 +100,9 @@ const removeUserFromMeeting = function(user_id, meeting_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
-
 };
-
-
-
-
-
 
 const fetchMeetingById = function(meeting_id) {
 
@@ -145,9 +118,24 @@ const fetchMeetingById = function(meeting_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
+
+const updatePagesByMeetingId = function (meeting_id, num_pages, link_to_initial_files) {
+  const vars = [meeting_id, num_pages, link_to_initial_files];
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      num_pages = $2,
+      link_to_initial_files = $3
+    WHERE id = $1;
+  `, vars)
+    .catch(error => {
+      throw error;
+    });
+}
 
 const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
   const vars = [user_id, meeting_id];
@@ -163,7 +151,7 @@ const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -183,7 +171,7 @@ const fetchMeetingWithUsersById = function(meeting_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 }
 
@@ -193,30 +181,32 @@ const insertUser = function(username, email, password) {
 
   return db.query(`
     INSERT INTO users (username, email, password)
-    VALUES ($1, $2, $3);
+    VALUES ($1, $2, $3)
+    RETURNING *;
   `, vars)
     .then(res => {
+      console.log(res)
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
-const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_doc) {
+const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_files, num_pages) {
 
-  const vars = [start_time, owner_id, name, description, status, link_to_initial_doc];
+  const vars = [start_time, owner_id, name, description, status, link_to_initial_files, num_pages];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_doc)
-    VALUES($1, $2, $3, $4, $5, $6)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_files, num_pages)
+    VALUES($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -231,7 +221,7 @@ const insertUsersMeeting = function(user_id, meeting_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -247,7 +237,7 @@ const insertFriend = function(user_id, friend_id, status) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -265,7 +255,7 @@ const updateFriendStatus = function(user_id, friend_id, relation) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -283,7 +273,7 @@ const updateUsersMeetingsStatus = function(user_id, meeting_id, status) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -300,7 +290,7 @@ const updateUsersMeetingsNotes = function(user_id, meeting_id, notes) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -316,27 +306,26 @@ const updateMeetingActiveState = function(meeting_id, active) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 }
 
-const updateMeetingById = function(meeting_id, end_time, active, status, link_to_final_doc) {
-  const vars = [meeting_id, end_time, active, status, link_to_final_doc];
+const updateMeetingById = function(meeting_id, end_time, active, status) {
+  const vars = [meeting_id, end_time, active, status];
 
   return db.query(`
     UPDATE meetings
     SET
       end_time = $2,
       active = $3,
-      status = $4,
-      link_to_final_doc = $5
+      status = $4
     WHERE id = $1;
   `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 }
 
@@ -352,7 +341,7 @@ const deleteContact = function(user_id, contact_id) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 }
 
@@ -367,7 +356,7 @@ const deleteMeeting = function(meeting_id) {
     return res.rows;
   })
   .catch(err => {
-    console.error('Query Error', err);
+    throw error;
   })
 }
 
@@ -383,7 +372,7 @@ const insertContactNotification = function(userId, n) {
       return res.rows;
     })
     .catch(err => {
-      console.error('Query Error', err);
+      throw error;
     });
 }
 const insertMeetingNotification = function(userId, n) {
@@ -398,7 +387,7 @@ const insertMeetingNotification = function(userId, n) {
       return res.rows;
     })
     .catch(err => {
-      console.error('Query Error', err);
+      throw error;
     });
 }
 
@@ -414,7 +403,7 @@ const fetchNotificationsByUser = function(userId) {
       return res.rows;
     })
     .catch(err => {
-      console.error('Query Error', err);
+      throw error;
     });
 }
 
@@ -429,7 +418,7 @@ const removeNotificationById = function(id) {
       return res.rows;
     })
     .catch(err => {
-      console.error('Query Error', err);
+      throw error;
     });
 }
 
@@ -444,7 +433,7 @@ const removeNotificationsByUserId = function(user_id) {
       return res.rows;
     })
     .catch(err => {
-      console.error('Query Error', err);
+      throw error;
     });
 }
 
@@ -460,10 +449,58 @@ const removeNotificationsByType = function(user_id, type) {
       return res.rows;
     })
     .catch(err => {
-      console.error('Query Error', err);
+      throw error;
     });
 }
 
+const fetchStartedMeetings = function() {
+  return db.query(`
+    SELECT id, owner_id, name
+    FROM meetings
+    WHERE start_time BETWEEN now() - INTERVAL '60 seconds' AND now()
+    AND active = false
+    AND status = 'scheduled';
+  `).then(res => {
+    console.log('res.rows', res.rows)
+    return res.rows;
+  }).catch(err => {
+    throw error;
+  });
+}
+
+const clearToHistory = function () {
+  console.log('-- SERVER STARTUP: CLEARING STALE MEETINGS --');
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      active = 'false',
+      status = 'past'
+    WHERE active = 'true'
+  `)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      throw error;
+    });
+}
+
+const insertIntoDms = function(userId, senderId, msg, timestamp) {
+  const vars = [userId, senderId, msg, timestamp];
+
+  return db.query(`
+    INSERT INTO dms (user_id, sender_id, msg, timestamp)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      throw error;
+    });
+}
 
 module.exports = {
   fetchUserByEmail,
@@ -482,6 +519,7 @@ module.exports = {
   updateUsersMeetingsNotes,
   updateMeetingActiveState,
   updateMeetingById,
+  updatePagesByMeetingId,
   deleteContact,
   deleteMeeting,
   removeUserFromMeeting,
@@ -490,5 +528,8 @@ module.exports = {
   fetchNotificationsByUser,
   removeNotificationById,
   removeNotificationsByUserId,
-  removeNotificationsByType
+  removeNotificationsByType,
+  fetchStartedMeetings,
+  clearToHistory,
+  insertIntoDms
 };

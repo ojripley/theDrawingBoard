@@ -1,0 +1,153 @@
+@import '../../theme/variables';
+
+.container {
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+  margin-top: 85px;
+  width: 94%;
+  max-width: 500px;
+  height: 80vh;
+  min-height: 700px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 50px;
+  height: 100%;
+  text-align: center;
+}
+
+button.MuiButtonBase-root.MuiButton-root.MuiButton-contained.login-button.MuiButton-containedSecondary {
+  margin-top: 1.5em;
+}
+
+.MuiFormControl-root.MuiTextField-root {
+  margin-bottom: 0.5em;
+}
+
+input.MuiInputBase-input.MuiInput-input {
+  width: 256px;
+}
+
+input.MuiInputBase-input.MuiInput-input.MuiInputBase-inputAdornedEnd {
+  width: 200px;
+}
+
+.form-container {
+  background-color: #fff;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  transition: all 0.6s ease-in-out;
+}
+
+.sign-in-container {
+  top: 0;
+  height: 50%;
+  z-index: 2;
+}
+
+.sign-up-container {
+  top: 0;
+  height: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+
+.container.active-panel .sign-in-container {
+  transform: translateY(100%);
+}
+
+.container.active-panel .sign-up-container {
+  transform: translateY(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
+}
+
+@keyframes show {
+  0%,
+  49.99% {
+      opacity: 0;
+      z-index: 1;
+  }
+  50%,
+  100% {
+      opacity: 1;
+      z-index: 5;
+  }
+}
+
+.overlay-container {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 50%;
+  width: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.container.active-panel .overlay-container {
+  transform: translateY(-100%);
+}
+
+.overlay {
+  background: $color-2-hex;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: $color-4-hex;
+  position: relative;
+  top: -100%;
+  height: 200%;
+  width: 100%;
+  transform: translateY(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.container.active-panel .overlay {
+  transform: translateY(50%);
+}
+
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  transform: translateY(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-top {
+  transform: translateY(-20%);
+}
+
+.container.active-panel .overlay-top {
+  transform: translateY(0);
+}
+
+.overlay-bottom {
+  bottom: 0;
+  transform: translateY(0);
+}
+
+.container.active-panel .overlay-bottom {
+  transform: translateY(20%);
+}
+
+#signUp, #signIn {
+  margin-top: 1em;
+}

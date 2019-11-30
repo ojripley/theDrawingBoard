@@ -12,12 +12,17 @@ export default function AudioPlayer(props) {
 
   // console.log('the audio track', audio);
 
-  const body = document.querySelector('body');
+  // const body = document.querySelector('body');
+
+  const root = document.getElementById('root');
 
   const audioStream = document.createElement('audio');
-  audioStream.setAttribute('id', 'stream');
+  audioStream.setAttribute('class', `stream${props.peerId}`);
   audioStream.setAttribute('autoPlay', true);
-  body.prepend(audioStream);
+  audioStream.setAttribute("playsinline", true);
+  audioStream.setAttribute("controls", true);
+  audioStream.setAttribute('display', 'none');
+  root.prepend(audioStream);
   audioStream.srcObject = props.stream;
 
   return (
@@ -27,8 +32,8 @@ export default function AudioPlayer(props) {
         <source src={props.stream} type='audio/ogg'></source>
         <source src={props.stream} type='audio/mpeg'></source>
       </audio> */}
-{/*
-      <audio autoPlay>
+
+      {/* <audio autoPlay>
       </audio> */}
     </>
   )

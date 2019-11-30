@@ -9,34 +9,45 @@ require('dotenv').config();
 // server config
 const PORT = process.env.PORT || 8080;
 const express = require("express");
+const cors = require('cors');
 const bodyParser = require("body-parser");
 const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, { cookie: "yo" });
-const crypto = require('crypto'), algorithm = 'aes-256-ctr', password = 'SuPeRsEcReT';
+const crypto = require('crypto');
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 const colors = require('./colors.json')["colors"];
 
+// import helper functions
+const { handleError } = require('./functions/handleError');
+
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
-const { ActiveMeeting } = require('./objects/activeMeetings');
+const { reset } = require('./db/resetdb');
+const { ActiveMeetings } = require('./objects/activeMeetings');
 
 // instantiate objects
 activeUsers = new ActiveUsers();
 authenticator = new Authenticator();
-activeMeetings = new ActiveMeeting();
+activeMeetings = new ActiveMeetings();
 
 // import db operations
 const db = require('./db/queries/queries');
+
+db.clearToHistory();
+
+// CORS
+app.use(cors());
+
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
-
+// reset(); //REMOVE THIS (TEMP FOR TESTING)
 const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
 const iv = new Buffer.from("XFf9bYQkLKtwD4QD"); //Could use random bytes, would refresh on server refresh
 
@@ -48,7 +59,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  console.log('decryptiv', text.iv)
+  console.log('decryptiv', text.iv);
   let iv = Buffer.from(text.iv, 'hex');
   let encryptedText = Buffer.from(text.encryptedData, 'hex');
   let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -61,9 +72,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // this is super important
 app.get("/", (req, res) => {
+  res.send('backend');
+});
+app.get("/reset", (req, res) => {
+  reset();
   res.send('get outta my backend!');
 });
-
 // start server listening
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
@@ -91,6 +105,9 @@ const notify = function(userId, notification) {
         if (activeUsers[userId]) {
           activeUsers[userId].socket.emit('notify', notification);
         }
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   }
 
@@ -104,9 +121,25 @@ const notify = function(userId, notification) {
         if (activeUsers[userId]) {
           activeUsers[userId].socket.emit('notify', notification);
         }
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   }
 }
+
+setInterval(() => {
+  db.fetchStartedMeetings()
+    .then(res => {
+      for (let meeting of res) {
+        notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
+      }
+    })
+    .catch(error => {
+      handleError(error, client);
+    });
+}, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
+
 
 
 
@@ -118,6 +151,8 @@ const notify = function(userId, notification) {
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
+
+  console.log('client headers', client.request.headers.cookie);
 
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
@@ -147,19 +182,38 @@ io.on('connection', (client) => {
               .then(res => {
                 client.emit('allNotifications', res);
               })
+              .catch(error => {
+                handleError(error, client);
+              });
             activeUsers.addUser(user, client);
 
             client.on('disconnect', () => {
               activeUsers.removeUser(user.id);
             });
+          })
+          .catch(error => {
+            handleError(error, client);
           });
-
       } catch (err) {
         console.error('Cookie authentication failed!');
       }
     } else {
       client.emit('cookieResponse', null);
     }
+  });
+
+  client.on('registrationAttempt', (data) => {
+    console.log('someone is trying to register')
+    authenticator.register(data.username, data.email, data.password)
+      .then(res => {
+        console.log('registration attempt successful', res);
+        delete res[0].password;
+        client.emit('WelcomeYaBogeyBastard', (res[0]));
+      })
+      .catch(error => {
+        console.log('failed register attempt');
+        handleError(error, client);
+      });
   });
 
   // handles logging in and activeUsers
@@ -198,12 +252,19 @@ io.on('connection', (client) => {
             console.log('sending');
             console.log(res);
             client.emit('allNotifications', res);
+          })
+          .catch(error => {
+            handleError(error, client);
           });
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
   client.on('addClick', data => {
-    activeMeetings[data.meetingId].userPixels[data.user.id].push(data.pixel);
+    console.log(data);
+    activeMeetings[data.meetingId].userPixels[data.page][data.user.id].push(data.pixel);
     io.to(data.meetingId).emit('drawClick', data); //pass message along
   });
 
@@ -212,9 +273,13 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('setPointer', data); //pass message along
   });
 
-  //End of test
   client.on('msg', (data) => {
     console.log(data);
+  });
+
+  client.on('changePage', data => {
+    console.log('changing page', data);
+    io.to(data.meetingId).emit('changingPage', data);
   });
 
   client.on('fetchUser', (data) => {
@@ -222,6 +287,9 @@ io.on('connection', (client) => {
       .then(res => {
         user = { id: res.id, username: res.username, email: res.email };
         client.emit('user', user);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -230,6 +298,9 @@ io.on('connection', (client) => {
       .then(res => {
         console.log(res);
         client.emit('contactsByUserId', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -239,21 +310,20 @@ io.on('connection', (client) => {
       .then(res => {
         console.log(res);
         client.emit('contactsGlobal', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   })
 
   client.on('fetchMeetings', (data) => {
+    console.log("FETCHING MEETING: ", data);
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
-      });
-  });
-
-  client.on('fetchMeeting', (data) => {
-    db.fetchMeetingById(data.id)
-      .then(res => {
-        console.log(res);
-        client.emit('meeting', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -266,49 +336,82 @@ io.on('connection', (client) => {
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
         client.emit('loginAttempt', credentials.username);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
-  client.on('insertMeeting', data => {
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, data.file.name)
+  const saveImages = async (files) => { //Function to be used
+
+    let filenames = [];//Returns list of filenames
+    for (const [name, file] of Object.entries(files)) {
+      if (name.search(/\.pdf$/ig) !== -1) {
+        let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
+        try {
+          images = await pdfImage.convertFile();
+          images.then((imagePath) => filenames.push(...imagePath));
+        } catch (err) {
+          console.error("Error saving pdf", error);
+        }
+
+      } else {
+        fs.writeFileSync(`meeting_files/${id}/${name}}`, file).catch((err) => {
+          console.log(err);
+        });
+        console.log('meeting_files/${id}/${name}} has been saved!');
+        console.log('meeting_files/${id}/${name}} has been saved!');
+        filenames.push(name);
+      }
+    }
+    return filenames;
+  }
+
+  client.on('insertMeeting', async (data) => {
+    // console.log('files', Object.keys(data.files).length)
+
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length)
       .then(res => {
         client.emit('newMeeting', res[0]);
-        // console.log(res[0].id);
         return res[0].id;
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          console.log(data.filename);
-          if (data.file.name) { //Only save the file if one exists, otherwise just have an empty folder
-            //Check if pdf
-            if (data.file.name.search(/\.pdf$/ig) !== -1) {
+          let i = -1;
+          for (const [name, file] of Object.entries(data.files)) {
+            i++;
+            if (name !== "DEFAULT_IMAGE") { //Only save the file if one exists, otherwise just have an empty folder
+              //Check if pdf
+              if (name.search(/\.pdf$/ig) !== -1) {
 
-              console.log(data.file.name);
-              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-                if (err) {
-                  console.log('problem');
-                  throw err;
-                }
-                console.log('The file has been saved!');
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (error) => {
+                  if (error) {
+                    console.log('problem');
+                    handleError(error, client);
+                  }
+                  console.log('The file has been saved!');
 
-                let pdfImage = new PDFImage(`meeting_files/${id}/${data.file.name}`);
+                  let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
 
-                // console.log(pdfImage);
 
-                pdfImage.convertPage(0).then(function(imagePath) {
-                  // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                  fs.existsSync("/tmp/slide-0.png") // => true\
-                  console.log(imagePath);
-                })
-                  .catch((error) => {
-                    console.log(error);
+                  pdfImage.convertFile().then(function(imagePath) {
+                    // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                    db.updatePagesByMeetingId(id, imagePath.length, imagePath);
+                    console.log(imagePath);
                   })
-              }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
-            } else {
-              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-                if (err) throw err;
-                console.log('The file has been saved!');
-              }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+                  .catch((error) => {
+                    handleError(error, client);
+                  });
+                }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+              } else {
+                //Regular images get saved as image-#
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
+                  if (err) {
+                    handleError(err, client);
+                  }
+                  console.log('The file has been saved!');
+                }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
+              }
             }
           }
         });
@@ -334,12 +437,18 @@ io.on('connection', (client) => {
             }
           });
       })
+      .catch(error => {
+        handleError(error, client);
+      });
   });
 
   client.on('insertUsersMeeting', data => {
     db.insertUsersMeeting(data.userId, data.meetingId)
       .then(() => {
         client.emit('invitedUsers');
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -353,15 +462,30 @@ io.on('connection', (client) => {
             const meeting = res[0];
 
             // set meeting pixel log
-            meeting['userPixels'] = {};
+            meeting['numPages'] = meeting.num_pages;
+            meeting['link_to_initial_files'] = meeting.link_to_initial_files;
+            meeting['userPixels'] = [];
+
+            if (meeting.num_pages === 0) { //blank canvas
+              meeting['userPixels'].push(new Object()); //create a single page
+            }
+
+            for (var i = 0; i < meeting.num_pages; i++) {
+              meeting['userPixels'].push(new Object());
+            }
+
+            meeting['liveUsers'] = {};
+
+
             meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = colors;
             // meeting['userColors'] = ['rgb(0,0,0,1)', 'rgb(255,0,0,1)', 'rgb(0,0,255,1)', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
-            meeting['counter'] = 0;
+            meeting['counter'] = 0; //counts number of users currenly in user
             meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
+
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
@@ -369,21 +493,24 @@ io.on('connection', (client) => {
 
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
-              notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
+              notify(id, { title: 'Meeting<<<<<<< HEAD Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               if (activeUsers[id]) {
-                activeUsers[id].socket.emit('meetingStarted', { meetingId: meeting.id, ownerId: meeting.owner_id });
+                activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
   client.on('enterMeeting', (data) => {
-    let meetingDetails = activeMeetings[data.meetingId];
-    if (!meetingDetails.userPixels[data.user.id]) {
-      meetingDetails.userPixels[data.user.id] = [];
-    }
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = true;
+    console.log(activeMeetings[data.meetingId].liveUsers);
 
+
+    let meetingDetails = activeMeetings[data.meetingId];
     //Select a color:
     let col = meetingDetails['colorMapping'][data.user.id];
     if (!col) {
@@ -391,56 +518,52 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-
-
-
-    console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
-
-    let img = "";
-    if (meetingDetails.link_to_initial_doc) {
-      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      } else {
-        img = meetingDetails.link_to_initial_doc;
+    if (meetingDetails['numPages'] === 0) {
+      if (!meetingDetails.userPixels[0][data.user.id]) {
+        meetingDetails.userPixels[0][data.user.id] = [];
       }
-      fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
-        if (err) {
-          console.error;
-          image = "";
-        }
-        console.log("sending these pixels");
-        console.log(meetingDetails.userPixels);
+    }
 
-        console.log()
-        db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-          .then((res) => {
+    for (let i = 0; i < meetingDetails['numPages']; i++) { //for each page
+      //Create userPixels array for that user if it doesn't already exist
+      if (!meetingDetails.userPixels[i][data.user.id]) {
+        meetingDetails.userPixels[i][data.user.id] = [];
+      }
+    }
 
-            client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "data:image/jpg;base64," + image.toString("base64") });
+    let images = [];
+    if (meetingDetails['numPages'] !== 0) {
+      for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-            client.join(data.meetingId);
-
-            io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
-          });
-      });
-    } else {
+        try {
+          //reads the files sychronously
+          images.push("data:image/jpg;base64," + fs.readFileSync(`./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`).toString("base64"))
+        } catch { e => console.error("error reading files", e) };
+      }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
+          client.join(data.meetingId);
+          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
+        }).catch(err => {
+          handleError(err, client);
+        });
+    } else { //FIX LOGIC
+      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+        .then((res) => {
+          images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
+
+          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
 
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
-
-
-
   });
 
   client.on('saveDebouncedNotes', (data) => {
-    console.log('attempting to write notes');
-    console.log(data.notes);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes);
   });
 
@@ -452,24 +575,16 @@ io.on('connection', (client) => {
   client.on('endMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
+    for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-    let img;
-    if (meetingDetails.link_to_initial_doc) {
-      if (meetingDetails.link_to_initial_doc.search(/\.pdf$/ig) !== -1) {
-        img = meetingDetails.link_to_initial_doc.split(/\.pdf$/ig)[0] + "-0.png";
-      } else {
-        img = meetingDetails.link_to_initial_doc;
-      }
-    } else {
-      img = 'blank.png'
+      let img = meetingDetails['link_to_initial_files'][i];//`image-${i}.png`;
+
+      fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image[i].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
+        if (err) throw err;
+      });
     }
 
-    fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image.replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
-      if (err) throw err;
-      console.log('The file has been saved!');
-      console.log(`markup_${img}`);
-      db.updateMeetingById(data.meetingId, data.endTime, false, 'past', `markup_${img}`);
-    });
+    db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
@@ -486,19 +601,36 @@ io.on('connection', (client) => {
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
         client.emit('concludedMeetingId', data.meetingId);
-      });
+      }).
+      catch((e) => {
+        console.error("Updating notes failed", e);
+      })
+      ;
   });
 
   client.on('fetchNotes', (data) => {
+    //client side code should send extensions
+    console.log('fetchnotes data', data);
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
-        fs.readFile(`meeting_files/${data.meetingId}/${data.linkToFinalDoc}`, (err, image) => {
-          if (err) {
-            console.error;
-            image = "";
-          }
-          client.emit('notesFetched', { usersMeetings: res[0], image: "data:image/jpg;base64," + image.toString("base64") });
-        });
+        let meetingDetails = res[0];
+        let images = [];
+        for (let i = 0; i < data.link_to_initial_files.length; i++) { //replace 3 with data.extensions.length
+          try {
+            console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`)
+            let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`);
+            console.log('image is', image)
+            
+            images.push("data:image/jpg;base64," + image.toString("base64"))
+          } catch (err) {
+            console.error("error reading files", err)
+          };
+        }
+        client.emit('notesFetched',
+          {
+            usersMeetings: res[0],
+            images: images
+          });
       });
   });
 
@@ -586,7 +718,7 @@ io.on('connection', (client) => {
   client.on('undoLine', (data) => {
 
     if (activeMeetings[data.meetingId]) {
-      const pixels = activeMeetings[data.meetingId].userPixels[data.user.id];
+      const pixels = activeMeetings[data.meetingId].userPixels[data.page][data.user.id];
 
       if (pixels.length > 0) {
         while (pixels[pixels.length - 1].dragging !== false) {
@@ -611,4 +743,26 @@ io.on('connection', (client) => {
       activeUsers[data.contactId].socket.emit('userMsg', { msg: data.msg, user: data.user });
     }
   });
+
+  client.on('peacingOutYo', (data) => {
+
+    // user leaves room
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = false;
+    client.leave(data.meetingId);
+
+    // tell the room who left
+    io.to(data.meetingId).emit('userLeft', { user: data.user, meetingId: data.meetingId });
+    console.log(activeMeetings[data.meetingId].liveUsers);
+    console.log(`${data.user.username} has left meeting ${data.meetingId}`);
+  });
+
+  client.on('sendDm', (data) => {
+    client.emit('dm', (data));
+
+    if (activeUsers[data.recipientId]) {
+      activeUsers[data.recipientId].socket.emit('dm', (data));
+    }
+
+    db.insertIntoDms(data.userId, data.senderId, data.msg, data.timestamp);
+  })
 });

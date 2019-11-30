@@ -3,6 +3,7 @@ import './App.scss';
 import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
 import { store } from 'react-notifications-component';
+import Peer from 'peerjs';
 
 import theme from './theme/muiTheme';
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
@@ -17,37 +18,297 @@ import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 import Login from './components/login/Login';
+import AudioPlayer from './AudioPlayer';
 
 //Custom hooks
 import { useSocket } from './hooks/useSocket'
+import { usePeer } from './hooks/usePeer';
 
 export default function App() {
   const DASHBOARD = 'DASHBOARD';
   const HISTORY = 'HISTORY';
   const CONTACTS = 'CONTACTS';
   const NOTIFICATIONS = 'NOTIFICATIONS';
+
+  // global modes
+  const { socket, socketOpen } = useSocket();
   const [mode, setMode] = useState(DASHBOARD);
   const [loading, setLoading] = useState(true);
+  const [error, setLoginError] = useState(false);
 
-  const { socket, socketOpen } = useSocket();
-
-  //State required for meetings (to support auto-reconnect to meetings):
+  // meeting state
   const [inMeeting, setInMeeting] = useState(false);
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
-  const [backgroundImage, setBackgroundImage] = useState(new Image()); //Change this to "" later by def.
+  const [backgroundImage, setBackgroundImage] = useState([]); //TODO: Change to empty array - might need to contain 1 new Image()
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [initialPixels, setInitialPixels] = useState({});
+  const [initialPixels, setInitialPixels] = useState([]); //TODO: Change to array - array of objects
   const [pixelColor, setPixelColor] = useState({}); //actually colors
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
   const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
 
-  useEffect(() => {
-    console.log('loading', loading)
-  }, [loading])
+  // webrtc state
+  const { peer, setPeer } = usePeer();
+  const [streams, setStreams] = useState({});
+  const [calls, setCalls] = useState({});
+  const [incomingStreams, setIncomingStreams] = useState({});
+  const [newCall, setNewCall] = useState({
+    newPeer: null,
+    isCaller: false
+  });
 
+  useEffect(() => {
+    console.log('loading', loading);
+  }, [loading]);
+
+  useEffect(() => {
+    if (socketOpen) {
+      console.log('listening for error');
+      socket.on('fuckUSocketIO', (data) => {
+        console.log(data);
+        setLoginError(true);
+      });
+    }
+
+    return () => {
+      if (socketOpen) {
+        socket.off('error');
+      }
+    }
+  }, [error, socket, socketOpen]);
+
+
+  // set peer on enter meeting
+  useEffect(() => {
+    if (user && inMeeting) {
+      // console.log('im making a new peer');
+      // assign the user a Peer object when they join the meeting
+      setPeer(new Peer(String(user.id), { key: 'peerjs' }));
+    }
+  }, [user, inMeeting, setPeer]);
+
+  // set up listeners for new calls and new participans
+  useEffect(() => {
+
+    // make sure the user has been assigned a Peer object and they are in a meeting
+    if (peer && inMeeting) {
+      // console.log('i am peer', peer);
+
+      peer.on('open', (id) => {
+        console.log('PeerServer thinks i am:', id);
+      });
+
+      // listen for incoming calls
+      peer.on('call', (call) => {
+
+        console.log('someone is calling me, time to accept');
+
+        const callerId = call.peer;
+
+        setCalls(prev => ({
+          ...prev,
+          [callerId]: call
+        }));
+        setNewCall({
+          newPeer: callerId,
+          isCaller: false
+        });
+      });
+
+      if (socketOpen && !newCall.newPeer) {
+        // when someone new joins
+        console.log('im listening for new users');
+        socket.on('newParticipant', (data) => {
+          // setNewParticipant(true);
+
+          // log who that is
+          console.log('new user', data.user.username);
+
+          // make sure it isn't yourself
+          if (data.user.id !== user.id) {
+            // if (sentCall !== data.user.id);
+
+            console.log('new user is not me, i am going to call', data.user.username);
+
+            // assign the new user's id to use as a peerId
+            const peerId = data.user.id;
+
+            // start an audio call with them
+            navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+              .then((stream) => {
+                console.log('this is my media stream, now waiting on answer', stream);
+                const call = peer.call(String(peerId), stream);
+                // setSentCall(peerId);
+                console.log('new call', call);
+                setCalls(prev => ({
+                  ...prev,
+                  [peerId]: call
+                }));
+                setNewCall({
+                  newPeer: peerId,
+                  isCaller: true
+                });
+              }, (error) => {
+                console.error('Failed to get media stream', error);
+              });
+          } else {
+            console.log('user is me, disregard');
+            // setNewParticipant(false);
+          }
+        });
+      }
+    }
+    return () => {
+      if (socketOpen) {
+        socket.off('newParticipant');
+      }
+    }
+  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer]); // newParticipant
+
+
+  // handle new call connections
+  useEffect(() => {
+    // console.log('newCall', newCall);
+    console.log('newPeer', newCall.newPeer);
+    console.log('isCaller', newCall.isCaller);
+    if (peer && newCall.newPeer && inMeeting) {
+
+      if (newCall.isCaller) { // && !sentCall
+
+        console.log('new call is with', newCall.newPeer);
+        console.log(calls);
+        calls[newCall.newPeer].on('stream', (incomingStream) => {
+          // play audio
+          console.log('adding stream to state');
+          setStreams(prev => ({
+            ...prev,
+            [newCall.newPeer]: incomingStream
+          }));
+          // setSentCall(false);
+          console.log('cleaning up state to reset for new users');
+          setNewCall({
+            newPeer: null,
+            isCaller: false
+          });
+        });
+
+      } else { // the user is the receiver of a new call          peer && inMeeting
+
+        // answer the call. Uncle Sam needs YOU!
+        console.log('answering the call');
+        navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+          .then((stream) => {
+            console.log('got stream');
+            calls[newCall.newPeer].answer(stream);
+            calls[newCall.newPeer].on('stream', (incomingStream) => {
+              console.log('adding stream to state');
+              setStreams(prev => ({
+                ...prev,
+                [newCall.newPeer]: incomingStream
+              }));
+              console.log('cleaning up state to reset for new users');
+              setNewCall({
+                newPeer: null,
+                isCaller: false
+              });
+            });
+          }, (error) => {
+            console.error('Failed to get media stream', error);
+          });
+      }
+    }
+  }, [inMeeting, peer, calls, newCall]);
+
+  // handle user leaving the meeting; clean up their stream
+  useEffect(() => {
+    if (socketOpen) {
+      socket.on('userLeft', (data) => {
+        console.log('user has left', data.user.username);
+
+        const tempStreams = streams;
+        const tempCalls = calls;
+
+        console.log('removing call with', data.user.username);
+        console.log(streams);
+
+        console.log(tempStreams[data.user.id]);
+
+        delete tempStreams[data.user.id];
+        delete tempCalls[data.user.id];
+
+        setStreams(tempStreams);
+        setCalls(tempCalls);
+
+        console.log('streams', streams);
+        console.log('calls', calls);
+
+        setNewCall({
+          newPeer: null,
+          isCaller: false
+        });
+
+        const peerStream = document.querySelectorAll(`.stream${data.user.id}`);
+        // const peerStream = document.getElementsByClassName(`stream${data.user.id}`);
+
+        for (let el of peerStream) {
+          console.log(el);
+          el.parentNode.removeChild(el);
+        }
+      });
+    }
+
+    return () => {
+      if (socketOpen) {
+        socket.off('userLeft');
+      }
+    }
+  }, [socket, socketOpen, calls, streams]);
+
+
+  // clean up calls/peer object when user leaves the meeting
+  useEffect(() => {
+    if (peer && !inMeeting) {
+
+      console.log('deleting the peer');
+      console.log('my streams', streams);
+      setStreams({});
+      setCalls({});
+      peer.destroy();
+      setPeer(null);
+      setNewCall({
+        newPeer: null,
+        isCaller: false
+      });
+
+      const streamElements = document.querySelectorAll('audio');
+
+      for (let el of streamElements) {
+        console.log(el);
+        el.parentNode.removeChild(el);
+      }
+    }
+  }, [peer, inMeeting, streams, calls, newCall, setPeer]);
+
+
+  // compose incoming stream elements
+  useEffect(() => {
+
+    const tempIncomingStreams = Object.keys(streams).map((key) => {
+      console.log('streams', streams);
+      const stream = streams[key];
+      return (
+        <AudioPlayer
+          key={key}
+          stream={stream}
+          peerId={key}
+        ></AudioPlayer>
+      )
+    });
+
+    setIncomingStreams(tempIncomingStreams);
+  }, [streams]);
 
   useEffect(() => {
     if (socketOpen) {
@@ -97,6 +358,7 @@ export default function App() {
     }
   }, [socket, socketOpen, setLoading]);
 
+
   return (
     <>
       {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
@@ -106,25 +368,29 @@ export default function App() {
         {!user ?
           <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
           : inMeeting ?
-            <ActiveMeeting
-              meetingId={meetingId}
-              ownerId={ownerId}
-              user={user}
-              socket={socket}
-              socketOpen={socketOpen}
-              initialNotes={meetingNotes}
-              setMeetingNotes={setMeetingNotes}
-              setInMeeting={setInMeeting}
-              setMeetingId={setMeetingId}
-              imageLoaded={imageLoaded}
-              setImageLoaded={setImageLoaded}
-              backgroundImage={backgroundImage}
-              setBackgroundImage={setBackgroundImage}
-              setMode={setMode}
-              initialPixels={initialPixels}
-              setLoading={setLoading}
-              pixelColor={pixelColor}
-            />
+            <>
+              <div>{incomingStreams}</div>
+              <ActiveMeeting
+                meetingId={meetingId}
+                ownerId={ownerId}
+                user={user}
+                socket={socket}
+                socketOpen={socketOpen}
+                initialNotes={meetingNotes}
+                setMeetingNotes={setMeetingNotes}
+                setInMeeting={setInMeeting}
+                inMeeting={inMeeting}
+                setMeetingId={setMeetingId}
+                imageLoaded={imageLoaded}
+                setImageLoaded={setImageLoaded}
+                backgroundImage={backgroundImage}
+                setBackgroundImage={setBackgroundImage}
+                setMode={setMode}
+                initialPixels={initialPixels}
+                setLoading={setLoading}
+                pixelColor={pixelColor}
+              />
+            </>
             : <>
               <div id='app-container'>
                 <ReactNotification

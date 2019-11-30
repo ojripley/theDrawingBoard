@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Box from '@material-ui/core/Box';
 import HistoryCard from './HistoryCard';
 import DetailedHistory from './DetailedHistory';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 import './History.scss';
 
@@ -11,6 +12,11 @@ export default function History(props) {
 
   const [meetings, setMeetings] = useState([]);
   const [viewMeeting, setViewMeeting] = useState(0);
+
+  useEffect(()=>{ //jumps to top of page on mount
+    window.scrollTo(0, 0)
+  }, []);
+
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -33,22 +39,24 @@ export default function History(props) {
 
   const historyList = meetings.map(meeting => {
     return (
-      <li className='history-list-item' key={meeting.id}>
-        <HistoryCard
-          id={meeting.id}
-          name={meeting.name}
-          date={meeting.start_time}
-          displayDetailedHistory={displayDetailedHistory}
-        />
-      </li>
+      <HistoryCard
+        key={meeting.id}
+        id={meeting.id}
+        name={meeting.name}
+        date={meeting.start_time}
+        displayDetailedHistory={displayDetailedHistory}
+      />
     )
   });
 
   return (
-    <Box>
+    <>
       {viewMeeting === 0 ? (
         <>
-          <h1>History</h1>
+          <div>
+            <Typography id='page-header' variant='h2' color='primary'>History</Typography>
+            <Divider color='primary' />
+          </div>
           <ul className='history-list'>
             {historyList}
           </ul>
@@ -61,7 +69,7 @@ export default function History(props) {
         socketOpen={props.socketOpen}
       />
     }
-    </Box>
+    </>
 
   );
 }
