@@ -39,6 +39,9 @@ const theme = createMuiTheme({
       letterSpacing: "0.0075em",
     }
   },
+  zIndex: {
+    appBar: 1350
+  },
   overrides: {
     MuiExpansionPanelSummary: {
       content: {
@@ -57,11 +60,6 @@ const theme = createMuiTheme({
       },
       outlinedSizeSmall: {
         fontSize: '0.75rem'
-      }
-    },
-    MuiPaper: {
-      root: {
-        backgroundColor: 'none'
       }
     }
   }

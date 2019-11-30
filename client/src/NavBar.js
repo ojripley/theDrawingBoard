@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     padding: 0,
-    color: '#fff'
+    color: '#fff',
   },
   title: {
     flexGrow: 1,
@@ -37,6 +37,9 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  drawerContainer: {
+    backgroundColor: 'rgba(225, 225, 225, 0)'
+  }
 }));
 
 export default function NavBar(props) {
@@ -61,7 +64,7 @@ export default function NavBar(props) {
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={() => setOpen(!open)}>
               <MenuIcon />
             </IconButton>
-            <Drawer anchor="top" open={open} onClose={() => setOpen(!open)}>
+            <Drawer classes={{ paper: classes.drawerContainer }} anchor="top" open={open} onClose={() => setOpen(!open)}>
               <div
                 className={classes.fullList}
                 role="presentation"
