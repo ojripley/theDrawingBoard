@@ -105,7 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  let [loadingCounter, setLoadingCounter] = useState(0);
+  let [, setLoadingCounter] = useState(0);
 
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -134,8 +134,7 @@ export default function MeetingCard({
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
         setMeetingNotes(data.notes);
-        // setLoading(false);
-        // setInMeeting(true);
+
         setPixelColor(res['colorMapping']);
         if (data.images) {//if image
           setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
@@ -144,7 +143,6 @@ export default function MeetingCard({
           for (let i in data.images) {
             let myImage = new Image();
             myImage.onload = () => {
-              // setImageLoaded(true);
               console.log(data.images);
               setBackgroundImage(prev => {
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
@@ -154,7 +152,7 @@ export default function MeetingCard({
               setLoadingCounter(prev => {
                 let temp = prev + 1;
                 console.log("temp vs data.images.length", temp, data.images.length);
-                if (temp === data.images.length) {//done loading!
+                if (temp === data.images.length) {
                   console.log(`Loaded ${i} images`);
                   setImageLoaded(true);
                   setLoading(false);
@@ -164,7 +162,7 @@ export default function MeetingCard({
               });
               console.log("received these pixels", data.pixels)
             };
-            myImage.src = data.images[i]; //pull this from socket
+            myImage.src = data.images[i]; 
           }
         } else {//if no image
           console.log("there is no image")
