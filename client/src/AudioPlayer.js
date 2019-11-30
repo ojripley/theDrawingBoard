@@ -19,6 +19,8 @@ export default function AudioPlayer(props) {
   const audioStream = document.createElement('audio');
   audioStream.setAttribute('class', `stream${props.peerId}`);
   audioStream.setAttribute('autoPlay', true);
+  audioStream.setAttribute("playsinline", true);
+  audioStream.setAttribute("controls", true);
   audioStream.setAttribute('display', 'none');
   root.prepend(audioStream);
   audioStream.srcObject = props.stream;

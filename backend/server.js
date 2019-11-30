@@ -183,10 +183,14 @@ io.on('connection', (client) => {
   client.on('registrationAttempt', (data) => {
     authenticator.register(data.username, data.email, data.password)
       .then(res => {
-        console.log('registration attempt', res)
+        console.log('registration attempt', res);
         delete res[0].password;
           client.emit('WelcomeYaBogeyBastard', (res[0]));
-      });
+      })
+      .catch(error => {
+        client.emit('InvalidCredentials', ('Sorry, those credentials are taken'));
+        console.log(error.constraint);
+      })
   });
 
   // handles logging in and activeUsers
