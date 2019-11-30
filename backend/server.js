@@ -318,7 +318,7 @@ io.on('connection', (client) => {
 
                   pdfImage.convertFile().then(function(imagePath) {
                     // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                    db.updatePagesByMeetingId(id, imagePath.length);
+                    db.updatePagesByMeetingId(id, imagePath.length, imagePath.map(val => "png"));
                     console.log(imagePath);
                   })
                     .catch((error) => {
@@ -326,6 +326,7 @@ io.on('connection', (client) => {
                     })
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               } else {
+                //Regular images get saved as image-#
                 fs.writeFile(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`, file, (err) => {
                   if (err) throw err;
                   console.log('The file has been saved!');
@@ -412,7 +413,7 @@ io.on('connection', (client) => {
   client.on('enterMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
-    console.log('meetingDetails:', meetingDetails)
+    console.log('meetingDetails:', meetingDetails);
     //Select a color:
     let col = meetingDetails['colorMapping'][data.user.id];
     if (!col) {
@@ -435,12 +436,13 @@ io.on('connection', (client) => {
 
         try {
           //reads the files sychronously
+          console.log(`searching for ./meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`)
           images.push("data:image/jpg;base64," + fs.readFileSync(`meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`).toString("base64"))
         } catch { (e => console.error("error reading files", e)) };
       }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
-
+          console.log('images:', images)
           client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);

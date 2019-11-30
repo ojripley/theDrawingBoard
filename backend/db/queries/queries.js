@@ -340,13 +340,14 @@ const updateMeetingById = function(meeting_id, end_time, active, status) {
     });
 }
 
-const updatePagesByMeetingId = function(meeting_id, num_pages) {
-  const vars = [meeting_id, num_pages];
+const updatePagesByMeetingId = function(meeting_id, num_pages, extensions) {
+  const vars = [meeting_id, num_pages, extensions];
 
   return db.query(`
     UPDATE meetings
     SET
-      num_pages = $2
+      num_pages = $2,
+      extensions = $3
     WHERE id = $1;
   `, vars)
     .catch(error => {
