@@ -157,21 +157,18 @@ export default function Login(props) {
 
           <Typography variant='h2' color='primary'>Register</Typography>
           <TextField
-            id="username"
             label="Username"
             color="secondary"
             value={username}
             onChange={event => setUsername(event.target.value)}
           />
           <TextField
-            id="email"
             label="Email"
             color="secondary"
             value={email}
             onChange={event => setEmail(event.target.value)}
           />
           <TextField
-            id="password"
             label="Password"
             color="secondary"
             type={showPassword ? 'text' : 'password'}
@@ -190,7 +187,6 @@ export default function Login(props) {
             }}
           />
           <TextField
-            id="confirm-password"
             label="Confirm Password"
             color="secondary"
             type={showConfirmPassword ? 'text' : 'password'}
@@ -216,14 +212,12 @@ export default function Login(props) {
         <div className='form'>
           <Typography variant='h2' color='primary'>Login</Typography>
           <TextField
-            id="email"
             label="Email"
             color="secondary"
             value={email}
             onChange={event => setEmail(event.target.value)}
           />
           <TextField
-            id="password"
             label="Password"
             color="secondary"
             type={showPassword ? 'text' : 'password'}
