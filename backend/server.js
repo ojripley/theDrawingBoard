@@ -20,6 +20,9 @@ const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 const colors = require('./colors.json')["colors"];
 
+// import helper functions
+const { handleError } = require('./functions/handleError');
+
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
@@ -34,7 +37,10 @@ activeMeetings = new ActiveMeetings();
 // import db operations
 const db = require('./db/queries/queries');
 
-db.clearToHistory();
+db.clearToHistory()
+.catch(error => {
+  console.log(error);
+});
 
 // CORS
 app.use(cors());
@@ -102,6 +108,9 @@ const notify = function(userId, notification) {
         if (activeUsers[userId]) {
           activeUsers[userId].socket.emit('notify', notification);
         }
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   }
 
@@ -115,6 +124,9 @@ const notify = function(userId, notification) {
         if (activeUsers[userId]) {
           activeUsers[userId].socket.emit('notify', notification);
         }
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   }
 }
@@ -126,6 +138,9 @@ setInterval(() => {
         notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
       }
     })
+    .catch(error => {
+      handleError(error, client);
+    });
 }, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
 
 
@@ -170,11 +185,17 @@ io.on('connection', (client) => {
               .then(res => {
                 client.emit('allNotifications', res);
               })
+              .catch(error => {
+                handleError(error, client);
+              });
             activeUsers.addUser(user, client);
 
             client.on('disconnect', () => {
               activeUsers.removeUser(user.id);
             });
+          })
+          .catch(error => {
+            handleError(error, client);
           });
       } catch (err) {
         console.error('Cookie authentication failed!');
@@ -185,16 +206,17 @@ io.on('connection', (client) => {
   });
 
   client.on('registrationAttempt', (data) => {
+    console.log('someone is trying to register')
     authenticator.register(data.username, data.email, data.password)
       .then(res => {
-        console.log('registration attempt', res);
+        console.log('registration attempt successful', res);
         delete res[0].password;
         client.emit('WelcomeYaBogeyBastard', (res[0]));
       })
       .catch(error => {
-        client.emit('InvalidCredentials', ('Sorry, those credentials are taken'));
-        console.log(error.constraint);
-      })
+        console.log('failed register attempt');
+        handleError(error, client);
+      });
   });
 
   // handles logging in and activeUsers
@@ -233,7 +255,13 @@ io.on('connection', (client) => {
             console.log('sending');
             console.log(res);
             client.emit('allNotifications', res);
+          })
+          .catch(error => {
+            handleError(error, client);
           });
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -262,6 +290,9 @@ io.on('connection', (client) => {
       .then(res => {
         user = { id: res.id, username: res.username, email: res.email };
         client.emit('user', user);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -270,6 +301,9 @@ io.on('connection', (client) => {
       .then(res => {
         console.log(res);
         client.emit('contactsByUserId', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -279,6 +313,9 @@ io.on('connection', (client) => {
       .then(res => {
         console.log(res);
         client.emit('contactsGlobal', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   })
 
@@ -287,6 +324,9 @@ io.on('connection', (client) => {
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -299,6 +339,9 @@ io.on('connection', (client) => {
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
         client.emit('loginAttempt', credentials.username);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -344,10 +387,10 @@ io.on('connection', (client) => {
               //Check if pdf
               if (name.search(/\.pdf$/ig) !== -1) {
 
-                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
-                  if (err) {
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (error) => {
+                  if (error) {
                     console.log('problem');
-                    throw err;
+                    handleError(error, client);
                   }
                   console.log('The file has been saved!');
 
@@ -359,14 +402,16 @@ io.on('connection', (client) => {
                     db.updatePagesByMeetingId(id, imagePath.length, imagePath);
                     console.log(imagePath);
                   })
-                    .catch((error) => {
-                      console.log(error);
-                    })
+                  .catch((error) => {
+                    handleError(error, client);
+                  });
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               } else {
                 //Regular images get saved as image-#
                 fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
-                  if (err) throw err;
+                  if (err) {
+                    handleError(err, client);
+                  }
                   console.log('The file has been saved!');
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               }
@@ -395,12 +440,18 @@ io.on('connection', (client) => {
             }
           });
       })
+      .catch(error => {
+        handleError(error, client);
+      });
   });
 
   client.on('insertUsersMeeting', data => {
     db.insertUsersMeeting(data.userId, data.meetingId)
       .then(() => {
         client.emit('invitedUsers');
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -445,12 +496,15 @@ io.on('connection', (client) => {
 
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
-              notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
+              notify(id, { title: 'Meeting<<<<<<< HEAD Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               if (activeUsers[id]) {
                 activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
           });
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -495,7 +549,9 @@ io.on('connection', (client) => {
 
           client.join(data.meetingId);
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
-        }).catch(err => console.error);
+        }).catch(err => {
+          handleError(err, client);
+        });
     } else { //FIX LOGIC
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
@@ -567,7 +623,7 @@ io.on('connection', (client) => {
             console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`)
             let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`);
             console.log('image is', image)
-            
+
             images.push("data:image/jpg;base64," + image.toString("base64"))
           } catch (err) {
             console.error("error reading files", err)
