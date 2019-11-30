@@ -55,7 +55,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  console.log('decryptiv', text.iv)
+  console.log('decryptiv', text.iv);
   let iv = Buffer.from(text.iv, 'hex');
   let encryptedText = Buffer.from(text.encryptedData, 'hex');
   let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -122,7 +122,7 @@ setInterval(() => {
         notify(meeting.owner_id, { title: 'Time for Your Meeting', type: 'meeting', msg: `'${meeting.name}' is scheduled to start now!`, meetingId: meeting.id, ownerId: meeting.owner_id })
       }
     })
-}, 60000);
+}, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
 
 
 
@@ -172,7 +172,6 @@ io.on('connection', (client) => {
               activeUsers.removeUser(user.id);
             });
           });
-
       } catch (err) {
         console.error('Cookie authentication failed!');
       }
@@ -182,11 +181,12 @@ io.on('connection', (client) => {
   });
 
   client.on('registrationAttempt', (data) => {
-    if (data.username) {
-      client.emit('WelcomeYaBogeyBastard', (data));
-    } else {
-
-    }
+    authenticator.register(data.username, data.email, data.password)
+      .then(res => {
+        console.log('registration attempt', res)
+        delete res[0].password;
+          client.emit('WelcomeYaBogeyBastard', (res[0]));
+      });
   });
 
   // handles logging in and activeUsers
@@ -275,14 +275,6 @@ io.on('connection', (client) => {
         client.emit('meetings', res);
       });
   });
-
-  // client.on('fetchMeeting', (data) => {
-  //   db.fetchMeetingById(data.id)
-  //     .then(res => {
-  //       console.log(res);
-  //       client.emit('meeting', res);
-  //     });
-  // });
 
   client.on('addUser', (data) => {
 
@@ -424,9 +416,6 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-
-
-
     console.log("Looking for", `meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_doc}`);
 
     let img = "";
@@ -466,9 +455,6 @@ io.on('connection', (client) => {
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
         });
     }
-
-
-
   });
 
   client.on('saveDebouncedNotes', (data) => {
@@ -658,4 +644,13 @@ io.on('connection', (client) => {
     console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });
 
+  client.on('sendDm', (data) => {
+    client.emit('dm', (data));
+
+    if (activeUsers[data.recipientId]) {
+      activeUsers[data.recipientId].socket.emit('dm', (data));
+    }
+
+    db.insertIntoDms(data.userId, data.senderId, data.msg, data.timestamp);
+  })
 });

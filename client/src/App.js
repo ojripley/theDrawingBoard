@@ -275,44 +275,12 @@ export default function App() {
       //   element.remove();
       // });
 
-
-
       for (let el of streamElements) {
         console.log(el);
         el.parentNode.removeChild(el);
       }
-
     }
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
-
-
-  useEffect(() => {
-    console.log('my streams have changed', streams);
-    // console.log('calls', calls);
-    // console.log('newCall', newCall);
-    // console.log('peer', peer);
-  }, [streams]);
-
-  useEffect(() => {
-    console.log('my calls have changed', calls);
-    // console.log('calls', calls);
-    // console.log('newCall', newCall);
-    // console.log('peer', peer);
-  }, [calls]);
-
-  useEffect(() => {
-    console.log('my newCall has changed', newCall);
-    // console.log('calls', calls);
-    // console.log('newCall', newCall);
-    // console.log('peer', peer);
-  }, [newCall]);
-
-  useEffect(() => {
-    console.log('my peer has changed', peer);
-    // console.log('calls', calls);
-    // console.log('newCall', newCall);
-    // console.log('peer', peer);
-  }, [peer]);
 
   useEffect(() => {
 
