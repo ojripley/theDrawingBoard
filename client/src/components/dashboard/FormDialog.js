@@ -15,7 +15,6 @@ export default function FormDialog(props) {
   const [meetingName, setMeetingName] = useState('');
   const [meetingDesc, setMeetingDesc] = useState('');
   const [files, setFiles] = useState({});
-  const [fileNames, setFileNames] = useState({});
 
   // const handleClickOpen = () => {
   //   setOpen(true);
