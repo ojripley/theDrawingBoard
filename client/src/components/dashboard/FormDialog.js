@@ -42,16 +42,8 @@ export default function FormDialog(props) {
     let filesObject = {};
     // let nameArray = {};
     for (let i = 0; i < files.length; i++) {
-
-      // // get item
-      // file = files.item(i);
-      // //or
       let theFile = files.item(i);
       filesObject[theFile.name] = theFile;
-      // fileArray.push(files.item(i));
-      // nameArray.push(files.item(i).name);
-
-      // alert(file.name);
     }
 
     props.socket.emit('insertMeeting', {
