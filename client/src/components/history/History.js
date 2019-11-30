@@ -13,6 +13,11 @@ export default function History(props) {
   const [meetings, setMeetings] = useState([]);
   const [viewMeeting, setViewMeeting] = useState(0);
 
+  useEffect(()=>{ //jumps to top of page on mount
+    window.scrollTo(0, 0)
+  }, []);
+
+
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'past'});

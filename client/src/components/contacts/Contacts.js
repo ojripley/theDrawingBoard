@@ -27,6 +27,10 @@ export default function Contacts(props) {
   const [globalSearch, setGlobalSearch] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 100);
 
+  useEffect(() => { //jumps to top of page on mount
+    window.scrollTo(0, 0)
+  }, []);
+
 
   const handleSearchTermChange = event => {
     setSearchTerm(event.target.value);
@@ -60,7 +64,7 @@ export default function Contacts(props) {
           console.log('recieved all users:')
           console.log(data);
           setContactsList(data);
-      });
+        });
 
         // close event after receiving data. Prevents multiple events
         return () => props.socket.off('contactsGlobal');
@@ -72,7 +76,7 @@ export default function Contacts(props) {
           console.log('recieved contacts:')
           console.log(data);
           setContactsList(data);
-      });
+        });
 
         // close event after recieving data. Prevents multiple events
         return () => {
