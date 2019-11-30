@@ -30,12 +30,13 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const NOTIFICATIONS = 'NOTIFICATIONS';
 
+  // global modes
   const { socket, socketOpen } = useSocket();
-
   const [mode, setMode] = useState(DASHBOARD);
   const [loading, setLoading] = useState(true);
+  const [error, setLoginError] = useState(false);
 
-  //State required for meetings (to support auto-reconnect to meetings):
+  // meeting state
   const [inMeeting, setInMeeting] = useState(false);
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
@@ -48,12 +49,7 @@ export default function App() {
   const [notificationList, setNotificationList] = useState([]);
   const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
 
-  useEffect(() => {
-    console.log('loading', loading);
-  }, [loading]);
-
-
-  // webrtc related state
+  // webrtc state
   const { peer, setPeer } = usePeer();
   const [streams, setStreams] = useState({});
   const [calls, setCalls] = useState({});
@@ -63,7 +59,28 @@ export default function App() {
     isCaller: false
   });
 
-  // SET PEER ON ENTER MEETING
+  useEffect(() => {
+    console.log('loading', loading);
+  }, [loading]);
+
+  useEffect(() => {
+    if (socketOpen) {
+      console.log('listening for error');
+      socket.on('fuckUSocketIO', (data) => {
+        console.log(data);
+        setLoginError(true);
+      });
+    }
+
+    return () => {
+      if (socketOpen) {
+        socket.off('error');
+      }
+    }
+  }, [error, socket, socketOpen]);
+
+
+  // set peer on enter meeting
   useEffect(() => {
     if (user && inMeeting) {
       // console.log('im making a new peer');
@@ -72,8 +89,7 @@ export default function App() {
     }
   }, [user, inMeeting, setPeer]);
 
-
-  //
+  // set up listeners for new calls and new participans
   useEffect(() => {
 
     // make sure the user has been assigned a Peer object and they are in a meeting
@@ -152,6 +168,7 @@ export default function App() {
   }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer]); // newParticipant
 
 
+  // handle new call connections
   useEffect(() => {
     // console.log('newCall', newCall);
     console.log('newPeer', newCall.newPeer);
@@ -204,6 +221,7 @@ export default function App() {
     }
   }, [inMeeting, peer, calls, newCall]);
 
+  // handle user leaving the meeting; clean up their stream
   useEffect(() => {
     if (socketOpen) {
       socket.on('userLeft', (data) => {
@@ -249,6 +267,7 @@ export default function App() {
   }, [socket, socketOpen, calls, streams]);
 
 
+  // clean up calls/peer object when user leaves the meeting
   useEffect(() => {
     if (peer && !inMeeting) {
 
@@ -257,23 +276,13 @@ export default function App() {
       setStreams({});
       setCalls({});
       peer.destroy();
+      setPeer(null);
       setNewCall({
         newPeer: null,
         isCaller: false
       });
-      setPeer(null);
-      console.log('streams after delete', streams);
-
 
       const streamElements = document.querySelectorAll('audio');
-
-      // const streamElements = document.getElementsByClassName('stream');
-
-      console.log(streamElements);
-
-      // streamElements.forEach((element) => {
-      //   element.remove();
-      // });
 
       for (let el of streamElements) {
         console.log(el);
@@ -282,6 +291,8 @@ export default function App() {
     }
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
 
+
+  // compose incoming stream elements
   useEffect(() => {
 
     const tempIncomingStreams = Object.keys(streams).map((key) => {
