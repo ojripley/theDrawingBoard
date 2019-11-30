@@ -565,24 +565,30 @@ io.on('connection', (client) => {
 
   client.on('fetchNotes', (data) => {
     //client side code should send extensions
+    console.log('fetchnotes data', data);
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
         let meetingDetails = res[0];
         console.log(meetingDetails);
         let images = [];
-
-        for (let i = 0; i < 3; i++) { //replace 3 with data.extensions.length
+        console.log(data.link_to_initial_files.length);
+        console.log(data.link_to_initial_files);
+        for (let i = 0; i < data.link_to_initial_files.length; i++) { //replace 3 with data.extensions.length
           try {
-            console.log(`meeting_files/${data.meetingId}/markup_image-${i}.png`)
-            images.push("data:image/jpg;base64," + fs.readFileSync(`meeting_files/${data.meetingId}/markup_image-${i}.png`).toString("base64"))
-          } catch { e => console.error("error reading files", e) };
+            console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`)
+            let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`);
+            console.log('image is', image)
+            images.push("data:image/jpg;base64," + image.toString("base64"))
+          } catch (err) {
+            console.error("error reading files", err)
+          };
         }
-        console.log('images.map(image =>"data:image/jpg;base64," + image.toString("base64")):', images.map(image => "data:image/jpg;base64," + image.toString("base64")));
+        // console.log('images.map(image =>"data:image/jpg;base64," + image.toString("base64")):', images.map(image => "data:image/jpg;base64," + image.toString("base64")));
         console.log('length of images sent', images.length);
         client.emit('notesFetched',
           {
             usersMeetings: res[0],
-            images: images.map(image => "data:image/jpg;base64," + image.toString("base64"))
+            images: images
           });
       });
   });

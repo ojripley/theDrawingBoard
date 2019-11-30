@@ -128,9 +128,7 @@ export default function MeetingCard({
       socket.on(`enteredMeeting${id}`, data => {
 
         console.log('okay im going in');
-
-        let res = data.meeting; //can send this object instead
-        console.log(res);
+        let res = data.meeting;
         setOwnerId(res.owner_id);
         setMeetingId(res.id);
         setMeetingNotes(data.notes);
@@ -162,7 +160,7 @@ export default function MeetingCard({
               });
               console.log("received these pixels", data.pixels)
             };
-            myImage.src = data.images[i]; 
+            myImage.src = data.images[i];
           }
         } else {//if no image
           console.log("there is no image")
