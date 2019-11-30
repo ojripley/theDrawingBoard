@@ -27,13 +27,15 @@ const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
+    width: '40vw',
+    minWidth: '260px'
   },
   textField: {
-    minWidth: '240px',
+    width: 'auto',
     height: 'auto'
   },
   formControl: {
-    minWidth: '240px'
+    width: 'auto',
   },
   chips: {
     display: 'flex',
@@ -158,6 +160,7 @@ export default function Form(props) {
       <TextField
         label="Description"
         multiline
+        margin='normal'
         placeholder='Meeting Description'
         className={classes.textField}
         margin="normal"
@@ -181,6 +184,7 @@ export default function Form(props) {
           labelId="demo-mutiple-chip-label"
           id="demo-mutiple-chip"
           multiple
+          margin='normal'
           value={props.selectedContacts}
           onChange={handleContactChange}
           input={<Input id="select-multiple-chip" />}
