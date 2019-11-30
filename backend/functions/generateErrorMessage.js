@@ -1,7 +1,24 @@
 export default function generateErrorMessage(error) {
 
-  if (error.table = users) {
-    return handleUsersError(error);
+  switch (error.table) {
+    case 'users':
+      return handleUsersError(error);
+      break;
+    case 'meetings':
+      return handleMeetingsError(error);
+      break;
+    case 'users_meetings':
+      return handleUsersMeetingsError(error);
+      break;
+    case 'friends':
+      return handleUsersMeetingsError(error);
+      break;
+    case 'notifications':
+      return handleUsersMeetingsError(error);
+      break;
+    case '':
+      return handleUsersMeetingsError(error);
+      break;
   }
 };
 
