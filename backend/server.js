@@ -377,19 +377,13 @@ io.on('connection', (client) => {
       })
       .then((id) => {
         fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          console.log(data.files);
           let i = -1;
           for (const [name, file] of Object.entries(data.files)) {
             i++;
-            // if (i === 'length') continue;
-            console.log('name:', name);
-            // const file = data.files[i];
-            console.log('file is:', file);
             if (name !== "DEFAULT_IMAGE") { //Only save the file if one exists, otherwise just have an empty folder
               //Check if pdf
               if (name.search(/\.pdf$/ig) !== -1) {
 
-                console.log(name);
                 fs.writeFile(`meeting_files/${id}/${name}`, file, (error) => {
                   if (error) {
                     console.log('problem');
@@ -466,7 +460,6 @@ io.on('connection', (client) => {
         db.fetchMeetingById(data.id)
           .then(res => { // meeting has been retrieved
             const meeting = res[0];
-            console.log('meeting:', meeting)
 
             // set meeting pixel log
             meeting['numPages'] = meeting.num_pages;
@@ -493,7 +486,6 @@ io.on('connection', (client) => {
 
             const attendeeIds = meeting.invited_users;
 
-            console.log(meeting);
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
@@ -545,13 +537,11 @@ io.on('connection', (client) => {
 
         try {
           //reads the files sychronously
-          console.log(`searching for ./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`)
           images.push("data:image/jpg;base64," + fs.readFileSync(`./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`).toString("base64"))
         } catch { e => console.error("error reading files", e) };
       }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
-          console.log('images:', images)
           client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
@@ -574,8 +564,6 @@ io.on('connection', (client) => {
   });
 
   client.on('saveDebouncedNotes', (data) => {
-    console.log('attempting to write notes');
-    console.log(data.notes);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes);
   });
 
@@ -626,22 +614,15 @@ io.on('connection', (client) => {
     db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
       .then((res) => {
         let meetingDetails = res[0];
-        console.log(meetingDetails);
         let images = [];
-        console.log(data.link_to_initial_files.length);
-        console.log(data.link_to_initial_files);
         for (let i = 0; i < data.link_to_initial_files.length; i++) { //replace 3 with data.extensions.length
           try {
-            console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`)
             let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i].split('.')[0]}.jpg`);
-            console.log('image is', image)
             images.push("data:image/jpg;base64," + image.toString("base64"))
           } catch (err) {
             console.error("error reading files", err)
           };
         }
-        // console.log('images.map(image =>"data:image/jpg;base64," + image.toString("base64")):', images.map(image => "data:image/jpg;base64," + image.toString("base64")));
-        console.log('length of images sent', images.length);
         client.emit('notesFetched',
           {
             usersMeetings: res[0],

@@ -1,8 +1,8 @@
-@import '../../theme/variables';
+@import "../../theme/variables";
 
 .meeting-list {
   padding-left: 0;
-  margin-bottom: 124px
+  margin-bottom: 124px;
 }
 
 .meeting-list-item {
@@ -55,7 +55,7 @@
 
 .attendees {
   list-style-type: none;
-  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.43;
@@ -75,3 +75,7 @@
 //   overflow: auto;
 //   padding-bottom: calc(70px + 0.875rem);
 // }
+
+.MuiInputBase-root.MuiInput-root.MuiInput-underline.MuiInputBase-formControl.MuiInput-formControl.MuiInputBase-adornedEnd {
+  justify-content: space-between;
+}
