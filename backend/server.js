@@ -20,6 +20,9 @@ const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
 const colors = require('./colors.json')["colors"];
 
+// import helper functions
+const { handleError } = require('./functions/handleError');
+
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
@@ -98,6 +101,9 @@ const notify = function(userId, notification) {
         if (activeUsers[userId]) {
           activeUsers[userId].socket.emit('notify', notification);
         }
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   }
 
@@ -111,6 +117,9 @@ const notify = function(userId, notification) {
         if (activeUsers[userId]) {
           activeUsers[userId].socket.emit('notify', notification);
         }
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   }
 }
@@ -169,6 +178,9 @@ io.on('connection', (client) => {
               .then(res => {
                 client.emit('allNotifications', res);
               })
+              .catch(error => {
+                handleError(error, client);
+              });
             activeUsers.addUser(user, client);
 
             client.on('disconnect', () => {
@@ -187,13 +199,15 @@ io.on('connection', (client) => {
   });
 
   client.on('registrationAttempt', (data) => {
+    console.log('someone is trying to register')
     authenticator.register(data.username, data.email, data.password)
       .then(res => {
-        console.log('registration attempt', res);
+        console.log('registration attempt successful', res);
         delete res[0].password;
           client.emit('WelcomeYaBogeyBastard', (res[0]));
       })
       .catch(error => {
+        console.log('failed register attempt');
         handleError(error, client);
       });
   });
@@ -264,6 +278,9 @@ io.on('connection', (client) => {
       .then(res => {
         user = { id: res.id, username: res.username, email: res.email };
         client.emit('user', user);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -272,6 +289,9 @@ io.on('connection', (client) => {
       .then(res => {
         console.log(res);
         client.emit('contactsByUserId', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -281,6 +301,9 @@ io.on('connection', (client) => {
       .then(res => {
         console.log(res);
         client.emit('contactsGlobal', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   })
 
@@ -288,6 +311,9 @@ io.on('connection', (client) => {
     db.fetchMeetingsByUserId(data.username, data.meetingStatus)
       .then(res => {
         client.emit('meetings', res);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -300,6 +326,9 @@ io.on('connection', (client) => {
     db.insertUser(credentials.username, credentials.email, credentials.password)
       .then(res => {
         client.emit('loginAttempt', credentials.username);
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -317,10 +346,9 @@ io.on('connection', (client) => {
             if (data.file.name.search(/\.pdf$/ig) !== -1) {
 
               console.log(data.file.name);
-              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
+              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (error) => {
                 if (err) {
-                  console.log('problem');
-                  throw err;
+                  handleError(error, client);
                 }
                 console.log('The file has been saved!');
 
@@ -328,18 +356,21 @@ io.on('connection', (client) => {
 
                 // console.log(pdfImage);
 
-                pdfImage.convertPage(0).then(function(imagePath) {
-                  // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                  fs.existsSync("/tmp/slide-0.png") // => true\
-                  console.log(imagePath);
-                })
-                  .catch((error) => {
-                    console.log(error);
+                pdfImage.convertPage(0)
+                  .then(function(imagePath) {
+                    // 0-th page (first page) of the slide.pdf is available as slide-0.png
+                    fs.existsSync("/tmp/slide-0.png") // => true\
+                    console.log(imagePath);
                   })
+                  .catch(error => {
+                    handleError(error, client);
+                  });
               }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
             } else {
-              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (err) => {
-                if (err) throw err;
+              fs.writeFile(`meeting_files/${id}/${data.file.name}`, data.file.payload, (error) => {
+                if (error) {
+                  handleError(error, client)
+                };
                 console.log('The file has been saved!');
               }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
             }
@@ -367,12 +398,18 @@ io.on('connection', (client) => {
             }
           });
       })
+      .catch(error => {
+        handleError(error, client);
+      });
   });
 
   client.on('insertUsersMeeting', data => {
     db.insertUsersMeeting(data.userId, data.meetingId)
       .then(() => {
         client.emit('invitedUsers');
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -411,6 +448,9 @@ io.on('connection', (client) => {
               }
             }
           });
+      })
+      .catch(error => {
+        handleError(error, client);
       });
   });
 
@@ -440,10 +480,9 @@ io.on('connection', (client) => {
       } else {
         img = meetingDetails.link_to_initial_doc;
       }
-      fs.readFile(`meeting_files/${data.meetingId}/${img}`, (err, image) => {
-        if (err) {
-          console.error;
-          image = "";
+      fs.readFile(`meeting_files/${data.meetingId}/${img}`, (error, image) => {
+        if (error) {
+          handleError(error, client);
         }
         console.log("sending these pixels");
         console.log(meetingDetails.userPixels);
@@ -457,6 +496,9 @@ io.on('connection', (client) => {
             client.join(data.meetingId);
 
             io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
+          })
+          .catch(error => {
+            handleError(error, client);
           });
       });
     } else {

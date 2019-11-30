@@ -1,4 +1,4 @@
-export default function generateErrorMessage(error) {
+const generateErrorMessage = function(error) {
 
   switch (error.table) {
     case 'users':
@@ -65,7 +65,7 @@ const handleFriendsError = function (error) {
   }
 }
 
-const handleFriendsError = function (error) {
+const handleNotificationsError = function (error) {
 
   switch (error.constraint) {
     case '':
@@ -88,3 +88,5 @@ const handleDmsError = function (error) {
       return 'Sorry, we had an error! Please refresh the page';
   }
 }
+
+module.exports = { generateErrorMessage };
