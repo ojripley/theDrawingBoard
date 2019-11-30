@@ -46,7 +46,7 @@ export default function DetailedHistory(props) {
   };
 
   const changePage = (direction) => {
-    if (direction === 'prev') {
+    if (direction === 'back') {
       setViewPage(viewPage - 1);
     } else if (direction === 'next') {
       setViewPage(viewPage + 1);
