@@ -310,7 +310,8 @@ io.on('connection', (client) => {
 
   client.on('insertMeeting', async (data) => {
     // console.log('files', Object.keys(data.files).length)
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files).map(name => name.split('.')[1]), Object.keys(data.files).length) //we no longer need the link_to_initial_doc column
+
+    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length)
       .then(res => {
         client.emit('newMeeting', res[0]);
         console.log(res[0]);
@@ -326,24 +327,24 @@ io.on('connection', (client) => {
             console.log('name:', name);
             // const file = data.files[i];
             console.log('file is:', file);
-            if (name) { //Only save the file if one exists, otherwise just have an empty folder
+            if (name !== "DEFAULT_IMAGE") { //Only save the file if one exists, otherwise just have an empty folder
               //Check if pdf
               if (name.search(/\.pdf$/ig) !== -1) {
 
                 console.log(name);
-                fs.writeFile(`meeting_files/${id}/image.${name.split('.')[1]}`, file, (err) => {
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
                   if (err) {
                     console.log('problem');
                     throw err;
                   }
                   console.log('The file has been saved!');
 
-                  let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
+                  let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
 
 
                   pdfImage.convertFile().then(function(imagePath) {
                     // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                    db.updatePagesByMeetingId(id, imagePath.length, imagePath.map(val => "png"));
+                    db.updatePagesByMeetingId(id, imagePath.length, imagePath);
                     console.log(imagePath);
                   })
                     .catch((error) => {
@@ -352,7 +353,7 @@ io.on('connection', (client) => {
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
               } else {
                 //Regular images get saved as image-#
-                fs.writeFile(`meeting_files/${id}/image-${i}.${name.split('.')[1]}`, file, (err) => {
+                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
                   if (err) throw err;
                   console.log('The file has been saved!');
                 }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
@@ -403,9 +404,13 @@ io.on('connection', (client) => {
 
             // set meeting pixel log
             meeting['numPages'] = meeting.num_pages;
+            meeting['link_to_initial_files'] = meeting.link_to_initial_files;
             meeting['userPixels'] = [];
-            // var n = 100;
-            // var sample = new Array();
+
+            if (meeting.num_pages === 0) { //blank canvas
+              meeting['userPixels'].push(new Object()); //create a single page
+            }
+
             for (var i = 0; i < meeting.num_pages; i++) {
               meeting['userPixels'].push(new Object());
             }
@@ -445,6 +450,12 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
+    if (meetingDetails['numPages'] === 0) {
+      if (!meetingDetails.userPixels[0][data.user.id]) {
+        meetingDetails.userPixels[0][data.user.id] = [];
+      }
+    }
+
     for (let i = 0; i < meetingDetails['numPages']; i++) { //for each page
       //Create userPixels array for that user if it doesn't already exist
       if (!meetingDetails.userPixels[i][data.user.id]) {
@@ -458,8 +469,8 @@ io.on('connection', (client) => {
 
         try {
           //reads the files sychronously
-          console.log(`searching for ./meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`)
-          images.push("data:image/jpg;base64," + fs.readFileSync(`meeting_files/${data.meetingId}/image-${i}.${meetingDetails.extensions[i]}`).toString("base64"))
+          console.log(`searching for ./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`)
+          images.push("data:image/jpg;base64," + fs.readFileSync(`./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`).toString("base64"))
         } catch { e => console.error("error reading files", e) };
       }
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
@@ -473,8 +484,9 @@ io.on('connection', (client) => {
     } else { //FIX LOGIC
       db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
         .then((res) => {
+          images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
 
-          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, image: "" });
+          client.emit('enteredMeeting', { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
           client.join(data.meetingId);
           io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
@@ -497,10 +509,9 @@ io.on('connection', (client) => {
   client.on('endMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
-
     for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-      let img = `image-${i}.png`;
+      let img = meetingDetails['link_to_initial_files'][i];//`image-${i}.png`;
 
       fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image[i].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
         if (err) throw err;
