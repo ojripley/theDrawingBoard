@@ -115,9 +115,13 @@ export default function Login(props) {
     }
   };
 
-  const onEnter = event => {
+  const onEnter = (event, form) => {
     if (event.charCode === 13) {
-      handleLogin();
+      if (form === 'login') {
+        handleLogin();
+      } else {
+        handleRegister();
+      }
     }
   };
 
@@ -191,6 +195,7 @@ export default function Login(props) {
             color="secondary"
             type={showConfirmPassword ? 'text' : 'password'}
             value={confirmPassword}
+            onKeyPress={event => onEnter(event, 'register')}
             onChange={event => setConfirmPassword(event.target.value)}
             InputProps={{
               endAdornment:
@@ -224,7 +229,7 @@ export default function Login(props) {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={event => setPassword(event.target.value)}
-            onKeyPress={onEnter}
+            onKeyPress={event => onEnter(event, 'login')}
             InputProps={{
               endAdornment:
                 <InputAdornment position="end">
