@@ -147,115 +147,110 @@ export default function Login(props) {
   });
 
   return (
-    <div id='app-container'>
-      <div className={`container ${!showLogin && 'active-panel'}`} id="container">
-        <div className="form-container sign-up-container">
-          <div className='form'>
+    <div className={`container ${!showLogin ? 'active-panel' : ''}`} id="container">
+      <div className="form-container sign-up-container">
+        <div className='form'>
 
-            <Typography variant='h2' color='primary'>Register</Typography>
-            <Divider color='primary' />
-            <TextField
-              id="username"
-              label="Username"
-              color="secondary"
-              value={username}
-              onChange={event => setUsername(event.target.value)}
-            />
-            <TextField
-              id="email"
-              label="Email"
-              color="secondary"
-              value={email}
-              onChange={event => setEmail(event.target.value)}
-            />
-            <TextField
-              id="password"
-              label="Password"
-              color="secondary"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={event => setPassword(event.target.value)}
-              InputProps={{
-                endAdornment:
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-              }}
-            />
-            <TextField
-              id="confirm-password"
-              label="Confirm Password"
-              color="secondary"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={event => setConfirmPassword(event.target.value)}
-              InputProps={{
-                endAdornment:
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-              }}
-            />
-            <Button variant="contained" color='secondary' onClick={handleRegister}>Register</Button>
-          </div>
+          <Typography variant='h2' color='primary'>Register</Typography>
+          <TextField
+            id="username"
+            label="Username"
+            color="secondary"
+            value={username}
+            onChange={event => setUsername(event.target.value)}
+          />
+          <TextField
+            id="email"
+            label="Email"
+            color="secondary"
+            value={email}
+            onChange={event => setEmail(event.target.value)}
+          />
+          <TextField
+            id="password"
+            label="Password"
+            color="secondary"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={event => setPassword(event.target.value)}
+            InputProps={{
+              endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+            }}
+          />
+          <TextField
+            id="confirm-password"
+            label="Confirm Password"
+            color="secondary"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={event => setConfirmPassword(event.target.value)}
+            InputProps={{
+              endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+            }}
+          />
+          <Button className='login-button' variant="contained" color='secondary' onClick={handleRegister}>Register</Button>
         </div>
-        <div className="form-container sign-in-container">
-          <div className='form'>
-            <Typography variant='h2' color='primary'>Login</Typography>
-            <Divider color='primary' />
-            <TextField
-              id="email"
-              label="Email"
-              color="secondary"
-              value={email}
-              onChange={event => setEmail(event.target.value)}
-            />
-            <TextField
-              id="password"
-              label="Password"
-              color="secondary"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={event => setPassword(event.target.value)}
-              onKeyPress={onEnter}
-              InputProps={{
-                endAdornment:
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-              }}
-            />
-            <Button variant="contained" color='secondary' onClick={handleLogin}>Login</Button>
-          </div>
+      </div>
+      <div className="form-container sign-in-container">
+        <div className='form'>
+          <Typography variant='h2' color='primary'>Login</Typography>
+          <TextField
+            id="email"
+            label="Email"
+            color="secondary"
+            value={email}
+            onChange={event => setEmail(event.target.value)}
+          />
+          <TextField
+            id="password"
+            label="Password"
+            color="secondary"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={event => setPassword(event.target.value)}
+            onKeyPress={onEnter}
+            InputProps={{
+              endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+            }}
+          />
+          <Button className='login-button' variant="contained" color='secondary' onClick={handleLogin}>Login</Button>
         </div>
-        <div className="overlay-container">
-          <div className="overlay">
-            <div className="overlay-panel overlay-top">
-              <Typography variant='h2' color='secondary'>Welcome Back!</Typography>
-              <Divider color='primary' />
-              <Typography variant='overline'>To keep connected with us please login with your personal info</Typography>
-              <Button className="ghost" id="signIn" onClick={() => setShowLogin(true)}>Sign In</Button>
-            </div>
-            <div className="overlay-panel overlay-bottom">
-              <Typography variant='h2' color='secondary'>Hello, Friend!</Typography>
-              <Typography variant='overline'>Enter your personal details and start journey with us</Typography>
-              <Button className="ghost" id="signUp" onClick={() => setShowLogin(false)}>Sign Up</Button>
-            </div>
+      </div>
+      <div className="overlay-container">
+        <div className="overlay">
+          <div className="overlay-panel overlay-top">
+            <Typography variant='h2' color='secondary'>Welcome Back!</Typography>
+            <Typography variant='overline'>Please login with your personal info</Typography>
+            <Button variant='contained' id="signIn" onClick={() => setShowLogin(true)}>Sign In</Button>
+          </div>
+          <div className="overlay-panel overlay-bottom">
+            <Typography variant='h2' color='secondary'>Hello, Friend!</Typography>
+            <Typography variant='overline'>Start your journey with us</Typography>
+            <Button variant='contained' id="signUp" onClick={() => setShowLogin(false)}>Sign Up</Button>
           </div>
         </div>
       </div>

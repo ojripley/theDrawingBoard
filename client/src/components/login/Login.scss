@@ -5,8 +5,9 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   position: relative;
   overflow: hidden;
-  margin-top: 56px;
-  width: 100%;
+  margin-top: 100px;
+  width: 94%;
+  max-width: 500px;
   height: 80vh;
 }
 
@@ -21,7 +22,20 @@
   text-align: center;
 }
 
+button.MuiButtonBase-root.MuiButton-root.MuiButton-contained.login-button.MuiButton-containedSecondary {
+  margin-top: 1.5em;
+}
+
+input.MuiInputBase-input.MuiInput-input {
+  width: 256px;
+}
+
+input.MuiInputBase-input.MuiInput-input.MuiInputBase-inputAdornedEnd {
+  width: 200px;
+}
+
 .form-container {
+  background-color: #fff;
   position: absolute;
   left: 0;
   width: 100%;
@@ -35,6 +49,7 @@
 }
 
 .sign-up-container {
+  top: 0;
   height: 50%;
   opacity: 0;
   z-index: 1;
@@ -102,8 +117,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: row;
-  padding: 40px 0px;
+  flex-direction: column;
   text-align: center;
   left: 0;
   width: 100%;
@@ -127,4 +141,8 @@
 
 .container.active-panel .overlay-bottom {
   transform: translateY(20%);
+}
+
+#signUp, #signIn {
+  margin-top: 1em;
 }
