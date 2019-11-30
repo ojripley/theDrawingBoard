@@ -12,7 +12,7 @@ const fetchUserByEmail = function(email) {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -32,13 +32,12 @@ const fetchContactsByUserId = function(user_id, username = '') {
     OR (friends.user_id = $1
     AND username ILIKE $2
     AND friends.relation = 'accepted');
-
   `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
 
@@ -48,41 +47,22 @@ const fetchUsersByUsername = function (username = '', id) {
   const vars = [`%${username}%`, id];
 
   return db.query(`
-select id, username, relation from users left join friends on users.id = friends.user_id where username ilike $1 and (friend_id is null)
-union
-select id, username, null as relation from users join friends on users.id=friends.user_id where username ilike $1 and id != $2 group by id having($2 != all(array_agg(friend_id)));  `, vars)
+    select id, username, relation
+    from users left join friends on users.id = friends.user_id
+    where username ilike $1 and (friend_id is null)
+    union
+    select id, username, null as relation
+    from users join friends on users.id=friends.user_id
+    where username ilike $1 and id != $2
+    group by id having($2 != all(array_agg(friend_id)));
+  `, vars)
     .then(res => {
       return res.rows;
     })
     .catch(error => {
-      console.error('Query Error', error);
+      throw error;
     });
 };
-
-
-// const fetchMeetingsByUserId = function(username, meeting_status) {
-
-//   const vars = [username, meeting_status];
-
-//   return db.query(`
-//     SELECT start_time, end_time, name, description, active, link_to_final_doc, (select users.username FROM users WHERE users.id = meetings.owner_id) AS owner_username, meetings.id, status, array_agg(users.username) AS invited_users, array_agg(users.id) AS attendee_ids FROM meetings
-//     JOIN users_meetings ON users_meetings.meeting_id = meetings.id
-//     JOIN users ON users.id = users_meetings.user_id
-//     WHERE meetings.status = $2
-//     GROUP BY meetings.id
-//     HAVING $1 = any(array_agg(users.username))
-//     ORDER BY start_time
-//     LIMIT 20;
-//   `, vars)
-//     .then(res => {
-//       return res.rows;
-//     })
-//     .catch(error => {
-//       console.error('Query Error', error);
-//     });
-// };
-
-
 
 
 
