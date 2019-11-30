@@ -27,13 +27,15 @@ const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
+    width: '40vw',
+    minWidth: '260px'
   },
   textField: {
-    minWidth: '240px',
+    width: 'auto',
     height: 'auto'
   },
   formControl: {
-    minWidth: '240px'
+    width: 'auto',
   },
   chips: {
     display: 'flex',
@@ -54,7 +56,7 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     zIndex: '-1',
   },
-  label : {
+  label: {
     marginTop: '1em'
   }
 }));
@@ -85,7 +87,7 @@ export default function Form(props) {
   const theme = useTheme();
 
   const [contacts, setContacts] = useState([]);
-  // const [fileArray, setFileArray] = useState([]);
+  const [fileCount, setfileCount] = useState("");
 
   useEffect(() => {
     if (props.socketOpen) {
@@ -121,8 +123,13 @@ export default function Form(props) {
   const handleFileUpload = event => {
     if (event.target.files) {
       console.log('event.target.files:', event.target.files);
-      props.setFiles( event.target.files );
-      // setFileArray(event.target.files.);
+      let files = event.target.files;
+      props.setFiles(files);
+      let tempfileCount = [];
+      for (let i = 0; i < files.length; i++) {
+        tempfileCount.push(files.item(i).name);
+      }
+      setfileCount(`${tempfileCount.length} files selected`);
     }
   };
 
@@ -140,70 +147,73 @@ export default function Form(props) {
   });
 
   return (
-      <div className={classes.container} noValidate autoComplete="off">
-        <TextField
-          label="Name"
-          placeholder='Meeting Name'
-          className={classes.textField}
+    <div className={classes.container} noValidate autoComplete="off">
+      <TextField
+        label="Name"
+        placeholder='Meeting Name'
+        className={classes.textField}
+        margin="normal"
+        onChange={handleMeetingNameChange}
+        inputProps={{ maxLength: 30 }}
+        required
+      />
+      <TextField
+        label="Description"
+        multiline
+        margin='normal'
+        placeholder='Meeting Description'
+        className={classes.textField}
+        margin="normal"
+        onChange={handleMeetingDescChange}
+      />
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <KeyboardDateTimePicker
           margin="normal"
-          onChange={handleMeetingNameChange}
-          inputProps={{ maxLength: 30 }}
-          required
+          id="date-picker-dialog"
+          label="Date &amp; Time"
+          format="yyyy/MM/dd hh:mm a"
+          value={props.selectedDate}
+          onChange={handleDateChange}
+          disablePast
+          orientation='portrait'
         />
-        <TextField
-          label="Description"
-          multiline
-          placeholder='Meeting Description'
-          className={classes.textField}
-          margin="normal"
-          onChange={handleMeetingDescChange}
-        />
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDateTimePicker
-            margin="normal"
-            id="date-picker-dialog"
-            label="Date &amp; Time"
-            format="yyyy/MM/dd hh:mm a"
-            value={props.selectedDate}
-            onChange={handleDateChange}
-            disablePast
-            orientation='portrait'
-          />
-        </MuiPickersUtilsProvider>
-        <FormControl className={classes.formControl}>
-          <InputLabel id="demo-mutiple-chip-label">Contacts</InputLabel>
-          <Select
-            labelId="demo-mutiple-chip-label"
-            id="demo-mutiple-chip"
-            multiple
-            value={props.selectedContacts}
-            onChange={handleContactChange}
-            input={<Input id="select-multiple-chip" />}
-            renderValue={selected => (
-              <div className={classes.chips}>
-                {selected.map(value => (
-                  <Chip key={value.id} label={value.username} className={classes.chip} />
-                ))}
-              </div>
-            )}
-            MenuProps={MenuProps}
-          >
-            {contactsList}
-          </Select>
-        </FormControl>
-          <input
-            id='upload-initial-doc'
-            className={classes.file}
-            type='file'
-            onChange={handleFileUpload}
-            accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
-            multiple
-          />
-          <label className={classes.label} htmlFor='upload-initial-doc'>
-            <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
-              Upload
+      </MuiPickersUtilsProvider>
+      <FormControl className={classes.formControl}>
+        <InputLabel id="demo-mutiple-chip-label">Contacts</InputLabel>
+        <Select
+          labelId="demo-mutiple-chip-label"
+          id="demo-mutiple-chip"
+          multiple
+          margin='normal'
+          value={props.selectedContacts}
+          onChange={handleContactChange}
+          input={<Input id="select-multiple-chip" />}
+          renderValue={selected => (
+            <div className={classes.chips}>
+              {selected.map(value => (
+                <Chip key={value.id} label={value.username} className={classes.chip} />
+              ))}
+            </div>
+          )}
+          MenuProps={MenuProps}
+        >
+          {contactsList}
+        </Select>
+      </FormControl>
+      <input
+        id='upload-initial-doc'
+        className={classes.file}
+        type='file'
+        onChange={handleFileUpload}
+        accept=".pdf,.jpeg, .png,.gif,.svg,.tiff,.ai,.jpg"
+        multiple
+      />
+      <label className={classes.label} htmlFor='upload-initial-doc'>
+        <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
+          Upload
             </Button>
-          </label>
-      </div>
+        {fileCount}
+      </label>
+    </div>
   );
 }
