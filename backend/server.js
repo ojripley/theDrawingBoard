@@ -171,6 +171,9 @@ io.on('connection', (client) => {
             client.on('disconnect', () => {
               activeUsers.removeUser(user.id);
             });
+          })
+          .catch(error => {
+            handleError(error, client);
           });
       } catch (err) {
         console.error('Cookie authentication failed!');

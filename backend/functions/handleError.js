@@ -1,8 +1,8 @@
-export default function handleError(error, client || null) {
+export default function handleError(error, client) {
 
   console.log(error);
 
-  const msg = generateErrorMessage(error);
+  const error = generateErrorMessage(error);
 
   if (client) {
     client.emit(msg, client);
