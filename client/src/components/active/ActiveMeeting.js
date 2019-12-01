@@ -92,7 +92,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const textareaRef = useRef(null);
 
-  console.log('at 0', initialPixels[0])
 
 
   const handleInput = (e) => {
@@ -165,7 +164,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
     socket.on('requestNotes', res => {
       setLoading(true);
-      socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes });
+      socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes, meetingName: res.meetingName });
     });
 
     socket.on('concludedMeetingId', res => {

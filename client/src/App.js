@@ -327,22 +327,23 @@ export default function App() {
 
       socket.on('notify', data => {
         console.log(data);
+        if (!inMeeting) {
+          setNotificationList(prev => [...prev, data]);
+          store.addNotification({
+            title: `${data.type}`,
+            message: `${data.msg}`,
+            type: "custom",
+            insert: "top",
+            container: "top-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 2000,
+              onScreen: true
+            }
+          });
+        }
 
-        setNotificationList(prev => [...prev, data]);
-
-        store.addNotification({
-          title: `${data.type}`,
-          message: `${data.msg}`,
-          type: "custom",
-          insert: "top",
-          container: "top-right",
-          animationIn: ["animated", "fadeIn"],
-          animationOut: ["animated", "fadeOut"],
-          dismiss: {
-            duration: 2000,
-            onScreen: true
-          }
-        });
       })
 
       socket.on('cookieResponse', data => {
@@ -352,6 +353,7 @@ export default function App() {
       });
 
       return () => {
+        socket.off('notify');
         socket.off('cookieResponse');
         socket.off('meeting');
       }
