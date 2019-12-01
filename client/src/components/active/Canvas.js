@@ -129,6 +129,16 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
+    window.onresize = () => {
+      // drawCanvasRef.current.width = window.innerWidth;
+      // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
+      [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+      dispatch({ type: REDRAW, payload: { page: page } });
+
+      if (backgroundImage.src) {
+        imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      }
+    }
     // setImageCtx(prev => {
 
     // imageCanvasRef.current.width = window.innerWidth;
