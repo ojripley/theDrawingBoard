@@ -35,6 +35,8 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '15px 15px',
     border: 'none',
     padding: '0.5em 0.75em 0',
+    position: 'fixed',
+    bottom: '20px'
   },
   center: {
     display: 'flex',
@@ -105,9 +107,15 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   const handleCaret = e => {
-    var temp_value = e.target.value
+    const temp_value = e.target.value
     e.target.value = ''
     e.target.value = temp_value
+  }
+
+  const handleEscape = e => {
+    if (e.keyCode === 27) {
+      setWriteMode(false);
+    }
   }
 
   // const mergeWithImage = (imageCanvas) => {
@@ -266,8 +274,10 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
                 defaultValue={meetingNotes}
                 className={classes.textareaAutosize}
                 onChange={event => handleInput(event)}
+                onKeyUp={handleEscape}
                 onFocus={handleCaret}
                 rows='2'
+                rowsMax='4'
               />
               <InputIcon onClick={() => setWriteMode(prev => !prev)} />
             </div>
