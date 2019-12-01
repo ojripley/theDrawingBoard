@@ -181,7 +181,6 @@ export default function App() {
                   console.log('stream closed');
                   console.log(call);
 
-
                   // call cleanup
 
                   const tempStreams = streams;
@@ -226,7 +225,6 @@ export default function App() {
               });
           } else {
             console.log('user is me, disregard');
-            // setNewParticipant(false);
           }
         });
       }
