@@ -18,6 +18,7 @@ import Contacts from './components/contacts/Contacts';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 import Login from './components/login/Login';
+import Error from './components/Error';
 import AudioPlayer from './AudioPlayer';
 
 //Custom hooks
@@ -30,11 +31,12 @@ export default function App() {
   const CONTACTS = 'CONTACTS';
   const NOTIFICATIONS = 'NOTIFICATIONS';
 
-  // global modes
+  // global state
   const { socket, socketOpen } = useSocket();
   const [mode, setMode] = useState(DASHBOARD);
   const [loading, setLoading] = useState(true);
-  const [error, setLoginError] = useState(false);
+  const [loginError, setLoginError] = useState(false);
+  const [error, setError] = useState(null);
 
   // meeting state
   const [inMeeting, setInMeeting] = useState(false);
@@ -67,17 +69,28 @@ export default function App() {
     if (socketOpen) {
       console.log('listening for error');
       socket.on('fuckUSocketIO', (data) => {
-        console.log(data);
-        setLoginError(true);
+        const error = data;
+        console.log(error);
+        if (error.type === 'login') {
+          setLoginError({
+            type: error.type,
+            msg: error.msg
+          });
+        } else {
+          setError({
+            type: error.type,
+            msg: error.msg
+          });
+        }
       });
     }
 
     return () => {
       if (socketOpen) {
-        socket.off('error');
+        socket.off('fuckUSocketIO');
       }
     }
-  }, [error, socket, socketOpen]);
+  }, [error, socket, socketOpen, loginError]);
 
 
   // set peer on enter meeting
@@ -363,12 +376,13 @@ export default function App() {
 
   return (
     <>
+      {error && <ThemeProvider theme={theme}><div></div><Error error={error}/></ThemeProvider>}
       {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
       <ThemeProvider theme={theme}>
         {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
         {!user ?
-          <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+          <Login setUser={setUser} socket={socket} socketOpen={socketOpen} setLoginError={setLoginError} error={loginError} />
           : inMeeting ?
             <>
               <div>{incomingStreams}</div>
@@ -430,7 +444,6 @@ export default function App() {
                     setMode={setMode}
                     setInitialExpandedMeeting={setInitialExpandedMeeting}
                   />}
-
               </div>
               <TabBar mode={mode} setMode={setMode} notificationList={notificationList} />
             </>

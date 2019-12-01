@@ -141,7 +141,7 @@ setInterval(() => {
     .catch(error => {
       handleError(error, client);
     });
-}, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
+}, 60000);
 
 
 
@@ -378,7 +378,6 @@ io.on('connection', (client) => {
   client.on('insertMeeting', async (data) => {
     try {
 
-
       res = await db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, "creating", null);
       let id = res[0].id;
       fs.mkdir(`meeting_files/${id}`, async () => {
@@ -445,8 +444,6 @@ io.on('connection', (client) => {
             }
 
             meeting['liveUsers'] = {};
-
-
             meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use
             meeting['userColors'] = colors;
@@ -455,7 +452,6 @@ io.on('connection', (client) => {
             meeting['colorMapping'] = {};
 
             const attendeeIds = meeting.invited_users;
-
 
             // keep track of active meetings
             activeMeetings.addMeeting(meeting);
@@ -553,7 +549,6 @@ io.on('connection', (client) => {
     db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("Update emeting failedD", err));
 
     io.to(data.meetingId).emit('requestNotes', { meetingId: data.meetingId, meetingName: meetingDetails.name });
-
 
     for (let id of meetingDetails.invited_users) {
       console.log('sending message to user#', id);
