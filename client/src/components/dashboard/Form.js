@@ -28,6 +28,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     width: '40vw',
+    maxWidth: '552px',
     minWidth: '260px'
   },
   textField: {

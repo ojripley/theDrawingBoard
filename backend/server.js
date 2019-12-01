@@ -37,7 +37,10 @@ activeMeetings = new ActiveMeetings();
 // import db operations
 const db = require('./db/queries/queries');
 
-db.clearToHistory();
+db.clearToHistory()
+.catch(error => {
+  console.log(error);
+});
 
 // CORS
 app.use(cors());
@@ -620,7 +623,7 @@ io.on('connection', (client) => {
             console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`)
             let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`);
             console.log('image is', image)
-            
+
             images.push("data:image/jpg;base64," + image.toString("base64"))
           } catch (err) {
             console.error("error reading files", err)
