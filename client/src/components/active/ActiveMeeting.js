@@ -8,6 +8,7 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
+import UserChip from './UserChip';
 
 import reducer, {
   SAVE
@@ -80,6 +81,8 @@ export default function ActiveMeeting({ socket,
 
 
   const classes = useStyles();
+
+  const [userChips, setUserChips] = useState(null);
 
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
@@ -201,23 +204,34 @@ export default function ActiveMeeting({ socket,
     }
   }, [writeMode]);
 
+  useEffect(() => {
 
-  const liveUsers = Object.keys(usersInMeeting).map((key) => {
-    const liveUser = usersInMeeting[key];
-    // return (
-    //   <LiveUsers
-    //     key={liveUser.id}
-    //     id={liveUser.id}
-    //     username={liveUser.id}
-    //   ></LiveUsers>
-    // )
-  });
+    const tempUserChips = Object.keys(usersInMeeting).map((key) => {
+      const liveUser = usersInMeeting[key];
+
+      console.log(liveUser);
+
+      return (
+        <UserChip
+          key={liveUser.id}
+          id={liveUser.id}
+          username={liveUser.username}
+        ></UserChip>
+      )
+    });
+
+    console.log(tempUserChips);
+
+    setUserChips(tempUserChips);
+
+  }, [usersInMeeting]);
 
 
   return (
     <>
       {imageLoaded &&
         <div className={classes.root}>
+          {userChips}
           <CanvasDrawer
             user={user}
             ownerId={ownerId}
