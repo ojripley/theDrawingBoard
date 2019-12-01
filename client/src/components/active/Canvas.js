@@ -27,7 +27,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   let imageCtx = useRef(undefined);
 
   const getScaledDimensions = (h, w, bh, bw) => { //possible scaling
-    if (bw > bh) {
+    if (bw >= bh) {
       setOrientation('landscape');
       return [w, bh === 0 ? h : (bh * w / bw)]
     } else {

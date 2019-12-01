@@ -13,9 +13,12 @@ import Slider from '@material-ui/core/Slider';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 
+import './CanvasDrawer.scss';
+
 const useStyles = makeStyles({
   list: {
-    width: 250,
+    width: '40vw',
+    minWidth: 250
   },
   center: {
     display: 'flex',
@@ -181,6 +184,7 @@ export default function CanvasDrawer(props) {
               <Button variant='contained' color='primary' className={classes.sendButton} onClick={handleMessageSend}>Send</Button>
             </ListItem>
           </List>
+          <Divider />
           <List>
             <ListItem button onClick={handleUndo}>Undo</ListItem>
             <ListItem id='penSelector' button aria-controls='simple-menu' aria-haspopup='true' onClick={() => handleTool('pen')}>Pen</ListItem>
