@@ -15,6 +15,7 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import Badge from '@material-ui/core/Badge'
 
 import './CanvasDrawer.scss';
+import { Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
@@ -36,7 +37,7 @@ const useStyles = makeStyles(theme => ({
   // },
   textareaAutosize: {
     resize: 'none',
-    width: '80%',
+    width: '85%',
     marginRight: 0,
     borderRadius: '15px 15px',
     border: 'none',
@@ -125,7 +126,6 @@ export default function CanvasDrawer(props) {
   const handleTool = (tool) => {
     props.setTool(tool);
     handleClose();
-    setOpenDrawer(false);
   }
 
   const handleMessage = event => {
@@ -208,31 +208,29 @@ export default function CanvasDrawer(props) {
               <Button variant='text' color='primary' className={classes.sendButton} onClick={handleMessageSend}>Send</Button>
             </ListItem>
           </List>
-          <Divider />
-          <List>
-            <ListItem button onClick={handleUndo}>Undo</ListItem>
-            <ListItem id='penSelector' button aria-controls='simple-menu' aria-haspopup='true' onClick={() => handleTool('pen')}>Pen</ListItem>
-
-            {/* <ListItem button onClick={() => props.setHighlighting(true)}>Highlighter</ListItem> */}
-            <ListItem id='highlighterSelector' button aria-controls='simple-menu2' aria-haspopup='true' onClick={() => handleTool('highlighter')}>Highlighter</ListItem>
-
-            <ListItem onClick={() => handleTool('pointer')} button>Pointer</ListItem>
-            <ListItem>
-              Size
+          <Divider color='secondary' />
+          <div id='pen-controls'>
+            <Button variant='outlined' color='secondary' size='small' onClick={handleUndo}>Undo</Button>
+            <div className='pens'>
+            <Button id='penSelector' variant={props.tool === 'pen' ? 'contained' : 'outlined'} color='primary' size='small' aria-controls='simple-menu' aria-haspopup='true' onClick={() => handleTool('pen')}>Pen</Button>
+            <Button id='highlighterSelector' variant={props.tool === 'highlighter' ? 'contained' : 'outlined'} color='primary' size='small' aria-controls='simple-menu2' aria-haspopup='true' onClick={() => handleTool('highlighter')}>Highlighter</Button>
+            <Button onClick={() => handleTool('pointer')} variant={props.tool === 'pointer' ? 'contained' : 'outlined'} color='primary' size='small'>Pointer</Button>
+            </div>
+            <div className='pens'>
+              <Typography variant='overline'>Size</Typography>
               <Slider
                 defaultValue={props.strokeWidth}
                 getAriaValueText={valueText}
                 aria-labelledby="discrete-slider-small-steps"
                 step={1}
-                marks
                 min={0}
                 max={20}
                 valueLabelDisplay="auto"
                 onChange={handleChange}
               />
-            </ListItem>
-          </List>
-          <Divider />
+            </div>
+          </div>
+          <Divider color='secondary' />
           <List>
             <ListItem button onClick={handleWrite}>Write Notes</ListItem>
           </List>
@@ -242,7 +240,7 @@ export default function CanvasDrawer(props) {
           </List>
           {props.user.id === props.ownerId &&
             <>
-              <Divider />
+              <Divider color='secondary' />
               <List>
                 <ListItem>
                   <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />

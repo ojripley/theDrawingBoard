@@ -50,3 +50,24 @@
   }
 
 }
+
+#pen-controls {
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+
+  .pens {
+    margin-top: 0.5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .MuiTypography-overline {
+      margin-right: 1em;
+    }
+
+  }
+}

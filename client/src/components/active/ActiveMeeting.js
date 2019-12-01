@@ -227,6 +227,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
             setStrokeWidth={setStrokeWidth}
             setHighlighting={setHighlighting}
             setPointing={setPointing}
+            tool={tool}
             setTool={setTool}
             page={page}
             totalPages={backgroundImage.length}
