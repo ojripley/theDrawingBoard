@@ -76,19 +76,15 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const [pointing, setPointing] = useState(false);
 
   const [page, setPage] = useState(0);
-  const finalCanvasRef = useRef(null);
+  const canviiRef = useRef([]);
 
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: {},
     color: pixelColor,
-    pointers: {}, //if needed make take the initial state from server
+    pointers: {},
     finishedSaving: Array(backgroundImage.length)
   });
-  // const [dataURL,setDataURL] = useState([]); //stores files to be sent
-  // let dataURL = Array(backgroundImage.length);
-  // const backgroundCanvas = useRef(null);
-
 
   const textareaRef = useRef(null);
 
@@ -106,29 +102,26 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     e.target.value = temp_value
   }
 
-  // const mergeWithImage = (imageCanvas) => {
 
-  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
-  //   // setImageCtx(prev => { //adds the click to the image canvas
-  //   // prev = imageCanvasRef.current.getContext('2d')
-  //   // imageCanvasRef.current.width = backgroundImage.width;
-  //   // imageCanvasRef.current.height = backgroundImage.height;
-  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
-  //   // });
-  // }
+
+  useEffect(() => { //Stores references to the canvases that are defined below
+    if (imageLoaded && backgroundImage) {
+      canviiRef.current = canviiRef.current.slice(0, backgroundImage.length)
+    }
+  }, [imageLoaded, backgroundImage, backgroundImage.length]);
+
+  const canvii = backgroundImage.map((image, index) => {
+    return <canvas key={index} className="sendingCanvas" ref={el => canviiRef.current[index] = el}></canvas>
+  });
 
   const endMeeting = () => {
-    //TODO: handle case with no image
-    // mergeWithImage();
-    // let sendingCanvas = (<canvas></canvas>);
     for (let i in backgroundImage) {
       console.log("working on", i);
       let bkgdImg = backgroundImage[i];
-      finalCanvasRef.current.width = bkgdImg.width;
-      finalCanvasRef.current.height = bkgdImg.height;
-      let sendingCtx = finalCanvasRef.current.getContext('2d');
+      canviiRef.current[i].width = bkgdImg.width;
+      canviiRef.current[i].height = bkgdImg.height;
+      let sendingCtx = canviiRef.current[i].getContext('2d');
+
       canvasState.ctx.drawImage(bkgdImg, 0, 0, bkgdImg.width, bkgdImg.height);
       dispatch({ type: SAVE, payload: { page: i, ctx: sendingCtx, backgroundImage: bkgdImg } });
     }
@@ -136,9 +129,16 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   useEffect(() => {
-    //Checks if all the saved images are done loading. FinishedSaving is an array of length equal to the length of the background images, intially with undefined values
-    //As images are prepped for saving, the entry is replaced with the data (base64) for the img. The below reduce counts the number of elements that are not undefined, and once that reaches the number of images an emit is made to the server with the data as an array
-    if (canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0) === backgroundImage.length) {
+
+    let countSaved = canvasState.finishedSaving.reduce((accumulator, current) => {
+      if (current) {
+        return accumulator + 1;
+      } else {
+        return accumulator;
+      }
+    }, 0);
+
+    if (countSaved === backgroundImage.length) {
 
       socket.emit('endMeeting', {
         meetingId: meetingId,
@@ -146,7 +146,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
         image: canvasState.finishedSaving
       })
     }
-
   }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
 
 
@@ -272,7 +271,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
               <CircularProgress color='secondary' />
             </div>
           }
-          <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas>
+          {/* <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas> */}
+          {canvii}
         </div>
       }
     </>
