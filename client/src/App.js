@@ -77,12 +77,11 @@ export default function App() {
             type: error.type,
             msg: error.msg
           });
-        } else {
+        }
           setError({
             type: error.type,
             msg: error.msg
           });
-        }
       });
     }
 
@@ -129,20 +128,15 @@ export default function App() {
           //  call cleanup
           const tempStreams = streams;
           const tempCalls = calls;
-
-          console.log('removing call with', call['peer']);
-          console.log(streams);
-
-          console.log(tempStreams[call['peer']]);
+          const tempUsersInMeeting = usersInMeeting;
 
           delete tempStreams[call['peer']];
           delete tempCalls[call['peer']];
+          delete tempUsersInMeeting[call['peer']];
 
           setStreams(tempStreams);
           setCalls(tempCalls);
-
-          console.log('streams', streams);
-          console.log('calls', calls);
+          setUsersInMeeting(tempUsersInMeeting);
 
           setNewCall({
             newPeer: null,
@@ -175,10 +169,12 @@ export default function App() {
           // log who that is
           console.log('new user', data.user.username);
 
+          const liveUserId = 'theDrawingBoard' + data.user.id;
+
           // add that user to the active people in the meeting
           setUsersInMeeting(prev => ({
             ...prev,
-            'data.user.id': data.user
+            liveUserId: data.user
           }));
 
           // make sure it isn't yourself
@@ -201,21 +197,18 @@ export default function App() {
                   console.log('stream closed');
                   console.log(call);
 
-                  // call cleanup
-
+                  //  call cleanup
                   const tempStreams = streams;
                   const tempCalls = calls;
-
-                  console.log('removing call with', call['peer']);
-                  console.log(streams);
-
-                  console.log(tempStreams[call['peer']]);
+                  const tempUsersInMeeting = usersInMeeting;
 
                   delete tempStreams[call['peer']];
                   delete tempCalls[call['peer']];
+                  delete tempUsersInMeeting[call['peer']];
 
                   setStreams(tempStreams);
                   setCalls(tempCalls);
+                  setUsersInMeeting(tempUsersInMeeting);
 
                   console.log('streams', streams);
                   console.log('calls', calls);

@@ -59,7 +59,25 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, setLoading, pixelColor }) {
+export default function ActiveMeeting({ socket,
+  socketOpen,
+  initialNotes,
+  user,
+  meetingId,
+  setInMeeting,
+  ownerId,
+  setMeetingId,
+  setMode,
+  imageLoaded,
+  setImageLoaded,
+  backgroundImage,
+  setBackgroundImage,
+  initialPixels,
+  setLoading,
+  pixelColor,
+  usersInMeeting
+}) {
+
 
   const classes = useStyles();
 
@@ -87,12 +105,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   const textareaRef = useRef(null);
 
-<<<<<<< HEAD
-=======
-  // console.log('at 0', initialPixels[0])
-
-
->>>>>>> production
   const handleInput = (e) => {
     console.log(e.target.value)
     setMeetingNotes(e.target.value);
@@ -188,6 +200,19 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       textareaRef.current.focus();
     }
   }, [writeMode]);
+
+
+  const liveUsers = Object.keys(usersInMeeting).map((key) => {
+    const liveUser = usersInMeeting[key];
+    // return (
+    //   <LiveUsers
+    //     key={liveUser.id}
+    //     id={liveUser.id}
+    //     username={liveUser.id}
+    //   ></LiveUsers>
+    // )
+  });
+
 
   return (
     <>
