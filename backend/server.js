@@ -38,9 +38,9 @@ activeMeetings = new ActiveMeetings();
 const db = require('./db/queries/queries');
 
 db.clearToHistory()
-.catch(error => {
-  console.log(error);
-});
+  .catch(error => {
+    console.log(error);
+  });
 
 // CORS
 app.use(cors());
@@ -345,104 +345,70 @@ io.on('connection', (client) => {
       });
   });
 
-  const saveImages = async (files) => { //Function to be used
+  const saveImages = async (files, id) => {
 
     let filenames = [];//Returns list of filenames
     for (const [name, file] of Object.entries(files)) {
       if (name.search(/\.pdf$/ig) !== -1) {
-        let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
+        fs.writeFileSync(`meeting_files/${id}/${name}`, file)
+        let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
+        console.log()
         try {
-          images = await pdfImage.convertFile();
-          images.then((imagePath) => filenames.push(...imagePath));
+          fullImagePath = await pdfImage.convertFile();
+          //Regex below converts strings like 'meeting_files/1/sample-0.png' to 'sample-0.png'
+          //Looks for the last '/' in the string and matches everything until (and including) '.png'.
+          imagePath = fullImagePath.map((fullpath) => fullpath.match(/(?<=\/)[^\/]*\.png/)[0]);
+          filenames.push(...imagePath);
         } catch (err) {
           console.error("Error saving pdf", error);
         }
 
       } else {
-        fs.writeFileSync(`meeting_files/${id}/${name}}`, file).catch((err) => {
-          console.log(err);
-        });
-        console.log('meeting_files/${id}/${name}} has been saved!');
-        console.log('meeting_files/${id}/${name}} has been saved!');
-        filenames.push(name);
+        try {
+          fs.writeFileSync(`meeting_files/${id}/${name}`, file)
+          filenames.push(name);
+        } catch (error) {
+          handleError(error, client);
+        };
       }
     }
     return filenames;
   }
 
   client.on('insertMeeting', async (data) => {
-    // console.log('files', Object.keys(data.files).length)
-
-    db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, data.status, Object.keys(data.files), Object.keys(data.files).length)
-      .then(res => {
-        client.emit('newMeeting', res[0]);
-        return res[0].id;
-      })
-      .then((id) => {
-        fs.mkdir(`meeting_files/${id}`, () => { //makes a new directory for the meeting
-          let i = -1;
-          for (const [name, file] of Object.entries(data.files)) {
-            i++;
-            if (name !== "DEFAULT_IMAGE") { //Only save the file if one exists, otherwise just have an empty folder
-              //Check if pdf
-              if (name.search(/\.pdf$/ig) !== -1) {
-
-                fs.writeFile(`meeting_files/${id}/${name}`, file, (error) => {
-                  if (error) {
-                    console.log('problem');
-                    handleError(error, client);
-                  }
-                  console.log('The file has been saved!');
-
-                  let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
+    try {
 
 
-                  pdfImage.convertFile().then(function(imagePath) {
-                    // 0-th page (first page) of the slide.pdf is available as slide-0.png
-                    db.updatePagesByMeetingId(id, imagePath.length, imagePath);
-                    console.log(imagePath);
-                  })
-                  .catch((error) => {
-                    handleError(error, client);
-                  });
-                }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
-              } else {
-                //Regular images get saved as image-#
-                fs.writeFile(`meeting_files/${id}/${name}`, file, (err) => {
-                  if (err) {
-                    handleError(err, client);
-                  }
-                  console.log('The file has been saved!');
-                }); //Note promisy this I if we want to wait for the upload to finish before creating meeting
-              }
-            }
-          }
-        });
+      res = await db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, "creating", null, null);
+      let id = res[0].id;
+      fs.mkdir(`meeting_files/${id}`, async () => {
+        let files = await saveImages(data.files, id);
+        console.log('Received these files:', files)
+        client.emit('newMeeting', res[0]); //move this emit to earlier to display to user that meeting is being created
+        await db.updateMeetingLinksAndStatusById(id, files.length, files, data.status);
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
           promiseArray.push(db.insertUsersMeeting(contact.id, id));
         }
 
-        return Promise.all(promiseArray).then(() => {
-          return id;
-        });
-      })
-      .then((id) => {
-        db.fetchMeetingWithUsersById(id)
-          .then(res => {
-            for (let contactId of res[0].attendee_ids) {
-              notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id });
-              if (activeUsers[contactId]) {
-                console.log(`${contactId} should now rerender`);
-                activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
-              }
-            }
-          });
-      })
-      .catch(error => {
-        handleError(error, client);
+        await Promise.all(promiseArray);
+
+        res = await db.fetchMeetingWithUsersById(id);
+
+        for (let contactId of res[0].attendee_ids) {
+          notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id });
+          if (activeUsers[contactId]) {
+            console.log(`${contactId} should now rerender`);
+            activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
+          }
+        }
       });
+    }
+    catch (error) {
+      console.log('Could not create the meeting');
+      handleError(error, client);
+    }
   });
 
   client.on('insertUsersMeeting', data => {

@@ -65,7 +65,7 @@ const fetchUsersByUsername = function(username = '', id) {
 };
 
 
-const fetchMeetingsByUserId = function (username, meeting_status) {
+const fetchMeetingsByUserId = function(username, meeting_status) {
 
   const vars = [username, meeting_status];
 
@@ -122,20 +122,7 @@ const fetchMeetingById = function(meeting_id) {
     });
 };
 
-const updatePagesByMeetingId = function (meeting_id, num_pages, link_to_initial_files) {
-  const vars = [meeting_id, num_pages, link_to_initial_files];
 
-  return db.query(`
-    UPDATE meetings
-    SET
-      num_pages = $2,
-      link_to_initial_files = $3
-    WHERE id = $1;
-  `, vars)
-    .catch(error => {
-      throw error;
-    });
-}
 
 const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
   const vars = [user_id, meeting_id];
@@ -329,6 +316,22 @@ const updateMeetingById = function(meeting_id, end_time, active, status) {
     });
 }
 
+const updateMeetingLinksAndStatusById = function(meeting_id, num_pages, link_to_initial_files, status) {
+  const vars = [meeting_id, num_pages, link_to_initial_files, status];
+
+  return db.query(`
+    UPDATE meetings
+    SET
+      num_pages = $2,
+      link_to_initial_files = $3,
+      status = $4
+    WHERE id = $1;
+  `, vars)
+    .catch(error => {
+      throw error;
+    });
+}
+
 const deleteContact = function(user_id, contact_id) {
   const vars = [user_id, contact_id];
 
@@ -352,12 +355,12 @@ const deleteMeeting = function(meeting_id) {
     DELETE FROM meetings
     WHERE id = $1;
   `, vars)
-  .then(res => {
-    return res.rows;
-  })
-  .catch(err => {
-    throw error;
-  })
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      throw error;
+    })
 }
 
 const insertContactNotification = function(userId, n) {
@@ -468,7 +471,7 @@ const fetchStartedMeetings = function() {
   });
 }
 
-const clearToHistory = function () {
+const clearToHistory = function() {
   console.log('-- SERVER STARTUP: CLEARING STALE MEETINGS --');
 
   return db.query(`
@@ -519,7 +522,7 @@ module.exports = {
   updateUsersMeetingsNotes,
   updateMeetingActiveState,
   updateMeetingById,
-  updatePagesByMeetingId,
+  updateMeetingLinksAndStatusById,
   deleteContact,
   deleteMeeting,
   removeUserFromMeeting,
