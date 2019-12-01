@@ -539,12 +539,6 @@ io.on('connection', (client) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
 
-    // if (meetingDetails['link_to_initial_files'].length === 0) {
-    //   fs.writeFile(`meeting_files/${data.meetingId}/markup_default.png`, data.image[0].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
-    //     if (err) throw err;
-    //   });
-    // }
-
     for (let i = 0; i < data.image.length; i++) {
       let img = 'default.png'
       if (meetingDetails['link_to_initial_files'][i]) {
@@ -561,6 +555,10 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('requestNotes', { meetingId: data.meetingId, meetingName: meetingDetails.name });
 
 
+    for (let id of meetingDetails.invited_users) {
+      activeUsers[id].socket.emit('meetingEndedYouSlacker', meetingDetails.id);
+      notify(id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
+    }
     activeMeetings.removeMeeting(data.meetingId);
 
     console.log(`meeting ${data.meetingId}is done`);

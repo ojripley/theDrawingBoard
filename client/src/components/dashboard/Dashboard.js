@@ -40,10 +40,16 @@ export default function Dashboard(props) {
         setMeetings(prev => prev.filter(meeting => meeting.id !== res.id));
       });
 
+      props.socket.on('meetingEndedYouSlacker', res => {
+        console.log('deleting meeting for the slackers', res);
+        setMeetings(prev => prev.filter(meeting => meeting.id !== res));
+      })
+
       return () => {
         props.socket.off('meetings');
         props.socket.off('itWorkedThereforeIPray');
         props.socket.off('meetingDeleted');
+        props.socket.off('meetingEndedYouSlacker');
       };
     }
   }, [props.socket, props.socketOpen, currentUser.username]);
