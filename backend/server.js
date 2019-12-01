@@ -382,6 +382,7 @@ io.on('connection', (client) => {
       res = await db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, "creating", null, null);
       let id = res[0].id;
       fs.mkdir(`meeting_files/${id}`, async () => {
+        // client.emit('meetingCreationInProgress', res[0]); //Uncomment if enabling client to see meeting being created (but make sure client cannot enter the meeting)
         let files = await saveImages(data.files, id);
         console.log('Received these files:', files)
         client.emit('newMeeting', res[0]); //move this emit to earlier to display to user that meeting is being created
@@ -462,7 +463,7 @@ io.on('connection', (client) => {
 
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
-              notify(id, { title: 'Meeting<<<<<<< HEAD Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
+              notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
               if (activeUsers[id]) {
                 activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
