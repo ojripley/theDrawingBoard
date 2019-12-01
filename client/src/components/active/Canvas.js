@@ -110,8 +110,8 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       });
 
       socket.on('addUserAndColor', data => {
-        console.log('New user joined jlkjlkjlkjlkjlk', data);
-        console.log(data.color);
+        // console.log('New user joined jlkjlkjlkjlkjlk', data);
+        // console.log(data.color);
         dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
       });
 
