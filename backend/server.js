@@ -556,7 +556,9 @@ io.on('connection', (client) => {
 
 
     for (let id of meetingDetails.invited_users) {
-      activeUsers[id].socket.emit('meetingEndedYouSlacker', meetingDetails.id);
+      console.log('sending message to user#', id);
+      if (activeUsers[id]) //if the user is online
+        activeUsers[id].socket.emit('meetingEndedYouSlacker', meetingDetails.id);
       notify(id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
     }
     activeMeetings.removeMeeting(data.meetingId);
