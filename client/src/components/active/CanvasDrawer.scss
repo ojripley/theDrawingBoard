@@ -23,7 +23,7 @@
   margin-right: 1em;
 
   .message-container {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 15px 15px;
     padding: 0.75em 0.75em;
   }
@@ -38,7 +38,8 @@
   margin-bottom: 0.5em;
 
   .message-container {
-    background-color: rgba(2, 104, 115, 0.2);
+    background-color: rgba(2, 104, 115, 0.8);
+    color: $color-4-hex;
     border-radius: 15px 15px;
     padding: 0.75em 0.75em;
   }

@@ -37,7 +37,10 @@ const useStyles = makeStyles(theme => ({
   textareaAutosize: {
     resize: 'none',
     width: '80%',
-    marginRight: 0
+    marginRight: 0,
+    borderRadius: '15px 15px',
+    border: 'none',
+    padding: '0.5em 0.75em 0'
   },
   button: {
     zIndex: 999,
