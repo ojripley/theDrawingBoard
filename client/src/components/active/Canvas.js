@@ -109,7 +109,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         dispatch({ type: REDRAW, payload: { page: page } });
       });
 
-      socket.on('newParticipant', data => {
+      socket.on('addUserAndColor', data => {
         console.log('New user joined jlkjlkjlkjlkjlk', data);
         console.log(data.color);
         dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
@@ -118,7 +118,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
       return () => {
         socket.off('redraw');
-        socket.off('newParticipant');
+        socket.off('addUserAndColor');
       };
     }
   }, [socket, socketOpen, user.id, dispatch, page]);

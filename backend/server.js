@@ -504,33 +504,26 @@ io.on('connection', (client) => {
     let images = [];
     if (meetingDetails['link_to_initial_files'].length !== 0) {
       for (let i = 0; i < meetingDetails['link_to_initial_files'].length; i++) {
-
         try {
           //reads the files sychronously
           images.push("data:image/jpg;base64," + fs.readFileSync(`./meeting_files/${data.meetingId}/${meetingDetails.link_to_initial_files[i]}`).toString("base64"))
         } catch { e => console.error("error reading files", e) };
       }
-      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-        .then((res) => {
-          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
-
-          client.join(data.meetingId);
-          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
-        }).catch(err => {
-          handleError(err, client);
-        });
-    } else { //FIX LOGIC
-      db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
-        .then((res) => {
-          images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
-
-          client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
-
-          client.join(data.meetingId);
-
-          io.to(data.meetingId).emit('newParticipant', { user: data.user, color: col });
-        });
+    } else {
+      images.push("data:image/jpg;base64," + fs.readFileSync(`./default_meeting_files/defaultimage.png`).toString("base64"));
     }
+
+    db.fetchUsersMeetingsByIds(data.user.id, data.meetingId)
+      .then((res) => {
+        client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
+
+        client.join(data.meetingId);
+        console.log('new participant', { user: data.user, color: col })
+        io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
+        io.to(data.meetingId).emit('newParticipant', { user: data.user }); //Should this be meeting or client?
+      }).catch(err => {
+        handleError(err, client);
+      });
   });
 
   client.on('saveDebouncedNotes', (data) => {
