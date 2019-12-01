@@ -151,3 +151,12 @@ input.MuiInputBase-input.MuiInput-input.MuiInputBase-inputAdornedEnd {
 #signUp, #signIn {
   margin-top: 1em;
 }
+
+.login-error {
+  color: #bd0d0d;
+  font-family: 'Roboto', 'Helvetica' 'Arial', sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  letter-spacing: 0.01071em;
+  margin: 0;
+}
