@@ -323,7 +323,7 @@ const updateMeetingLinksAndStatusById = function(meeting_id, num_pages, link_to_
     UPDATE meetings
     SET
       num_pages = $2,
-      link_to_initial_files = $
+      link_to_initial_files = $3,
       status = $4
     WHERE id = $1;
   `, vars)
