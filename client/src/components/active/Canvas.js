@@ -39,15 +39,10 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
-      // drawCanvasRef.current.width = window.innerWidth;
-      // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
 
       [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
       dispatch({ type: REDRAW, payload: { page: page } });
     }
-
-    // drawCanvasRef.current.width = window.innerWidth;
-    // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
     [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
     const newCtx = drawCanvasRef.current.getContext('2d');
     dispatch({
@@ -109,16 +104,16 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
         dispatch({ type: REDRAW, payload: { page: page } });
       });
 
-      socket.on('newParticipant', data => {
-        console.log('New user joined jlkjlkjlkjlkjlk', data);
-        console.log(data.color);
+      socket.on('addUserAndColor', data => {
+        // console.log('New user joined jlkjlkjlkjlkjlk', data);
+        // console.log(data.color);
         dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
       });
 
 
       return () => {
         socket.off('redraw');
-        socket.off('newParticipant');
+        socket.off('addUserAndColor');
       };
     }
   }, [socket, socketOpen, user.id, dispatch, page]);
@@ -130,8 +125,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   //Sets the image canvas after it has loaded (and upon any changes in image)
   useEffect(() => {
     window.onresize = () => {
-      // drawCanvasRef.current.width = window.innerWidth;
-      // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
       imageCtx.current = imageCanvasRef.current.getContext('2d');
       if (backgroundImage.src) {
@@ -139,11 +132,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       }
       dispatch({ type: REDRAW, payload: { page: page } });
     }
-    // setImageCtx(prev => {
-
-    // imageCanvasRef.current.width = window.innerWidth;
-    // imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-
     [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
     imageCtx.current = imageCanvasRef.current.getContext('2d');
 
@@ -153,12 +141,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
     dispatch({ type: REDRAW, payload: { page: page } });
     // });
-
-    return () => {
-      window.onresize = undefined;
-    }
-
-  }, [imageLoaded, backgroundImage, dispatch, page]);
+  }, [imageCtx.current, imageLoaded, backgroundImage, dispatch, page]);
 
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {

@@ -21,6 +21,7 @@ export default function Login(props) {
 
   const handleLogin = () => {
     if (props.socketOpen) {
+      props.setLoginError(null);
       console.log('attempting to log in')
       console.log(email, password)
       props.socket.emit('loginAttempt', { email: email.trim().toLowerCase(), password: password.trim() });
@@ -29,14 +30,23 @@ export default function Login(props) {
 
   const handleRegister = () => {
     if (props.socketOpen) {
+      props.setLoginError(null);
       console.log('attempting to register');
       console.log(username, email, password, confirmPassword);
       if (username.length > 0 && email.length > 0 && password.length > 0) {
         if (password === confirmPassword) {
           props.socket.emit('registrationAttempt', { username: username.trim(), email: email.trim().toLowerCase(), password: password.trim() });
         } else {
-          console.log('could not register');
+          props.setLoginError({
+            type: 'login',
+            msg: 'Passwords must match'
+          });
         }
+      } else {
+        props.setLoginError({
+          type: 'login',
+          msg: 'Fields cannot be empty'
+        });
       }
     }
   };
@@ -87,12 +97,14 @@ export default function Login(props) {
             color="secondary"
             value={username}
             onChange={event => setUsername(event.target.value)}
+            onKeyPress={event => onEnter(event, 'register')}
           />
           <TextField
             label="Email"
             color="secondary"
             value={email}
             onChange={event => setEmail(event.target.value)}
+            onKeyPress={event => onEnter(event, 'register')}
           />
           <TextField
             label="Password"
@@ -100,6 +112,7 @@ export default function Login(props) {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={event => setPassword(event.target.value)}
+            onKeyPress={event => onEnter(event, 'register')}
             InputProps={{
               endAdornment:
                 <InputAdornment position="end">
@@ -131,6 +144,7 @@ export default function Login(props) {
                 </InputAdornment>
             }}
           />
+          {props.error ? <p className='login-error' >{props.error.msg}</p> : <p></p>}
           <Button className='login-button' variant="contained" color='secondary' onClick={handleRegister}>Register</Button>
         </div>
       </div>
@@ -142,6 +156,7 @@ export default function Login(props) {
             color="secondary"
             value={email}
             onChange={event => setEmail(event.target.value)}
+            onKeyPress={event => onEnter(event, 'login')}
           />
           <TextField
             label="Password"
@@ -162,6 +177,7 @@ export default function Login(props) {
                 </InputAdornment>
             }}
           />
+          {props.error ? <p className='login-error' >{props.error.msg}</p> : <p></p>}
           <Button className='login-button' variant="contained" color='secondary' onClick={handleLogin}>Login</Button>
         </div>
       </div>
@@ -170,12 +186,12 @@ export default function Login(props) {
           <div className="overlay-panel overlay-top">
             <Typography variant='h2' color='secondary'>Welcome Back!</Typography>
             <Typography variant='overline'>Please login with your personal info</Typography>
-            <Button variant='contained' id="signIn" onClick={() => setShowLogin(true)}>Sign In</Button>
+            <Button variant='contained' id="signIn" onClick={() => {setShowLogin(true); props.setLoginError(null)}}>Sign In</Button>
           </div>
           <div className="overlay-panel overlay-bottom">
             <Typography variant='h2' color='secondary'>Hello, Friend!</Typography>
             <Typography variant='overline'>Start your journey with us</Typography>
-            <Button variant='contained' id="signUp" onClick={() => setShowLogin(false)}>Sign Up</Button>
+            <Button variant='contained' id="signUp" onClick={() => {setShowLogin(false); props.setLoginError(null)}}>Sign Up</Button>
           </div>
         </div>
       </div>

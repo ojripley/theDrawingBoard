@@ -1,4 +1,4 @@
-const { generateErrorMessage } = require('./generateErrorMessage');
+const { generateClientError } = require('./generateClientError');
 
 const handleError = function(error, client) {
 
@@ -6,11 +6,11 @@ const handleError = function(error, client) {
   console.log(error);
   console.log('\n\n\nGerald the Error Herald has spoken.');
 
-  const msg = generateErrorMessage(error);
+  const clientError = generateClientError(error);
 
   if (client) {
     console.log('sending error');
-    client.emit('fuckUSocketIO', { msg: msg });
+    client.emit('fuckUSocketIO', clientError);
   }
 }
 
