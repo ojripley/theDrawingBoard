@@ -39,12 +39,25 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
-
+      console.log("draw is resizing");
       [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+      [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+      imageCtx.current = imageCanvasRef.current.getContext('2d');
+      if (backgroundImage.src) {
+        imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      }
       dispatch({ type: REDRAW, payload: { page: page } });
     }
     [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+    [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+    imageCtx.current = imageCanvasRef.current.getContext('2d');
+
+    if (backgroundImage.src) {
+      imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+    }
+
     const newCtx = drawCanvasRef.current.getContext('2d');
+
     dispatch({
       type: SET_CTX,
       payload: newCtx
@@ -57,7 +70,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     }
 
 
-  }, [imageLoaded, backgroundImage, dispatch, page]);
+  }, [imageLoaded, backgroundImage, dispatch, page, drawCanvasRef.current, imageCtx.current]);
 
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
@@ -121,27 +134,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
 
 
-
-  //Sets the image canvas after it has loaded (and upon any changes in image)
-  useEffect(() => {
-    window.onresize = () => {
-      [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
-      imageCtx.current = imageCanvasRef.current.getContext('2d');
-      if (backgroundImage.src) {
-        imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-      }
-      dispatch({ type: REDRAW, payload: { page: page } });
-    }
-    [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
-    imageCtx.current = imageCanvasRef.current.getContext('2d');
-
-    if (backgroundImage.src) {
-      imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-    }
-    // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
-    dispatch({ type: REDRAW, payload: { page: page } });
-    // });
-  }, [imageCtx.current, imageLoaded, backgroundImage, dispatch, page]);
 
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {
