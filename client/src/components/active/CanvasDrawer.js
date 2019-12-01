@@ -12,27 +12,32 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Slider from '@material-ui/core/Slider';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import Badge from '@material-ui/core/Badge'
 
 import './CanvasDrawer.scss';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
+  drawerContainer: {
+    backgroundColor: 'rgba(245,240,235, 0.85)'
+    // backgroundColor: theme.palette.primary.light
+  },
   list: {
     width: '40vw',
-    minWidth: 250
+    minWidth: 250,
   },
-  center: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    zIndex: 2,
-    width: '100%',
-  },
+  // center: {
+  //   display: 'flex',
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   position: 'relative',
+  //   zIndex: 2,
+  //   width: '100%',
+  // },
   textareaAutosize: {
     resize: 'none',
     width: '80%',
-    marginRight: '1em'
+    marginRight: 0
   },
   button: {
     zIndex: 999,
@@ -42,8 +47,9 @@ const useStyles = makeStyles({
   },
   sendButton: {
     position: 'relative',
+    padding: 0
   },
-});
+}));
 
 export default function CanvasDrawer(props) {
   const classes = useStyles();
@@ -54,22 +60,32 @@ export default function CanvasDrawer(props) {
   const [messages, setMessages] = useState([]);
 
   const textareaRef = useRef(null);
+  const messagesDisplayRef = useRef(null);
+
+  const scrollToBottom = () => {
+    // messagesDisplayRef.current.scrollTop = messagesDisplayRef.current.scrollHeight;
+    messagesDisplayRef.current.scrollTo({
+      top: messagesDisplayRef.current.scrollHeight,
+      left: 0,
+      behavior: 'smooth'
+    })
+  }
 
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('meetingMsg', (data) => {
-        setMessages(prev => [data, ...prev]);
+        console.log('data:', data)
+        console.log('user:', props.user)
+        setMessages(prev => [...prev, data]);
+        if (messagesDisplayRef.current) {
+          scrollToBottom();
+        }
       });
-
     }
     return () => {
       props.socket.off('meetingMsg');
     }
   }, [messages, props.socket, props.socketOpen]);
-
-  useEffect(() => {
-
-  }, [message])
 
   const handleCaret = e => {
     var temp_value = e.target.value;
@@ -103,7 +119,6 @@ export default function CanvasDrawer(props) {
     }
   }
 
-
   const handleTool = (tool) => {
     props.setTool(tool);
     handleClose();
@@ -112,13 +127,13 @@ export default function CanvasDrawer(props) {
 
   const handleMessage = event => {
     setMessage(event.target.value);
-    console.log(message);
+    // console.log(message);
   };
 
   const handleMessageSend = () => {
-    if (message.length > 0) {
+    if (message.trim().length > 0) {
       if (props.socketOpen) {
-        props.socket.emit('msgToMeeting', { meetingId: props.meetingId, user: props.user, msg: message });
+        props.socket.emit('msgToMeeting', { meetingId: props.meetingId, user: props.user, msg: message.trim() });
       }
       setMessage('');
     }
@@ -126,6 +141,7 @@ export default function CanvasDrawer(props) {
 
   const handleKeyStroke = event => {
     if (event.charCode === 13) {
+      event.preventDefault();
       handleMessageSend();
     }
   }
@@ -138,7 +154,8 @@ export default function CanvasDrawer(props) {
     return (
       <Message
         key={message.time}
-        user={message.user}
+        sender={message.user}
+        user={props.user}
         msg={message.msg}
         time={message.time}
       />
@@ -161,27 +178,31 @@ export default function CanvasDrawer(props) {
 
   return (
     <>
-      <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
+      <Badge color="secondary" badgeContent={messages.length}>
+        <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
+      </Badge>
 
-      <Drawer anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
+      <Drawer classes={{ paper: classes.drawerContainer }} anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
         <div
           className={classes.list}
           role='presentation'
         >
-          <List>
-            <ListItem className={`meeting-chat ${classes.center}`}>
-              <section className='messages-display'>{msgs}</section>
+          <List id='meeting-chat-container'>
+            <div ref={messagesDisplayRef} id='messages-display'>{msgs}</div>
+            <ListItem id={`meeting-chat`}>
               <TextareaAutosize
                 ref={textareaRef}
                 aria-label='empty textarea'
-                placeholder='Remember: kids who type curse words lose fingers!'
+                placeholder='Message'
                 value={message}
                 className={classes.textareaAutosize}
                 onFocus={handleCaret}
                 onChange={handleMessage}
                 onKeyPress={handleKeyStroke}
+                rows='2'
+                rowsMax='2'
               />
-              <Button variant='contained' color='primary' className={classes.sendButton} onClick={handleMessageSend}>Send</Button>
+              <Button variant='text' color='primary' className={classes.sendButton} onClick={handleMessageSend}>Send</Button>
             </ListItem>
           </List>
           <Divider />
@@ -210,7 +231,7 @@ export default function CanvasDrawer(props) {
           </List>
           <Divider />
           <List>
-            <ListItem button onClick={handleWrite}>Notes</ListItem>
+            <ListItem button onClick={handleWrite}>Write Notes</ListItem>
           </List>
           <Divider />
           <List>
