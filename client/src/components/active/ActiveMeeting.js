@@ -13,7 +13,6 @@ import reducer, {
   SAVE
 } from "../../reducers/canvasReducer";
 
-
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
@@ -85,14 +84,8 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     pointers: {}, //if needed make take the initial state from server
     finishedSaving: Array(backgroundImage.length)
   });
-  // const [dataURL,setDataURL] = useState([]); //stores files to be sent
-  // let dataURL = Array(backgroundImage.length);
-  // const backgroundCanvas = useRef(null);
-
 
   const textareaRef = useRef(null);
-
-
 
   const handleInput = (e) => {
     console.log(e.target.value)
@@ -105,19 +98,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     e.target.value = ''
     e.target.value = temp_value
   }
-
-  // const mergeWithImage = (imageCanvas) => {
-
-  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
-  //   // setImageCtx(prev => { //adds the click to the image canvas
-  //   // prev = imageCanvasRef.current.getContext('2d')
-  //   // imageCanvasRef.current.width = backgroundImage.width;
-  //   // imageCanvasRef.current.height = backgroundImage.height;
-  //   prev.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-  //   prev.drawImage(drawCanvasRef.current, 0, 0, backgroundImage.width, backgroundImage.height);
-  //   // });
-  // }
 
   const endMeeting = () => {
     //TODO: handle case with no image
@@ -149,7 +129,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
 
-
   const loadSpinner = () => {
     socket.emit('savingMeeting', { meetingId: meetingId });
     setLoading(true);
@@ -173,7 +152,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       setBackgroundImage(new Image());
       setLoading(false);
     });
-
 
     socket.on('changingPage', data => {
       console.log('trying to change page');
@@ -204,9 +182,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       textareaRef.current.focus();
     }
   }, [writeMode]);
-
-
-
 
   return (
     <>

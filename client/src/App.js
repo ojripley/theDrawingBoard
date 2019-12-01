@@ -50,6 +50,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [notificationList, setNotificationList] = useState([]);
   const [initialExpandedMeeting, setInitialExpandedMeeting] = useState(false);
+  const [usersInMeeting, setUsersInMeeting] = useState({});
 
   // webrtc state
   const { peer, setPeer } = usePeer();
@@ -139,6 +140,12 @@ export default function App() {
           // log who that is
           console.log('new user', data.user.username);
 
+          // add that user to the active people in the meeting
+          setUsersInMeeting(prev => ({
+            ...prev,
+            'data.user.id': data.user
+          }));
+
           // make sure it isn't yourself
           if (data.user.id !== user.id) {
             // if (sentCall !== data.user.id);
@@ -168,7 +175,6 @@ export default function App() {
               });
           } else {
             console.log('user is me, disregard');
-            // setNewParticipant(false);
           }
         });
       }
@@ -183,7 +189,6 @@ export default function App() {
 
   // handle new call connections
   useEffect(() => {
-    // console.log('newCall', newCall);
     console.log('newPeer', newCall.newPeer);
     console.log('isCaller', newCall.isCaller);
     if (peer && newCall.newPeer && inMeeting) {
@@ -199,7 +204,6 @@ export default function App() {
             ...prev,
             [newCall.newPeer]: incomingStream
           }));
-          // setSentCall(false);
           console.log('cleaning up state to reset for new users');
           setNewCall({
             newPeer: null,
@@ -207,7 +211,7 @@ export default function App() {
           });
         });
 
-      } else { // the user is the receiver of a new call          peer && inMeeting
+      } else { // the user is the receiver of a new call
 
         // answer the call. Uncle Sam needs YOU!
         console.log('answering the call');
@@ -250,9 +254,11 @@ export default function App() {
 
         delete tempStreams[data.user.id];
         delete tempCalls[data.user.id];
+        delete tempUsersInMeeting[data.user.id];
 
         setStreams(tempStreams);
         setCalls(tempCalls);
+        setUsersInMeeting(tempUsersInMeeting));
 
         console.log('streams', streams);
         console.log('calls', calls);
@@ -405,6 +411,7 @@ export default function App() {
                 initialPixels={initialPixels}
                 setLoading={setLoading}
                 pixelColor={pixelColor}
+                usersInMeeting={usersInMeeting}
               />
             </>
             : <>
