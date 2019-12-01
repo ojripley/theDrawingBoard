@@ -113,7 +113,7 @@ export default function CanvasDrawer(props) {
   };
 
   const handleWrite = () => {
-    props.setWriteMode(prev => !prev);
+    props.setWriteMode(true);
     setOpenDrawer(false);
   };
 
