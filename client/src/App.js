@@ -34,7 +34,8 @@ export default function App() {
   const { socket, socketOpen } = useSocket();
   const [mode, setMode] = useState(DASHBOARD);
   const [loading, setLoading] = useState(true);
-  const [error, setLoginError] = useState(false);
+  const [loginError, setLoginError] = useState(false);
+  const [error, setError] = useState(false);
 
   // meeting state
   const [inMeeting, setInMeeting] = useState(false);
@@ -67,7 +68,9 @@ export default function App() {
     if (socketOpen) {
       console.log('listening for error');
       socket.on('fuckUSocketIO', (data) => {
-        console.log(data);
+        const error = data;
+        console.log(error);
+        if (error.type === 'login');
         setLoginError(true);
       });
     }
@@ -368,7 +371,7 @@ export default function App() {
         {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
 
         {!user ?
-          <Login setUser={setUser} socket={socket} socketOpen={socketOpen} />
+          <Login setUser={setUser} socket={socket} socketOpen={socketOpen} setLoginError={setLoginError} />
           : inMeeting ?
             <>
               <div>{incomingStreams}</div>

@@ -141,7 +141,7 @@ setInterval(() => {
     .catch(error => {
       handleError(error, client);
     });
-}, 60000); // if you're bad at math, this is 60 seconds (1 minute for those of you who are really bad at math)
+}, 60000);
 
 
 

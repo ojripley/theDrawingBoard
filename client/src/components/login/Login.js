@@ -21,6 +21,7 @@ export default function Login(props) {
 
   const handleLogin = () => {
     if (props.socketOpen) {
+      props.setLoginError(false);
       console.log('attempting to log in')
       console.log(email, password)
       props.socket.emit('loginAttempt', { email: email.trim().toLowerCase(), password: password.trim() });
@@ -29,6 +30,7 @@ export default function Login(props) {
 
   const handleRegister = () => {
     if (props.socketOpen) {
+      props.setLoginError(false);
       console.log('attempting to register');
       console.log(username, email, password, confirmPassword);
       if (username.length > 0 && email.length > 0 && password.length > 0) {
