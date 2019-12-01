@@ -133,11 +133,11 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       // drawCanvasRef.current.width = window.innerWidth;
       // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
       [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
-      dispatch({ type: REDRAW, payload: { page: page } });
-
+      imageCtx.current = imageCanvasRef.current.getContext('2d');
       if (backgroundImage.src) {
         imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       }
+      dispatch({ type: REDRAW, payload: { page: page } });
     }
     // setImageCtx(prev => {
 
@@ -153,7 +153,12 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
     dispatch({ type: REDRAW, payload: { page: page } });
     // });
-  }, [imageCtx.current, imageLoaded, backgroundImage]);
+
+    return () => {
+      window.onresize = undefined;
+    }
+
+  }, [imageLoaded, backgroundImage, dispatch, page]);
 
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {
