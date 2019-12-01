@@ -27,7 +27,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   let imageCtx = useRef(undefined);
 
   const getScaledDimensions = (h, w, bh, bw) => { //possible scaling
-    if (bw > bh) {
+    if (bw >= bh) {
       setOrientation('landscape');
       return [w, bh === 0 ? h : (bh * w / bw)]
     } else {
@@ -126,11 +126,11 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   useEffect(() => {
     window.onresize = () => {
       [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
-      dispatch({ type: REDRAW, payload: { page: page } });
-
+      imageCtx.current = imageCanvasRef.current.getContext('2d');
       if (backgroundImage.src) {
         imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
       }
+      dispatch({ type: REDRAW, payload: { page: page } });
     }
     [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
     imageCtx.current = imageCanvasRef.current.getContext('2d');
