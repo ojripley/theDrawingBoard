@@ -13,10 +13,6 @@ export default function reducer(state, action) {
 
   switch (action.type) {
     case SET_INITIAL_PIXELS: {
-      let whatIshappening = {
-        ...state,
-        pixelArrays: action.payload
-      };
       return {
         ...state,
         pixelArrays: action.payload

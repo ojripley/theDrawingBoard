@@ -105,7 +105,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  // let [loadingCounter, setLoadingCounter] = useState(0);
+  // let [loadingCounter,] = useState(0);
   let loadingCounter = 0;
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -148,8 +148,8 @@ export default function MeetingCard({
               console.log(data.images);
               console.log(`Updating background image ${i}`);
               setBackgroundImage(prev => {
-                prev[i] = myImage; //sets the image in the proper index (maintaining order)
                 loadingCounter++;
+                prev[i] = myImage; //sets the image in the proper index (maintaining order)
                 if (loadingCounter === data.images.length) {
                   console.log(`Setting Loading to true`);
                   setLoading(false);
