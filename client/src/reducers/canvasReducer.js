@@ -8,15 +8,11 @@ const SET_POINTER = "SET_POINTER";
 const SAVE = "SAVE";
 
 export default function reducer(state, action) {
-  console.log("---ACTION---", action);
-  console.log('state:', state);
+  // console.log("---ACTION---", action); //uncomment for debugging
+  // console.log('state:', state);
 
   switch (action.type) {
     case SET_INITIAL_PIXELS: {
-      let whatIshappening = {
-        ...state,
-        pixelArrays: action.payload
-      };
       return {
         ...state,
         pixelArrays: action.payload
@@ -64,6 +60,8 @@ export default function reducer(state, action) {
       const h = state.ctx.canvas.height;
 
       for (let user in state.pixelArrays[action.payload.page]) {
+        if (!state.color[user]) return { ...state }; //early exit in case of a race condition where user draws before their color is assigned
+
         let pixels = state.pixelArrays[action.payload.page][user]; //gets users pixel array
         //Reads colors
         let col = `rgb(${state.color[user].r},${state.color[user].g},${state.color[user].b},1)`
