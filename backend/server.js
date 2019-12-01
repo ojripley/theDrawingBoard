@@ -545,16 +545,25 @@ io.on('connection', (client) => {
   client.on('endMeeting', (data) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
-    for (let i = 0; i < meetingDetails['numPages']; i++) {
 
-      let img = meetingDetails['link_to_initial_files'][i];//`image-${i}.png`;
+    // if (meetingDetails['numPages'] === 0) {
+    //   fs.writeFile(`meeting_files/${data.meetingId}/markup_default.png`, data.image[0].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
+    //     if (err) throw err;
+    //   });
+    // }
+
+    for (let i = 0; i < data.image.length; i++) {
+      let img = 'default.png'
+      if (meetingDetails['link_to_initial_files'][i]) {
+        img = meetingDetails['link_to_initial_files'][i];
+      }
 
       fs.writeFile(`meeting_files/${data.meetingId}/markup_${img}`, data.image[i].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
         if (err) throw err;
       });
     }
 
-    db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("UPDATE MEETING FAILED", err));
+    db.updateMeetingById(data.meetingId, data.endTime, false, 'past').catch((err) => console.error("Update emeting failedD", err));
 
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
@@ -585,12 +594,19 @@ io.on('connection', (client) => {
       .then((res) => {
         let meetingDetails = res[0];
         let images = [];
+        if (data.link_to_initial_files.length === 0) {
+          try {
+            console.log(`attempting to read meeting_files/${data.meetingId}/markup_default.png`);
+            let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_default.png`);
+            images.push("data:image/jpg;base64," + image.toString("base64"))
+          } catch (err) {
+            console.error("error reading files", err)
+          };
+        }
+
         for (let i = 0; i < data.link_to_initial_files.length; i++) { //replace 3 with data.extensions.length
           try {
-            console.log(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`)
             let image = fs.readFileSync(`meeting_files/${data.meetingId}/markup_${data.link_to_initial_files[i]}`);
-            console.log('image is', image)
-
             images.push("data:image/jpg;base64," + image.toString("base64"))
           } catch (err) {
             console.error("error reading files", err)
