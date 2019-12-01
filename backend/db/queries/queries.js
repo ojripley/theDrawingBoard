@@ -180,13 +180,13 @@ const insertUser = function(username, email, password) {
     });
 };
 
-const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_files, num_pages) {
+const insertMeeting = function(start_time, owner_id, name, description, status, link_to_initial_files) {
 
-  const vars = [start_time, owner_id, name, description, status, link_to_initial_files, num_pages];
+  const vars = [start_time, owner_id, name, description, status, link_to_initial_files];
 
   return db.query(`
-    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_files, num_pages)
-    VALUES($1, $2, $3, $4, $5, $6, $7)
+    INSERT INTO meetings (start_time, owner_id, name, description, status, link_to_initial_files)
+    VALUES($1, $2, $3, $4, $5, $6)
     RETURNING *;
   `, vars)
     .then(res => {
@@ -316,15 +316,14 @@ const updateMeetingById = function(meeting_id, end_time, active, status) {
     });
 }
 
-const updateMeetingLinksAndStatusById = function(meeting_id, num_pages, link_to_initial_files, status) {
-  const vars = [meeting_id, num_pages, link_to_initial_files, status];
+const updateMeetingLinksAndStatusById = function(meeting_id, link_to_initial_files, status) {
+  const vars = [meeting_id, link_to_initial_files, status];
 
   return db.query(`
     UPDATE meetings
     SET
-      num_pages = $2,
-      link_to_initial_files = $3,
-      status = $4
+      link_to_initial_files = $2,
+      status = $3
     WHERE id = $1;
   `, vars)
     .catch(error => {

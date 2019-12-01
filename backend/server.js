@@ -379,14 +379,14 @@ io.on('connection', (client) => {
     try {
 
 
-      res = await db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, "creating", null, null);
+      res = await db.insertMeeting(data.startTime, data.ownerId, data.name, data.description, "creating", null);
       let id = res[0].id;
       fs.mkdir(`meeting_files/${id}`, async () => {
         // client.emit('meetingCreationInProgress', res[0]); //Uncomment if enabling client to see meeting being created (but make sure client cannot enter the meeting)
         let files = await saveImages(data.files, id);
         console.log('Received these files:', files)
         client.emit('newMeeting', res[0]); //move this emit to earlier to display to user that meeting is being created
-        await db.updateMeetingLinksAndStatusById(id, files.length, files, data.status);
+        await db.updateMeetingLinksAndStatusById(id, files, data.status);
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
@@ -432,15 +432,15 @@ io.on('connection', (client) => {
             const meeting = res[0];
 
             // set meeting pixel log
-            meeting['numPages'] = meeting.num_pages;
             meeting['link_to_initial_files'] = meeting.link_to_initial_files;
+            let numPages = meeting.link_to_initial_files.length;
             meeting['userPixels'] = [];
 
-            if (meeting.num_pages === 0) { //blank canvas
+            if (numPages === 0) { //blank canvas
               meeting['userPixels'].push(new Object()); //create a single page
             }
 
-            for (var i = 0; i < meeting.num_pages; i++) {
+            for (var i = 0; i < numPages; i++) {
               meeting['userPixels'].push(new Object());
             }
 
@@ -488,13 +488,13 @@ io.on('connection', (client) => {
       meetingDetails['colorMapping'][data.user.id] = col;
     }
 
-    if (meetingDetails['numPages'] === 0) {
+    if (meetingDetails['link_to_initial_files'].length === 0) {
       if (!meetingDetails.userPixels[0][data.user.id]) {
         meetingDetails.userPixels[0][data.user.id] = [];
       }
     }
 
-    for (let i = 0; i < meetingDetails['numPages']; i++) { //for each page
+    for (let i = 0; i < meetingDetails['link_to_initial_files'].length; i++) { //for each page
       //Create userPixels array for that user if it doesn't already exist
       if (!meetingDetails.userPixels[i][data.user.id]) {
         meetingDetails.userPixels[i][data.user.id] = [];
@@ -502,8 +502,8 @@ io.on('connection', (client) => {
     }
 
     let images = [];
-    if (meetingDetails['numPages'] !== 0) {
-      for (let i = 0; i < meetingDetails['numPages']; i++) {
+    if (meetingDetails['link_to_initial_files'].length !== 0) {
+      for (let i = 0; i < meetingDetails['link_to_initial_files'].length; i++) {
 
         try {
           //reads the files sychronously
@@ -546,7 +546,7 @@ io.on('connection', (client) => {
 
     let meetingDetails = activeMeetings[data.meetingId];
 
-    // if (meetingDetails['numPages'] === 0) {
+    // if (meetingDetails['link_to_initial_files'].length === 0) {
     //   fs.writeFile(`meeting_files/${data.meetingId}/markup_default.png`, data.image[0].replace(/^data:image\/png;base64,/, ""), 'base64', (err) => {
     //     if (err) throw err;
     //   });
