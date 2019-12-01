@@ -350,11 +350,15 @@ io.on('connection', (client) => {
     let filenames = [];//Returns list of filenames
     for (const [name, file] of Object.entries(files)) {
       if (name.search(/\.pdf$/ig) !== -1) {
-        let pdfImage = new PDFImage(`meeting_files/${id}/image.${name.split('.')[1]}`);
+        fs.writeFileSync(`meeting_files/${id}/${name}`, file)
+        let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
+        console.log()
         try {
-          imagePath = await pdfImage.convertFile();
-          filenames.push(imagePath);
-          console.log(`${imagePath} has been saved!`);
+          fullImagePath = await pdfImage.convertFile();
+          //Regex below converts strings like 'meeting_files/1/sample-0.png' to 'sample-0.png'
+          //Looks for the last '/' in the string and matches everything until (and including) '.png'.
+          imagePath = fullImagePath.map((fullpath) => fullpath.match(/(?<=\/)[^\/]*\.png/)[0]);
+          filenames.push(...imagePath);
         } catch (err) {
           console.error("Error saving pdf", error);
         }
@@ -363,7 +367,6 @@ io.on('connection', (client) => {
         try {
           fs.writeFileSync(`meeting_files/${id}/${name}`, file)
           filenames.push(name);
-          console.log(`meeting_files/${id}/${name} has been saved!`);
         } catch (error) {
           handleError(error, client);
         };
@@ -380,7 +383,7 @@ io.on('connection', (client) => {
       let id = res[0].id;
       fs.mkdir(`meeting_files/${id}`, async () => {
         let files = await saveImages(data.files, id);
-        console.log('files:', files)
+        console.log('Received these files:', files)
         client.emit('newMeeting', res[0]); //move this emit to earlier to display to user that meeting is being created
         await db.updateMeetingLinksAndStatusById(id, files.length, files, data.status);
         const promiseArray = [];
