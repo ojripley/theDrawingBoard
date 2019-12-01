@@ -55,10 +55,9 @@ export default function Attendee(props) {
         labelId="demo-simple-select-helper-label"
         id="demo-simple-select-helper"
         value={rsvp}
-
         onChange={handleChange}
-        placeholder='Invited'
       >
+        <MenuItem className='invited-placeholder' value='invited'></MenuItem>
         <MenuItem value='accepted'>Accepted</MenuItem>
         <MenuItem value='declined'>Declined</MenuItem>
       </Select>

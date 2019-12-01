@@ -94,7 +94,7 @@ export default function Form(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchContactsByUserId', { id: props.user.id });
       props.socket.on('contactsByUserId', data => {
-        console.log(data)
+        // console.log(data)
         setContacts(data);
       })
       return () => {
@@ -185,7 +185,6 @@ export default function Form(props) {
           labelId="demo-mutiple-chip-label"
           id="demo-mutiple-chip"
           multiple
-          margin='normal'
           value={props.selectedContacts}
           onChange={handleContactChange}
           input={<Input id="select-multiple-chip" />}

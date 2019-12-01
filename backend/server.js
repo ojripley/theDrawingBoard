@@ -592,6 +592,7 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('requestNotes', data.meetingId);
 
     for (let id of meetingDetails.invited_users) {
+      activeUsers[id].socket.emit('meetingEndedYouSlacker', meetingDetails.id);
       notify(id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
     }
     activeMeetings.removeMeeting(data.meetingId);
