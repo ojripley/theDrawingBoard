@@ -2,16 +2,16 @@
 
 #drawCanvas {
   position: absolute;
-  top: 0;
-  left: 0;
+  // top: 0;
+  // left: 0;
   background: transparent;
   z-index: 2;
 }
 
 #image {
   position: absolute;
-  top: 0;
-  left: 0;
+  // top: 0;
+  // left: 0;
   z-index: 1;
 }
 
@@ -25,7 +25,13 @@
 }
 
 #canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: $color-4-hex;
   width: 100vw;
   height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
