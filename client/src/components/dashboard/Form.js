@@ -164,7 +164,6 @@ export default function Form(props) {
         margin='normal'
         placeholder='Meeting Description'
         className={classes.textField}
-        margin="normal"
         onChange={handleMeetingDescChange}
       />
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
