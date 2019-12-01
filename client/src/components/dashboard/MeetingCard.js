@@ -105,8 +105,8 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  let [, setLoadingCounter] = useState(0);
-
+  // let [loadingCounter, setLoadingCounter] = useState(0);
+  let loadingCounter = 0;
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
@@ -129,8 +129,11 @@ export default function MeetingCard({
 
         console.log('okay im going in');
         let res = data.meeting;
+        console.log("Setting ownerid")
         setOwnerId(res.owner_id);
+        console.log("Setting meetingid")
         setMeetingId(res.id);
+        console.log("Setting notes")
         setMeetingNotes(data.notes);
 
         setPixelColor(res['colorMapping']);
@@ -143,25 +146,21 @@ export default function MeetingCard({
             let myImage = new Image();
             myImage.onload = () => {
               console.log(data.images);
+              console.log(`Updating background image ${i}`);
               setBackgroundImage(prev => {
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
+                loadingCounter++;
+                if (loadingCounter === data.images.length) {
+                  console.log(`Setting Loading to true`);
+                  setLoading(false);
+                  console.log(`Setting imageLoaded to true`);
+                  setImageLoaded(true);
+                  console.log(`Setting inMeeting to true`);
+                  setInMeeting(true);
+                }
                 return prev;
               });
 
-              setLoadingCounter(prev => {
-                let temp = prev + 1;
-                console.log("temp vs data.images.length", temp, data.images.length);
-                if (temp === data.images.length) {
-                  console.log(`Loaded ${i} images`);
-                  setLoading(false);
-                  setImageLoaded(true);
-                  setInMeeting(true);
-                } else {
-                  return temp;
-
-                }
-
-              });
               console.log("received these pixels", data.pixels)
             };
             myImage.src = data.images[i];
@@ -169,11 +168,11 @@ export default function MeetingCard({
         }
 
       })
-
-      return () => {
-        socket.off(`enteredMeeting${id}`);
-      };
     }
+    return () => {
+      socket.off(`enteredMeeting${id}`);
+    };
+
   }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
