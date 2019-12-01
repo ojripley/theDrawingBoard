@@ -8,6 +8,7 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import CanvasDrawer from './CanvasDrawer';
+import './ActiveMeeting.scss';
 
 import reducer, {
   SAVE
