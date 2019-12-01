@@ -31,7 +31,10 @@ const useStyles = makeStyles(theme => ({
   textareaAutosize: {
     resize: 'none',
     width: '50%',
-    marginRight: '1em'
+    marginRight: '1em',
+    borderRadius: '15px 15px',
+    border: 'none',
+    padding: '0.5em 0.75em 0',
   },
   center: {
     display: 'flex',
@@ -66,7 +69,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
-  const [writeMode, setWriteMode] = useState(false);
+  const [writeMode, setWriteMode] = useState(true);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
 
@@ -258,12 +261,13 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
             <div className={classes.center}>
               <TextareaAutosize
                 ref={textareaRef}
-                aria-label='empty textarea'
-                placeholder='Empty'
+                aria-label='personal notes'
+                placeholder='Write Notes'
                 defaultValue={meetingNotes}
                 className={classes.textareaAutosize}
                 onChange={event => handleInput(event)}
                 onFocus={handleCaret}
+                rows='2'
               />
               <InputIcon onClick={() => setWriteMode(prev => !prev)} />
             </div>
