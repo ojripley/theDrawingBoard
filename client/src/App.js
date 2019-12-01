@@ -85,17 +85,19 @@ export default function App() {
     if (user && inMeeting) {
       // console.log('im making a new peer');
       // assign the user a Peer object when they join the meeting
-      setPeer(new Peer(String(user.id), { key: 'peerjs' }));
+      setPeer(new Peer('theDrawingBoard' + String(user.id), { key: 'peerjs' }));
     }
   }, [user, inMeeting, setPeer]);
 
   // set up listeners for new calls and new participans
   useEffect(() => {
+    console.log('i am peer', peer);
 
     // make sure the user has been assigned a Peer object and they are in a meeting
     if (peer && inMeeting) {
-      // console.log('i am peer', peer);
 
+      // listening for PeerServer
+      console.log('listening for PeerServer');
       peer.on('open', (id) => {
         console.log('PeerServer thinks i am:', id);
       });
@@ -106,7 +108,40 @@ export default function App() {
         console.log('someone is calling me, time to accept');
 
         const callerId = call.peer;
+        call.on('close', () => {
+          console.log('stream closed');
+          console.log(call);
 
+          //  call cleanup
+          const tempStreams = streams;
+          const tempCalls = calls;
+
+          console.log('removing call with', call['peer']);
+          console.log(streams);
+
+          console.log(tempStreams[call['peer']]);
+
+          delete tempStreams[call['peer']];
+          delete tempCalls[call['peer']];
+
+          setStreams(tempStreams);
+          setCalls(tempCalls);
+
+          console.log('streams', streams);
+          console.log('calls', calls);
+
+          setNewCall({
+            newPeer: null,
+            isCaller: false
+          });
+
+          const peerStream = document.querySelectorAll(`#stream${call['peer']}`);
+
+          for (let el of peerStream) {
+            console.log(el);
+            el.parentNode.removeChild(el);
+          }
+        });
         setCalls(prev => ({
           ...prev,
           [callerId]: call
@@ -139,9 +174,45 @@ export default function App() {
             navigator.mediaDevices.getUserMedia({ video: false, audio: true })
               .then((stream) => {
                 console.log('this is my media stream, now waiting on answer', stream);
-                const call = peer.call(String(peerId), stream);
+                const call = peer.call('theDrawingBoard' + String(peerId), stream);
                 // setSentCall(peerId);
                 console.log('new call', call);
+                call.on('close', () => {
+                  console.log('stream closed');
+                  console.log(call);
+
+
+                  // call cleanup
+
+                  const tempStreams = streams;
+                  const tempCalls = calls;
+
+                  console.log('removing call with', call['peer']);
+                  console.log(streams);
+
+                  console.log(tempStreams[call['peer']]);
+
+                  delete tempStreams[call['peer']];
+                  delete tempCalls[call['peer']];
+
+                  setStreams(tempStreams);
+                  setCalls(tempCalls);
+
+                  console.log('streams', streams);
+                  console.log('calls', calls);
+
+                  setNewCall({
+                    newPeer: null,
+                    isCaller: false
+                  });
+
+                  const peerStream = document.querySelectorAll(`#stream${call['peer']}`);
+
+                  for (let el of peerStream) {
+                    console.log(el);
+                    el.parentNode.removeChild(el);
+                  }
+                });
                 setCalls(prev => ({
                   ...prev,
                   [peerId]: call
@@ -186,7 +257,6 @@ export default function App() {
             ...prev,
             [newCall.newPeer]: incomingStream
           }));
-          // setSentCall(false);
           console.log('cleaning up state to reset for new users');
           setNewCall({
             newPeer: null,
@@ -194,7 +264,7 @@ export default function App() {
           });
         });
 
-      } else { // the user is the receiver of a new call          peer && inMeeting
+      } else { // the user is the receiver of a new call
 
         // answer the call. Uncle Sam needs YOU!
         console.log('answering the call');
@@ -220,51 +290,6 @@ export default function App() {
       }
     }
   }, [inMeeting, peer, calls, newCall]);
-
-  // handle user leaving the meeting; clean up their stream
-  useEffect(() => {
-    if (socketOpen) {
-      socket.on('userLeft', (data) => {
-        console.log('user has left', data.user.username);
-
-        const tempStreams = streams;
-        const tempCalls = calls;
-
-        console.log('removing call with', data.user.username);
-        console.log(streams);
-
-        console.log(tempStreams[data.user.id]);
-
-        delete tempStreams[data.user.id];
-        delete tempCalls[data.user.id];
-
-        setStreams(tempStreams);
-        setCalls(tempCalls);
-
-        console.log('streams', streams);
-        console.log('calls', calls);
-
-        setNewCall({
-          newPeer: null,
-          isCaller: false
-        });
-
-        const peerStream = document.querySelectorAll(`.stream${data.user.id}`);
-        // const peerStream = document.getElementsByClassName(`stream${data.user.id}`);
-
-        for (let el of peerStream) {
-          console.log(el);
-          el.parentNode.removeChild(el);
-        }
-      });
-    }
-
-    return () => {
-      if (socketOpen) {
-        socket.off('userLeft');
-      }
-    }
-  }, [socket, socketOpen, calls, streams]);
 
 
   // clean up calls/peer object when user leaves the meeting

@@ -189,8 +189,8 @@ io.on('connection', (client) => {
                 handleError(error, client);
               });
             activeUsers.addUser(user, client);
-
             client.on('disconnect', () => {
+              console.log('refresh test');
               activeUsers.removeUser(user.id);
             });
           })
@@ -229,9 +229,11 @@ io.on('connection', (client) => {
         if (authenticateAttempt) {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
+
           activeUsers.addUser(authenticateAttempt, client);
 
           client.on('disconnect', () => {
+            console.log('refresh test');
             activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {

@@ -8,8 +8,8 @@ const SET_POINTER = "SET_POINTER";
 const SAVE = "SAVE";
 
 export default function reducer(state, action) {
-  console.log("---ACTION---", action);
-  console.log('state:', state);
+  // console.log("---ACTION---", action);
+  // console.log('state:', state);
 
   switch (action.type) {
     case SET_INITIAL_PIXELS: {
