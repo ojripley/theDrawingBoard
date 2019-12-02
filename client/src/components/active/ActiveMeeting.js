@@ -3,7 +3,7 @@ import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
 import { makeStyles } from '@material-ui/core/styles';
-import InputIcon from '@material-ui/icons/Input';
+import CloseIcon from '@material-ui/icons/Close';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -29,36 +29,38 @@ const useStyles = makeStyles(theme => ({
   extendedIcon: {
     marginRight: theme.spacing(1),
   },
+  box: {
+    width: '70%',
+    borderRadius: '15px 15px',
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '0.5em 0.5em',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
   textareaAutosize: {
     resize: 'none',
-    width: '50%',
-    marginRight: '1em'
+    marginRight: '1em',
+    border: 'none',
+    width: '100%',
+    borderRadius: '15px 15px',
   },
   center: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     height: 50,
-    position: 'absolute',
+    position: 'fixed',
     zIndex: 2,
-    bottom: 20,
+    bottom: 40,
     width: "100%",
   },
   saving: {
     position: 'absolute',
-    width: 100,
-    height: 100,
-    bottom: 20,
-    left: 50,
-    zIndex: 3,
-    display: 'flex',
-    '& > * + *': {
-      marginLeft: theme.spacing(1),
-      width: 100,
-      height: 100
-    }
-  }
+    right: '14.7%'
+  },
 }));
 
 export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, setLoading, pixelColor }) {
@@ -98,11 +100,18 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   }
 
   const handleCaret = e => {
-    var temp_value = e.target.value
+    const temp_value = e.target.value
     e.target.value = ''
     e.target.value = temp_value
   }
 
+  const handleEscape = e => {
+    if (e.keyCode === 27) {
+      setWriteMode(false);
+    }
+  }
+
+  // const mergeWithImage = (imageCanvas) => {
 
 
   useEffect(() => { //Stores references to the canvases that are defined below
@@ -255,24 +264,25 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
           />
           {writeMode &&
             <div className={classes.center}>
-              <TextareaAutosize
-                ref={textareaRef}
-                aria-label='empty textarea'
-                placeholder='Empty'
-                defaultValue={meetingNotes}
-                className={classes.textareaAutosize}
-                onChange={event => handleInput(event)}
-                onFocus={handleCaret}
-              />
-              <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+              <div className={classes.box}>
+                <TextareaAutosize
+                  ref={textareaRef}
+                  aria-label='personal notes'
+                  placeholder='Press ESC to hide'
+                  defaultValue={meetingNotes}
+                  className={classes.textareaAutosize}
+                  onChange={event => handleInput(event)}
+                  onKeyUp={handleEscape}
+                  onFocus={handleCaret}
+                  rows='2'
+                  rowsMax='4'
+                />
+                <CloseIcon className={classes.close} onClick={() => setWriteMode(false)}/>
+                {saving && <CircularProgress className={classes.saving} color='secondary' size='30px' />}
+              </div>
             </div>
           }
           {/* <canvas id="mergingCanvas"></canvas> */}
-          {saving &&
-            <div className={classes.saving}>
-              <CircularProgress color='secondary' />
-            </div>
-          }
           {/* <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas> */}
           {canvii}
         </div>
