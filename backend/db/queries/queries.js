@@ -516,10 +516,12 @@ const fetchDMs = function(userId, recipientId) {
   const vars = [userId, recipientId, msg, timestamp];
 
   return db.query(`
-    SELECT * FROM DMS
+  SELECT * FROM (SELECT * FROM DMS
     WHERE (user_id=$1 AND recipient_id=$2)
-    OR (user_id=$2 AND recipient_id=$2)
-    ORDER BY time DESC;
+    OR (user_id=$2 AND recipient_id=$1)
+    ORDER BY time DESC
+    LIMIT 20)
+     as a ORDER BY time ASC
   `, vars)
     .then(res => {
       return res.rows;
@@ -537,6 +539,7 @@ module.exports = {
   fetchMeetingById,
   fetchUsersMeetingsByIds,
   fetchMeetingWithUsersById,
+  fetchDMs,
   insertUser,
   insertMeeting,
   insertFriend,
