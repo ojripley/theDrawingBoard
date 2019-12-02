@@ -39,6 +39,7 @@ export default function App() {
   const [error, setError] = useState(null);
 
   // meeting state
+
   const [inMeeting, setInMeeting] = useState(false);
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
@@ -365,7 +366,7 @@ export default function App() {
 
       socket.on('notify', data => {
         console.log(data);
-        if (!inMeeting) {
+        if (!inMeeting && !Loading) {
           setNotificationList(prev => [...prev, data]);
           store.addNotification({
             title: `${data.type}`,

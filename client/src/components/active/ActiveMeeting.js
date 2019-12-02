@@ -3,12 +3,13 @@ import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 
 import { makeStyles } from '@material-ui/core/styles';
-import InputIcon from '@material-ui/icons/Input';
+import CloseIcon from '@material-ui/icons/Close';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Chip from '@material-ui/core/Chip';
 
 import CanvasDrawer from './CanvasDrawer';
+import './ActiveMeeting.scss';
 
 import './ActiveMeeting.scss';
 
@@ -30,20 +31,32 @@ const useStyles = makeStyles(theme => ({
   extendedIcon: {
     marginRight: theme.spacing(1),
   },
+  box: {
+    width: '70%',
+    borderRadius: '15px 15px',
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '0.5em 0.5em',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
   textareaAutosize: {
     resize: 'none',
-    width: '50%',
-    marginRight: '1em'
+    marginRight: '1em',
+    border: 'none',
+    width: '100%',
+    borderRadius: '15px 15px',
   },
   center: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     height: 50,
-    position: 'absolute',
+    position: 'fixed',
     zIndex: 2,
-    bottom: 20,
+    bottom: 40,
     width: "100%",
   },
   saving: {
@@ -60,7 +73,6 @@ const useStyles = makeStyles(theme => ({
       height: 100
     }
   },
-  chip: {}
 }));
 
 export default function ActiveMeeting({ socket,
@@ -99,13 +111,13 @@ export default function ActiveMeeting({ socket,
   const [pointing, setPointing] = useState(false);
 
   const [page, setPage] = useState(0);
-  const finalCanvasRef = useRef(null);
+  const canviiRef = useRef([]);
 
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: {},
     color: pixelColor,
-    pointers: {}, //if needed make take the initial state from server
+    pointers: {},
     finishedSaving: Array(backgroundImage.length)
   });
 
@@ -118,21 +130,37 @@ export default function ActiveMeeting({ socket,
   }
 
   const handleCaret = e => {
-    var temp_value = e.target.value
+    const temp_value = e.target.value
     e.target.value = ''
     e.target.value = temp_value
   }
 
+  const handleEscape = e => {
+    if (e.keyCode === 27) {
+      setWriteMode(false);
+    }
+  }
+
+  // const mergeWithImage = (imageCanvas) => {
+
+
+  useEffect(() => { //Stores references to the canvases that are defined below
+    if (imageLoaded && backgroundImage) {
+      canviiRef.current = canviiRef.current.slice(0, backgroundImage.length)
+    }
+  }, [imageLoaded, backgroundImage, backgroundImage.length]);
+
+  const canvii = backgroundImage.map((image, index) => {
+    return <canvas key={index} className="sendingCanvas" ref={el => canviiRef.current[index] = el}></canvas>
+  });
   const endMeeting = () => {
-    //TODO: handle case with no image
-    // mergeWithImage();
-    // let sendingCanvas = (<canvas></canvas>);
     for (let i in backgroundImage) {
       console.log("working on", i);
       let bkgdImg = backgroundImage[i];
-      finalCanvasRef.current.width = bkgdImg.width;
-      finalCanvasRef.current.height = bkgdImg.height;
-      let sendingCtx = finalCanvasRef.current.getContext('2d');
+      canviiRef.current[i].width = bkgdImg.width;
+      canviiRef.current[i].height = bkgdImg.height;
+      let sendingCtx = canviiRef.current[i].getContext('2d');
+
       canvasState.ctx.drawImage(bkgdImg, 0, 0, bkgdImg.width, bkgdImg.height);
       dispatch({ type: SAVE, payload: { page: i, ctx: sendingCtx, backgroundImage: bkgdImg } });
     }
@@ -140,9 +168,16 @@ export default function ActiveMeeting({ socket,
   }
 
   useEffect(() => {
-    //Checks if all the saved images are done loading. FinishedSaving is an array of length equal to the length of the background images, intially with undefined values
-    //As images are prepped for saving, the entry is replaced with the data (base64) for the img. The below reduce counts the number of elements that are not undefined, and once that reaches the number of images an emit is made to the server with the data as an array
-    if (canvasState.finishedSaving.reduce((p, c) => p + (c ? 1 : 0), 0) === backgroundImage.length) {
+
+    let countSaved = canvasState.finishedSaving.reduce((accumulator, current) => {
+      if (current) {
+        return accumulator + 1;
+      } else {
+        return accumulator;
+      }
+    }, 0);
+
+    if (countSaved === backgroundImage.length) {
 
       socket.emit('endMeeting', {
         meetingId: meetingId,
@@ -150,7 +185,6 @@ export default function ActiveMeeting({ socket,
         image: canvasState.finishedSaving
       })
     }
-
   }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
 
   const loadSpinner = () => {
@@ -280,6 +314,7 @@ export default function ActiveMeeting({ socket,
             setStrokeWidth={setStrokeWidth}
             setHighlighting={setHighlighting}
             setPointing={setPointing}
+            tool={tool}
             setTool={setTool}
             page={page}
             totalPages={backgroundImage.length}
@@ -308,25 +343,27 @@ export default function ActiveMeeting({ socket,
           />
           {writeMode &&
             <div className={classes.center}>
-              <TextareaAutosize
-                ref={textareaRef}
-                aria-label='empty textarea'
-                placeholder='Empty'
-                defaultValue={meetingNotes}
-                className={classes.textareaAutosize}
-                onChange={event => handleInput(event)}
-                onFocus={handleCaret}
-              />
-              <InputIcon onClick={() => setWriteMode(prev => !prev)} />
+              <div className={classes.box}>
+                <TextareaAutosize
+                  ref={textareaRef}
+                  aria-label='personal notes'
+                  placeholder='Press ESC to hide'
+                  defaultValue={meetingNotes}
+                  className={classes.textareaAutosize}
+                  onChange={event => handleInput(event)}
+                  onKeyUp={handleEscape}
+                  onFocus={handleCaret}
+                  rows='2'
+                  rowsMax='4'
+                />
+                <CloseIcon className={classes.close} onClick={() => setWriteMode(false)}/>
+                {saving && <CircularProgress className={classes.saving} color='secondary' size='30px' />}
+              </div>
             </div>
           }
           {/* <canvas id="mergingCanvas"></canvas> */}
-          {saving &&
-            <div className={classes.saving}>
-              <CircularProgress color='secondary' />
-            </div>
-          }
-          <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas>
+          {/* <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas> */}
+          {canvii}
         </div>
       }
     </>

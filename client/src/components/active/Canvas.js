@@ -27,7 +27,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   let imageCtx = useRef(undefined);
 
   const getScaledDimensions = (h, w, bh, bw) => { //possible scaling
-    if (bw > bh) {
+    if (bw >= bh) {
       setOrientation('landscape');
       return [w, bh === 0 ? h : (bh * w / bw)]
     } else {
@@ -39,17 +39,25 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   //Loads the initial drawing canvas
   useEffect(() => {
     window.onresize = () => {
-      // drawCanvasRef.current.width = window.innerWidth;
-      // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-
+      console.log("draw is resizing");
       [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+      [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+      imageCtx.current = imageCanvasRef.current.getContext('2d');
+      if (backgroundImage.src) {
+        imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+      }
       dispatch({ type: REDRAW, payload: { page: page } });
     }
-
-    // drawCanvasRef.current.width = window.innerWidth;
-    // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
     [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+    [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
+    imageCtx.current = imageCanvasRef.current.getContext('2d');
+
+    if (backgroundImage.src) {
+      imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+    }
+
     const newCtx = drawCanvasRef.current.getContext('2d');
+
     dispatch({
       type: SET_CTX,
       payload: newCtx
@@ -62,7 +70,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     }
 
 
-  }, [imageLoaded, backgroundImage, dispatch, page]);
+  }, [imageLoaded, backgroundImage, dispatch, page, drawCanvasRef.current, imageCtx.current]);
 
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
@@ -126,34 +134,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
 
 
-
-  //Sets the image canvas after it has loaded (and upon any changes in image)
-  useEffect(() => {
-    window.onresize = () => {
-      // drawCanvasRef.current.width = window.innerWidth;
-      // drawCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-      [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
-      dispatch({ type: REDRAW, payload: { page: page } });
-
-      if (backgroundImage.src) {
-        imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-      }
-    }
-    // setImageCtx(prev => {
-
-    // imageCanvasRef.current.width = window.innerWidth;
-    // imageCanvasRef.current.height = backgroundImage.height === 0 ? window.innerHeight : (backgroundImage.height * window.innerWidth / backgroundImage.width);
-
-    [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
-    imageCtx.current = imageCanvasRef.current.getContext('2d');
-
-    if (backgroundImage.src) {
-      imageCtx.current.drawImage(backgroundImage, 0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
-    }
-    // dispatch({ type: SET_INITIAL_PIXELS, payload: initialPixels })
-    dispatch({ type: REDRAW, payload: { page: page } });
-    // });
-  }, [imageCtx.current, imageLoaded, backgroundImage]);
 
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {
