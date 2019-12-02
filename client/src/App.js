@@ -19,7 +19,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 import Login from './components/login/Login';
 import Error from './components/Error';
-import AudioPlayer from './AudioPlayer';
 
 //Custom hooks
 import { useSocket } from './hooks/useSocket'
@@ -111,51 +110,17 @@ export default function App() {
     if (peer && inMeeting) {
 
       // listening for PeerServer
-      console.log('listening for PeerServer');
       peer.on('open', (id) => {
         console.log('PeerServer thinks i am:', id);
       });
 
+      console.log('i am listening for calls');
       // listen for incoming calls
       peer.on('call', (call) => {
 
         console.log('someone is calling me, time to accept', call.peer);
 
         const callerId = call.peer;
-        call.on('close', () => {
-          console.log('stream closed');
-          console.log(call);
-
-          //  call cleanup
-          const tempStreams = streams;
-          const tempCalls = calls;
-          // const tempUsersInMeeting = usersInMeeting;
-
-          console.log('peer closed the call', call.peer);
-
-          delete tempStreams[call['peer']];
-          delete tempCalls[call['peer']];
-          // console.log('before deleting ', tempUsersInMeeting);
-          // delete tempUsersInMeeting[call['peer']];
-          // console.log('after deleting ', tempUsersInMeeting);
-
-          setStreams(tempStreams);
-          setCalls(tempCalls);
-          // console.log('setting usersInMeeting');
-          // setUsersInMeeting(tempUsersInMeeting);
-
-          setNewCall({
-            newPeer: null,
-            isCaller: false
-          });
-
-          const peerStream = document.querySelectorAll(`#stream${call['peer']}`);
-
-          for (let el of peerStream) {
-            console.log(el);
-            el.parentNode.removeChild(el);
-          }
-        });
         setCalls(prev => ({
           ...prev,
           [callerId]: call
@@ -199,35 +164,6 @@ export default function App() {
                 console.log('this is my media stream, now waiting on answer', stream);
                 const call = peer.call(String(peerId), stream);
                 console.log('new call', call);
-                call.on('close', () => {
-                  console.log('stream closed');
-                  console.log(call);
-
-                  //  call cleanup
-                  const tempStreams = streams;
-                  const tempCalls = calls;
-
-                  delete tempStreams[call['peer']];
-                  delete tempCalls[call['peer']];
-
-                  setStreams(tempStreams);
-                  setCalls(tempCalls);
-
-                  console.log('streams', streams);
-                  console.log('calls', calls);
-
-                  setNewCall({
-                    newPeer: null,
-                    isCaller: false
-                  });
-
-                  const peerStream = document.querySelectorAll(`#stream${call['peer']}`);
-
-                  for (let el of peerStream) {
-                    console.log(el);
-                    el.parentNode.removeChild(el);
-                  }
-                });
                 setCalls(prev => ({
                   ...prev,
                   [peerId]: call
@@ -250,13 +186,13 @@ export default function App() {
         socket.off('newParticipant');
       }
     }
-  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer]); // newParticipant
+  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer, calls]); // newParticipant
 
 
   // handle new call connections
   useEffect(() => {
-    console.log('newPeer', newCall.newPeer);
-    console.log('isCaller', newCall.isCaller);
+    // console.log('newPeer', newCall.newPeer);
+    // console.log('isCaller', newCall.isCaller);
     if (peer && newCall.newPeer && inMeeting) {
 
       if (newCall.isCaller) { // && !sentCall
@@ -264,6 +200,7 @@ export default function App() {
         console.log('new call is with', newCall.newPeer);
         console.log(calls);
         if (calls[newCall.newPeer]) {
+          console.log('hey, the call exists, waiting for answer stream');
           calls[newCall.newPeer].on('stream', (incomingStream) => {
 
             // create a stream element
@@ -359,24 +296,54 @@ export default function App() {
     }
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
 
+  useEffect(() => {
+    if (socketOpen) {
+      // console.log('listening for users to leave');
+      socket.on('userLeft', (data) => {
+        const liveUserId = 'theDrawingBoard' + data.user.id;
 
-  // // compose incoming stream elements
-  // useEffect(() => {
+        const tempUsersInMeeting = usersInMeeting;
 
-  //   const tempIncomingStreams = Object.keys(streams).map((key) => {
-  //     console.log('streams', streams);
-  //     const stream = streams[key];
-  //     return (
-  //       <AudioPlayer
-  //         key={key}
-  //         stream={stream}
-  //         peerId={key}
-  //       ></AudioPlayer>
-  //     )
-  //   });
+        delete tempUsersInMeeting[liveUserId];
 
-  //   // setIncomingStreams(tempIncomingStreams);
-  // }, [streams]);
+        // this will trigger the userChips to rerender
+        setUsersInMeeting({ ...tempUsersInMeeting });
+
+        // this is for cleaning up stream for the disconnected user
+        console.log('closing stream');
+
+        //  call cleanup
+        const tempStreams = streams;
+        const tempCalls = calls;
+
+        delete tempStreams[liveUserId];
+        delete tempCalls[liveUserId];
+
+        setStreams(tempStreams);
+        setCalls(tempCalls);
+
+        console.log('streams', streams);
+        console.log('calls', calls);
+
+        setNewCall({
+          newPeer: null,
+          isCaller: false
+        });
+
+        const peerStream = document.querySelectorAll(`#stream${liveUserId}`);
+
+        for (let el of peerStream) {
+          console.log(el);
+          el.parentNode.removeChild(el);
+        }
+
+      });
+
+      return () => {
+        socket.off('userLeft');
+      }
+    }
+  }, [usersInMeeting, socket, socketOpen, calls, streams]);
 
   useEffect(() => {
     if (socketOpen) {
@@ -427,7 +394,7 @@ export default function App() {
         socket.off('meeting');
       }
     }
-  }, [socket, socketOpen, setLoading, loading]);
+  }, [socket, socketOpen, setLoading, loading, inMeeting, user]);
 
 
   return (

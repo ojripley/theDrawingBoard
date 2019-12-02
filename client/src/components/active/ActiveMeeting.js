@@ -231,47 +231,23 @@ export default function ActiveMeeting({ socket,
     }
   }, [writeMode]);
 
-  useEffect(() => {
-    if (socketOpen) {
-      console.log('listening for users to leave');
-      socket.on('userLeft', (data) => {
-        const liveUserId = 'theDrawingBoard' + data.user.id;
 
-        console.log('user left, deleteing ', liveUserId);
-
-        const tempUsersInMeeting = usersInMeeting;
-
-        console.log(tempUsersInMeeting[liveUserId]);
-        delete tempUsersInMeeting[liveUserId];
-        console.log('temp after deleting', tempUsersInMeeting);
-        setUsersInMeeting({...tempUsersInMeeting});
-        // setUserChips(prev => prev.filter((userChip) => {
-        //   return userChip.key !== data.user.id;
-        // }));
-        // setUserChips(null);
-      });
-
-      return () => {
-        socket.off('userLeft');
-      }
-    }
-  }, [usersInMeeting, socket, socketOpen]);
 
   useEffect(() => {
 
-    console.log('baking chips :)');
-    console.log(usersInMeeting);
+    // console.log('baking chips :)');
+    // console.log(usersInMeeting);
 
     if (usersInMeeting) {
       const tempUserChips = Object.keys(usersInMeeting).map((key) => {
         if (usersInMeeting[key]) {
-          console.log('key', key);
+          // console.log('key', key);
           const liveUser = usersInMeeting[key];
-          console.log('liveuser', liveUser);
+          // console.log('liveuser', liveUser);
 
-          console.log('usersInMeeting');
-          console.log(usersInMeeting);
-          console.log(canvasState.color);
+          // console.log('usersInMeeting');
+          // console.log(usersInMeeting);
+          // console.log(canvasState.color);
 
           let colourId = null;
 
@@ -308,7 +284,7 @@ export default function ActiveMeeting({ socket,
         }
       });
 
-      console.log(tempUserChips);
+      // console.log(tempUserChips);
 
       setUserChips(tempUserChips);
     }

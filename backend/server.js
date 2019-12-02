@@ -391,10 +391,16 @@ io.on('connection', (client) => {
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
-          promiseArray.push(db.insertUsersMeeting(contact.id, id));
+
+          if (contact.id === data.ownerId) {
+            promiseArray.push(db.insertUsersMeeting(contact.id, id, 'accepted'));
+          } else {
+            promiseArray.push(db.insertUsersMeeting(contact.id, id, null));
+          }
         }
 
         await Promise.all(promiseArray);
+
 
         res = await db.fetchMeetingWithUsersById(id);
 

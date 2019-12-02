@@ -24,13 +24,16 @@ const fetchContactsByUserId = function(user_id, username = '') {
     SELECT username, id, email, relation FROM users
     JOIN friends ON friends.friend_id = users.id
     WHERE (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'pending')
     OR (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'requested')
     OR (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'accepted');
   `, vars)
     .then(res => {
@@ -49,11 +52,11 @@ const fetchUsersByUsername = function(username = '', id) {
   return db.query(`
     select id, username, relation
     from users left join friends on users.id = friends.user_id
-    where username ilike $1 and (friend_id is null)
+    where (username ilike $1 or email ilike $1) and (friend_id is null)
     union
     select id, username, null as relation
     from users join friends on users.id=friends.user_id
-    where username ilike $1 and id != $2
+    where (username ilike $1 or email ilike $1) and id != $2
     group by id having($2 != all(array_agg(friend_id)));
   `, vars)
     .then(res => {
@@ -197,8 +200,13 @@ const insertMeeting = function(start_time, owner_id, name, description, status, 
     });
 };
 
-const insertUsersMeeting = function(user_id, meeting_id) {
-  const vars = [user_id, meeting_id, 'invited'];
+const insertUsersMeeting = function(user_id, meeting_id, status) {
+
+  if (!status) {
+    status = 'invited';
+  }
+
+  const vars = [user_id, meeting_id, status];
 
   return db.query(`
     INSERT INTO users_meetings (user_id, meeting_id, attendance)
