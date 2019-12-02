@@ -366,7 +366,7 @@ export default function App() {
       socket.on('notify', data => {
         if (!inMeeting && !loading) {
           console.log("Setting notification");
-          setNotificationList(prev => [...prev, data]);
+          setNotificationList(prev => [data, ...prev]);
           store.addNotification({
             title: `${data.type}`,
             message: `${data.msg}`,
