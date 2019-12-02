@@ -129,11 +129,11 @@ export default function CanvasDrawer(props) {
     if (props.socketOpen) {
       props.socket.emit('undoLine', { user: props.user, meetingId: props.meetingId, page: props.page });
     }
-  }
+  };
 
   const handleTool = (tool) => {
     props.setTool(tool);
-  }
+  };
 
   const handleMessage = event => {
     setMessage(event.target.value);
@@ -148,14 +148,14 @@ export default function CanvasDrawer(props) {
       console.log('unreadMessages for sender:', unreadMessages)
       setMessage('');
     }
-  }
+  };
 
   const handleKeyStroke = event => {
     if (event.charCode === 13) {
       event.preventDefault();
       handleMessageSend();
     }
-  }
+  };
 
   const handleChange = (event, n) => {
     props.setStrokeWidth(n);

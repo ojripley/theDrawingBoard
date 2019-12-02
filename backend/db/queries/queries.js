@@ -496,11 +496,11 @@ const clearToHistory = function() {
     });
 }
 
-const insertIntoDms = function(userId, senderId, msg, timestamp) {
-  const vars = [userId, senderId, msg, timestamp];
+const insertIntoDms = function(userId, recipient, msg, timestamp) {
+  const vars = [userId, recipientId, msg, timestamp];
 
   return db.query(`
-    INSERT INTO dms (user_id, sender_id, msg, timestamp)
+    INSERT INTO dms (user_id, recipient_id, msg, timestamp)
     VALUES ($1, $2, $3, $4)
     RETURNING *;
   `, vars)
