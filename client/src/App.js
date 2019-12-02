@@ -140,6 +140,7 @@ export default function App() {
 
           setStreams(tempStreams);
           setCalls(tempCalls);
+          console.log('setting usersInMeeting');
           setUsersInMeeting(tempUsersInMeeting);
 
           setNewCall({
