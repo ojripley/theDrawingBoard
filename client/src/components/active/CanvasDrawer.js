@@ -10,8 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Slider from '@material-ui/core/Slider';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import Badge from '@material-ui/core/Badge'
 
 import './CanvasDrawer.scss';
@@ -46,8 +46,13 @@ const useStyles = makeStyles(theme => ({
   button: {
     zIndex: 999,
     position: 'fixed',
-    bottom: 0,
-    right: 0
+    top: 10,
+    right: 10
+  },
+  endButton: {
+    position: 'relative',
+    float: 'right',
+    margin: '0.5em 10px'
   },
   sendButton: {
     position: 'relative',
@@ -181,8 +186,19 @@ export default function CanvasDrawer(props) {
 
   return (
     <>
-      <Badge color="secondary" badgeContent={messages.length}>
-        <Button variant='contained' color='primary' className={classes.button} onClick={() => setOpenDrawer(true)}>Open Tools</Button>
+      <Badge
+        color="secondary"
+        badgeContent={messages.length}
+        children={
+          <Button
+            variant='contained'
+            color='primary'
+            className={classes.button}
+            onClick={() => setOpenDrawer(true)}
+          >
+            Open Tools
+          </Button>
+        }>
       </Badge>
 
       <Drawer classes={{ paper: classes.drawerContainer }} anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
@@ -212,9 +228,35 @@ export default function CanvasDrawer(props) {
           <div id='pen-controls'>
             <Button variant='outlined' color='secondary' size='small' onClick={handleUndo}>Undo</Button>
             <div className='pens'>
-            <Button id='penSelector' variant={props.tool === 'pen' ? 'contained' : 'outlined'} color='primary' size='small' aria-controls='simple-menu' aria-haspopup='true' onClick={() => handleTool('pen')}>Pen</Button>
-            <Button id='highlighterSelector' variant={props.tool === 'highlighter' ? 'contained' : 'outlined'} color='primary' size='small' aria-controls='simple-menu2' aria-haspopup='true' onClick={() => handleTool('highlighter')}>Highlighter</Button>
-            <Button onClick={() => handleTool('pointer')} variant={props.tool === 'pointer' ? 'contained' : 'outlined'} color='primary' size='small'>Pointer</Button>
+            <Button
+              id='penSelector'
+              variant={props.tool === 'pen' ? 'contained' : 'outlined'}
+              color='primary'
+              size='small'
+              aria-controls='simple-menu'
+              aria-haspopup='true'
+              onClick={() => handleTool('pen')}
+            >
+              Pen
+            </Button>
+            <Button
+              id='highlighterSelector'
+              variant={props.tool === 'highlighter' ? 'contained' : 'outlined'}
+              color='primary'
+              size='small'
+              aria-controls='simple-menu2'
+              aria-haspopup='true' onClick={() => handleTool('highlighter')}
+            >
+              Highlighter
+            </Button>
+            <Button
+              onClick={() => handleTool('pointer')}
+              variant={props.tool === 'pointer' ? 'contained' : 'outlined'}
+              color='primary'
+              size='small'
+            >
+              Pointer
+            </Button>
             </div>
             <div className='pens'>
               <Typography variant='overline'>Size</Typography>
@@ -231,32 +273,33 @@ export default function CanvasDrawer(props) {
             </div>
           </div>
           <Divider color='secondary' />
-          <List>
-            <ListItem button onClick={handleWrite}>Write Notes</ListItem>
-          </List>
-          <Divider />
-          <List>
-            <ListItem button onClick={backToDash}>Leave Meeting</ListItem>
-          </List>
+          <div className='drawer-button-container'>
+            <Button className='drawer-button' variant='outlined' color='secondary' size='small' onClick={handleWrite}>Write Notes</Button>
+            <Button className='drawer-button' variant='outlined' color='secondary' size='small' onClick={backToDash}>Leave Meeting</Button>
+          </div>
           {props.user.id === props.ownerId &&
             <>
               <Divider color='secondary' />
-              <List>
-                <ListItem>
-                  <KeyboardArrowLeftIcon onClick={() => changePage('prev')} />
-                  Page {props.page + 1} of {props.totalPages}
-                  <KeyboardArrowRightIcon onClick={() => changePage('next')} />
-                </ListItem>
-              </List>
+                <div id='page-navigation'>
+                  <Button size="small" onClick={() => changePage('prev')} disabled={props.page === 0}>
+                    <KeyboardArrowLeft />
+                    Back
+                  </Button>
+                    {props.page + 1}/{props.totalPages}
+                  <Button size='small' onClick={() => changePage('next')} disabled={props.page === props.totalPages - 1}>
+                    Next
+                    <KeyboardArrowRight />
+                  </Button>
+                </div>
               <Button
                 variant='contained'
                 color='secondary'
-                className={classes.endMeeting}
+                className={classes.endButton}
                 onClick={props.loadSpinner}
               >
                 End Meeting
-        </Button>
-        </>
+            </Button>
+          </>
         }
         </div>
       </Drawer>

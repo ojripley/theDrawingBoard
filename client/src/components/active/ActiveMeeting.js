@@ -68,7 +68,7 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
 
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
-  const [writeMode, setWriteMode] = useState(true);
+  const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
 
