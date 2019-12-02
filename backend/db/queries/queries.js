@@ -49,11 +49,11 @@ const fetchUsersByUsername = function(username = '', id) {
   return db.query(`
     select id, username, relation
     from users left join friends on users.id = friends.user_id
-    where username ilike $1 and (friend_id is null)
+    where (username ilike $1 or email ilike $1) and (friend_id is null)
     union
     select id, username, null as relation
     from users join friends on users.id=friends.user_id
-    where username ilike $1 and id != $2
+    where (username ilike $1 or email ilike $1) and id != $2
     group by id having($2 != all(array_agg(friend_id)));
   `, vars)
     .then(res => {
