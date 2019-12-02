@@ -235,7 +235,7 @@ io.on('connection', (client) => {
             activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
-          handleError({type: 'login', msg: 'Email and/or password is incorrect, try again!'}, client)
+          handleError({ type: 'login', msg: 'Email and/or password is incorrect, try again!' }, client)
         }
         console.log('sending response');
         if (authenticateAttempt.id) {
@@ -737,6 +737,15 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('userLeft', { user: data.user, meetingId: data.meetingId });
     console.log(activeMeetings[data.meetingId].liveUsers);
     console.log(`${data.user.username} has left meeting ${data.meetingId}`);
+  });
+
+  client.on('fetchDms', (data) => {
+    db.fetchDmsById(data.user.id, data.recipientId)
+      .then((res) => {
+        console.log('DMs are:', res[0]);
+        client.emit('DmsFetched', res[0]);
+      })
+
   });
 
   client.on('sendDm', (data) => {
