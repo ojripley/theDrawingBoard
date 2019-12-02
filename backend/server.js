@@ -189,8 +189,8 @@ io.on('connection', (client) => {
                 handleError(error, client);
               });
             activeUsers.addUser(user, client);
-
             client.on('disconnect', () => {
+              console.log('refresh test');
               activeUsers.removeUser(user.id);
             });
           })
@@ -229,9 +229,11 @@ io.on('connection', (client) => {
         if (authenticateAttempt) {
           console.log('id to be added:');
           console.log(authenticateAttempt.id);
+
           activeUsers.addUser(authenticateAttempt, client);
 
           client.on('disconnect', () => {
+            console.log('refresh test');
             activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
@@ -472,7 +474,7 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
-    activeMeetings[data.meetingId].liveUsers[data.user.id] = true;
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = data.user;
     console.log(activeMeetings[data.meetingId].liveUsers);
 
 
@@ -516,7 +518,7 @@ io.on('connection', (client) => {
         client.join(data.meetingId);
         console.log('new participant', { user: data.user, color: col })
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
-        io.to(data.meetingId).emit('newParticipant', { user: data.user }); //Should this be meeting or client?
+        io.to(data.meetingId).emit('newParticipant', { user: data.user });
       }).catch(err => {
         handleError(err, client);
       });
@@ -722,7 +724,7 @@ io.on('connection', (client) => {
   client.on('peacingOutYo', (data) => {
 
     // user leaves room
-    activeMeetings[data.meetingId].liveUsers[data.user.id] = false;
+    delete activeMeetings[data.meetingId].liveUsers[data.user.id];
     client.leave(data.meetingId);
 
     // tell the room who left

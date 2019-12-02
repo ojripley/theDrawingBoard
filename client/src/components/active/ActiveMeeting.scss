@@ -1,3 +1,45 @@
 .sendingCanvas {
   display: none;
 }
+
+.user-chips {
+  z-index: 3;
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  width: 80%;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+.user-chip {
+  text-align: center;
+  font-size: 80%;
+  margin-left: 3px;
+  margin-right: 3px;
+  border-radius: 20px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  padding-right: 1em;
+  padding-left: 1em;
+  height: 1.2em;
+  width: auto;
+  overflow-wrap: none;
+}
+
+#one {
+  background-color: rgba(0, 0, 255, 0.70);
+}
+
+#two {
+  background-color: rgba(255, 0, 0, 0.70);
+}
+
+#3 {
+  background-color: rgba(0, 255, 0, 0.70);
+}
+
+#4 {
+  background-color: rgba(222, 70, 242, 0.70);
+}

@@ -6,14 +6,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Chip from '@material-ui/core/Chip';
 
 import CanvasDrawer from './CanvasDrawer';
+import './ActiveMeeting.scss';
+
 import './ActiveMeeting.scss';
 
 import reducer, {
   SAVE
 } from "../../reducers/canvasReducer";
-
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -59,13 +61,43 @@ const useStyles = makeStyles(theme => ({
   },
   saving: {
     position: 'absolute',
-    right: '14.7%'
+    width: 100,
+    height: 100,
+    bottom: 20,
+    left: 50,
+    zIndex: 3,
+    display: 'flex',
+    '& > * + *': {
+      marginLeft: theme.spacing(1),
+      width: 100,
+      height: 100
+    }
   },
 }));
 
-export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, meetingId, setInMeeting, ownerId, setMeetingId, setMode, imageLoaded, setImageLoaded, backgroundImage, setBackgroundImage, initialPixels, setLoading, pixelColor }) {
+export default function ActiveMeeting({ socket,
+  socketOpen,
+  initialNotes,
+  user,
+  meetingId,
+  setInMeeting,
+  ownerId,
+  setMeetingId,
+  setMode,
+  imageLoaded,
+  setImageLoaded,
+  backgroundImage,
+  setBackgroundImage,
+  initialPixels,
+  setLoading,
+  pixelColor,
+  usersInMeeting
+}) {
+
 
   const classes = useStyles();
+
+  const [userChips, setUserChips] = useState(null);
 
   // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
@@ -90,8 +122,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   });
 
   const textareaRef = useRef(null);
-
-
 
   const handleInput = (e) => {
     console.log(e.target.value)
@@ -123,7 +153,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
   const canvii = backgroundImage.map((image, index) => {
     return <canvas key={index} className="sendingCanvas" ref={el => canviiRef.current[index] = el}></canvas>
   });
-
   const endMeeting = () => {
     for (let i in backgroundImage) {
       console.log("working on", i);
@@ -158,7 +187,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     }
   }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
 
-
   const loadSpinner = () => {
     socket.emit('savingMeeting', { meetingId: meetingId });
     setLoading(true);
@@ -182,7 +210,6 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
       setBackgroundImage(new Image());
       setLoading(false);
     });
-
 
     socket.on('changingPage', data => {
       console.log('trying to change page');
@@ -214,13 +241,65 @@ export default function ActiveMeeting({ socket, socketOpen, initialNotes, user, 
     }
   }, [writeMode]);
 
+  useEffect(() => {
 
+    console.log('baking chips :)');
+    console.log(usersInMeeting);
+
+    const tempUserChips = Object.keys(usersInMeeting).map((key) => {
+      console.log('key', key);
+      const liveUser = usersInMeeting[key];
+      console.log('liveuser', liveUser);
+
+      console.log('usersInMeeting');
+      console.log(usersInMeeting);
+      console.log(canvasState.color);
+
+      let colourId = null;
+
+      if (canvasState.color[liveUser.id]) {
+
+        const colour = canvasState.color[liveUser.id];
+
+        console.log(colour);
+
+
+        if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
+          colourId = 'one';
+        }
+
+        if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
+          colourId = 'two';
+        }
+
+        if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
+          colourId = 'three';
+        }
+
+        if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
+          colourId = 'four';
+        }
+      }
+
+      return (
+        <p key={liveUser.id} id={colourId} className='user-chip'>
+          {liveUser.username}
+        </p>
+      )
+    });
+
+    console.log(tempUserChips);
+
+    setUserChips(tempUserChips);
+
+  }, [usersInMeeting]);
 
 
   return (
     <>
       {imageLoaded &&
         <div className={classes.root}>
+        <div className='user-chips'>{userChips}</div>
           <CanvasDrawer
             user={user}
             ownerId={ownerId}

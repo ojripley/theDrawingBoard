@@ -1,6 +1,7 @@
 import React, {ReactDOM, useRef} from 'react';
 
 
+
 export default function AudioPlayer(props) {
 
   // const audioRef = useRef(null);
@@ -17,7 +18,8 @@ export default function AudioPlayer(props) {
   const root = document.getElementById('root');
 
   const audioStream = document.createElement('audio');
-  audioStream.setAttribute('class', `stream${props.peerId}`);
+  audioStream.setAttribute('id', `stream${props.peerId}`);
+  audioStream.setAttribute('class', 'hide-audio-controls');
   audioStream.setAttribute('autoPlay', true);
   audioStream.setAttribute("playsinline", true);
   audioStream.setAttribute("controls", true);

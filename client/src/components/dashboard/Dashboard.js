@@ -96,6 +96,7 @@ export default function Dashboard(props) {
           setMeetingNotes={props.setMeetingNotes}
           setLoading={props.setLoading}
           setPixelColor={props.setPixelColor}
+          setUsersInMeeting={props.setUsersInMeeting}
         />
       </li>
     )
