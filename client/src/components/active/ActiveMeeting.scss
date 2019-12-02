@@ -11,11 +11,14 @@
   position: fixed;
   top: 10px;
   left: 10px;
+  background-color: transparent;
 }
 
 .user-chip {
+  color: white;
   text-align: center;
   font-size: 80%;
+  font-weight: 500;
   margin-left: 3px;
   margin-right: 3px;
   border-radius: 20px;
