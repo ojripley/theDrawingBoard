@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import Contact from './Contact';
+import Chat from './Chat';
 import useDebounce from "../../hooks/useDebounce";
 
 import TextField from '@material-ui/core/TextField';
@@ -8,7 +9,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-
 const useStyles = makeStyles(theme => ({
   textField: {
     flexBasis: '100%',
@@ -26,6 +26,8 @@ export default function Contacts(props) {
   const [contactsList, setContactsList] = useState([]);
   const [globalSearch, setGlobalSearch] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 100);
+  const [viewChat, setViewChat] = useState(0);
+
 
   useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
@@ -43,6 +45,10 @@ export default function Contacts(props) {
       setGlobalSearch(true);
     }
   };
+
+  const displayChat = (id) => {
+    setViewChat(id);
+  }
 
   useEffect(() => {
     props.socket.off('relationChanged');
@@ -94,6 +100,7 @@ export default function Contacts(props) {
       return (<Contact
         key={friend.id}
         contact={friend}
+        displayChat={displayChat}
         user={props.user}
         socket={props.socket}
         socketOpen={props.socketOpen}
@@ -104,33 +111,43 @@ export default function Contacts(props) {
 
   return (
     <>
-      <div>
-        <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography>
-        <Divider />
-      </div>
-      <div id='search-container'>
-        <TextField
-          id="outlined-name"
-          label="Search"
-          className={classes.textField}
-          value={searchTerm}
-          onChange={handleSearchTermChange}
-          margin="normal"
-        />
-        <label className='search-label' htmlFor='upload-initial-doc'>
-          <Typography variant='overline'>{globalSearch ? 'Search: All Users' : 'Search: Contacts'}</Typography>
-        </label>
-        <Switch
-          id='toggle-global-search'
-          checked={globalSearch}
-          onChange={handleGlobalSearchChange}
-          value="checked"
-          color="secondary"
-        />
-      </div>
-      <ul className='contact-list'>
-        {contacts}
-      </ul>
+      {viewChat !== 0 ? (<Chat
+        user={props.user}
+        recipientId={viewChat}
+        socket={props.socket}
+        socketOpen={props.socketOpen}
+      />) :
+        (<><div>
+          <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography >
+          <Divider />
+        </div >
+          <div id='search-container'>
+            <TextField
+              id="outlined-name"
+              label="Search"
+              className={classes.textField}
+              value={searchTerm}
+              onChange={handleSearchTermChange}
+              margin="normal"
+            />
+            <label className='search-label' htmlFor='upload-initial-doc'>
+              <Typography variant='overline'>{globalSearch ? 'Search: All Users' : 'Search: Contacts'}</Typography>
+            </label>
+            <Switch
+              id='toggle-global-search'
+              checked={globalSearch}
+              onChange={handleGlobalSearchChange}
+              value="checked"
+              color="secondary"
+            />
+          </div>
+          <ul className='contact-list'>
+            {contacts}
+          </ul>
+        </>)
+      }
     </>
+
+
   );
 }
