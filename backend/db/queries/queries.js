@@ -197,8 +197,13 @@ const insertMeeting = function(start_time, owner_id, name, description, status, 
     });
 };
 
-const insertUsersMeeting = function(user_id, meeting_id) {
-  const vars = [user_id, meeting_id, 'invited'];
+const insertUsersMeeting = function(user_id, meeting_id, status) {
+
+  if (!status) {
+    status = 'invited';
+  }
+
+  const vars = [user_id, meeting_id, status];
 
   return db.query(`
     INSERT INTO users_meetings (user_id, meeting_id, attendance)
