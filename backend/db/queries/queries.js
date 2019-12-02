@@ -24,13 +24,16 @@ const fetchContactsByUserId = function(user_id, username = '') {
     SELECT username, id, email, relation FROM users
     JOIN friends ON friends.friend_id = users.id
     WHERE (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'pending')
     OR (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'requested')
     OR (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'accepted');
   `, vars)
     .then(res => {
