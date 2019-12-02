@@ -174,7 +174,7 @@ export default function App() {
           // add that user to the active people in the meeting
           setUsersInMeeting(prev => ({
             ...prev,
-            liveUserId: data.user
+            [liveUserId]: data.user
           }));
 
           // make sure it isn't yourself
@@ -191,7 +191,6 @@ export default function App() {
               .then((stream) => {
                 console.log('this is my media stream, now waiting on answer', stream);
                 const call = peer.call('theDrawingBoard' + String(peerId), stream);
-                // setSentCall(peerId);
                 console.log('new call', call);
                 call.on('close', () => {
                   console.log('stream closed');

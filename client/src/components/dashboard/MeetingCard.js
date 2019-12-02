@@ -137,7 +137,21 @@ export default function MeetingCard({
         console.log("Setting notes");
         setMeetingNotes(data.notes);
         console.log('setting live users', res.liveUsers);
-        setUsersInMeeting(res.liveUsers);
+
+        for (let liveUser in res.liveUsers) {
+          console.log('the user:', liveUser);
+
+          const liveUserId = 'theDrawingBoard' + res.liveUsers[liveUser].id;
+
+          setUsersInMeeting(prev => ({
+            ...prev,
+            [liveUserId]: res.liveUsers[liveUser]
+          }));
+        }
+
+        // console.log('the users already in the meeting are:', usersInMeeting);
+
+        // setUsersInMeeting(tempLiveUsers);
 
         setPixelColor(res['colorMapping']);
         if (data.images) {//if image

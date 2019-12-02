@@ -474,7 +474,7 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
-    activeMeetings[data.meetingId].liveUsers[data.user.id] = true;
+    activeMeetings[data.meetingId].liveUsers[data.user.id] = data.user;
     console.log(activeMeetings[data.meetingId].liveUsers);
 
 
@@ -724,7 +724,7 @@ io.on('connection', (client) => {
   client.on('peacingOutYo', (data) => {
 
     // user leaves room
-    activeMeetings[data.meetingId].liveUsers[data.user.id] = false;
+    delete activeMeetings[data.meetingId].liveUsers[data.user.id];
     client.leave(data.meetingId);
 
     // tell the room who left

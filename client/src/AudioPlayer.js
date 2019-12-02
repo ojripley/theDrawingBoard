@@ -18,7 +18,7 @@ export default function AudioPlayer(props) {
   const root = document.getElementById('root');
 
   const audioStream = document.createElement('audio');
-  audioStream.setAttribute('id', `streamtheDrawingBoard${props.peerId}`);
+  audioStream.setAttribute('id', `stream${props.peerId}`);
   audioStream.setAttribute('class', 'hide-audio-controls');
   audioStream.setAttribute('autoPlay', true);
   audioStream.setAttribute("playsinline", true);

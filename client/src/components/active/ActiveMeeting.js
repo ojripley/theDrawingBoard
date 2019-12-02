@@ -210,9 +210,12 @@ export default function ActiveMeeting({ socket,
   useEffect(() => {
 
     console.log('baking chips :)');
+    console.log(usersInMeeting);
 
     const tempUserChips = Object.keys(usersInMeeting).map((key) => {
+      console.log('key', key);
       const liveUser = usersInMeeting[key];
+      console.log('liveuser', liveUser);
 
       console.log('usersInMeeting');
       console.log(usersInMeeting);
@@ -244,12 +247,6 @@ export default function ActiveMeeting({ socket,
         }
       }
 
-
-
-      // const chipColour = `rgba(${colour.r}, ${colour.g}, ${colour.b}, .80)`;
-
-      // classes.chip.backgroundColor = chipColour
-
       return (
         <p key={liveUser.id} id={colourId} className='user-chip'>
           {liveUser.username}
@@ -261,7 +258,7 @@ export default function ActiveMeeting({ socket,
 
     setUserChips(tempUserChips);
 
-  }, [usersInMeeting, canvasState]);
+  }, [usersInMeeting]);
 
 
   return (
