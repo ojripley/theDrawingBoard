@@ -46,6 +46,10 @@ export default function Contacts(props) {
     }
   };
 
+  const displayChat = (id) => {
+    setViewChat(id);
+  }
+
   useEffect(() => {
     props.socket.off('relationChanged');
 
@@ -96,6 +100,7 @@ export default function Contacts(props) {
       return (<Contact
         key={friend.id}
         contact={friend}
+        displayChat={displayChat}
         user={props.user}
         socket={props.socket}
         socketOpen={props.socketOpen}
@@ -106,33 +111,42 @@ export default function Contacts(props) {
 
   return (
     <>
-      <div>
-        <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography>
-        <Divider />
-      </div>
-      <div id='search-container'>
-        <TextField
-          id="outlined-name"
-          label="Search"
-          className={classes.textField}
-          value={searchTerm}
-          onChange={handleSearchTermChange}
-          margin="normal"
-        />
-        <label className='search-label' htmlFor='upload-initial-doc'>
-          <Typography variant='overline'>{globalSearch ? 'Search: All Users' : 'Search: Contacts'}</Typography>
-        </label>
-        <Switch
-          id='toggle-global-search'
-          checked={globalSearch}
-          onChange={handleGlobalSearchChange}
-          value="checked"
-          color="secondary"
-        />
-      </div>
-      <ul className='contact-list'>
-        {contacts}
-      </ul>
+      {viewChat !== 0 ? (<Chatroom
+      user={props.user}
+      socket={props.socket}
+      recipientId={viewChat}
+      />) :
+        (<><div>
+          <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography >
+          <Divider />
+        </div >
+          <div id='search-container'>
+            <TextField
+              id="outlined-name"
+              label="Search"
+              className={classes.textField}
+              value={searchTerm}
+              onChange={handleSearchTermChange}
+              margin="normal"
+            />
+            <label className='search-label' htmlFor='upload-initial-doc'>
+              <Typography variant='overline'>{globalSearch ? 'Search: All Users' : 'Search: Contacts'}</Typography>
+            </label>
+            <Switch
+              id='toggle-global-search'
+              checked={globalSearch}
+              onChange={handleGlobalSearchChange}
+              value="checked"
+              color="secondary"
+            />
+          </div>
+          <ul className='contact-list'>
+            {contacts}
+          </ul>
+        </>)
+      }
     </>
+
+
   );
 }

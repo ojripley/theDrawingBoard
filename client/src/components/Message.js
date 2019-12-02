@@ -8,7 +8,7 @@ export default function Message(props) {
   const time = new Date(props.time).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric' });
 
   const handleMessage = event => {
-    setMessage(event.target.value);
+    // setMessage(event.target.value);
   };
 
   const handleCaret = e => {
