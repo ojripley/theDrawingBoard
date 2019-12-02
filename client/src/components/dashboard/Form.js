@@ -215,7 +215,7 @@ export default function Form(props) {
         multiple
       />
       <label className={classes.label} htmlFor='upload-initial-doc'>
-        <Button variant='contained' color='warning' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
+        <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
           Upload
             </Button>
         {fileCount}
