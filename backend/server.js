@@ -93,6 +93,7 @@ server.listen(PORT, () => {
 
 // notification function
 const notify = function(userId, notification) {
+  console.log('notif', notification);
 
   // assign notificationId with res.id after a db query
   notification.userId = userId;
@@ -114,13 +115,16 @@ const notify = function(userId, notification) {
   }
 
   if (notification.type === 'dm' || notification.type === 'contact') {
+    console.log('saving dm/contact notif to db');
     db.insertContactNotification(userId, notification)
       .then(res => {
+        console.log('successful db save');
         notification.id = res[0].id;
         notification.time = res[0].time;
 
         // only emit if the client is online
         if (activeUsers[userId]) {
+          console.log('notifying online user');
           activeUsers[userId].socket.emit('notify', notification);
         }
       })
@@ -751,13 +755,16 @@ io.on('connection', (client) => {
   });
 
   client.on('sendDm', (data) => {
+    console.log('recieved dm');
     client.emit('dm', (data));
+    console.log(data);
 
+    console.log('settng notification');
+    notify(data.recipientId, { title: `New message from ${data.user.username}`, type: 'dm', msg: `${data.msg}`, senderId: data.user.id });
     if (activeUsers[data.recipientId]) {
-      notify(data.recipientId, { title: `New message from ${data.user.username}`, type: 'contacts', msg: `${data.msg}`, senderId: data.user.id });
       activeUsers[data.recipientId].socket.emit('dm', (data));
     }
 
-    db.insertIntoDms(data.user.id, data.recipientId, data.msg, data.timestamp);
-  })
+    db.insertIntoDms(data.user.id, data.recipientId, data.msg, data.time);
+  });
 });
