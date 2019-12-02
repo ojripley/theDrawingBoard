@@ -91,7 +91,8 @@ export default function ActiveMeeting({ socket,
   initialPixels,
   setLoading,
   pixelColor,
-  usersInMeeting
+  usersInMeeting,
+  setUsersInMeeting
 }) {
 
 
@@ -200,6 +201,7 @@ export default function ActiveMeeting({ socket,
     });
 
     socket.on('requestNotes', res => {
+      setUsersInMeeting(null);
       setLoading(true);
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes, meetingName: res.meetingName });
     });
@@ -242,50 +244,79 @@ export default function ActiveMeeting({ socket,
   }, [writeMode]);
 
   useEffect(() => {
+    if (socketOpen) {
+      console.log('listening for users to leave');
+      socket.on('userLeft', (data) => {
+        const liveUserId = 'theDrawingBoard' + data.user.id;
+
+        console.log('user left, deleteing ', liveUserId);
+
+        const tempUsersInMeeting = usersInMeeting;
+
+        console.log(tempUsersInMeeting[liveUserId]);
+        delete tempUsersInMeeting[liveUserId];
+        console.log('temp after deleting', tempUsersInMeeting);
+        setUsersInMeeting({...tempUsersInMeeting});
+        // setUserChips(prev => prev.filter((userChip) => {
+        //   return userChip.key !== data.user.id;
+        // }));
+        // setUserChips(null);
+      });
+
+      return () => {
+        socket.off('userLeft');
+      }
+    }
+  }, [usersInMeeting, socket, socketOpen]);
+
+  useEffect(() => {
 
     console.log('baking chips :)');
     console.log(usersInMeeting);
 
     const tempUserChips = Object.keys(usersInMeeting).map((key) => {
-      console.log('key', key);
-      const liveUser = usersInMeeting[key];
-      console.log('liveuser', liveUser);
+      if (usersInMeeting[key]) {
+        console.log('key', key);
+        const liveUser = usersInMeeting[key];
+        console.log('liveuser', liveUser);
 
-      console.log('usersInMeeting');
-      console.log(usersInMeeting);
-      console.log(canvasState.color);
+        console.log('usersInMeeting');
+        console.log(usersInMeeting);
+        console.log(canvasState.color);
 
-      let colourId = null;
+        let colourId = null;
 
-      if (canvasState.color[liveUser.id]) {
+        if (canvasState.color[liveUser.id]) {
 
-        const colour = canvasState.color[liveUser.id];
+          const colour = canvasState.color[liveUser.id];
 
-        console.log(colour);
+          console.log(colour);
 
+          if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
+            colourId = 'one';
+          }
 
-        if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
-          colourId = 'one';
+          if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
+            colourId = 'two';
+          }
+
+          if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
+            colourId = 'three';
+          }
+
+          if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
+            colourId = 'four';
+          }
         }
 
-        if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
-          colourId = 'two';
-        }
-
-        if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
-          colourId = 'three';
-        }
-
-        if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
-          colourId = 'four';
-        }
+        return (
+          <p key={liveUser.id} id={colourId} className='user-chip'>
+            {liveUser.username}
+          </p>
+        )
+      } else {
+        return null;
       }
-
-      return (
-        <p key={liveUser.id} id={colourId} className='user-chip'>
-          {liveUser.username}
-        </p>
-      )
     });
 
     console.log(tempUserChips);
@@ -320,6 +351,7 @@ export default function ActiveMeeting({ socket,
             totalPages={backgroundImage.length}
             setPage={setPage}
             loadSpinner={loadSpinner}
+            setUsersInMeeting={setUsersInMeeting}
           />
           <Canvas
             user={user}
