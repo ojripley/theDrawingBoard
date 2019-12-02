@@ -405,9 +405,9 @@ const fetchNotificationsByUser = function(userId) {
   const vars = [userId];
 
   return db.query(`
-    SELECT *
-    FROM notifications
-    WHERE user_id = $1;
+    SELECT * FROM NOTIFICATIONS
+    WHERE user_id = $1
+    ORDER BY time DESC;
   `, vars)
     .then(res => {
       return res.rows;
