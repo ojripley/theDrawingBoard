@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import Contact from './Contact';
+import Chat from './Chat';
 import useDebounce from "../../hooks/useDebounce";
 
 import TextField from '@material-ui/core/TextField';
@@ -8,7 +9,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-
 const useStyles = makeStyles(theme => ({
   textField: {
     flexBasis: '100%',
@@ -111,10 +111,11 @@ export default function Contacts(props) {
 
   return (
     <>
-      {viewChat !== 0 ? (<Chatroom
-      user={props.user}
-      socket={props.socket}
-      recipientId={viewChat}
+      {viewChat !== 0 ? (<Chat
+        user={props.user}
+        recipientId={viewChat}
+        socket={props.socket}
+        socketOpen={props.socketOpen}
       />) :
         (<><div>
           <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography >

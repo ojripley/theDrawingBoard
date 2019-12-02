@@ -743,9 +743,10 @@ io.on('connection', (client) => {
     client.emit('dm', (data));
 
     if (activeUsers[data.recipientId]) {
+      notify(data.recipientId, { title: `New message from ${data.user.username}`, type: 'contacts', msg: `${data.msg}`, senderId: data.user.id });
       activeUsers[data.recipientId].socket.emit('dm', (data));
     }
 
-    db.insertIntoDms(data.userId, data.senderId, data.msg, data.timestamp);
+    db.insertIntoDms(data.user.id, data.recipientId, data.msg, data.timestamp);
   })
 });
