@@ -55,9 +55,9 @@ export default function DetailedHistory(props) {
 
   const time = props.meeting.start_time;
 
-  const displayImages = images.map((image, index) => (
-    <img key={index} className='meeting-image' src={image} alt='meeting-notes' />
-  ));
+  // const displayImages = images.map((image, index) => (
+  //   <img key={index} className='meeting-image' src={image} alt='meeting-notes' />
+  // ));
 
   return (
     <div id='detailed-history-container'>
@@ -85,7 +85,7 @@ export default function DetailedHistory(props) {
 
           <div className='detailed-section'>
             <Typography variant='h6'>Attendees</Typography>
-            <Typography variant='body2'>{props.meeting.invited_users.map((name, index) => <span key={index}>{name} </span>)}</Typography>
+            <Typography className='detailed-attendees' variant='body2'>{props.meeting.invited_users.map((name, index) => <li key={index}>{name}</li>)}</Typography>
           </div>
 
           {props.meeting.description && <div className='detailed-section'>
