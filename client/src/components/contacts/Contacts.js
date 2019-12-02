@@ -26,6 +26,8 @@ export default function Contacts(props) {
   const [contactsList, setContactsList] = useState([]);
   const [globalSearch, setGlobalSearch] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 100);
+  const [viewChat, setViewChat] = useState(0);
+
 
   useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
