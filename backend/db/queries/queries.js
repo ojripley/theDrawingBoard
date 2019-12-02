@@ -365,7 +365,7 @@ const deleteMeeting = function(meeting_id) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     })
 }
@@ -381,7 +381,7 @@ const insertContactNotification = function(userId, n) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -396,7 +396,7 @@ const insertMeetingNotification = function(userId, n) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -412,7 +412,7 @@ const fetchNotificationsByUser = function(userId) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -427,7 +427,7 @@ const removeNotificationById = function(id) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -442,7 +442,7 @@ const removeNotificationsByUserId = function(user_id) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -458,7 +458,7 @@ const removeNotificationsByType = function(user_id, type) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -473,7 +473,7 @@ const fetchStartedMeetings = function() {
   `).then(res => {
     console.log('res.rows', res.rows)
     return res.rows;
-  }).catch(err => {
+  }).catch(error => {
     throw error;
   });
 }
@@ -513,7 +513,7 @@ const insertIntoDms = function(userId, recipientId, msg, time) {
 }
 
 const fetchDMs = function(userId, recipientId) {
-  const vars = [userId, recipientId, msg, timestamp];
+  const vars = [userId, recipientId];
 
   return db.query(`
   SELECT * FROM (SELECT * FROM DMS
@@ -526,7 +526,7 @@ const fetchDMs = function(userId, recipientId) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error => {
       throw error;
     });
 }

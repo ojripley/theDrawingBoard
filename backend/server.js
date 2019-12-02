@@ -746,10 +746,10 @@ io.on('connection', (client) => {
   });
 
   client.on('fetchDms', (data) => {
-    db.fetchDmsById(data.user.id, data.recipientId)
+    db.fetchDMs(data.user.id, data.recipientId)
       .then((res) => {
-        console.log('DMs are:', res[0]);
-        client.emit('DmsFetched', res[0]);
+        console.log('DMs are:', res);
+        client.emit('DmsFetched', res);
       }).catch(error => {
         handleError(error, client);
       });
