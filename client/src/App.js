@@ -262,19 +262,21 @@ export default function App() {
 
         console.log('new call is with', newCall.newPeer);
         console.log(calls);
-        calls[newCall.newPeer].on('stream', (incomingStream) => {
-          // play audio
-          console.log('adding stream to state');
-          setStreams(prev => ({
-            ...prev,
-            [newCall.newPeer]: incomingStream
-          }));
-          console.log('cleaning up state to reset for new users');
-          setNewCall({
-            newPeer: null,
-            isCaller: false
+        if (calls[newCall.newPeer]) {
+          calls[newCall.newPeer].on('stream', (incomingStream) => {
+            // play audio
+            console.log('adding stream to state');
+            setStreams(prev => ({
+              ...prev,
+              [newCall.newPeer]: incomingStream
+            }));
+            console.log('cleaning up state to reset for new users');
+            setNewCall({
+              newPeer: null,
+              isCaller: false
+            });
           });
-        });
+        }
 
       } else { // the user is the receiver of a new call
 
