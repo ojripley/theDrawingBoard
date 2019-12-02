@@ -1,13 +1,17 @@
 // default error object
 const clientError = {
   type: 'default',
-  msg: 'Sorry, we had an error! Please refresh the page'
+  msg: 'Sorry, we had an error! Please refresh the page.'
 };
 
 const generateClientError = function(error) {
 
   if (error.table === 'users') {
     return handleUsersError(error);
+  } else if (error.type === 'login') {
+    clientError.type = error.type;
+    clientError.msg = error.msg;
+    return clientError;
   } else {
     return clientError;
   }

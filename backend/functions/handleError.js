@@ -10,7 +10,7 @@ const handleError = function(error, client) {
 
   if (client) {
     console.log('sending error');
-    client.emit('fuckUSocketIO', clientError);
+    client.emit('somethingWentWrong', clientError);
   }
 }
 

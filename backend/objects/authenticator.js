@@ -17,7 +17,7 @@ class Authenticator {
             email: user[0].email,
             username: user[0].username
           }
-        } else {
+        } else if (user.length === 0) {
           return false;
         }
       });

@@ -35,7 +35,7 @@ export default function Login(props) {
       console.log(username, email, password, confirmPassword);
       if (username.length > 0 && email.length > 0 && password.length > 0) {
         if (password === confirmPassword) {
-          props.socket.emit('registrationAttempt', { username: username.trim(), email: email.trim().toLowerCase(), password: password.trim() });
+          props.socket.emit('registrationAttempt', { username: username.replace(/\s/g,''), email: email.trim().toLowerCase(), password: password.trim() });
         } else {
           props.setLoginError({
             type: 'login',
@@ -98,6 +98,10 @@ export default function Login(props) {
             value={username}
             onChange={event => setUsername(event.target.value)}
             onKeyPress={event => onEnter(event, 'register')}
+            inputProps={{
+              minlength: 3,
+              maxlength: 20,
+            }}
           />
           <TextField
             label="Email"
@@ -144,7 +148,7 @@ export default function Login(props) {
                 </InputAdornment>
             }}
           />
-          {props.error ? <p className='login-error' >{props.error.msg}</p> : <p></p>}
+          {props.error ? <p className='login-error' >{props.error.msg}</p> : <div className='no-error'></div>}
           <Button className='login-button' variant="contained" color='secondary' onClick={handleRegister}>Register</Button>
         </div>
       </div>
@@ -177,7 +181,7 @@ export default function Login(props) {
                 </InputAdornment>
             }}
           />
-          {props.error ? <p className='login-error' >{props.error.msg}</p> : <p></p>}
+          {props.error ? <p className='login-error' >{props.error.msg}</p> : <div className='no-error'></div>}
           <Button className='login-button' variant="contained" color='secondary' onClick={handleLogin}>Login</Button>
         </div>
       </div>
