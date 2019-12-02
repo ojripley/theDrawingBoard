@@ -12,7 +12,8 @@ import Attendee from './Attendee';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%'
+    width: '100%',
+    maxWidth: '94vw'
   },
   active: {
     backgroundColor: theme.palette.tertiary.main
@@ -51,7 +52,6 @@ const useStyles = makeStyles(theme => ({
   description: {
     overflowWrap: 'break-word',
     hyphens: 'auto',
-    flexGrow: 1
   },
   meetingExpanded: {
     height: 'auto',
@@ -59,12 +59,9 @@ const useStyles = makeStyles(theme => ({
     padding: '1em',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     margin: 0,
   },
-  attendees: {
-    flexBasis: '33.33%'
-  }
 }));
 
 const ExpansionPanelSummary = withStyles({
@@ -251,32 +248,36 @@ export default function MeetingCard({
             Description:
             <Typography classes={{ root: classes.description }} variant="body2">{description}</Typography>
           </Typography>
-          <Typography className={'attendees'} variant="subtitle2">Attendees ({attendees.length})</Typography>
-          <ul>
-            {attendeeNames}
-          </ul>
-          <ul>
-            {attendances}
-          </ul>
-          {user.username === owner ?
+          <div className='attendees-container'>
+            <Typography className='attendees' variant="subtitle2">Attendees ({attendees.length})</Typography>
+            <ul>
+              {attendeeNames}
+            </ul>
+            <ul>
+              {attendances}
+            </ul>
+          </div>
+          {user.username !== owner &&
+            <Attendee
+              user={user}
+              meetingId={id}
+              socket={socket}
+              socketOpen={socketOpen}
+              attendance={user.attendance}
+            />}
+          <div id='owner-controls'>
+          {user.username === owner &&
             <Owner
               id={id}
               socket={socket}
               startMeeting={startMeeting}
               activeMeeting={activeMeeting}
               attendeeIds={attendeeIds}
-            />
-            : <Attendee
-              user={user}
-              meetingId={id}
-              socket={socket}
-              socketOpen={socketOpen}
-              attendance={user.attendance}
-            />
-          }
-          {activeMeeting && <Button variant="contained" color="primary" className={classes.enterButton} onClick={enterMeeting}>
+            />}
+          {activeMeeting && <Button variant="contained" size='small' color="primary" className={classes.enterButton} onClick={enterMeeting}>
             Enter Meeting
           </Button>}
+          </div>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </div>
