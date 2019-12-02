@@ -10,7 +10,7 @@ export default function Message(props) {
   return (
     <div className={props.sender.id === props.user.id ? 'sender' : 'recipient'}>
       <Typography className='message-container' variant='body2'>{props.msg}</Typography>
-      <Typography variant='subtitle2'>{props.sender.username}</Typography>
+      <Typography variant='subtitle2'>{props.sender.username}  {time}</Typography>
     </div>
   );
 }
