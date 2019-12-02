@@ -19,7 +19,7 @@ export default function Error(props) {
           {props.error.msg}
         </Typography>
       </div>
-      <img src={geraldTheHerald} ></img>
+      <img src={geraldTheHerald} alt='Gerald the Error Herald'></img>
     </div>
   );
 }
