@@ -25,6 +25,7 @@ const useStyles = makeStyles(theme => ({
   list: {
     width: '40vw',
     minWidth: 280,
+    maxWidth: 480
   },
   // center: {
   //   display: 'flex',
