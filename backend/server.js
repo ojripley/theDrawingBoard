@@ -744,7 +744,9 @@ io.on('connection', (client) => {
       .then((res) => {
         console.log('DMs are:', res[0]);
         client.emit('DmsFetched', res[0]);
-      })
+      }).catch(error => {
+        handleError(error, client);
+      });
 
   });
 
