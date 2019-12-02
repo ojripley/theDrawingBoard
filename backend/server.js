@@ -518,7 +518,7 @@ io.on('connection', (client) => {
         client.join(data.meetingId);
         console.log('new participant', { user: data.user, color: col })
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
-        io.to(data.meetingId).emit('newParticipant', { user: data.user }); //Should this be meeting or client?
+        io.to(data.meetingId).emit('newParticipant', { user: data.user });
       }).catch(err => {
         handleError(err, client);
       });

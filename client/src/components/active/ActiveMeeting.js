@@ -6,9 +6,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import InputIcon from '@material-ui/icons/Input';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Chip from '@material-ui/core/Chip';
 
 import CanvasDrawer from './CanvasDrawer';
-import UserChip from './UserChip';
+
+import './ActiveMeeting.scss';
 
 import reducer, {
   SAVE
@@ -57,7 +59,8 @@ const useStyles = makeStyles(theme => ({
       width: 100,
       height: 100
     }
-  }
+  },
+  chip: {}
 }));
 
 export default function ActiveMeeting({ socket,
@@ -206,17 +209,51 @@ export default function ActiveMeeting({ socket,
 
   useEffect(() => {
 
+    console.log('baking chips :)');
+
     const tempUserChips = Object.keys(usersInMeeting).map((key) => {
       const liveUser = usersInMeeting[key];
 
-      console.log(liveUser);
+      console.log('usersInMeeting');
+      console.log(usersInMeeting);
+      console.log(canvasState.color);
+
+      let colourId = null;
+
+      if (canvasState.color[liveUser.id]) {
+
+        const colour = canvasState.color[liveUser.id];
+
+        console.log(colour);
+
+
+        if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
+          colourId = 'one';
+        }
+
+        if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
+          colourId = 'two';
+        }
+
+        if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
+          colourId = 'three';
+        }
+
+        if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
+          colourId = 'four';
+        }
+      }
+
+
+
+      // const chipColour = `rgba(${colour.r}, ${colour.g}, ${colour.b}, .80)`;
+
+      // classes.chip.backgroundColor = chipColour
 
       return (
-        <UserChip
-          key={liveUser.id}
-          id={liveUser.id}
-          username={liveUser.username}
-        ></UserChip>
+        <p key={liveUser.id} id={colourId} className='user-chip'>
+          {liveUser.username}
+        </p>
       )
     });
 
@@ -224,14 +261,14 @@ export default function ActiveMeeting({ socket,
 
     setUserChips(tempUserChips);
 
-  }, [usersInMeeting]);
+  }, [usersInMeeting, canvasState]);
 
 
   return (
     <>
       {imageLoaded &&
         <div className={classes.root}>
-          {userChips}
+        <div className='user-chips'>{userChips}</div>
           <CanvasDrawer
             user={user}
             ownerId={ownerId}

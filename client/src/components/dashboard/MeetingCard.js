@@ -99,7 +99,8 @@ export default function MeetingCard({
   setInitialPixels,
   setMeetingNotes,
   setLoading,
-  setPixelColor
+  setPixelColor,
+  setUsersInMeeting
 }) {
 
   const classes = useStyles();
@@ -129,12 +130,14 @@ export default function MeetingCard({
 
         console.log('okay im going in');
         let res = data.meeting;
-        console.log("Setting ownerid")
+        console.log("Setting ownerid");
         setOwnerId(res.owner_id);
-        console.log("Setting meetingid")
+        console.log("Setting meetingid");
         setMeetingId(res.id);
-        console.log("Setting notes")
+        console.log("Setting notes");
         setMeetingNotes(data.notes);
+        console.log('setting live users', res.liveUsers);
+        setUsersInMeeting(res.liveUsers);
 
         setPixelColor(res['colorMapping']);
         if (data.images) {//if image

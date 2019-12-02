@@ -453,6 +453,7 @@ export default function App() {
                     setLoading={setLoading}
                     setPixelColor={setPixelColor}
                     initialExpandedMeeting={initialExpandedMeeting}
+                    setUsersInMeeting={setUsersInMeeting}
                   />}
                 {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
                 {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
