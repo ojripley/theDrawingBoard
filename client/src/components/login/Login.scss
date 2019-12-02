@@ -1,4 +1,4 @@
-@import '../../theme/variables';
+@import "../../theme/variables";
 
 .container {
   border-radius: 10px;
@@ -68,19 +68,13 @@ input.MuiInputBase-input.MuiInput-input.MuiInputBase-inputAdornedEnd {
   transform: translateY(100%);
   opacity: 1;
   z-index: 5;
-  animation: show 0.6s;
+  // animation: show 0.6s;
 }
 
 @keyframes show {
-  0%,
-  49.99% {
-      opacity: 0;
-      z-index: 1;
-  }
-  50%,
   100% {
-      opacity: 1;
-      z-index: 5;
+    opacity: 1;
+    z-index: 5;
   }
 }
 
@@ -148,13 +142,14 @@ input.MuiInputBase-input.MuiInput-input.MuiInputBase-inputAdornedEnd {
   transform: translateY(20%);
 }
 
-#signUp, #signIn {
+#signUp,
+#signIn {
   margin-top: 1em;
 }
 
 .login-error {
   color: #bd0d0d;
-  font-family: 'Roboto', 'Helvetica' 'Arial', sans-serif;
+  font-family: "Roboto", "Helvetica" "Arial", sans-serif;
   font-weight: 400;
   font-size: 0.875rem;
   letter-spacing: 0.01071em;
