@@ -35,7 +35,7 @@ export default function Login(props) {
       console.log(username, email, password, confirmPassword);
       if (username.length > 0 && email.length > 0 && password.length > 0) {
         if (password === confirmPassword) {
-          props.socket.emit('registrationAttempt', { username: username.trim(), email: email.trim().toLowerCase(), password: password.trim() });
+          props.socket.emit('registrationAttempt', { username: username.replace(/\s/g,''), email: email.trim().toLowerCase(), password: password.trim() });
         } else {
           props.setLoginError({
             type: 'login',
@@ -98,6 +98,10 @@ export default function Login(props) {
             value={username}
             onChange={event => setUsername(event.target.value)}
             onKeyPress={event => onEnter(event, 'register')}
+            inputProps={{
+              minlength: 3,
+              maxlength: 20,
+            }}
           />
           <TextField
             label="Email"
