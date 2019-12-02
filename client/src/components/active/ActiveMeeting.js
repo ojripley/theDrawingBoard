@@ -81,6 +81,7 @@ export default function ActiveMeeting({ socket,
   user,
   meetingId,
   setInMeeting,
+  inMeeting,
   ownerId,
   setMeetingId,
   setMode,
@@ -189,6 +190,7 @@ export default function ActiveMeeting({ socket,
   }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
 
   const loadSpinner = () => {
+    setUsersInMeeting(null);
     socket.emit('savingMeeting', { meetingId: meetingId });
     setLoading(true);
     endMeeting();
@@ -274,54 +276,57 @@ export default function ActiveMeeting({ socket,
     console.log('baking chips :)');
     console.log(usersInMeeting);
 
-    const tempUserChips = Object.keys(usersInMeeting).map((key) => {
-      if (usersInMeeting[key]) {
-        console.log('key', key);
-        const liveUser = usersInMeeting[key];
-        console.log('liveuser', liveUser);
+    if (usersInMeeting) {
+      const tempUserChips = Object.keys(usersInMeeting).map((key) => {
+        if (usersInMeeting[key]) {
+          console.log('key', key);
+          const liveUser = usersInMeeting[key];
+          console.log('liveuser', liveUser);
 
-        console.log('usersInMeeting');
-        console.log(usersInMeeting);
-        console.log(canvasState.color);
+          console.log('usersInMeeting');
+          console.log(usersInMeeting);
+          console.log(canvasState.color);
 
-        let colourId = null;
+          let colourId = null;
 
-        if (canvasState.color[liveUser.id]) {
+          if (canvasState.color[liveUser.id]) {
 
-          const colour = canvasState.color[liveUser.id];
+            const colour = canvasState.color[liveUser.id];
 
-          console.log(colour);
+            console.log(colour);
 
-          if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
-            colourId = 'one';
+            if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
+              colourId = 'one';
+            }
+
+            if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
+              colourId = 'two';
+            }
+
+            if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
+              colourId = 'three';
+            }
+
+            if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
+              colourId = 'four';
+            }
           }
 
-          if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
-            colourId = 'two';
-          }
-
-          if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
-            colourId = 'three';
-          }
-
-          if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
-            colourId = 'four';
-          }
+          return (
+            <p key={liveUser.id} id={colourId} className='user-chip'>
+              {liveUser.username}
+            </p>
+          )
+        } else {
+          return null;
         }
+      });
 
-        return (
-          <p key={liveUser.id} id={colourId} className='user-chip'>
-            {liveUser.username}
-          </p>
-        )
-      } else {
-        return null;
-      }
-    });
+      console.log(tempUserChips);
 
-    console.log(tempUserChips);
+      setUserChips(tempUserChips);
+    }
 
-    setUserChips(tempUserChips);
 
   }, [usersInMeeting]);
 
