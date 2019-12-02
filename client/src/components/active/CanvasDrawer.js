@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-import Message from './Message';
+import Message from '../Message';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
