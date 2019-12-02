@@ -79,10 +79,10 @@ export default function App() {
             msg: error.msg
           });
         }
-          setError({
-            type: error.type,
-            msg: error.msg
-          });
+        setError({
+          type: error.type,
+          msg: error.msg
+        });
       });
     }
 
@@ -362,8 +362,8 @@ export default function App() {
       });
 
       socket.on('notify', data => {
-        console.log(data);
-        if (!inMeeting && !Loading) {
+        if (!inMeeting && !loading) {
+          console.log("Setting notification");
           setNotificationList(prev => [...prev, data]);
           store.addNotification({
             title: `${data.type}`,
@@ -379,7 +379,6 @@ export default function App() {
             }
           });
         }
-
       })
 
       socket.on('cookieResponse', data => {
@@ -394,12 +393,12 @@ export default function App() {
         socket.off('meeting');
       }
     }
-  }, [socket, socketOpen, setLoading]);
+  }, [socket, socketOpen, setLoading, loading]);
 
 
   return (
     <>
-      {error && <ThemeProvider theme={theme}><div></div><Error error={error}/></ThemeProvider>}
+      {error && <ThemeProvider theme={theme}><div></div><Error error={error} /></ThemeProvider>}
       {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
       <ThemeProvider theme={theme}>
         {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
