@@ -99,8 +99,8 @@ export default function Login(props) {
             onChange={event => setUsername(event.target.value)}
             onKeyPress={event => onEnter(event, 'register')}
             inputProps={{
-              minlength: 3,
-              maxlength: 20,
+              minLength: 3,
+              maxLength: 20,
             }}
           />
           <TextField
