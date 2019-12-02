@@ -121,40 +121,6 @@ export default function App() {
         console.log('someone is calling me, time to accept', call.peer);
 
         const callerId = call.peer;
-        call.on('close', () => {
-          console.log('stream closed');
-          console.log(call);
-
-          //  call cleanup
-          const tempStreams = streams;
-          const tempCalls = calls;
-          // const tempUsersInMeeting = usersInMeeting;
-
-          console.log('peer closed the call', call.peer);
-
-          delete tempStreams[call['peer']];
-          delete tempCalls[call['peer']];
-          // console.log('before deleting ', tempUsersInMeeting);
-          // delete tempUsersInMeeting[call['peer']];
-          // console.log('after deleting ', tempUsersInMeeting);
-
-          setStreams(tempStreams);
-          setCalls(tempCalls);
-          // console.log('setting usersInMeeting');
-          // setUsersInMeeting(tempUsersInMeeting);
-
-          setNewCall({
-            newPeer: null,
-            isCaller: false
-          });
-
-          const peerStream = document.querySelectorAll(`#stream${call['peer']}`);
-
-          for (let el of peerStream) {
-            console.log(el);
-            el.parentNode.removeChild(el);
-          }
-        });
         setCalls(prev => ({
           ...prev,
           [callerId]: call
@@ -198,35 +164,6 @@ export default function App() {
                 console.log('this is my media stream, now waiting on answer', stream);
                 const call = peer.call(String(peerId), stream);
                 console.log('new call', call);
-                call.on('close', () => {
-                  console.log('stream closed');
-                  console.log(call);
-
-                  //  call cleanup
-                  const tempStreams = streams;
-                  const tempCalls = calls;
-
-                  delete tempStreams[call['peer']];
-                  delete tempCalls[call['peer']];
-
-                  setStreams(tempStreams);
-                  setCalls(tempCalls);
-
-                  console.log('streams', streams);
-                  console.log('calls', calls);
-
-                  setNewCall({
-                    newPeer: null,
-                    isCaller: false
-                  });
-
-                  const peerStream = document.querySelectorAll(`#stream${call['peer']}`);
-
-                  for (let el of peerStream) {
-                    console.log(el);
-                    el.parentNode.removeChild(el);
-                  }
-                });
                 setCalls(prev => ({
                   ...prev,
                   [peerId]: call
@@ -359,44 +296,54 @@ export default function App() {
     }
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
 
-
-
-
-
-
   useEffect(() => {
     if (socketOpen) {
       // console.log('listening for users to leave');
       socket.on('userLeft', (data) => {
         const liveUserId = 'theDrawingBoard' + data.user.id;
 
-        // console.log('user left, deleteing ', liveUserId);
-
         const tempUsersInMeeting = usersInMeeting;
 
-        // console.log(tempUsersInMeeting[liveUserId]);
         delete tempUsersInMeeting[liveUserId];
-        // console.log('temp after deleting', tempUsersInMeeting);
+
+        // this will trigger the userChips to rerender
         setUsersInMeeting({ ...tempUsersInMeeting });
-        // setUserChips(prev => prev.filter((userChip) => {
-        //   return userChip.key !== data.user.id;
-        // }));
-        // setUserChips(null);
+
+        // this is for cleaning up stream for the disconnected user
+        console.log('closing stream');
+
+        //  call cleanup
+        const tempStreams = streams;
+        const tempCalls = calls;
+
+        delete tempStreams[liveUserId];
+        delete tempCalls[liveUserId];
+
+        setStreams(tempStreams);
+        setCalls(tempCalls);
+
+        console.log('streams', streams);
+        console.log('calls', calls);
+
+        setNewCall({
+          newPeer: null,
+          isCaller: false
+        });
+
+        const peerStream = document.querySelectorAll(`#stream${liveUserId}`);
+
+        for (let el of peerStream) {
+          console.log(el);
+          el.parentNode.removeChild(el);
+        }
+
       });
 
       return () => {
         socket.off('userLeft');
       }
     }
-  }, [usersInMeeting, socket, socketOpen]);
-
-
-
-
-
-
-
-
+  }, [usersInMeeting, socket, socketOpen, calls, streams]);
 
   useEffect(() => {
     if (socketOpen) {
