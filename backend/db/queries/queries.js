@@ -512,6 +512,23 @@ const insertIntoDms = function(userId, recipient, msg, timestamp) {
     });
 }
 
+const fetchDMs = function(userId, recipientId) {
+  const vars = [userId, recipientId, msg, timestamp];
+
+  return db.query(`
+    SELECT * FROM DMS
+    WHERE (user_id=$1 AND recipient_id=$2)
+    OR (user_id=$2 AND recipient_id=$2)
+    ORDER BY time DESC;
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      throw error;
+    });
+}
+
 module.exports = {
   fetchUserByEmail,
   fetchContactsByUserId,
