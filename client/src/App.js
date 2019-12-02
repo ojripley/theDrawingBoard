@@ -119,7 +119,7 @@ export default function App() {
       // listen for incoming calls
       peer.on('call', (call) => {
 
-        console.log('someone is calling me, time to accept');
+        console.log('someone is calling me, time to accept', call.peer);
 
         const callerId = call.peer;
         call.on('close', () => {
@@ -166,6 +166,7 @@ export default function App() {
         });
       });
 
+      console.log('i want to listen for new users', newCall.newPeer);
       if (socketOpen && !newCall.newPeer) {
         // when someone new joins
         console.log('im listening for new users');
@@ -264,7 +265,20 @@ export default function App() {
         console.log(calls);
         if (calls[newCall.newPeer]) {
           calls[newCall.newPeer].on('stream', (incomingStream) => {
-            // play audio
+
+            // create a stream element
+            const root = document.getElementById('root');
+
+            const audioStream = document.createElement('audio');
+            audioStream.setAttribute('id', `stream${newCall.newPeer}`);
+            audioStream.setAttribute('class', 'hide-audio-controls');
+            audioStream.setAttribute('autoPlay', true);
+            audioStream.setAttribute("playsinline", true);
+            audioStream.setAttribute("controls", true);
+            audioStream.setAttribute('display', 'none');
+            root.prepend(audioStream);
+            audioStream.srcObject = incomingStream;
+
             console.log('adding stream to state');
             setStreams(prev => ({
               ...prev,
@@ -287,6 +301,22 @@ export default function App() {
             console.log('got stream');
             calls[newCall.newPeer].answer(stream);
             calls[newCall.newPeer].on('stream', (incomingStream) => {
+
+
+              // create a stream element
+              const root = document.getElementById('root');
+
+              const audioStream = document.createElement('audio');
+              audioStream.setAttribute('id', `stream${newCall.newPeer}`);
+              audioStream.setAttribute('class', 'hide-audio-controls');
+              audioStream.setAttribute('autoPlay', true);
+              audioStream.setAttribute("playsinline", true);
+              audioStream.setAttribute("controls", true);
+              audioStream.setAttribute('display', 'none');
+              root.prepend(audioStream);
+              audioStream.srcObject = incomingStream;
+
+
               console.log('adding stream to state');
               setStreams(prev => ({
                 ...prev,
@@ -330,23 +360,23 @@ export default function App() {
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
 
 
-  // compose incoming stream elements
-  useEffect(() => {
+  // // compose incoming stream elements
+  // useEffect(() => {
 
-    const tempIncomingStreams = Object.keys(streams).map((key) => {
-      console.log('streams', streams);
-      const stream = streams[key];
-      return (
-        <AudioPlayer
-          key={key}
-          stream={stream}
-          peerId={key}
-        ></AudioPlayer>
-      )
-    });
+  //   const tempIncomingStreams = Object.keys(streams).map((key) => {
+  //     console.log('streams', streams);
+  //     const stream = streams[key];
+  //     return (
+  //       <AudioPlayer
+  //         key={key}
+  //         stream={stream}
+  //         peerId={key}
+  //       ></AudioPlayer>
+  //     )
+  //   });
 
-    setIncomingStreams(tempIncomingStreams);
-  }, [streams]);
+  //   // setIncomingStreams(tempIncomingStreams);
+  // }, [streams]);
 
   useEffect(() => {
     if (socketOpen) {
@@ -411,7 +441,7 @@ export default function App() {
           <Login setUser={setUser} socket={socket} socketOpen={socketOpen} setLoginError={setLoginError} error={loginError} />
           : inMeeting ?
             <>
-              <div>{incomingStreams}</div>
+              {/* <div>{incomingStreams}</div> */}
               <ActiveMeeting
                 meetingId={meetingId}
                 ownerId={ownerId}
