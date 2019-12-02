@@ -474,7 +474,11 @@ io.on('connection', (client) => {
   });
 
   client.on('enterMeeting', (data) => {
+
+
     activeMeetings[data.meetingId].liveUsers[data.user.id] = data.user;
+
+    console.log('new user joined meeting', activeMeetings[data.meetingId].liveUsers[data.user.id]);
     console.log(activeMeetings[data.meetingId].liveUsers);
 
 

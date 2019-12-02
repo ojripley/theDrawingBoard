@@ -129,20 +129,20 @@ export default function App() {
           //  call cleanup
           const tempStreams = streams;
           const tempCalls = calls;
-          const tempUsersInMeeting = usersInMeeting;
+          // const tempUsersInMeeting = usersInMeeting;
 
           console.log('peer closed the call', call.peer);
 
           delete tempStreams[call['peer']];
           delete tempCalls[call['peer']];
-          console.log('before deleting ', tempUsersInMeeting);
-          delete tempUsersInMeeting[call['peer']];
-          console.log('after deleting ', tempUsersInMeeting);
+          // console.log('before deleting ', tempUsersInMeeting);
+          // delete tempUsersInMeeting[call['peer']];
+          // console.log('after deleting ', tempUsersInMeeting);
 
           setStreams(tempStreams);
           setCalls(tempCalls);
-          console.log('setting usersInMeeting');
-          setUsersInMeeting(tempUsersInMeeting);
+          // console.log('setting usersInMeeting');
+          // setUsersInMeeting(tempUsersInMeeting);
 
           setNewCall({
             newPeer: null,
@@ -205,15 +205,12 @@ export default function App() {
                   //  call cleanup
                   const tempStreams = streams;
                   const tempCalls = calls;
-                  const tempUsersInMeeting = usersInMeeting;
 
                   delete tempStreams[call['peer']];
                   delete tempCalls[call['peer']];
-                  delete tempUsersInMeeting[call['peer']];
 
                   setStreams(tempStreams);
                   setCalls(tempCalls);
-                  setUsersInMeeting(tempUsersInMeeting);
 
                   console.log('streams', streams);
                   console.log('calls', calls);
@@ -432,6 +429,7 @@ export default function App() {
                 setLoading={setLoading}
                 pixelColor={pixelColor}
                 usersInMeeting={usersInMeeting}
+                setUsersInMeeting={setUsersInMeeting}
               />
             </>
             : <>
