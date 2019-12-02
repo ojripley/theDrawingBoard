@@ -705,8 +705,11 @@ io.on('connection', (client) => {
       if (pixels.length > 0) {
         while (pixels[pixels.length - 1].dragging !== false) {
           pixels.pop();
+          if (!pixels[pixels.length - 1]) { //Exit if at the beginning of the array.
+            break;
+          }
         }
-        if (pixels[pixels.length - 1].dragging === false) {
+        if (pixels[pixels.length - 1] && pixels[pixels.length - 1].dragging === false) {
           // remove last pixel
           pixels.pop();
         }
