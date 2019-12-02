@@ -503,6 +503,7 @@ io.on('connection', (client) => {
       }
     }
 
+
     let images = [];
     if (meetingDetails['link_to_initial_files'].length !== 0) {
       for (let i = 0; i < meetingDetails['link_to_initial_files'].length; i++) {
