@@ -70,7 +70,7 @@ export default function App() {
   useEffect(() => {
     if (socketOpen) {
       console.log('listening for error');
-      socket.on('fuckUSocketIO', (data) => {
+      socket.on('somethingWentWrong', (data) => {
         const error = data;
         console.log(error);
         if (error.type === 'login') {
@@ -78,17 +78,18 @@ export default function App() {
             type: error.type,
             msg: error.msg
           });
+        } else {
+          setError({
+            type: error.type,
+            msg: error.msg
+          });
         }
-        setError({
-          type: error.type,
-          msg: error.msg
-        });
       });
     }
 
     return () => {
       if (socketOpen) {
-        socket.off('fuckUSocketIO');
+        socket.off('somethingWentWrong');
       }
     }
   }, [error, socket, socketOpen, loginError]);
