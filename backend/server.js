@@ -45,7 +45,6 @@ db.clearToHistory()
 // CORS
 app.use(cors());
 
-
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
@@ -142,7 +141,6 @@ setInterval(() => {
       handleError(error, client);
     });
 }, 60000);
-
 
 
 
@@ -401,7 +399,6 @@ io.on('connection', (client) => {
 
         await Promise.all(promiseArray);
 
-
         res = await db.fetchMeetingWithUsersById(id);
 
         for (let contactId of res[0].attendee_ids) {
@@ -481,7 +478,6 @@ io.on('connection', (client) => {
 
   client.on('enterMeeting', (data) => {
 
-
     activeMeetings[data.meetingId].liveUsers[data.user.id] = data.user;
 
     console.log('new user joined meeting', activeMeetings[data.meetingId].liveUsers[data.user.id]);
@@ -508,7 +504,6 @@ io.on('connection', (client) => {
         meetingDetails.userPixels[i][data.user.id] = [];
       }
     }
-
 
     let images = [];
     if (meetingDetails['link_to_initial_files'].length !== 0) {
