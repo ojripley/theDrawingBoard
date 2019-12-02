@@ -85,7 +85,7 @@ export default function DetailedHistory(props) {
 
           <div className='detailed-section'>
             <Typography variant='h6'>Attendees</Typography>
-            <Typography variant='body2'>{props.meeting.invited_users.map((name, index) => <span key={index}>{name} </span>)}</Typography>
+            <Typography className='detailed-attendees' variant='body2'>{props.meeting.invited_users.map((name, index) => <li key={index}>{name}</li>)}</Typography>
           </div>
 
           {props.meeting.description && <div className='detailed-section'>

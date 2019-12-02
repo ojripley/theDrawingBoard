@@ -54,20 +54,18 @@
 }
 
 .attendees {
-  list-style-type: none;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.43;
   letter-spacing: 0.01071em;
-  padding-inline-end: 2em;
 }
 
 .attendees + ul {
   padding-inline-start: 0;
-
   & + ul {
     padding-inline-start: 0;
+    list-style-type: none;
   }
 }
 
