@@ -6,6 +6,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 
+import './Chat.scss';
+
 import Message from '../Message';
 
 const useStyles = makeStyles(theme => ({
@@ -106,17 +108,22 @@ export default function Chat(props) {
       props.socket.on('DmsFetched', (data) => {
         const msgs = [];
 
+        console.log('data', data);
+
         // goog luck figuring this one out
         for (let message of data) {
           const msg = {};
           msg.msg = message.msg;
           msg.time = message.time;
+          console.log('who is sender', message.user_id, props.user.id);
           if (message.user_id === props.user.id) {
-            msg.sender = props.user;
-            msg.user = props.recipient;
-          } else {
+
             msg.sender = props.recipient;
             msg.user = props.user;
+          } else {
+
+            msg.sender = props.user;
+            msg.user = props.recipient;
           }
           msgs.push(msg);
         }
@@ -156,6 +163,7 @@ export default function Chat(props) {
         user={props.user}
         msg={message.msg}
         time={message.time}
+        className='dm'
       />
     )
   });
@@ -163,7 +171,7 @@ export default function Chat(props) {
 
   return (
 
-    <List id='meeting-chat-container'>
+    <List id='dm-chat-container'>
       <div ref={messagesDisplayRef} id='messages-display'>{msgs}</div>
       <ListItem id={`meeting-chat`}>
         <TextareaAutosize

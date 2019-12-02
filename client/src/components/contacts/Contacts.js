@@ -113,7 +113,7 @@ export default function Contacts(props) {
     <>
       {viewChat !== 0 ? (<Chat
         user={props.user}
-        recipient={friend.find(friend=>friend.id===viewChat)}
+        recipient={contactsList.find(friend=>friend.id===viewChat)}
         recipientId={viewChat}
         socket={props.socket}
         socketOpen={props.socketOpen}
