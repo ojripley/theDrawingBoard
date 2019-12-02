@@ -130,9 +130,13 @@ export default function App() {
           const tempCalls = calls;
           const tempUsersInMeeting = usersInMeeting;
 
+          console.log('peer closed the call', call.peer);
+
           delete tempStreams[call['peer']];
           delete tempCalls[call['peer']];
+          console.log('before deleting ', tempUsersInMeeting);
           delete tempUsersInMeeting[call['peer']];
+          console.log('after deleting ', tempUsersInMeeting);
 
           setStreams(tempStreams);
           setCalls(tempCalls);
@@ -184,13 +188,13 @@ export default function App() {
             console.log('new user is not me, i am going to call', data.user.username);
 
             // assign the new user's id to use as a peerId
-            const peerId = data.user.id;
+            const peerId = 'theDrawingBoard' + data.user.id;
 
             // start an audio call with them
             navigator.mediaDevices.getUserMedia({ video: false, audio: true })
               .then((stream) => {
                 console.log('this is my media stream, now waiting on answer', stream);
-                const call = peer.call('theDrawingBoard' + String(peerId), stream);
+                const call = peer.call(String(peerId), stream);
                 console.log('new call', call);
                 call.on('close', () => {
                   console.log('stream closed');
