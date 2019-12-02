@@ -79,7 +79,7 @@ export default function Chat(props) {
     if (message.trim().length > 0) {
       if (props.socketOpen) {
         console.log('props', props);
-        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipientId, msg: message.trim(), time: new Date(Date.now())});
+        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim(), time: new Date(Date.now())});
       }
       console.log('unreadMessages for sender:', unreadMessages);
       setMessage('');
@@ -98,6 +98,32 @@ export default function Chat(props) {
       handleMessageSend();
     }
   };
+
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.emit('fetchDms', {user: props.user, recipientId: props.recipient.id});
+
+      props.socket.on('DmsFetched', (data) => {
+        const msgs = [];
+
+        // goog luck figuring this one out
+        for (let message of data) {
+          const msg = {};
+          msg.msg = message.msg;
+          msg.time = message.time;
+          if (message.user_id === props.user.id) {
+            msg.sender = props.user;
+            msg.user = props.recipient;
+          } else {
+            msg.sender = props.recipient;
+            msg.user = props.user;
+          }
+          msgs.push(msg);
+        }
+        setMessages(msgs);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (props.socketOpen) {
