@@ -144,7 +144,7 @@ export default function Login(props) {
                 </InputAdornment>
             }}
           />
-          {props.error && <p className='login-error' >{props.error.msg}</p>}
+          {props.error ? <p className='login-error' >{props.error.msg}</p> : <div className='no-error'></div>}
           <Button className='login-button' variant="contained" color='secondary' onClick={handleRegister}>Register</Button>
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function Login(props) {
                 </InputAdornment>
             }}
           />
-          {props.error && <p className='login-error' >{props.error.msg}</p>}
+          {props.error ? <p className='login-error' >{props.error.msg}</p> : <div className='no-error'></div>}
           <Button className='login-button' variant="contained" color='secondary' onClick={handleLogin}>Login</Button>
         </div>
       </div>
