@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   },
   list: {
     width: '40vw',
-    minWidth: 250,
+    minWidth: 280,
   },
   // center: {
   //   display: 'flex',
@@ -64,9 +64,9 @@ export default function CanvasDrawer(props) {
   const classes = useStyles();
 
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   const textareaRef = useRef(null);
   const messagesDisplayRef = useRef(null);
@@ -83,32 +83,34 @@ export default function CanvasDrawer(props) {
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('meetingMsg', (data) => {
-        console.log('data:', data)
-        console.log('user:', props.user)
+        // console.log('data:', data)
+        // console.log('user:', props.user)
         setMessages(prev => [...prev, data]);
+        if (openDrawer === false) {
+          // console.log('im popular!')
+          setUnreadMessages(prev => {
+            console.log('prev:', prev);
+            return ++prev;
+          });
+          console.log('my drawer should be false', openDrawer)
+          console.log('unreadMessages for recipient:', unreadMessages)
+        }
         if (messagesDisplayRef.current) {
           scrollToBottom();
         }
       });
+
+      return () => {
+        props.socket.off('meetingMsg');
+      }
     }
-    return () => {
-      props.socket.off('meetingMsg');
-    }
-  }, [messages, props.socket, props.socketOpen]);
+  }, [messages, props.socket, props.socketOpen, openDrawer, unreadMessages]);
 
   const handleCaret = e => {
     var temp_value = e.target.value;
     e.target.value = '';
     e.target.value = temp_value;
   }
-
-  const handleClick = event => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const backToDash = () => {
     props.setImageLoaded(false);
@@ -131,12 +133,10 @@ export default function CanvasDrawer(props) {
 
   const handleTool = (tool) => {
     props.setTool(tool);
-    handleClose();
   }
 
   const handleMessage = event => {
     setMessage(event.target.value);
-    // console.log(message);
   };
 
   const handleMessageSend = () => {
@@ -144,6 +144,8 @@ export default function CanvasDrawer(props) {
       if (props.socketOpen) {
         props.socket.emit('msgToMeeting', { meetingId: props.meetingId, user: props.user, msg: message.trim() });
       }
+      console.log('is my drawer open?', openDrawer)
+      console.log('unreadMessages for sender:', unreadMessages)
       setMessage('');
     }
   }
@@ -188,21 +190,32 @@ export default function CanvasDrawer(props) {
   return (
     <>
       <Badge
+        className='message-badge'
         color="secondary"
-        badgeContent={messages.length}
-        children={
-          <Button
-            variant='contained'
-            color='primary'
-            className={classes.button}
-            onClick={() => setOpenDrawer(true)}
-          >
-            Open Tools
-          </Button>
-        }>
-      </Badge>
+        badgeContent={unreadMessages}
+        showZero={false}
+      />
+      <Button
+        variant='contained'
+        color='primary'
+        className={classes.button}
+        onClick={() => {
+          setUnreadMessages(0);
+          setOpenDrawer(true);
+        }}
+      >
+        Open Tools
+      </Button>
 
-      <Drawer classes={{ paper: classes.drawerContainer }} anchor='right' open={openDrawer} onClose={() => setOpenDrawer(false)}>
+      <Drawer
+        classes={{ paper: classes.drawerContainer }}
+        anchor='right'
+        open={openDrawer}
+        onClose={() => {
+          setOpenDrawer(false);
+          setUnreadMessages(0);
+        }}
+      >
         <div
           className={classes.list}
           role='presentation'

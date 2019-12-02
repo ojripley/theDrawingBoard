@@ -14,11 +14,12 @@
   scrollbar-width: none;
 }
 
-// .message-container {
-//   border-radius: 15px 15px;
-//   margin-bottom: 0.5em;
-//   padding: 0.5em 0.75em;
-// }
+span.MuiBadge-root.message-badge {
+  position: fixed;
+  z-index: 9999;
+  top: 12px;
+  right: 6px;
+}
 
 .recipient {
   margin-bottom: 0.5em;
