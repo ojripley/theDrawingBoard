@@ -20,13 +20,8 @@ import reducer, {
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
-  },
-  fab: {
-    margin: theme.spacing(1),
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    zIndex: 3
+    // flexDirection: 'row',
+    // justifyContent: 'center'
   },
   extendedIcon: {
     marginRight: theme.spacing(1),
@@ -39,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'row',
     padding: '0.5em 0.5em',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   textareaAutosize: {
     resize: 'none',
@@ -57,21 +52,12 @@ const useStyles = makeStyles(theme => ({
     position: 'fixed',
     zIndex: 2,
     bottom: 40,
+    left: 0,
     width: "100%",
   },
   saving: {
     position: 'absolute',
-    width: 100,
-    height: 100,
-    bottom: 20,
-    left: 50,
-    zIndex: 3,
-    display: 'flex',
-    '& > * + *': {
-      marginLeft: theme.spacing(1),
-      width: 100,
-      height: 100
-    }
+    right: '14.7%'
   },
 }));
 

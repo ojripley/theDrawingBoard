@@ -16,23 +16,19 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
   //State for drawing canvas:
   const drawCanvasRef = useRef({});
   let [paint, setPaint] = useState(false);
-  let [orientation, setOrientation] = useState('portrait')
-  // const myCode = useRef(Math.floor(Math.random() * 1000), [])
 
-
-  // console.log('initialPixels:', initialPixels)
-  //State for image canvas:
   const imageCanvasRef = useRef(null);
-  // let [imageCtx,] = useState();
   let imageCtx = useRef(undefined);
 
-  const getScaledDimensions = (h, w, bh, bw) => { //possible scaling
-    if (bw >= bh) {
-      setOrientation('landscape');
-      return [w, bh === 0 ? h : (bh * w / bw)]
+  //Scale the image up/down to use max amount of screen as possible without changing aspect ratio
+  const getScaledDimensions = (h, w, bh, bw) => {
+    let imageRatio = bw / bh;
+    let screenRatio = w / h;
+
+    if (screenRatio >= imageRatio) {
+      return [bw * (h / bh), h];
     } else {
-      setOrientation('portrait');
-      return [bw === 0 ? w : (bw * h / bh), h]
+      return [w, bh * (w / bw)];
     }
   }
 
@@ -86,8 +82,6 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
-          // console.log("Other person is drawing", data.user.id);
-
           dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel, page: page } });
           dispatch({ type: REDRAW, payload: { page: page } });
         }
@@ -200,14 +194,12 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     <div id='canvas-container'>
       <canvas
         id='image'
-        className={orientation}
         ref={imageCanvasRef}
       >
       </canvas>
       <canvas
         id='drawCanvas'
         ref={drawCanvasRef}
-        className={orientation}
         onMouseDown={e => handleMouseDown(e.nativeEvent)}
         onMouseMove={e => handleMouseMove(e.nativeEvent)}
         onMouseUp={e => handleMouseUp(e.nativeEvent)}

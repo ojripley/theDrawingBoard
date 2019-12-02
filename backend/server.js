@@ -235,7 +235,7 @@ io.on('connection', (client) => {
             activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
-          console.log('attempted login: failed');
+          handleError({type: 'login', msg: 'Email and/or password is incorrect, try again!'}, client)
         }
         console.log('sending response');
         if (authenticateAttempt.id) {
