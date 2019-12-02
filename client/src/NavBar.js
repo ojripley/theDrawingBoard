@@ -13,17 +13,18 @@ import './NavBar.scss';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    flexGrow: 1,
-    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between'
   },
   button: {
     padding: 0,
     color: '#fff',
   },
   title: {
-    flexGrow: 1,
     fontFamily: "'Molle', cursive",
-    fontSize: '1.25rem'
+    display: 'inline',
+    fontSize: '1.25rem',
+    cursor: 'pointer'
   },
   username: {
     marginRight: '0.5em'
@@ -55,7 +56,7 @@ export default function NavBar(props) {
 
   return (
     <AppBar position="fixed">
-      <Toolbar>
+      <Toolbar className={classes.root}>
         <Typography className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
           The Drawing Board
         </Typography>
@@ -79,7 +80,7 @@ export default function NavBar(props) {
                   size='large'
                   onClick={handleLogout}
                   classes={{ root: classes.button }}
-                  >
+                >
                   Logout
                 </Button>
               </div>
