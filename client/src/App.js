@@ -19,7 +19,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import History from './components/history/History';
 import Login from './components/login/Login';
 import Error from './components/Error';
-import AudioPlayer from './AudioPlayer';
 
 //Custom hooks
 import { useSocket } from './hooks/useSocket'
@@ -111,11 +110,11 @@ export default function App() {
     if (peer && inMeeting) {
 
       // listening for PeerServer
-      console.log('listening for PeerServer');
       peer.on('open', (id) => {
         console.log('PeerServer thinks i am:', id);
       });
 
+      console.log('i am listening for calls');
       // listen for incoming calls
       peer.on('call', (call) => {
 
@@ -250,13 +249,13 @@ export default function App() {
         socket.off('newParticipant');
       }
     }
-  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer]); // newParticipant
+  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer, calls]); // newParticipant
 
 
   // handle new call connections
   useEffect(() => {
-    console.log('newPeer', newCall.newPeer);
-    console.log('isCaller', newCall.isCaller);
+    // console.log('newPeer', newCall.newPeer);
+    // console.log('isCaller', newCall.isCaller);
     if (peer && newCall.newPeer && inMeeting) {
 
       if (newCall.isCaller) { // && !sentCall
@@ -264,6 +263,7 @@ export default function App() {
         console.log('new call is with', newCall.newPeer);
         console.log(calls);
         if (calls[newCall.newPeer]) {
+          console.log('hey, the call exists, waiting for answer stream');
           calls[newCall.newPeer].on('stream', (incomingStream) => {
 
             // create a stream element
@@ -360,23 +360,43 @@ export default function App() {
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
 
 
-  // // compose incoming stream elements
-  // useEffect(() => {
 
-  //   const tempIncomingStreams = Object.keys(streams).map((key) => {
-  //     console.log('streams', streams);
-  //     const stream = streams[key];
-  //     return (
-  //       <AudioPlayer
-  //         key={key}
-  //         stream={stream}
-  //         peerId={key}
-  //       ></AudioPlayer>
-  //     )
-  //   });
 
-  //   // setIncomingStreams(tempIncomingStreams);
-  // }, [streams]);
+
+
+  useEffect(() => {
+    if (socketOpen) {
+      // console.log('listening for users to leave');
+      socket.on('userLeft', (data) => {
+        const liveUserId = 'theDrawingBoard' + data.user.id;
+
+        // console.log('user left, deleteing ', liveUserId);
+
+        const tempUsersInMeeting = usersInMeeting;
+
+        // console.log(tempUsersInMeeting[liveUserId]);
+        delete tempUsersInMeeting[liveUserId];
+        // console.log('temp after deleting', tempUsersInMeeting);
+        setUsersInMeeting({ ...tempUsersInMeeting });
+        // setUserChips(prev => prev.filter((userChip) => {
+        //   return userChip.key !== data.user.id;
+        // }));
+        // setUserChips(null);
+      });
+
+      return () => {
+        socket.off('userLeft');
+      }
+    }
+  }, [usersInMeeting, socket, socketOpen]);
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (socketOpen) {
@@ -427,7 +447,7 @@ export default function App() {
         socket.off('meeting');
       }
     }
-  }, [socket, socketOpen, setLoading, loading]);
+  }, [socket, socketOpen, setLoading, loading, inMeeting, user]);
 
 
   return (
