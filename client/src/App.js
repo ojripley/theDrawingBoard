@@ -348,7 +348,9 @@ export default function App() {
 
   useEffect(() => {
     if (socketOpen) {
-      socket.emit('checkCookie');
+      if (!user) {
+        socket.emit('checkCookie');
+      }
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
         setInMeeting(data.inMeeting); //Can be changed by user on login
