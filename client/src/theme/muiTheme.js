@@ -77,7 +77,7 @@ const theme = createMuiTheme({
       root: {
         color: '#36363E'
       }
-    }
+    },
   }
 });
 

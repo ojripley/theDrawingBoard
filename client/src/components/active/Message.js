@@ -2,8 +2,8 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 
 export default function Message(props) {
-  console.log('props.user:', props.user)
-  console.log('props.sender:', props.sender)
+  // console.log('props.user:', props.user)
+  // console.log('props.sender:', props.sender)
 
   const time = new Date(props.time).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric' });
 
