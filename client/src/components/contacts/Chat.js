@@ -4,6 +4,13 @@ import Message from '../Message';
 
 export default function Chat(props) {
 
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  const textareaRef = useRef(null);
+  const messagesDisplayRef = useRef(null);
+
   const handleMessage = event => {
     setMessage(event.target.value);
   };
@@ -11,10 +18,9 @@ export default function Chat(props) {
   const handleMessageSend = () => {
     if (message.trim().length > 0) {
       if (props.socketOpen) {
-        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipientId, msg: message.trim() });
+        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipientId, msg: message.trim(), timestamp: Date.now()});
       }
-      console.log('is my drawer open?', openDrawer)
-      console.log('unreadMessages for sender:', unreadMessages)
+      console.log('unreadMessages for sender:', unreadMessages);
       setMessage('');
     }
   };
@@ -31,6 +37,28 @@ export default function Chat(props) {
       handleMessageSend();
     }
   };
+
+  useEffect(() => {
+    if (props.socketOpen) {
+      props.socket.on('dm', (data) => {
+
+        setMessages(prev => [...prev, data]);
+
+        setUnreadMessages(prev => {
+          console.log('prev:', prev);
+          return ++prev;
+        });
+        console.log('unreadMessages for recipient:', unreadMessages)
+        if (messagesDisplayRef.current) {
+          scrollToBottom();
+        }
+      });
+
+      return () => {
+        props.socket.off('dm');
+      }
+    }
+  }, [messages, props.socket, props.socketOpen, openDrawer, unreadMessages]);
 
   return (
 
