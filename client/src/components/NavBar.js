@@ -9,7 +9,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
 
-import logo from './theDrawingBoardTM.png';
+import logo from '../images/theDrawingBoardTM.png';
 
 import './NavBar.scss';
 
