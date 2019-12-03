@@ -14,7 +14,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
-const io = require('socket.io')(server, { cookie: "yo" });
+const io = require('socket.io')(server);
 const crypto = require('crypto');
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
@@ -51,9 +51,9 @@ app.use(cors());
 app.use(morgan('dev'));
 // reset(); //REMOVE THIS (TEMP FOR TESTING)
 const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
-const iv = new Buffer.from("XFf9bYQkLKtwD4QD"); //Could use random bytes, would refresh on server refresh
 
-function encrypt(text) {
+
+function encrypt(text, iv) {
   let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
   let encrypted = cipher.update(text);
   encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -61,7 +61,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  console.log('decryptiv', text.iv);
+  // console.log('decryptiv', text.iv);
   let iv = Buffer.from(text.iv, 'hex');
   let encryptedText = Buffer.from(text.encryptedData, 'hex');
   let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -157,27 +157,28 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
-  console.log('client headers', client.request.headers.cookie);
 
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
-  if (client.request.headers.cookie) {
-    let matches = client.request.headers.cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
-    if (matches) cookieString = matches[0];
 
-    ivMatch = client.request.headers.cookie.match(/(?<=iv=)[a-zA-Z0-9]*/);
-    if (ivMatch) ivString = ivMatch[0];
-  }
 
   //Checks cookie
-  client.on('checkCookie', () => {
+  client.on('checkCookie', (cookie) => {
+
+    if (cookie) {
+      let matches = cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
+      if (matches) cookieString = matches[0];
+
+      let ivMatch = cookie.match(/(?<=iv=)[a-zA-Z0-9]*/);
+      if (ivMatch) ivString = ivMatch[0];
+    }
     console.log('cookie check');
     // console.log(cookieString);
     // console.log(ivString);
 
     if (cookieString && ivString) {
       try {
-        let email = decrypt({ encryptedData: cookieString, iv: iv });
+        let email = decrypt({ encryptedData: cookieString, iv: ivString });
         console.log('decrypted', email);
         db.fetchUserByEmail(email)
           .then(res => {
@@ -200,7 +201,8 @@ io.on('connection', (client) => {
             handleError(error, client);
           });
       } catch (err) {
-        console.error('Cookie authentication failed!');
+        console.error('Cookie authentication failed!', err);
+        client.emit('cookieResponse', null);
       }
     } else {
       client.emit('cookieResponse', null);
@@ -242,7 +244,11 @@ io.on('connection', (client) => {
         }
         console.log('sending response');
         if (authenticateAttempt.id) {
-          let enc = encrypt(authenticateAttempt.email);
+          const iv = crypto.randomBytes(16); //For more security a random string can be generated and stored for each user
+          // const iv = new Buffer.from("XFf9bYQkLKtwD4QD");
+
+
+          let enc = encrypt(authenticateAttempt.email, iv);
           client.emit('loginResponse', {
             user: authenticateAttempt,
             session: { sid: enc.encryptedData, iv: enc.iv }
