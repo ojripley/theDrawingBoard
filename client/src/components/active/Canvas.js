@@ -98,15 +98,6 @@ export default function Canvas({ backgroundImage,
         }
       });
 
-      return () => {
-        socket.off('drawClick');
-        socket.off('setPointer');
-      };
-    }
-  }, [socket, socketOpen, user.id, dispatch, page]);
-
-  useEffect(() => {
-    if (socketOpen) {
       socket.on('redraw', (data) => {
         dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
         dispatch({ type: REDRAW, payload: { page: page } });
@@ -115,14 +106,19 @@ export default function Canvas({ backgroundImage,
       socket.on('addUserAndColor', data => {
         dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
       });
-
-      return () => {
-        socket.off('redraw');
-        socket.off('addUserAndColor');
-      };
     }
+    return () => {
+      socket.off('drawClick');
+      socket.off('setPointer');
+      socket.off('redraw');
+      socket.off('addUserAndColor');
+    };
+
   }, [socket, socketOpen, user.id, dispatch, page]);
 
+  //When a user clicks or touches the screen we must
+  // 1) draw on client's canvas based on the tool selected
+  // 2) emit to the server so all other users are aware.
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {
       let pixel =
@@ -135,6 +131,7 @@ export default function Canvas({ backgroundImage,
       let w = drawCanvasRef.current.width;
       let h = drawCanvasRef.current.height;
 
+      //Only emit/redraw if you have moved away more than a certain number of pixels from the original location (a certain radius away)
       if (!prevPix ||
         (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
         mapToRelativeUnits(pixel);
@@ -165,8 +162,8 @@ export default function Canvas({ backgroundImage,
     setShowButtons(false);
   }
 
-  const handleMouseMove = e => { //Change to useCallback??
-    if (paint /*|| tool === "pointer"*/) { //add commented line if pointer should always be on when selected.
+  const handleMouseMove = e => {
+    if (paint) {
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
       addClick(mouseX, mouseY, true);
@@ -184,7 +181,7 @@ export default function Canvas({ backgroundImage,
     }
   }
 
-  useEffect(() => { //on dismount, show buttons
+  useEffect(() => { //on dismount, show buttons (open drawer)
     return () => {
       setShowButtons(true);
     }
