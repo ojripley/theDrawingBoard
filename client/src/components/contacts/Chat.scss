@@ -1,7 +1,7 @@
 @import '../../theme/variables';
 
 #dm-chat-container {
-  height: calc(100vh - 112px);
+  height: calc(100vh - 112px - 80px);
   width: 100%;
   display: grid;
   grid-template-rows: 90% 10%;

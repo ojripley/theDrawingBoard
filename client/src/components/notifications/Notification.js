@@ -50,7 +50,6 @@ export default function Contact(props) {
         secondary={
           <React.Fragment>
             <Typography
-              component="span"
               variant="body2"
               className={classes.inline}
               color="textPrimary"
