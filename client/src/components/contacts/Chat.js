@@ -83,7 +83,7 @@ export default function Chat(props) {
     if (message.trim().length > 0) {
       if (props.socketOpen) {
         console.log('props', props);
-        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim(), time: new Date(Date.now())});
+        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim()});
       }
       console.log('unreadMessages for sender:', unreadMessages);
       setMessage('');
