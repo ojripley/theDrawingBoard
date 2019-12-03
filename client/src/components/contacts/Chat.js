@@ -163,7 +163,6 @@ export default function Chat(props) {
         user={props.user}
         msg={message.msg}
         time={message.time}
-        className='dm'
       />
     )
   });

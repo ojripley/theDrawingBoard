@@ -6,6 +6,10 @@
   grid-template-rows: 90% 10%;
 }
 
+#meeting-chat {
+  justify-content: center;
+}
+
 #messages-display {
   overflow-wrap: break-word;
   overflow-y: auto;
@@ -29,7 +33,15 @@ span.MuiBadge-root.message-badge {
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 15px 15px;
     padding: 0.75em 0.75em;
+    display: inline-block;
+    max-width: 90%;
   }
+
+  p {
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+  }
+
 
   h6 {
     margin-left: 0.75em;
@@ -39,12 +51,20 @@ span.MuiBadge-root.message-badge {
 .sender {
   margin-left: 1em;
   margin-bottom: 0.5em;
+  text-align: right;
 
   .message-container {
     background-color: rgba(2, 104, 115, 0.8);
     color: $color-4-hex;
     border-radius: 15px 15px;
     padding: 0.75em 0.75em;
+    display: inline-block;
+    max-width: 90%;
+  }
+
+  p {
+    overflow-x: hidden;
+    overflow-wrap: break-word;
   }
 
   h6 {
