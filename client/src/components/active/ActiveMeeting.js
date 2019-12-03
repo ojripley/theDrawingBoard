@@ -95,7 +95,7 @@ export default function ActiveMeeting({ socket,
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
-  const [hideButtons, setHideButtons] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
 
   const [page, setPage] = useState(0);
   const canviiRef = useRef([]);
@@ -302,6 +302,7 @@ export default function ActiveMeeting({ socket,
             setPage={setPage}
             loadSpinner={loadSpinner}
             setUsersInMeeting={setUsersInMeeting}
+            showButtons={showButtons}
           />
           <Canvas
             user={user}
@@ -320,6 +321,7 @@ export default function ActiveMeeting({ socket,
             page={page}
             canvasState={canvasState}
             dispatch={dispatch}
+            setShowButtons={setShowButtons}
           />
           {writeMode &&
             <div className={classes.center}>
