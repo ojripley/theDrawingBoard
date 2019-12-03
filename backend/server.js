@@ -172,8 +172,8 @@ io.on('connection', (client) => {
   //Checks cookie
   client.on('checkCookie', () => {
     console.log('cookie check');
-    console.log(cookieString);
-    console.log(ivString);
+    // console.log(cookieString);
+    // console.log(ivString);
 
     if (cookieString && ivString) {
       try {
@@ -208,7 +208,6 @@ io.on('connection', (client) => {
   });
 
   client.on('registrationAttempt', (data) => {
-    console.log('someone is trying to register')
     authenticator.register(data.username, data.email, data.password)
       .then(res => {
         console.log('registration attempt successful', res);
@@ -239,7 +238,7 @@ io.on('connection', (client) => {
             activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
-          handleError({ type: 'login', msg: 'Email and/or password is incorrect, try again!' }, client)
+          handleError({ type: 'login', msg: 'Email and/or password is incorrect, try again!' }, client);
         }
         console.log('sending response');
         if (authenticateAttempt.id) {
