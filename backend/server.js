@@ -641,22 +641,18 @@ io.on('connection', (client) => {
     } else {
       db.updateUsersMeetingsStatus(data.user.id, data.meetingId, data.rsvp);
     }
-
     client.emit('attendanceChanged', { meetingId: data.meetingId });
   });
 
   client.on('dismissNotification', (data) => {
-    console.log('dismissing notification number', data.id);
     db.removeNotificationById(data.id);
   });
 
   client.on('dismissAllNotifications', (data) => {
-    console.log('dismissing notification by user', data.userId);
     db.removeNotificationsByUserId(data.userId);
   });
 
   client.on('dismissNotificationType', (data) => {
-    console.log('dismissing notification by type', data.userId, data.type);
     db.removeNotificationsByType(data.userId, data.type);
   });
 
@@ -668,7 +664,8 @@ io.on('connection', (client) => {
       if (pixels.length > 0) {
         while (pixels[pixels.length - 1].dragging !== false) {
           pixels.pop();
-          if (!pixels[pixels.length - 1]) { //Exit if at the beginning of the array.
+
+          if (!pixels[pixels.length - 1]) { // Exit if at the beginning of the array.
             break;
           }
         }
@@ -700,28 +697,21 @@ io.on('connection', (client) => {
 
     // tell the room who left
     io.to(data.meetingId).emit('userLeft', { user: data.user, meetingId: data.meetingId });
-    console.log(activeMeetings[data.meetingId].liveUsers);
-    console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });
 
   client.on('fetchDms', (data) => {
     db.fetchDMs(data.user.id, data.recipientId)
       .then((res) => {
-        console.log('DMs are:', res);
         client.emit('DmsFetched', res);
       }).catch(error => {
         handleError(error, client);
       });
-
   });
 
   client.on('sendDm', (data) => {
-    console.log('recieved dm');
     data.time = new Date(Date.now());
     client.emit('dm', (data));
-    console.log(data);
 
-    console.log('settng notification');
     notify(data.recipientId, { title: `New message from ${data.user.username}`, type: 'dm', msg: `${data.msg}`, senderId: data.user.id });
     if (activeUsers[data.recipientId]) {
       activeUsers[data.recipientId].socket.emit('dm', (data));
