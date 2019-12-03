@@ -1,6 +1,19 @@
+@import '../../theme/variables';
+
 #dm-chat-container {
-  height: 100vh;
+  height: calc(100vh - 112px - 80px);
   width: 100%;
   display: grid;
   grid-template-rows: 90% 10%;
+  overflow: hidden;
+  padding-top: 1em;
+
+  div.recipient p {
+    background-color: rgba(212,99,55, 0.2);
+  }
+
+  textarea {
+    border: 2px $color-4-hex solid;
+    margin-bottom: 1em;
+  }
 }

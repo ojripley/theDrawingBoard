@@ -61,9 +61,12 @@ export default function DetailedHistory(props) {
 
   return (
     <div id='detailed-history-container'>
-      <div>
-        <Typography id='page-header' variant='h2' color='primary'>{props.meeting.name}</Typography>
-        <Divider color='primary' />
+      <div id='page-header'>
+        <div className='notifications-header'>
+          <Typography variant='h2' color='primary'>{props.meeting.name}</Typography>
+          <Button className='back-to-history' variant="outlined" color='secondary' size='small' onClick={() => props.setViewMeeting(0)}>Back</Button>
+        </div>
+        <Divider />
       </div>
 
       <Typography className='detailed-date' variant='button'>{new Date(time).toLocaleString('en-US', {
@@ -125,8 +128,6 @@ export default function DetailedHistory(props) {
           </div>
         </>
       }
-
-      <Button className='back-to-history' variant="outlined" color='primary' onClick={() => props.setViewMeeting(0)}>Back</Button>
     </div>
   );
 }

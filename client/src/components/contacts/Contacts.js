@@ -117,6 +117,7 @@ export default function Contacts(props) {
         recipientId={viewChat}
         socket={props.socket}
         socketOpen={props.socketOpen}
+        setViewChat={setViewChat}
       />) :
         (<><div>
           <Typography id='page-header' variant='h2' color='primary'>Contacts</Typography >
