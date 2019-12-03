@@ -7,13 +7,11 @@ VALUES
   ('herald_gerald', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'admin@mail.com'),
   ('townbicycle', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'tb@mail.com'),
   ('FrankLee', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'fl@mail.com'),
-  ('sopphiaaaClark', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'sc@mail.com'),
   ('lunarspectroscopy', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'aj@mail.com'),
   ('johnBEEgoodenough', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'je@mail.com'),
   ('saltyLegumes', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'wb@mail.com'),
   ('gorgeousgeorge88', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'gg@mail.com'),
   ('hugorichard', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'long@mail.com'),
-  ('lord_farquad', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'fourfootfour@mail.com'),
   ('cityunicycle', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'ub@mail.com'),
   ('judging_U', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'zoom@mail.com'),
   ('SYNERGY', '$2b$10$3E3dOlmiEADLQ09ViClGCulfRNm0nUI2cX5kRdiqMHlbRmZAkWyvW', 'SYNERGY@mail.com'),
@@ -76,12 +74,12 @@ VALUES
 -- (1, 4, 'accepted'),
 -- (2, 4, 'accepted');
 
-INSERT INTO dms
-  (user_id, recipient_id, msg)
-VALUES
-  (1, 2, 'message 1'),
-  (1, 2, 'message 2'),
-  (2, 1, 'response 1'),
-  (2, 1, 'response 2'),
-  (1, 2, 'message 4'),
-  (2, 1, 'response 4');
+-- INSERT INTO dms
+--   (user_id, recipient_id, msg)
+-- VALUES
+--   (1, 2, 'message 1'),
+--   (1, 2, 'message 2'),
+--   (2, 1, 'response 1'),
+--   (2, 1, 'response 2'),
+--   (1, 2, 'message 4'),
+--   (2, 1, 'response 4');
