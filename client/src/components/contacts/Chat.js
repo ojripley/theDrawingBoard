@@ -15,7 +15,6 @@ import Message from '../Message';
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
     backgroundColor: 'rgba(245,240,235, 0.85)'
-    // backgroundColor: theme.palette.primary.light
   },
   list: {
     width: '40vw',
