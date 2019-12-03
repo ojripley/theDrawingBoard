@@ -78,7 +78,8 @@ export default function ActiveMeeting({ socket,
   setLoading,
   pixelColor,
   usersInMeeting,
-  setUsersInMeeting
+  setUsersInMeeting,
+  initialPage
 }) {
 
 
@@ -97,8 +98,9 @@ export default function ActiveMeeting({ socket,
   const [pointing, setPointing] = useState(false);
   const [showButtons, setShowButtons] = useState(true);
 
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(initialPage || 0);
   const canviiRef = useRef([]);
+  console.log(initialPage);
 
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },

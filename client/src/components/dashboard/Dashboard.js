@@ -14,7 +14,7 @@ export default function Dashboard(props) {
   const [meetings, setMeetings] = useState([]);
   const [expanded, setExpanded] = useState(props.initialExpandedMeeting);
 
-  useEffect(()=>{ //jumps to top of page on mount
+  useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
   }, []);
 
@@ -97,6 +97,7 @@ export default function Dashboard(props) {
           setLoading={props.setLoading}
           setPixelColor={props.setPixelColor}
           setUsersInMeeting={props.setUsersInMeeting}
+          setInitialPage={props.setInitialPage}
         />
       </li>
     )

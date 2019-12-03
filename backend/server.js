@@ -290,7 +290,7 @@ io.on('connection', (client) => {
   });
 
   client.on('changePage', data => {
-    console.log('changing page', data);
+    activeMeetings[data.meetingId].initialPage = data.page;
     io.to(data.meetingId).emit('changingPage', data);
   });
 
@@ -457,6 +457,7 @@ io.on('connection', (client) => {
               meeting['userPixels'].push(new Object());
             }
 
+            meeting['initialPage'] = 0;
             meeting['liveUsers'] = {};
             meeting['pointers'] = {};
             // meeting['userColors'] = ['#000000', '#4251f5', '#f5eb2a', '#f022df', '#f5390a', '#f5ab0a', '#f5ab0a', '#a50dd4']; //Default colors to use

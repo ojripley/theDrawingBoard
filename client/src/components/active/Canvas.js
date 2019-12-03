@@ -8,7 +8,18 @@ const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 const SET_POINTER = "SET_POINTER";
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, ownerId, setLoading, pixelColor, strokeWidth, tool, page, canvasState, dispatch, setShowButtons }) {
+export default function Canvas({ backgroundImage,
+  imageLoaded,
+  socket,
+  socketOpen,
+  user,
+  meetingId,
+  strokeWidth,
+  tool,
+  page,
+  canvasState,
+  dispatch,
+  setShowButtons }) {
   const TRIGGER_ZONE = 15;
 
 
