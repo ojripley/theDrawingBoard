@@ -154,26 +154,23 @@ export default function App() {
         socket.off('newParticipant');
       }
     }
-  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer, calls]); // newParticipant
+  }, [peer, streams, socket, socketOpen, user, inMeeting, newCall.newPeer, calls]);
 
 
   // handle new call connections
   useEffect(() => {
-    // console.log('newPeer', newCall.newPeer);
-    // console.log('isCaller', newCall.isCaller);
     if (peer && newCall.newPeer && inMeeting) {
 
-      if (newCall.isCaller) { // && !sentCall
+      // handle all calls where you are the initiator
+      if (newCall.isCaller) {
 
-        console.log('new call is with', newCall.newPeer);
-        console.log(calls);
         if (calls[newCall.newPeer]) {
-          console.log('hey, the call exists, waiting for answer stream');
+          // wait for other user to accept getUserMedia
           calls[newCall.newPeer].on('stream', (incomingStream) => {
 
-            // create a stream element
+            // there is no appropriate way to add audio streams to elements in React
+            // direct DOM manipulation was the next best thing
             const root = document.getElementById('root');
-
             const audioStream = document.createElement('audio');
             audioStream.setAttribute('id', `stream${newCall.newPeer}`);
             audioStream.setAttribute('class', 'hide-audio-controls');
@@ -184,12 +181,10 @@ export default function App() {
             root.prepend(audioStream);
             audioStream.srcObject = incomingStream;
 
-            console.log('adding stream to state');
             setStreams(prev => ({
               ...prev,
               [newCall.newPeer]: incomingStream
             }));
-            console.log('cleaning up state to reset for new users');
             setNewCall({
               newPeer: null,
               isCaller: false
@@ -199,18 +194,15 @@ export default function App() {
 
       } else { // the user is the receiver of a new call
 
-        // answer the call. Uncle Sam needs YOU!
-        console.log('answering the call');
         navigator.mediaDevices.getUserMedia({ video: false, audio: true })
           .then((stream) => {
             console.log('got stream');
             calls[newCall.newPeer].answer(stream);
             calls[newCall.newPeer].on('stream', (incomingStream) => {
 
-
-              // create a stream element
+              // there is no appropriate way to add audio streams to elements in React
+              // direct DOM manipulation was the next best thing
               const root = document.getElementById('root');
-
               const audioStream = document.createElement('audio');
               audioStream.setAttribute('id', `stream${newCall.newPeer}`);
               audioStream.setAttribute('class', 'hide-audio-controls');
@@ -221,20 +213,17 @@ export default function App() {
               root.prepend(audioStream);
               audioStream.srcObject = incomingStream;
 
-
-              console.log('adding stream to state');
               setStreams(prev => ({
                 ...prev,
                 [newCall.newPeer]: incomingStream
               }));
-              console.log('cleaning up state to reset for new users');
               setNewCall({
                 newPeer: null,
                 isCaller: false
               });
             });
           }, (error) => {
-            console.error('Failed to get media stream', error);
+              console.log('Failed to get User Media. User must allow access to microphone for audio calling.');
           });
       }
     }
@@ -243,9 +232,6 @@ export default function App() {
   // clean up calls/peer object when user leaves the meeting
   useEffect(() => {
     if (peer && !inMeeting) {
-
-      console.log('deleting the peer');
-      console.log('my streams', streams);
       setStreams({});
       setCalls({});
       peer.destroy();
@@ -264,9 +250,9 @@ export default function App() {
     }
   }, [peer, inMeeting, streams, calls, newCall, setPeer]);
 
+  // listen for users to leave the meeting
   useEffect(() => {
     if (socketOpen) {
-      // console.log('listening for users to leave');
       socket.on('userLeft', (data) => {
         const liveUserId = 'theDrawingBoard' + data.user.id;
 
@@ -304,7 +290,6 @@ export default function App() {
           console.log(el);
           el.parentNode.removeChild(el);
         }
-
       });
 
       return () => {
@@ -318,10 +303,11 @@ export default function App() {
       if (!user) {
         socket.emit('checkCookie', document.cookie);
       }
-      //Server says client is in a meeting:
-      socket.on('meeting', data => {//Could be on connect
-        setInMeeting(data.inMeeting); //Can be changed by user on login
-        setMeetingNotes(data.notes); //notes for the current meeting
+
+      // Server says client is in a meeting:
+      socket.on('meeting', data => {
+        setInMeeting(data.inMeeting);
+        setMeetingNotes(data.notes);
       });
 
       socket.on('allNotifications', data => {
@@ -373,12 +359,10 @@ export default function App() {
       {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
       <ThemeProvider theme={theme}>
         {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
-
         {!user ?
           <Login setUser={setUser} socket={socket} socketOpen={socketOpen} setLoginError={setLoginError} error={loginError} />
           : inMeeting ?
             <>
-              {/* <div>{incomingStreams}</div> */}
               <ActiveMeeting
                 meetingId={meetingId}
                 ownerId={ownerId}
