@@ -66,7 +66,7 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.dismiss-button-hidde
 }
 
 p.MuiTypography-root.makeStyles-inline-329.MuiTypography-body2.MuiTypography-colorTextPrimary {
-  width: 94vw;
+  width: calc(94vw - 24px);
   max-width: 1000px;
   text-overflow: ellipsis;
   overflow-x: hidden;
