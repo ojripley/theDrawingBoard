@@ -106,7 +106,7 @@ export default function Notifications(props) {
           >
             <ListItem className='section-header' onClick={() => setMeetingExpanded(!meetingExpanded)}>
               <Typography variant='button'>Meeting Notifications</Typography>
-              <div>
+              <div className='dismiss-expand'>
                 <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("meeting")}>Dismiss</Typography>
                 {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
               </div>
@@ -126,7 +126,7 @@ export default function Notifications(props) {
           >
             <ListItem className='section-header' onClick={() => setContactsExpanded(!contactsExpanded)}>
               <Typography variant='button'>Contacts Notifications</Typography>
-              <div>
+              <div className='dismiss-expand'>
                 <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("contact")}>Dismiss</Typography>
                 {contactsExpanded ? <ExpandLess /> : <ExpandMore />}
               </div>
