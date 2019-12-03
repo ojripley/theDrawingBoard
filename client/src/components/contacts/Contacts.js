@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   textField: {
     flexBasis: '100%',
     width: 'auto',
@@ -33,6 +33,7 @@ export default function Contacts(props) {
     window.scrollTo(0, 0)
   }, []);
 
+  // gerald the error herald easter egg
   const handleKeyPress = event => {
     if (event.charCode === 13 && event.target.value === 'summon gerald') {
       props.setError({
@@ -59,16 +60,14 @@ export default function Contacts(props) {
   }
 
   useEffect(() => {
-    props.socket.off('relationChanged');
-
-    return () => {
-      // setContactsList([]);
+    // clean up socket event when switching between global search
+    if (props.socketOpen) {
+      props.socket.off('relationChanged');
     }
-  }, [globalSearch, props.socket]);
+  }, [globalSearch, props.socket, props.socketOpen]);
 
   useEffect(() => {
     console.log(debouncedSearchTerm);
-    // socket check
     if (props.socketOpen) {
       if (globalSearch) {
 
@@ -158,7 +157,5 @@ export default function Contacts(props) {
         </>)
       }
     </>
-
-
   );
 }
