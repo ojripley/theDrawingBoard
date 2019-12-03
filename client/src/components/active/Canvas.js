@@ -8,7 +8,7 @@ const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 const SET_POINTER = "SET_POINTER";
 
-export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, ownerId, setLoading, pixelColor, strokeWidth, tool, page, canvasState, dispatch, showButtons }) {
+export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpen, user, meetingId, ownerId, setLoading, pixelColor, strokeWidth, tool, page, canvasState, dispatch, setShowButtons }) {
   const TRIGGER_ZONE = 15;
 
 
@@ -169,7 +169,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
     addClick(mouseX, mouseY, false);
     // if (tool !== "pointer") { //potentially fixes bug where initial pixel would sometime be in dragging state
     setPaint(true);
-    showButtons(false);
+    setShowButtons(false);
     // }
   }
 
@@ -183,7 +183,7 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
 
   const handleMouseUp = e => {
     setPaint(false);
-    showButtons(true);
+    setShowButtons(true);
     //Clear the pointer pixel:
     if (tool === "pointer") {
       dispatch({ type: SET_POINTER, payload: { user: user.id, pixel: undefined } });
@@ -191,6 +191,13 @@ export default function Canvas({ backgroundImage, imageLoaded, socket, socketOpe
       dispatch({ type: REDRAW, payload: { page: page } });
     }
   }
+
+  useEffect(() => { //on dismount
+
+    return () => {
+      setShowButtons(true);
+    }
+  }, []);
 
   return (
     <div id='canvas-container'>

@@ -280,7 +280,7 @@ export default function ActiveMeeting({ socket,
     <>
       {imageLoaded &&
         <div className={classes.root}>
-          <div className='user-chips'>{userChips}</div>
+          {showButtons && <div className='user-chips'>{userChips}</div>}
           <CanvasDrawer
             user={user}
             ownerId={ownerId}
