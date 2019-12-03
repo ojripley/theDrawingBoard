@@ -290,9 +290,7 @@ io.on('connection', (client) => {
   });
 
   client.on('changePage', data => {
-    console.log('changing page', data);
     activeMeetings[data.meetingId].initialPage = data.page;
-    console.log(activeMeetings[data.meetingId]);
     io.to(data.meetingId).emit('changingPage', data);
   });
 

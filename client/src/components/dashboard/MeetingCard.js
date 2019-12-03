@@ -126,15 +126,10 @@ export default function MeetingCard({
 
       socket.on(`enteredMeeting${id}`, data => {
 
-        console.log('okay im going in');
         let res = data.meeting;
-        console.log("Setting ownerid");
         setOwnerId(res.owner_id);
-        console.log("Setting meetingid");
         setMeetingId(res.id);
-        console.log("Setting notes");
         setMeetingNotes(data.notes);
-        console.log("Setting page", res);
         setInitialPage(res.initialPage);
 
         console.log('setting live users', res.liveUsers);
