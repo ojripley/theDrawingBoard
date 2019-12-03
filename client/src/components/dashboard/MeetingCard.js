@@ -97,7 +97,8 @@ export default function MeetingCard({
   setMeetingNotes,
   setLoading,
   setPixelColor,
-  setUsersInMeeting
+  setUsersInMeeting,
+  setInitialPage,
 }) {
 
   const classes = useStyles();
@@ -133,6 +134,9 @@ export default function MeetingCard({
         setMeetingId(res.id);
         console.log("Setting notes");
         setMeetingNotes(data.notes);
+        console.log("Setting page", res);
+        setInitialPage(res.initialPage);
+
         console.log('setting live users', res.liveUsers);
 
         for (let liveUser in res.liveUsers) {
@@ -266,16 +270,16 @@ export default function MeetingCard({
               attendance={user.attendance}
             />}
           <div id='owner-controls'>
-          {user.username === owner &&
-            <Owner
-              id={id}
-              socket={socket}
-              startMeeting={startMeeting}
-              activeMeeting={activeMeeting}
-              attendeeIds={attendeeIds}
-            />}
-          {activeMeeting && <Button variant="contained" size='small' color="primary" className={classes.enterButton} onClick={enterMeeting}>
-            Enter Meeting
+            {user.username === owner &&
+              <Owner
+                id={id}
+                socket={socket}
+                startMeeting={startMeeting}
+                activeMeeting={activeMeeting}
+                attendeeIds={attendeeIds}
+              />}
+            {activeMeeting && <Button variant="contained" size='small' color="primary" className={classes.enterButton} onClick={enterMeeting}>
+              Enter Meeting
           </Button>}
           </div>
         </ExpansionPanelDetails>
