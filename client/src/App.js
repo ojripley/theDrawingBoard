@@ -349,7 +349,7 @@ export default function App() {
   useEffect(() => {
     if (socketOpen) {
       if (!user) {
-        socket.emit('checkCookie');
+        socket.emit('checkCookie', document.cookie);
       }
       //Server says client is in a meeting:
       socket.on('meeting', data => {//Could be on connect
@@ -384,7 +384,8 @@ export default function App() {
       })
 
       socket.on('cookieResponse', data => {
-        console.log('received cookie response')
+        console.log('received cookie response');
+
         setLoading(false);
         setUser(data);
       });
