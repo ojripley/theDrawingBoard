@@ -36,6 +36,11 @@ li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexS
   flex-direction: column;
 }
 
+li.MuiListItem-root.notification.MuiListItem-gutters {
+  width: 94vw;
+  max-width: 1024px;
+}
+
 #notifications-container {
   width: 100%;
   padding: 0;
@@ -58,4 +63,13 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.dismiss-button-hidde
 .dismiss-expand {
   display: flex;
   flex-direction: row;
+}
+
+p.MuiTypography-root.makeStyles-inline-329.MuiTypography-body2.MuiTypography-colorTextPrimary {
+  width: 94vw;
+  max-width: 1000px;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+  display: block;
 }
