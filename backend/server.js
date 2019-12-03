@@ -14,7 +14,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const morgan = require('morgan');
 const server = require('http').Server(app);
-const io = require('socket.io')(server, { cookie: "yo" });
+const io = require('socket.io')(server);
 const crypto = require('crypto');
 const fs = require('fs');
 const PDFImage = require("pdf-image").PDFImage;
@@ -45,16 +45,15 @@ db.clearToHistory()
 // CORS
 app.use(cors());
 
-
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
 // reset(); //REMOVE THIS (TEMP FOR TESTING)
 const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
-const iv = new Buffer.from("XFf9bYQkLKtwD4QD"); //Could use random bytes, would refresh on server refresh
 
-function encrypt(text) {
+
+function encrypt(text, iv) {
   let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
   let encrypted = cipher.update(text);
   encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -62,7 +61,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  console.log('decryptiv', text.iv);
+  // console.log('decryptiv', text.iv);
   let iv = Buffer.from(text.iv, 'hex');
   let encryptedText = Buffer.from(text.encryptedData, 'hex');
   let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -94,6 +93,7 @@ server.listen(PORT, () => {
 
 // notification function
 const notify = function(userId, notification) {
+  console.log('notif', notification);
 
   // assign notificationId with res.id after a db query
   notification.userId = userId;
@@ -115,13 +115,16 @@ const notify = function(userId, notification) {
   }
 
   if (notification.type === 'dm' || notification.type === 'contact') {
+    console.log('saving dm/contact notif to db');
     db.insertContactNotification(userId, notification)
       .then(res => {
+        console.log('successful db save');
         notification.id = res[0].id;
         notification.time = res[0].time;
 
         // only emit if the client is online
         if (activeUsers[userId]) {
+          console.log('notifying online user');
           activeUsers[userId].socket.emit('notify', notification);
         }
       })
@@ -145,7 +148,6 @@ setInterval(() => {
 
 
 
-
 ///////////////////
 // SOCKET EVENTS //
 ///////////////////
@@ -155,27 +157,28 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
-  console.log('client headers', client.request.headers.cookie);
 
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
-  if (client.request.headers.cookie) {
-    let matches = client.request.headers.cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
-    if (matches) cookieString = matches[0];
 
-    ivMatch = client.request.headers.cookie.match(/(?<=iv=)[a-zA-Z0-9]*/);
-    if (ivMatch) ivString = ivMatch[0];
-  }
 
   //Checks cookie
-  client.on('checkCookie', () => {
+  client.on('checkCookie', (cookie) => {
+
+    if (cookie) {
+      let matches = cookie.match(/(?<=sid=)[a-zA-Z0-9]*/);
+      if (matches) cookieString = matches[0];
+
+      let ivMatch = cookie.match(/(?<=iv=)[a-zA-Z0-9]*/);
+      if (ivMatch) ivString = ivMatch[0];
+    }
     console.log('cookie check');
-    console.log(cookieString);
-    console.log(ivString);
+    // console.log(cookieString);
+    // console.log(ivString);
 
     if (cookieString && ivString) {
       try {
-        let email = decrypt({ encryptedData: cookieString, iv: iv });
+        let email = decrypt({ encryptedData: cookieString, iv: ivString });
         console.log('decrypted', email);
         db.fetchUserByEmail(email)
           .then(res => {
@@ -198,7 +201,8 @@ io.on('connection', (client) => {
             handleError(error, client);
           });
       } catch (err) {
-        console.error('Cookie authentication failed!');
+        console.error('Cookie authentication failed!', err);
+        client.emit('cookieResponse', null);
       }
     } else {
       client.emit('cookieResponse', null);
@@ -206,7 +210,6 @@ io.on('connection', (client) => {
   });
 
   client.on('registrationAttempt', (data) => {
-    console.log('someone is trying to register')
     authenticator.register(data.username, data.email, data.password)
       .then(res => {
         console.log('registration attempt successful', res);
@@ -237,11 +240,15 @@ io.on('connection', (client) => {
             activeUsers.removeUser(authenticateAttempt.id);
           });
         } else {
-          console.log('attempted login: failed');
+          handleError({ type: 'login', msg: 'Email and/or password is incorrect, try again!' }, client);
         }
         console.log('sending response');
         if (authenticateAttempt.id) {
-          let enc = encrypt(authenticateAttempt.email);
+          const iv = crypto.randomBytes(16); //For more security a random string can be generated and stored for each user
+          // const iv = new Buffer.from("XFf9bYQkLKtwD4QD");
+
+
+          let enc = encrypt(authenticateAttempt.email, iv);
           client.emit('loginResponse', {
             user: authenticateAttempt,
             session: { sid: enc.encryptedData, iv: enc.iv }
@@ -391,7 +398,12 @@ io.on('connection', (client) => {
         const promiseArray = [];
 
         for (let contact of data.selectedContacts) {
-          promiseArray.push(db.insertUsersMeeting(contact.id, id));
+
+          if (contact.id === data.ownerId) {
+            promiseArray.push(db.insertUsersMeeting(contact.id, id, 'accepted'));
+          } else {
+            promiseArray.push(db.insertUsersMeeting(contact.id, id, null));
+          }
         }
 
         await Promise.all(promiseArray);
@@ -475,7 +487,6 @@ io.on('connection', (client) => {
 
   client.on('enterMeeting', (data) => {
 
-
     activeMeetings[data.meetingId].liveUsers[data.user.id] = data.user;
 
     console.log('new user joined meeting', activeMeetings[data.meetingId].liveUsers[data.user.id]);
@@ -502,7 +513,6 @@ io.on('connection', (client) => {
         meetingDetails.userPixels[i][data.user.id] = [];
       }
     }
-
 
     let images = [];
     if (meetingDetails['link_to_initial_files'].length !== 0) {
@@ -559,10 +569,12 @@ io.on('connection', (client) => {
 
     for (let id of meetingDetails.invited_users) {
       console.log('sending message to user#', id);
-      if (activeUsers[id]) //if the user is online
+      if (activeUsers[id] && !activeMeetings[data.meetingId].liveUsers[id]) {  //if the user is online
         activeUsers[id].socket.emit('meetingEndedYouSlacker', meetingDetails.id);
-      notify(id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
+        notify(id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${meetingDetails.name}' has ended! You may check the details in History`, meetingId: meetingDetails.id });
+      }
     }
+
     activeMeetings.removeMeeting(data.meetingId);
 
     console.log(`meeting ${data.meetingId}is done`);
@@ -741,13 +753,28 @@ io.on('connection', (client) => {
     console.log(`${data.user.username} has left meeting ${data.meetingId}`);
   });
 
-  client.on('sendDm', (data) => {
-    client.emit('dm', (data));
+  client.on('fetchDms', (data) => {
+    db.fetchDMs(data.user.id, data.recipientId)
+      .then((res) => {
+        console.log('DMs are:', res);
+        client.emit('DmsFetched', res);
+      }).catch(error => {
+        handleError(error, client);
+      });
 
+  });
+
+  client.on('sendDm', (data) => {
+    console.log('recieved dm');
+    client.emit('dm', (data));
+    console.log(data);
+
+    console.log('settng notification');
+    notify(data.recipientId, { title: `New message from ${data.user.username}`, type: 'dm', msg: `${data.msg}`, senderId: data.user.id });
     if (activeUsers[data.recipientId]) {
       activeUsers[data.recipientId].socket.emit('dm', (data));
     }
 
-    db.insertIntoDms(data.userId, data.senderId, data.msg, data.timestamp);
-  })
+    db.insertIntoDms(data.user.id, data.recipientId, data.msg, data.time);
+  });
 });

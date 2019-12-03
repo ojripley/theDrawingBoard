@@ -24,13 +24,16 @@ const fetchContactsByUserId = function(user_id, username = '') {
     SELECT username, id, email, relation FROM users
     JOIN friends ON friends.friend_id = users.id
     WHERE (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'pending')
     OR (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'requested')
     OR (friends.user_id = $1
-    AND username ILIKE $2
+    AND (username ILIKE $2
+      OR email ILIKE $2)
     AND friends.relation = 'accepted');
   `, vars)
     .then(res => {
@@ -47,13 +50,13 @@ const fetchUsersByUsername = function(username = '', id) {
   const vars = [`%${username}%`, id];
 
   return db.query(`
-    select id, username, relation
+    select id, username, email, relation
     from users left join friends on users.id = friends.user_id
-    where username ilike $1 and (friend_id is null)
+    where (username ilike $1 or email ilike $1) and (friend_id is null)
     union
-    select id, username, null as relation
+    select id, username, email, null as relation
     from users join friends on users.id=friends.user_id
-    where username ilike $1 and id != $2
+    where (username ilike $1 or email ilike $1) and id != $2
     group by id having($2 != all(array_agg(friend_id)));
   `, vars)
     .then(res => {
@@ -197,8 +200,13 @@ const insertMeeting = function(start_time, owner_id, name, description, status, 
     });
 };
 
-const insertUsersMeeting = function(user_id, meeting_id) {
-  const vars = [user_id, meeting_id, 'invited'];
+const insertUsersMeeting = function(user_id, meeting_id, status) {
+
+  if (!status) {
+    status = 'invited';
+  }
+
+  const vars = [user_id, meeting_id, status];
 
   return db.query(`
     INSERT INTO users_meetings (user_id, meeting_id, attendance)
@@ -357,7 +365,7 @@ const deleteMeeting = function(meeting_id) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     })
 }
@@ -373,7 +381,7 @@ const insertContactNotification = function(userId, n) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -388,7 +396,7 @@ const insertMeetingNotification = function(userId, n) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -397,14 +405,14 @@ const fetchNotificationsByUser = function(userId) {
   const vars = [userId];
 
   return db.query(`
-    SELECT *
-    FROM notifications
-    WHERE user_id = $1;
+    SELECT * FROM NOTIFICATIONS
+    WHERE user_id = $1
+    ORDER BY time DESC;
   `, vars)
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -419,7 +427,7 @@ const removeNotificationById = function(id) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -434,7 +442,7 @@ const removeNotificationsByUserId = function(user_id) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -450,7 +458,7 @@ const removeNotificationsByType = function(user_id, type) {
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error=> {
       throw error;
     });
 }
@@ -465,7 +473,7 @@ const fetchStartedMeetings = function() {
   `).then(res => {
     console.log('res.rows', res.rows)
     return res.rows;
-  }).catch(err => {
+  }).catch(error => {
     throw error;
   });
 }
@@ -488,18 +496,37 @@ const clearToHistory = function() {
     });
 }
 
-const insertIntoDms = function(userId, senderId, msg, timestamp) {
-  const vars = [userId, senderId, msg, timestamp];
+const insertIntoDms = function(userId, recipientId, msg, time) {
+  const vars = [userId, recipientId, msg, time];
 
   return db.query(`
-    INSERT INTO dms (user_id, sender_id, msg, timestamp)
+    INSERT INTO dms (user_id, recipient_id, msg, time)
     VALUES ($1, $2, $3, $4)
     RETURNING *;
   `, vars)
     .then(res => {
       return res.rows;
     })
-    .catch(err => {
+    .catch(error => {
+      throw error;
+    });
+}
+
+const fetchDMs = function(userId, recipientId) {
+  const vars = [userId, recipientId];
+
+  return db.query(`
+  SELECT * FROM (SELECT * FROM DMS
+    WHERE (user_id=$1 AND recipient_id=$2)
+    OR (user_id=$2 AND recipient_id=$1)
+    ORDER BY time DESC
+    LIMIT 20)
+     as a ORDER BY time ASC
+  `, vars)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(error => {
       throw error;
     });
 }
@@ -512,6 +539,7 @@ module.exports = {
   fetchMeetingById,
   fetchUsersMeetingsByIds,
   fetchMeetingWithUsersById,
+  fetchDMs,
   insertUser,
   insertMeeting,
   insertFriend,

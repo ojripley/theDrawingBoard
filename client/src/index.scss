@@ -20,6 +20,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+textarea {
+  font-family: 'Roboto', "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
 #root {
   display: grid;
   height: 100vh;

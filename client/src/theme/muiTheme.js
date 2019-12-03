@@ -1,5 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import color from '@material-ui/core/colors/amber';
 
 const theme = createMuiTheme({
   palette: {
@@ -71,6 +70,9 @@ const theme = createMuiTheme({
     MuiPaper: {
       root: {
         color: '#36363E'
+      },
+      elevation1: {
+        boxShadow: '0 5px 5px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22)'
       }
     },
     MuiButtonBase: {

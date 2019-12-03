@@ -132,8 +132,8 @@ export default function Form(props) {
         tempfileCount.push(files.item(i).name);
         totSize += files.item(i).size;
       }
-      if (totSize > 2000000) {
-        setfileCount(`File limit 2MB.`)
+      if (totSize > 5000000) {
+        setfileCount(`File limit 5MB.`)
         props.setFiles({});
       } else {
         setfileCount(`${tempfileCount.length} files selected`);
@@ -215,7 +215,7 @@ export default function Form(props) {
         multiple
       />
       <label className={classes.label} htmlFor='upload-initial-doc'>
-        <Button variant='contained' color='warning' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
+        <Button variant='contained' color='primary' component="span" className={classes.button} startIcon={<CloudUploadIcon />}>
           Upload
             </Button>
         {fileCount}

@@ -16,7 +16,7 @@
   position: fixed;
   bottom: 56px;
   display: inline-block;
-  padding-top: 1em;
+  padding-top: 0.5em;
   background-color: white;
   z-index: 999;
 }
@@ -54,12 +54,31 @@
 }
 
 .attendees {
-  list-style-type: none;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.43;
   letter-spacing: 0.01071em;
+  padding-inline-end: 2em;
+
+}
+
+.attendees + ul {
+  padding-inline-start: 0;
+
+  & + ul {
+    padding-inline-start: 0;
+    list-style-type: none;
+
+  }
+}
+
+.attendees-container {
+  display: flex;
+  flex-direction: row;
+  flex-basis: 40%;
+  justify-content: space-between;
+  margin-right: 2em;;
 }
 
 .accepted {
@@ -83,3 +102,4 @@
 li.MuiButtonBase-root.MuiListItem-root.MuiMenuItem-root.invited-placeholder.Mui-selected.MuiMenuItem-gutters.MuiListItem-gutters.MuiListItem-button.Mui-selected {
   display: none
 }
+

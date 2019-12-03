@@ -17,23 +17,25 @@ export default function Owner(props) {
   };
 
   return (
-      !props.activeMeeting && <div id='owner-controls'>
-        <Button
-          variant="contained"
-          color="secondary"
-          className={classes.button}
-          onClick={props.startMeeting}
-        >
-          Start Meeting
-        </Button>
-        <Button
-          variant="contained"
-          color="default"
-          className={classes.button}
-          onClick={onDestroy}
-        >
-          Cancel Meeting
-        </Button>
-      </div>
+    !props.activeMeeting && <>
+      <Button
+        variant="contained"
+        color="default"
+        size='small'
+        className={classes.button}
+        onClick={onDestroy}
+      >
+        Cancel Meeting
+      </Button>
+      <Button
+        variant="contained"
+        color="secondary"
+        size='small'
+        className={classes.button}
+        onClick={props.startMeeting}
+      >
+        Start Meeting
+      </Button>
+    </>
   );
 }

@@ -54,3 +54,8 @@ li.MuiListItem-root.notification.MuiListItem-gutters.MuiListItem-alignItemsFlexS
 button.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.dismiss-button-hidden.MuiButton-outlinedSecondary.MuiButton-outlinedSizeSmall.MuiButton-sizeSmall {
   display: none;
 }
+
+.dismiss-expand {
+  display: flex;
+  flex-direction: row;
+}

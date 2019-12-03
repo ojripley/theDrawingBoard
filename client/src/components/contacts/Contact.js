@@ -31,14 +31,14 @@ export default function Contact(props) {
     }
   }, [relationStatus, props.contact, props.socket, props.socketOpen]);
 
-  const changeRelation = function () {
+  const changeRelation = function() {
 
     console.log('change relationStatus of:')
     console.log(props.contact.username)
 
     if (relationStatus === null) {
       console.log('insert a new relation');
-      props.socket.emit('addContact', {user: props.user, contactId: props.contact.id});
+      props.socket.emit('addContact', { user: props.user, contactId: props.contact.id });
     }
 
     if (relationStatus === 'pending') {
@@ -83,16 +83,19 @@ export default function Contact(props) {
 
       <div className='contact-buttons'>
         <Button variant="outlined" color="primary" size='small' onClick={changeRelation}>
-        {relationStatus === undefined ? 'Add'
-        : relationStatus === 'accepted' ? 'Remove'
-        : relationStatus === 'requested' ? 'Request Sent'
-        : relationStatus === 'pending' ? 'Accept Request'
-        : 'add contact'}
+          {relationStatus === undefined ? 'Add'
+            : relationStatus === 'accepted' ? 'Remove'
+              : relationStatus === 'requested' ? 'Request Sent'
+                : relationStatus === 'pending' ? 'Accept Request'
+                  : 'add contact'}
         </Button>
 
         <Button className={toDisplayOrNotDisplay()} variant="outlined" color="secondary" size='small' onClick={declineRelation} >
           Decline Request
         </Button>
+        {relationStatus === 'accepted' && <Button className="dm-button" variant="outlined" color="secondary" size='small' onClick={() => props.displayChat(props.contact.id)} >
+          DM
+        </Button>}
       </div>
 
     </Card>

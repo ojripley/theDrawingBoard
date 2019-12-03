@@ -55,15 +55,18 @@ export default function DetailedHistory(props) {
 
   const time = props.meeting.start_time;
 
-  const displayImages = images.map((image, index) => (
-    <img key={index} className='meeting-image' src={image} alt='meeting-notes' />
-  ));
+  // const displayImages = images.map((image, index) => (
+  //   <img key={index} className='meeting-image' src={image} alt='meeting-notes' />
+  // ));
 
   return (
     <div id='detailed-history-container'>
-      <div>
-        <Typography id='page-header' variant='h2' color='primary'>{props.meeting.name}</Typography>
-        <Divider color='primary' />
+      <div id='page-header'>
+        <div className='notifications-header'>
+          <Typography variant='h2' color='primary'>{props.meeting.name}</Typography>
+          <Button className='back-to-history' variant="outlined" color='secondary' size='small' onClick={() => props.setViewMeeting(0)}>Back</Button>
+        </div>
+        <Divider />
       </div>
 
       <Typography className='detailed-date' variant='button'>{new Date(time).toLocaleString('en-US', {
@@ -85,7 +88,7 @@ export default function DetailedHistory(props) {
 
           <div className='detailed-section'>
             <Typography variant='h6'>Attendees</Typography>
-            <Typography variant='body2'>{props.meeting.invited_users.map((name, index) => <span key={index}>{name} </span>)}</Typography>
+            <Typography className='detailed-attendees' variant='body2'>{props.meeting.invited_users.map((name, index) => <li key={index}>{name}</li>)}</Typography>
           </div>
 
           {props.meeting.description && <div className='detailed-section'>
@@ -125,8 +128,6 @@ export default function DetailedHistory(props) {
           </div>
         </>
       }
-
-      <Button className='back-to-history' variant="outlined" color='primary' onClick={() => props.setViewMeeting(0)}>Back</Button>
     </div>
   );
 }

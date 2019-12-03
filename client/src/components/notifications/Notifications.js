@@ -40,9 +40,14 @@ export default function Notifications(props) {
     props.setNotificationList([]);
   }
 
-  const removeNotificationsByType = (type) => {
+  const removeNotificationsByType = (event, type) => {
+    event.stopPropagation();
     props.socket.emit('dismissNotificationType', { userId: props.user.id, type: type });
-    props.setNotificationList(prev => prev.filter(notification => notification.type !== type));
+    if (type === 'contact') {
+      props.setNotificationList(prev => prev.filter(notification => notification.type === 'meeting'));
+    } else {
+      props.setNotificationList(prev => prev.filter(notification => notification.type !== type));
+    }
   }
 
 
@@ -106,8 +111,8 @@ export default function Notifications(props) {
           >
             <ListItem className='section-header' onClick={() => setMeetingExpanded(!meetingExpanded)}>
               <Typography variant='button'>Meeting Notifications</Typography>
-              <div>
-                <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("meeting")}>Dismiss</Typography>
+              <div className='dismiss-expand'>
+                <Typography className='clear-notifications' variant='overline' onClick={(event) => removeNotificationsByType(event, "meeting")}>Dismiss</Typography>
                 {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
               </div>
             </ListItem>
@@ -126,8 +131,8 @@ export default function Notifications(props) {
           >
             <ListItem className='section-header' onClick={() => setContactsExpanded(!contactsExpanded)}>
               <Typography variant='button'>Contacts Notifications</Typography>
-              <div>
-                <Typography className='clear-notifications' variant='overline' onClick={() => removeNotificationsByType("contact")}>Dismiss</Typography>
+              <div className='dismiss-expand'>
+                <Typography className='clear-notifications' variant='overline' onClick={(event) => removeNotificationsByType(event, "contact")}>Dismiss</Typography>
                 {contactsExpanded ? <ExpandLess /> : <ExpandMore />}
               </div>
             </ListItem>
