@@ -132,8 +132,8 @@ export default function Form(props) {
         tempfileCount.push(files.item(i).name);
         totSize += files.item(i).size;
       }
-      if (totSize > 2000000) {
-        setfileCount(`File limit 2MB.`)
+      if (totSize > 5000000) {
+        setfileCount(`File limit 5MB.`)
         props.setFiles({});
       } else {
         setfileCount(`${tempfileCount.length} files selected`);
