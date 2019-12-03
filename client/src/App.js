@@ -42,6 +42,7 @@ export default function App() {
   const [meetingId, setMeetingId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
   const [meetingNotes, setMeetingNotes] = useState("");
+  const [initialPage, setInitialPage] = useState(0);
   const [backgroundImage, setBackgroundImage] = useState([]); //TODO: Change to empty array - might need to contain 1 new Image()
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialPixels, setInitialPixels] = useState([]); //TODO: Change to array - array of objects
@@ -304,12 +305,6 @@ export default function App() {
         socket.emit('checkCookie', document.cookie);
       }
 
-      // Server says client is in a meeting:
-      socket.on('meeting', data => {
-        setInMeeting(data.inMeeting);
-        setMeetingNotes(data.notes);
-      });
-
       socket.on('allNotifications', data => {
         console.log(data);
 
@@ -384,6 +379,7 @@ export default function App() {
                 pixelColor={pixelColor}
                 usersInMeeting={usersInMeeting}
                 setUsersInMeeting={setUsersInMeeting}
+                initialPage={initialPage}
               />
             </>
             : <>
@@ -413,6 +409,7 @@ export default function App() {
                     setPixelColor={setPixelColor}
                     initialExpandedMeeting={initialExpandedMeeting}
                     setUsersInMeeting={setUsersInMeeting}
+                    setInitialPage={setInitialPage}
                   />}
                 {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
                 {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} setError={setError}/>}

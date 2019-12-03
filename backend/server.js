@@ -263,6 +263,7 @@ io.on('connection', (client) => {
   });
 
   client.on('changePage', data => {
+    activeMeetings[data.meetingId].initialPage = data.page;
     io.to(data.meetingId).emit('changingPage', data);
   });
 
@@ -422,6 +423,7 @@ io.on('connection', (client) => {
               meeting['userPixels'].push(new Object());
             }
 
+            meeting['initialPage'] = 0;
             meeting['liveUsers'] = {};
             meeting['pointers'] = {};
             meeting['userColors'] = colors;

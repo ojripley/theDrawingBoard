@@ -97,7 +97,8 @@ export default function MeetingCard({
   setMeetingNotes,
   setLoading,
   setPixelColor,
-  setUsersInMeeting
+  setUsersInMeeting,
+  setInitialPage,
 }) {
 
   const classes = useStyles();
@@ -125,14 +126,12 @@ export default function MeetingCard({
 
       socket.on(`enteredMeeting${id}`, data => {
 
-        console.log('okay im going in');
         let res = data.meeting;
-        console.log("Setting ownerid");
         setOwnerId(res.owner_id);
-        console.log("Setting meetingid");
         setMeetingId(res.id);
-        console.log("Setting notes");
         setMeetingNotes(data.notes);
+        setInitialPage(res.initialPage);
+
         console.log('setting live users', res.liveUsers);
 
         for (let liveUser in res.liveUsers) {
@@ -266,16 +265,16 @@ export default function MeetingCard({
               attendance={user.attendance}
             />}
           <div id='owner-controls'>
-          {user.username === owner &&
-            <Owner
-              id={id}
-              socket={socket}
-              startMeeting={startMeeting}
-              activeMeeting={activeMeeting}
-              attendeeIds={attendeeIds}
-            />}
-          {activeMeeting && <Button variant="contained" size='small' color="primary" className={classes.enterButton} onClick={enterMeeting}>
-            Enter Meeting
+            {user.username === owner &&
+              <Owner
+                id={id}
+                socket={socket}
+                startMeeting={startMeeting}
+                activeMeeting={activeMeeting}
+                attendeeIds={attendeeIds}
+              />}
+            {activeMeeting && <Button variant="contained" size='small' color="primary" className={classes.enterButton} onClick={enterMeeting}>
+              Enter Meeting
           </Button>}
           </div>
         </ExpansionPanelDetails>
