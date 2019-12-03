@@ -386,9 +386,9 @@ export default function App() {
 
       socket.on('cookieResponse', data => {
         console.log('received cookie response');
-
         setLoading(false);
         setUser(data);
+        setMode(DASHBOARD)
       });
 
       return () => {

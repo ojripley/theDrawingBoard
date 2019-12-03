@@ -80,6 +80,12 @@ const theme = createMuiTheme({
         color: '#36363E'
       }
     },
+    MuiListItem: {
+      gutters: {
+        paddingLeft: 0,
+        paddingRight: 0
+      }
+    }
   }
 });
 
