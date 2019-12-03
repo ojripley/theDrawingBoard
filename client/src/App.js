@@ -56,7 +56,6 @@ export default function App() {
   const { peer, setPeer } = usePeer();
   const [streams, setStreams] = useState({});
   const [calls, setCalls] = useState({});
-  const [incomingStreams, setIncomingStreams] = useState({});
   const [newCall, setNewCall] = useState({
     newPeer: null,
     isCaller: false
@@ -464,7 +463,7 @@ export default function App() {
                     setUsersInMeeting={setUsersInMeeting}
                   />}
                 {mode === HISTORY && <History socket={socket} socketOpen={socketOpen} user={user} />}
-                {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} />}
+                {mode === CONTACTS && <Contacts socket={socket} socketOpen={socketOpen} user={user} setError={setError}/>}
                 {mode === NOTIFICATIONS &&
                   <Notifications
                     socket={socket}
