@@ -12,7 +12,6 @@ export const useSocket = () => {
   // const server = '172.46.0.146:8080'; //Tammie
 
   // for deployment
-  // const server = process.env.REACT_APP_WEBSOCKET_URL;
   const server = "https://thedrawingboard-backend.herokuapp.com/";
 
   useEffect(() => {
