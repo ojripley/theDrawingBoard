@@ -20,11 +20,7 @@ export default function Canvas({ backgroundImage,
   canvasState,
   dispatch,
   setShowButtons }) {
-  const TRIGGER_ZONE = 15;
-
-
-
-  //State for drawing canvas:
+  const TRIGGER_ZONE = 15; //Prevents pointer from continously sending socket event
   const drawCanvasRef = useRef({});
   let [paint, setPaint] = useState(false);
 
@@ -43,10 +39,9 @@ export default function Canvas({ backgroundImage,
     }
   }
 
-  //Loads the initial drawing canvas
+  //Loads the initial drawing canvas & resizes images dynamically
   useEffect(() => {
     window.onresize = () => {
-      console.log("draw is resizing");
       [drawCanvasRef.current.width, drawCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
       [imageCanvasRef.current.width, imageCanvasRef.current.height] = getScaledDimensions(window.innerHeight, window.innerWidth, backgroundImage.height, backgroundImage.width);
       imageCtx.current = imageCanvasRef.current.getContext('2d');
@@ -73,12 +68,11 @@ export default function Canvas({ backgroundImage,
 
 
     return () => {
-      window.onresize = undefined;
+      window.onresize = undefined; //cleanup listener
     }
-
-
   }, [imageLoaded, backgroundImage, dispatch, page, drawCanvasRef.current, imageCtx.current]);
 
+  //Pixels must be mapped to relative units (% of width/height) so all parties can draw to their own screen properly
   const mapToRelativeUnits = (pixel) => {
     let w = drawCanvasRef.current.width;
     let h = drawCanvasRef.current.height;
@@ -87,8 +81,7 @@ export default function Canvas({ backgroundImage,
     return pixel;
   }
 
-
-
+  //Events coming from server trigger redrawing of canvas
   useEffect(() => {
     if (socketOpen) {
       socket.on('drawClick', data => {
@@ -100,46 +93,32 @@ export default function Canvas({ backgroundImage,
 
       socket.on('setPointer', data => {
         if (user.id !== data.user.id) {
-          // console.log("Other person is pointing", data.user.id);
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
           dispatch({ type: REDRAW, payload: { page: page } });
         }
       });
 
-
-      return () => {
-        socket.off('drawClick');
-        socket.off('setPointer');
-      };
-    }
-  }, [socket, socketOpen, user.id, dispatch, page]);
-
-  useEffect(() => {
-    if (socketOpen) {
       socket.on('redraw', (data) => {
-        console.log('redrawing pixels!');
         dispatch({ type: SET_INITIAL_PIXELS, payload: data.pixels });
         dispatch({ type: REDRAW, payload: { page: page } });
       });
 
       socket.on('addUserAndColor', data => {
-        // console.log('New user joined jlkjlkjlkjlkjlk', data);
-        // console.log(data.color);
         dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
       });
-
-
-      return () => {
-        socket.off('redraw');
-        socket.off('addUserAndColor');
-      };
     }
+    return () => {
+      socket.off('drawClick');
+      socket.off('setPointer');
+      socket.off('redraw');
+      socket.off('addUserAndColor');
+    };
+
   }, [socket, socketOpen, user.id, dispatch, page]);
 
-
-
-
-
+  //When a user clicks or touches the screen we must
+  // 1) draw on client's canvas based on the tool selected
+  // 2) emit to the server so all other users are aware.
   const addClick = (x, y, dragging) => {
     if (tool === "pointer") {
       let pixel =
@@ -152,6 +131,7 @@ export default function Canvas({ backgroundImage,
       let w = drawCanvasRef.current.width;
       let h = drawCanvasRef.current.height;
 
+      //Only emit/redraw if you have moved away more than a certain number of pixels from the original location (a certain radius away)
       if (!prevPix ||
         (x - prevPix.x * w) ** 2 + (y - prevPix.y * h) ** 2 > TRIGGER_ZONE ** 2) {
         mapToRelativeUnits(pixel);
@@ -178,14 +158,12 @@ export default function Canvas({ backgroundImage,
     let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
     let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
     addClick(mouseX, mouseY, false);
-    // if (tool !== "pointer") { //potentially fixes bug where initial pixel would sometime be in dragging state
     setPaint(true);
     setShowButtons(false);
-    // }
   }
 
-  const handleMouseMove = e => { //Change to useCallback??
-    if (paint /*|| tool === "pointer"*/) { //add commented line if pointer should always be on when selected.
+  const handleMouseMove = e => {
+    if (paint) {
       let mouseX = e.pageX - drawCanvasRef.current.offsetLeft;
       let mouseY = e.pageY - drawCanvasRef.current.offsetTop;
       addClick(mouseX, mouseY, true);
@@ -203,8 +181,7 @@ export default function Canvas({ backgroundImage,
     }
   }
 
-  useEffect(() => { //on dismount
-
+  useEffect(() => { //on dismount, show buttons (open drawer)
     return () => {
       setShowButtons(true);
     }
@@ -229,7 +206,6 @@ export default function Canvas({ backgroundImage,
         onTouchEnd={e => handleMouseUp(e.nativeEvent.touches[0])}
       >
       </canvas>
-
     </div>
   )
 }
