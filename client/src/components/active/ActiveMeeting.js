@@ -86,7 +86,6 @@ export default function ActiveMeeting({ socket,
 
   const [userChips, setUserChips] = useState(null);
 
-  // const [imageLoaded, setLoaded] = useState(false);
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
@@ -96,6 +95,7 @@ export default function ActiveMeeting({ socket,
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
 
   const [page, setPage] = useState(0);
   const canviiRef = useRef([]);
@@ -127,9 +127,6 @@ export default function ActiveMeeting({ socket,
       setWriteMode(false);
     }
   }
-
-  // const mergeWithImage = (imageCanvas) => {
-
 
   useEffect(() => { //Stores references to the canvases that are defined below
     if (imageLoaded && backgroundImage) {
@@ -234,20 +231,10 @@ export default function ActiveMeeting({ socket,
 
   useEffect(() => {
 
-    // console.log('baking chips :)');
-    // console.log(usersInMeeting);
-
     if (usersInMeeting) {
       const tempUserChips = Object.keys(usersInMeeting).map((key) => {
         if (usersInMeeting[key]) {
-          // console.log('key', key);
           const liveUser = usersInMeeting[key];
-          // console.log('liveuser', liveUser);
-
-          // console.log('usersInMeeting');
-          // console.log(usersInMeeting);
-          // console.log(canvasState.color);
-
           let colourId = null;
 
           if (canvasState.color[liveUser.id]) {
@@ -282,9 +269,6 @@ export default function ActiveMeeting({ socket,
           return null;
         }
       });
-
-      // console.log(tempUserChips);
-
       setUserChips(tempUserChips);
     }
 
@@ -296,7 +280,7 @@ export default function ActiveMeeting({ socket,
     <>
       {imageLoaded &&
         <div className={classes.root}>
-        <div className='user-chips'>{userChips}</div>
+          {showButtons && <div className='user-chips'>{userChips}</div>}
           <CanvasDrawer
             user={user}
             ownerId={ownerId}
@@ -318,17 +302,16 @@ export default function ActiveMeeting({ socket,
             setPage={setPage}
             loadSpinner={loadSpinner}
             setUsersInMeeting={setUsersInMeeting}
+            showButtons={showButtons}
           />
           <Canvas
             user={user}
             ownerId={ownerId}
             socket={socket}
             socketOpen={socketOpen}
-            backgroundImage={backgroundImage[page]}//TODO: change to index (backgroundImage[page])
-            // setBackgroundImage={setBackgroundImage}//TODO: change to index (backgroundImage[page])
+            backgroundImage={backgroundImage[page]}
             imageLoaded={imageLoaded}
             meetingId={meetingId}
-            // initialPixels={initialPixels[page]}//TODO: change to index (backgroundImage[page])
             setLoading={setLoading}
             pixelColor={pixelColor}
             strokeWidth={strokeWidth}
@@ -338,6 +321,7 @@ export default function ActiveMeeting({ socket,
             page={page}
             canvasState={canvasState}
             dispatch={dispatch}
+            setShowButtons={setShowButtons}
           />
           {writeMode &&
             <div className={classes.center}>
@@ -354,13 +338,11 @@ export default function ActiveMeeting({ socket,
                   rows='2'
                   rowsMax='4'
                 />
-                <CloseIcon className={classes.close} onClick={() => setWriteMode(false)}/>
+                <CloseIcon className={classes.close} onClick={() => setWriteMode(false)} />
                 {saving && <CircularProgress className={classes.saving} color='secondary' size='30px' />}
               </div>
             </div>
           }
-          {/* <canvas id="mergingCanvas"></canvas> */}
-          {/* <canvas id="sendingCanvas" ref={finalCanvasRef}></canvas> */}
           {canvii}
         </div>
       }

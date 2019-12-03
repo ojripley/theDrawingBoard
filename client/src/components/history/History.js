@@ -13,14 +13,14 @@ export default function History(props) {
   const [meetings, setMeetings] = useState([]);
   const [viewMeeting, setViewMeeting] = useState(0);
 
-  useEffect(()=>{ //jumps to top of page on mount
+  useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
   }, []);
 
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchMeetings', {username: currentUser.username, meetingStatus: 'past'});
+      props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'past' });
       props.socket.on('meetings', data => {
         console.log('fetched meetings')
         console.log(data)
@@ -57,18 +57,21 @@ export default function History(props) {
             <Typography id='page-header' variant='h2' color='primary'>History</Typography>
             <Divider color='primary' />
           </div>
-          <ul className='history-list'>
-            {historyList}
-          </ul>
+          {meetings.length < 1 ? <p className='app-message'>You have no recently concluded meetings. </p>
+            : (<>
+              <ul className='history-list'>
+                {historyList}
+              </ul></>)
+          }
         </>
       ) : <DetailedHistory
-        meeting={meetings.filter(meeting => meeting.id === viewMeeting)[0]}
-        setViewMeeting={setViewMeeting}
-        user={props.user}
-        socket={props.socket}
-        socketOpen={props.socketOpen}
-      />
-    }
+          meeting={meetings.filter(meeting => meeting.id === viewMeeting)[0]}
+          setViewMeeting={setViewMeeting}
+          user={props.user}
+          socket={props.socket}
+          socketOpen={props.socketOpen}
+        />
+      }
     </>
 
   );

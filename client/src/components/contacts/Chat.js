@@ -5,6 +5,8 @@ import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 import './Chat.scss';
 
@@ -163,31 +165,38 @@ export default function Chat(props) {
         user={props.user}
         msg={message.msg}
         time={message.time}
-        className='dm'
       />
     )
   });
 
 
   return (
-
-    <List id='dm-chat-container'>
-      <div ref={messagesDisplayRef} id='messages-display'>{msgs}</div>
-      <ListItem id={`meeting-chat`}>
-        <TextareaAutosize
-          ref={textareaRef}
-          aria-label='empty textarea'
-          placeholder='Message'
-          value={message}
-          className={classes.textareaAutosize}
-          onFocus={handleCaret}
-          onChange={handleMessage}
-          onKeyPress={handleKeyStroke}
-          rows='2'
-          rowsMax='2'
-        />
-        <Button variant='text' color='primary' className={classes.sendButton} onClick={handleMessageSend}>Send</Button>
-      </ListItem>
-    </List>
+    <>
+      <div id='page-header'>
+        <div className='notifications-header'>
+          <Typography variant='h2' color='primary'>{props.recipient.username}</Typography>
+          <Button className='back-to-history' variant="outlined" color='secondary' size='small' onClick={() => props.setViewChat(0)}>Back</Button>
+        </div>
+        <Divider />
+      </div>
+      <List id='dm-chat-container'>
+        <div ref={messagesDisplayRef} id='messages-display'>{msgs}</div>
+        <ListItem id={`meeting-chat`}>
+          <TextareaAutosize
+            ref={textareaRef}
+            aria-label='empty textarea'
+            placeholder='Message'
+            value={message}
+            className={classes.textareaAutosize}
+            onFocus={handleCaret}
+            onChange={handleMessage}
+            onKeyPress={handleKeyStroke}
+            rows='2'
+            rowsMax='2'
+          />
+          <Button variant='text' color='primary' className={classes.sendButton} onClick={handleMessageSend}>Send</Button>
+        </ListItem>
+      </List>
+    </>
   )
 }

@@ -118,7 +118,7 @@ export default function CanvasDrawer(props) {
     props.setInMeeting(false);
     props.setMode('DASHBOARD');
     props.setUsersInMeeting(null);
-    props.socket.emit('peacingOutYo', { user: props.user, meetingId: props.meetingId});
+    props.socket.emit('peacingOutYo', { user: props.user, meetingId: props.meetingId });
   };
 
   const handleWrite = () => {
@@ -196,7 +196,7 @@ export default function CanvasDrawer(props) {
         badgeContent={unreadMessages}
         showZero={false}
       />
-      <Button
+      {props.showButtons && <Button
         variant='contained'
         color='primary'
         className={classes.button}
@@ -206,7 +206,7 @@ export default function CanvasDrawer(props) {
         }}
       >
         Open Tools
-      </Button>
+      </Button>}
 
       <Drawer
         classes={{ paper: classes.drawerContainer }}
@@ -243,34 +243,34 @@ export default function CanvasDrawer(props) {
           <div id='pen-controls'>
             <Button variant='outlined' color='secondary' size='small' onClick={handleUndo}>Undo</Button>
             <div className='pens'>
-            <Button
-              id='penSelector'
-              variant={props.tool === 'pen' ? 'contained' : 'outlined'}
-              color='primary'
-              size='small'
-              aria-controls='simple-menu'
-              aria-haspopup='true'
-              onClick={() => handleTool('pen')}
-            >
-              Pen
+              <Button
+                id='penSelector'
+                variant={props.tool === 'pen' ? 'contained' : 'outlined'}
+                color='primary'
+                size='small'
+                aria-controls='simple-menu'
+                aria-haspopup='true'
+                onClick={() => handleTool('pen')}
+              >
+                Pen
             </Button>
-            <Button
-              id='highlighterSelector'
-              variant={props.tool === 'highlighter' ? 'contained' : 'outlined'}
-              color='primary'
-              size='small'
-              aria-controls='simple-menu2'
-              aria-haspopup='true' onClick={() => handleTool('highlighter')}
-            >
-              Highlighter
+              <Button
+                id='highlighterSelector'
+                variant={props.tool === 'highlighter' ? 'contained' : 'outlined'}
+                color='primary'
+                size='small'
+                aria-controls='simple-menu2'
+                aria-haspopup='true' onClick={() => handleTool('highlighter')}
+              >
+                Highlighter
             </Button>
-            <Button
-              onClick={() => handleTool('pointer')}
-              variant={props.tool === 'pointer' ? 'contained' : 'outlined'}
-              color='primary'
-              size='small'
-            >
-              Pointer
+              <Button
+                onClick={() => handleTool('pointer')}
+                variant={props.tool === 'pointer' ? 'contained' : 'outlined'}
+                color='primary'
+                size='small'
+              >
+                Pointer
             </Button>
             </div>
             <div className='pens'>
@@ -295,17 +295,17 @@ export default function CanvasDrawer(props) {
           {props.user.id === props.ownerId &&
             <>
               <Divider color='secondary' />
-                <div id='page-navigation'>
-                  <Button size="small" onClick={() => changePage('prev')} disabled={props.page === 0}>
-                    <KeyboardArrowLeft />
-                    Back
+              <div id='page-navigation'>
+                <Button size="small" onClick={() => changePage('prev')} disabled={props.page === 0}>
+                  <KeyboardArrowLeft />
+                  Back
                   </Button>
-                    {props.page + 1}/{props.totalPages}
-                  <Button size='small' onClick={() => changePage('next')} disabled={props.page === props.totalPages - 1}>
-                    Next
+                {props.page + 1}/{props.totalPages}
+                <Button size='small' onClick={() => changePage('next')} disabled={props.page === props.totalPages - 1}>
+                  Next
                     <KeyboardArrowRight />
-                  </Button>
-                </div>
+                </Button>
+              </div>
               <Button
                 variant='contained'
                 color='secondary'
@@ -314,8 +314,8 @@ export default function CanvasDrawer(props) {
               >
                 End Meeting
             </Button>
-          </>
-        }
+            </>
+          }
         </div>
       </Drawer>
     </>
