@@ -37,10 +37,10 @@ activeMeetings = new ActiveMeetings();
 // import db operations
 const db = require('./db/queries/queries');
 
-// db.clearToHistory()
-//   .catch(error => {
-//     console.log(error);
-//   });
+db.clearToHistory()
+  .catch(error => {
+    console.log(error);
+  });
 
 // CORS
 app.use(cors());
