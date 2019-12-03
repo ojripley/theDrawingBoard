@@ -20,15 +20,6 @@ const useStyles = makeStyles(theme => ({
     width: '40vw',
     minWidth: 280,
   },
-  // center: {
-  //   display: 'flex',
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   position: 'relative',
-  //   zIndex: 2,
-  //   width: '100%',
-  // },
   textareaAutosize: {
     resize: 'none',
     width: '85%',
@@ -66,7 +57,6 @@ export default function Chat(props) {
   const messagesDisplayRef = useRef(null);
 
   const scrollToBottom = () => {
-    // messagesDisplayRef.current.scrollTop = messagesDisplayRef.current.scrollHeight;
     messagesDisplayRef.current.scrollTo({
       top: messagesDisplayRef.current.scrollHeight,
       left: 0,
@@ -110,10 +100,12 @@ export default function Chat(props) {
       props.socket.on('DmsFetched', (data) => {
         const mesgs = data;
         const msgs = [];
+
         for (let message of mesgs) {
           const msg = {};
           msg.msg = message.msg;
           msg.time = message.time;
+
           if (message.user_id === props.user.id) {
             msg.sender = props.recipient;
             msg.user = props.user;
