@@ -137,7 +137,7 @@ export default function reducer(state, action) {
           }
           ctx.lineWidth = pixels[i].strokeWidth || 1;
 
-          if (pixels[i].dragging && i) { //if we're in dragging mode, use the last pixel
+          if (pixels[i].dragging && pixels[i - 1]) { //if we're in dragging mode, use the last pixel
             ctx.moveTo(pixels[i - 1].x * w, pixels[i - 1].y * h);
           } else { //else use the current pixel, offset by 1px to the left
             ctx.moveTo(pixels[i].x * w, pixels[i].y * h - 1);
