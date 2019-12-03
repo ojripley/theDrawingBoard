@@ -9,6 +9,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
 
+import logo from './theDrawingBoardTM.png';
+
 import './NavBar.scss';
 
 const useStyles = makeStyles(theme => ({
@@ -21,10 +23,10 @@ const useStyles = makeStyles(theme => ({
     color: '#fff',
   },
   title: {
-    fontFamily: "'Molle', cursive",
     display: 'inline',
-    fontSize: '1.25rem',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    height: '40px',
+    alignSelf: 'center'
   },
   username: {
     marginRight: '0.5em'
@@ -57,9 +59,7 @@ export default function NavBar(props) {
   return (
     <AppBar position="fixed">
       <Toolbar className={classes.root}>
-        <Typography className={classes.title} onClick={() => props.setMode('DASHBOARD')}>
-          The Drawing Board
-        </Typography>
+        <img src={logo} className={classes.title} onClick={() => props.setMode('DASHBOARD')}/>
         {props.user &&
           <>
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={() => setOpen(!open)}>
