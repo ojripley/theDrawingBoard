@@ -74,12 +74,12 @@ VALUES
 -- (1, 4, 'accepted'),
 -- (2, 4, 'accepted');
 
-INSERT INTO dms
-  (user_id, recipient_id, msg)
-VALUES
-  (1, 2, 'message 1'),
-  (1, 2, 'message 2'),
-  (2, 1, 'response 1'),
-  (2, 1, 'response 2'),
-  (1, 2, 'message 4'),
-  (2, 1, 'response 4');
+-- INSERT INTO dms
+--   (user_id, recipient_id, msg)
+-- VALUES
+--   (1, 2, 'message 1'),
+--   (1, 2, 'message 2'),
+--   (2, 1, 'response 1'),
+--   (2, 1, 'response 2'),
+--   (1, 2, 'message 4'),
+--   (2, 1, 'response 4');
