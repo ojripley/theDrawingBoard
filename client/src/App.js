@@ -376,8 +376,9 @@ export default function App() {
             animationIn: ["animated", "fadeIn"],
             animationOut: ["animated", "fadeOut"],
             dismiss: {
-              duration: 2000,
-              onScreen: true
+              duration: 4000,
+              onScreen: true,
+              click: true
             }
           });
         }
@@ -437,6 +438,8 @@ export default function App() {
             : <>
               <div id='app-container'>
                 <ReactNotification
+                  isMobile={true}
+                  breakpoint={1400}
                   types={[{
                     htmlClasses: ['notification-custom'],
                     name: 'custom'
