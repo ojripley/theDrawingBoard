@@ -13,7 +13,7 @@ export const useSocket = () => {
 
   // for deployment
   // const server = process.env.REACT_APP_WEBSOCKET_URL;
-   const server = "https://thedrawingboard-backend.herokuapp.com/";
+  const server = "https://thedrawingboard-backend.herokuapp.com/";
 
   useEffect(() => {
     const s = io(server);
