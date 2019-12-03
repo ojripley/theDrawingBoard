@@ -107,23 +107,18 @@ export default function Chat(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchDms', {user: props.user, recipientId: props.recipient.id});
 
+      // goog luck figuring this one out
       props.socket.on('DmsFetched', (data) => {
+        const mesgs = data;
         const msgs = [];
-
-        console.log('data', data);
-
-        // goog luck figuring this one out
-        for (let message of data) {
+        for (let message of mesgs) {
           const msg = {};
           msg.msg = message.msg;
           msg.time = message.time;
-          console.log('who is sender', message.user_id, props.user.id);
           if (message.user_id === props.user.id) {
-
             msg.sender = props.recipient;
             msg.user = props.user;
           } else {
-
             msg.sender = props.user;
             msg.user = props.recipient;
           }

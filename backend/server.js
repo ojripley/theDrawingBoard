@@ -584,9 +584,7 @@ io.on('connection', (client) => {
     console.log('getting notes from', data);
     db.updateUsersMeetingsNotes(data.user.id, data.meetingId, data.notes)
       .then(() => {
-        // for (let id of meetingDetails.invited_users) {
         notify(data.user.id, { title: 'Meeting Ended', type: 'meeting', msg: `Meeting '${data.meetingName}' has ended! You may check the details in History`, meetingId: data.meetingId });
-        // }
         client.emit('concludedMeetingId', data.meetingId);
       }).
       catch((e) => {
