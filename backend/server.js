@@ -763,7 +763,7 @@ io.on('connection', (client) => {
 
   client.on('sendDm', (data) => {
     console.log('recieved dm');
-    data.time = new Date(Date.now());
+    data.time = new Date();
     client.emit('dm', (data));
     console.log(data);
 
