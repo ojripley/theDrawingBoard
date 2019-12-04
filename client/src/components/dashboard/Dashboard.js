@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-import './Dashboard.scss';
-
 import MeetingCard from './MeetingCard';
 import FormDialog from './FormDialog';
+
+import './Dashboard.scss';
+
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
@@ -20,28 +21,29 @@ export default function Dashboard(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
+
+      // fetch meetings on load
       props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'scheduled' });
+
       props.socket.on('meetings', data => {
-        // console.log('handling')
         setMeetings(data);
       });
 
+      // add new meeting to dashboard when submitted
       props.socket.on('itWorkedThereforeIPray', data => {
-        console.log('new meeting', data);
         setMeetings(prev => {
           const newMeetings = [...prev, data].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
-          console.log(newMeetings)
           return newMeetings;
         });
       });
 
+      // remove meeting from list when deleted
       props.socket.on('meetingDeleted', (res) => {
-        console.log('meeting deleted', res);
         setMeetings(prev => prev.filter(meeting => meeting.id !== res.id));
       });
 
+      // remove meeting from list when ended if attendee is not in the meeting
       props.socket.on('meetingEndedYouSlacker', res => {
-        console.log('deleting meeting for the slackers', res);
         setMeetings(prev => prev.filter(meeting => meeting.id !== res));
       })
 

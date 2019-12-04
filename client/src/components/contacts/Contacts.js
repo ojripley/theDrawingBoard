@@ -7,8 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   textField: {
     flexBasis: '100%',
     width: 'auto',
@@ -19,6 +18,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Contacts(props) {
+
   const classes = useStyles();
   const [searchTerm, setSearchTerm] = useState('');
   const [contactsList, setContactsList] = useState([]);
@@ -29,6 +29,16 @@ export default function Contacts(props) {
   useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
   }, []);
+
+  // gerald the error herald easter egg
+  const handleKeyPress = event => {
+    if (event.charCode === 13 && event.target.value === 'summon gerald') {
+      props.setError({
+        type: 'default',
+        msg: 'I am Gerald, the Error Herald! Whenever you see me, fear not; I suffer the burden of catching errors so you don\'t have to. Refresh the page and continue on your quest!'
+      })
+    }
+  };
 
   const handleSearchTermChange = event => {
     setSearchTerm(event.target.value);
@@ -47,10 +57,14 @@ export default function Contacts(props) {
   }
 
   useEffect(() => {
-    props.socket.off('relationChanged');
-  }, [globalSearch, props.socket]);
+    // clean up socket event when switching between global search
+    if (props.socketOpen) {
+      props.socket.off('relationChanged');
+    }
+  }, [globalSearch, props.socket, props.socketOpen]);
 
   useEffect(() => {
+    console.log(debouncedSearchTerm);
     if (props.socketOpen) {
       if (globalSearch) {
         // emit global search
@@ -76,7 +90,6 @@ export default function Contacts(props) {
       }
     }
   }, [debouncedSearchTerm, globalSearch, props.socket, props.socketOpen, props.user]);
-
 
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {
@@ -114,6 +127,7 @@ export default function Contacts(props) {
               value={searchTerm}
               onChange={handleSearchTermChange}
               margin="normal"
+              onKeyPress={handleKeyPress}
             />
             <label className='search-label' htmlFor='upload-initial-doc'>
               <Typography variant='overline'>{globalSearch ? 'Search: All Users' : 'Search: Contacts'}</Typography>

@@ -65,7 +65,7 @@ export default function Chat(props) {
   const handleMessageSend = () => {
     if (message.trim().length > 0) {
       if (props.socketOpen) {
-        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim(), time: new Date(Date.now()) });
+        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim() });
       }
       setMessage('');
     }
@@ -88,11 +88,13 @@ export default function Chat(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchDms', { user: props.user, recipientId: props.recipient.id });
 
+      // goog luck figuring this one out
       props.socket.on('DmsFetched', (data) => {
+        const mesgs = data;
         const msgs = [];
 
         //Maps each message to either self (user) or friend (sender) by comparing user ids
-        for (let message of data) {
+        for (let message of mesgs) {
           const msg = {};
           msg.msg = message.msg;
           msg.time = message.time;

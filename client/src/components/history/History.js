@@ -17,13 +17,10 @@ export default function History(props) {
     window.scrollTo(0, 0)
   }, []);
 
-
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.emit('fetchMeetings', { username: currentUser.username, meetingStatus: 'past' });
       props.socket.on('meetings', data => {
-        console.log('fetched meetings')
-        console.log(data)
         setMeetings(data)
       });
 
@@ -57,11 +54,12 @@ export default function History(props) {
             <Typography id='page-header' variant='h2' color='primary'>History</Typography>
             <Divider color='primary' />
           </div>
-          {meetings.length < 1 ? <p className='app-message'>You have no recently concluded meetings. </p>
-            : (<>
+          {meetings.length < 1 ? <p className='app-message'>You have no recently concluded meetings.</p> :
+            <>
               <ul className='history-list'>
                 {historyList}
-              </ul></>)
+              </ul>
+            </>
           }
         </>
       ) : <DetailedHistory

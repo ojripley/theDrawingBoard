@@ -1,5 +1,18 @@
 @import '../theme/variables';
 
+#error-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+}
+
 #error-msg {
   display: flex;
   flex-direction: column;
@@ -25,7 +38,6 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   position: relative;
   overflow: hidden;
-  margin-top: 200px;
   width: 94%;
   max-width: 500px;
   height: 40vh;
