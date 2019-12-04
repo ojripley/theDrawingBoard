@@ -385,8 +385,6 @@ export default function App() {
             : <>
               <div id='app-container'>
                 <ReactNotification
-                  isMobile={true}
-                  breakpoint={2000}
                   types={[{
                     htmlClasses: ['notification-custom'],
                     name: 'custom'
