@@ -16,38 +16,25 @@ export default function Contact(props) {
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('relationChanged', (data) => {
-
         if (data.contactId === props.contact.id) {
-          console.log('changing a relation for ', props.contact.id);
           setRelationStatus(data.relation);
-
         }
       });
-
-      // return () => {
-      //   // console.log('the clean up function has been run for', props.contact.username);
-      //   // props.socket.off('relationChanged');
-      // };
     }
   }, [relationStatus, props.contact, props.socket, props.socketOpen]);
 
   const changeRelation = function() {
 
-    console.log('change relationStatus of:')
-    console.log(props.contact.username)
-
     if (relationStatus === null) {
-      console.log('insert a new relation');
       props.socket.emit('addContact', { user: props.user, contactId: props.contact.id });
     }
 
     if (relationStatus === 'pending') {
-      console.log('was pending -> change to accepted');
+      ;
       props.socket.emit('changeRelation', { user: props.user, contactId: props.contact.id, relation: 'accepted' });
     }
 
     if (relationStatus === 'accepted') {
-      console.log('was accepted -> change to null');
       props.socket.emit('deleteContact', { user: props.user, contactId: props.contact.id, relation: null });
     }
 
@@ -62,13 +49,11 @@ export default function Contact(props) {
     }
   }
 
+  //Logic for whether the decline contact button is visible
   const toDisplayOrNotDisplay = function() {
-    console.log(relationStatus)
     if (relationStatus === 'pending') {
-      console.log('inside the if', relationStatus);
       return 'decline-contact-request';
     } else {
-      console.log('inside the else', relationStatus);
       return 'decline-contact-request-not-visible';
     }
   };
