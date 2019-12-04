@@ -8,9 +8,9 @@ import Peer from 'peerjs';
 import theme from './theme/muiTheme';
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
-// Components
-import TabBar from './TabBar';
-import NavBar from './NavBar';
+// COMPONENTS
+import TabBar from './components/TabBar';
+import NavBar from './components/NavBar';
 import Loading from './components/Loading';
 import ActiveMeeting from './components/active/ActiveMeeting';
 import Notifications from './components/notifications/Notifications';

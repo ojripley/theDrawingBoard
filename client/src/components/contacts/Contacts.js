@@ -4,8 +4,8 @@ import Contact from './Contact';
 import Chat from './Chat';
 import useDebounce from "../../hooks/useDebounce";
 
-import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
@@ -20,6 +20,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function Contacts(props) {
+
   const classes = useStyles();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +42,7 @@ export default function Contacts(props) {
         msg: 'I am Gerald, the Error Herald! Whenever you see me, fear not; I suffer the burden of catching errors so you don\'t have to. Refresh the page and continue on your quest!'
       })
     }
-  }
+  };
 
   const handleSearchTermChange = event => {
     setSearchTerm(event.target.value);
@@ -98,7 +99,6 @@ export default function Contacts(props) {
       }
     }
   }, [debouncedSearchTerm, globalSearch, props.socket, props.socketOpen, props.user]);
-
 
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {

@@ -6,7 +6,6 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import Button from '@material-ui/core/Button';
 
-
 // Material UI - Date & Time Pickers
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
@@ -94,7 +93,6 @@ export default function Form(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchContactsByUserId', { id: props.user.id });
       props.socket.on('contactsByUserId', data => {
-        // console.log(data)
         setContacts(data);
       })
       return () => {
@@ -104,12 +102,10 @@ export default function Form(props) {
   }, [props.socketOpen, props.socket, props.user.id])
 
   const handleContactChange = event => {
-    console.log('selected contacts', event.target.value)
     props.setSelectedContacts(event.target.value);
   };
 
   const handleDateChange = date => {
-    console.log('date:', date)
     props.setSelectedDate(date);
   };
 
@@ -123,7 +119,6 @@ export default function Form(props) {
 
   const handleFileUpload = event => {
     if (event.target.files) {
-      console.log('event.target.files:', event.target.files);
       let files = event.target.files;
       props.setFiles(files);
       let tempfileCount = [];

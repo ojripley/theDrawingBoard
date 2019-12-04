@@ -22,8 +22,6 @@ export default function Login(props) {
   const handleLogin = () => {
     if (props.socketOpen) {
       props.setLoginError(null);
-      console.log('attempting to log in')
-      console.log(email, password)
       props.socket.emit('loginAttempt', { email: email.trim().toLowerCase(), password: password.trim() });
     }
   };
@@ -31,8 +29,8 @@ export default function Login(props) {
   const handleRegister = () => {
     if (props.socketOpen) {
       props.setLoginError(null);
-      console.log('attempting to register');
-      console.log(username, email, password, confirmPassword);
+
+      // check if registration fields are empty
       if (username.length > 0 && email.length > 0 && password.length > 0) {
         if (password === confirmPassword) {
           props.socket.emit('registrationAttempt', { username: username.replace(/\s/g,''), email: email.trim().toLowerCase(), password: password.trim() });
@@ -51,6 +49,7 @@ export default function Login(props) {
     }
   };
 
+  // submit form on enter
   const onEnter = (event, form) => {
     if (event.charCode === 13) {
       if (form === 'login') {
@@ -63,19 +62,17 @@ export default function Login(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
+      // set cookie and user if login is correct
       props.socket.on('loginResponse', (data) => {
         if (data.user && data.user.id) {
-          console.log(data);
-          console.log("Attempting to set cookie");
           document.cookie = `sid=${data.session.sid}`
           document.cookie = `iv=${data.session.iv}`;
-          console.log(document.cookie);
           props.setUser(data.user);
         }
       });
 
+      // login user automatically if registration is successful
       props.socket.on('WelcomeYaBogeyBastard', res => {
-        console.log('registration success! logging in now', res);
         props.socket.emit('loginAttempt', { email: res.email, password: password })
       })
 

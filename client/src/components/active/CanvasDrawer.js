@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 
 import Message from '../Message';
 
+import './CanvasDrawer.scss';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
@@ -13,29 +15,17 @@ import Slider from '@material-ui/core/Slider';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import Badge from '@material-ui/core/Badge'
-
-import './CanvasDrawer.scss';
-import { Typography } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
     backgroundColor: 'rgba(245,240,235, 0.85)'
-    // backgroundColor: theme.palette.primary.light
   },
   list: {
     width: '40vw',
     minWidth: 280,
     maxWidth: 480
   },
-  // center: {
-  //   display: 'flex',
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   position: 'relative',
-  //   zIndex: 2,
-  //   width: '100%',
-  // },
   textareaAutosize: {
     resize: 'none',
     width: '85%',
@@ -73,7 +63,6 @@ export default function CanvasDrawer(props) {
   const messagesDisplayRef = useRef(null);
 
   const scrollToBottom = () => {
-    // messagesDisplayRef.current.scrollTop = messagesDisplayRef.current.scrollHeight;
     messagesDisplayRef.current.scrollTo({
       top: messagesDisplayRef.current.scrollHeight,
       left: 0,
@@ -84,17 +73,11 @@ export default function CanvasDrawer(props) {
   useEffect(() => {
     if (props.socketOpen) {
       props.socket.on('meetingMsg', (data) => {
-        // console.log('data:', data)
-        // console.log('user:', props.user)
         setMessages(prev => [...prev, data]);
         if (openDrawer === false) {
-          // console.log('im popular!')
           setUnreadMessages(prev => {
-            console.log('prev:', prev);
             return ++prev;
           });
-          console.log('my drawer should be false', openDrawer)
-          console.log('unreadMessages for recipient:', unreadMessages)
         }
         if (messagesDisplayRef.current) {
           scrollToBottom();
@@ -145,8 +128,6 @@ export default function CanvasDrawer(props) {
       if (props.socketOpen) {
         props.socket.emit('msgToMeeting', { meetingId: props.meetingId, user: props.user, msg: message.trim() });
       }
-      console.log('is my drawer open?', openDrawer)
-      console.log('unreadMessages for sender:', unreadMessages)
       setMessage('');
     }
   };

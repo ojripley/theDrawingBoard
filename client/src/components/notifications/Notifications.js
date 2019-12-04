@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 
 import Notification from './Notification';
-import { makeStyles } from '@material-ui/core/styles';
 
+import './Notifications.scss';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
@@ -25,20 +27,20 @@ const useStyles = makeStyles(theme => ({
 export default function Notifications(props) {
 
   const classes = useStyles();
+
   const [meetingExpanded, setMeetingExpanded] = useState(true);
   const [contactsExpanded, setContactsExpanded] = useState(true);
 
+  // Remove single notification
   const removeNotification = (id) => {
-    console.log(id);
     const newNotifications = props.notificationList.filter(notif => notif.id !== id);
     props.setNotificationList(newNotifications);
-  }
+  };
 
   const removeAllNotifications = () => {
-    console.log('Sending Owen this:', props.user.id);
     props.socket.emit('dismissAllNotifications', { userId: props.user.id });
     props.setNotificationList([]);
-  }
+  };
 
   const removeNotificationsByType = (event, type) => {
     event.stopPropagation();
@@ -48,8 +50,7 @@ export default function Notifications(props) {
     } else {
       props.setNotificationList(prev => prev.filter(notification => notification.type !== type));
     }
-  }
-
+  };
 
   const meetings = props.notificationList
     .filter(notification => notification.type === "meeting")
@@ -97,10 +98,19 @@ export default function Notifications(props) {
       <div id='page-header'>
         <div className='notifications-header'>
           <Typography variant='h2' color='primary'>Notifications</Typography>
-          <Button className={(props.notificationList.length < 1) ? 'dismiss-button-hidden' : null} variant="outlined" color="secondary" size='small' onClick={removeAllNotifications}> Dismiss all</Button>
+          <Button
+            className={(props.notificationList.length < 1) ? 'dismiss-button-hidden' : null}
+            variant="outlined"
+            color="secondary"
+            size='small'
+            onClick={removeAllNotifications}
+            >
+              Dismiss all
+            </Button>
         </div>
         <Divider />
       </div>
+
       <div id='notifications-container'>
         {props.notificationList.length === 0 && <p className='app-message'>No new notifications!</p>}
 
@@ -112,7 +122,13 @@ export default function Notifications(props) {
             <ListItem className='section-header' onClick={() => setMeetingExpanded(!meetingExpanded)}>
               <Typography variant='button'>Meeting Notifications</Typography>
               <div className='dismiss-expand'>
-                <Typography className='clear-notifications' variant='overline' onClick={(event) => removeNotificationsByType(event, "meeting")}>Dismiss</Typography>
+                <Typography
+                  className='clear-notifications'
+                  variant='overline'
+                  onClick={(event) => removeNotificationsByType(event, "meeting")}
+                  >
+                    Dismiss
+                  </Typography>
                 {meetingExpanded ? <ExpandLess /> : <ExpandMore />}
               </div>
             </ListItem>
@@ -132,7 +148,13 @@ export default function Notifications(props) {
             <ListItem className='section-header' onClick={() => setContactsExpanded(!contactsExpanded)}>
               <Typography variant='button'>Contacts Notifications</Typography>
               <div className='dismiss-expand'>
-                <Typography className='clear-notifications' variant='overline' onClick={(event) => removeNotificationsByType(event, "contact")}>Dismiss</Typography>
+                <Typography
+                  className='clear-notifications'
+                  variant='overline'
+                  onClick={(event) => removeNotificationsByType(event, "contact")}
+                >
+                  Dismiss
+                </Typography>
                 {contactsExpanded ? <ExpandLess /> : <ExpandMore />}
               </div>
             </ListItem>
