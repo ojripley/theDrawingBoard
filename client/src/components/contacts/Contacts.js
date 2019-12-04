@@ -64,7 +64,6 @@ export default function Contacts(props) {
   }, [globalSearch, props.socket, props.socketOpen]);
 
   useEffect(() => {
-    console.log(debouncedSearchTerm);
     if (props.socketOpen) {
       if (globalSearch) {
         // emit global search

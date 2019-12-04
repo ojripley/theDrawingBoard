@@ -9,7 +9,6 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
-
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
     backgroundColor: 'rgba(245,240,235, 0.85)'
@@ -88,7 +87,7 @@ export default function Chat(props) {
     if (props.socketOpen) {
       props.socket.emit('fetchDms', { user: props.user, recipientId: props.recipient.id });
 
-      // goog luck figuring this one out
+
       props.socket.on('DmsFetched', (data) => {
         const mesgs = data;
         const msgs = [];

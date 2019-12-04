@@ -96,7 +96,6 @@ export default function ActiveMeeting({ socket,
   const textareaRef = useRef(null);
 
   const handleInput = (e) => {
-    console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
   }
