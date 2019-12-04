@@ -374,8 +374,10 @@ io.on('connection', (client) => {
         res = await db.fetchMeetingWithUsersById(id);
 
         for (let contactId of res[0].attendee_ids) {
-          notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id });
-          if (activeUsers[contactId] && contactId !== res[0].owner_id) {
+          if (contactId !== res[0].owner_id) {
+            notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id });
+          }
+          if (activeUsers[contactId]) {
             activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
           }
         }
