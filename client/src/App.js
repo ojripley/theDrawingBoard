@@ -351,8 +351,8 @@ export default function App() {
 
   return (
     <>
-      {error && <ThemeProvider theme={theme}><div></div><Error error={error} /></ThemeProvider>}
-      {loading && <ThemeProvider theme={theme}><div></div><Loading /></ThemeProvider>}
+      {error && <ThemeProvider theme={theme}><Error error={error} /></ThemeProvider>}
+      {loading && <ThemeProvider theme={theme}><Loading /></ThemeProvider>}
       <ThemeProvider theme={theme}>
         {!inMeeting && <NavBar user={user} setUser={setUser} setMode={setMode} setLoading={setLoading} />}
         {!user ?
