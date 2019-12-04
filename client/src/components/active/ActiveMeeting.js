@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
-
+import CanvasDrawer from './CanvasDrawer';
+import './ActiveMeeting.scss';
+import './ActiveMeeting.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import CanvasDrawer from './CanvasDrawer';
-import './ActiveMeeting.scss';
-
-import './ActiveMeeting.scss';
 
 import reducer, {
   SAVE
@@ -19,8 +17,6 @@ import reducer, {
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
-    // flexDirection: 'row',
-    // justifyContent: 'center'
   },
   extendedIcon: {
     marginRight: theme.spacing(1),
@@ -99,7 +95,6 @@ export default function ActiveMeeting({ socket,
 
   const [page, setPage] = useState(initialPage || 0);
   const canviiRef = useRef([]);
-  console.log(initialPage);
 
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
@@ -140,12 +135,10 @@ export default function ActiveMeeting({ socket,
   });
   const endMeeting = () => {
     for (let i in backgroundImage) {
-      console.log("working on", i);
       let bkgdImg = backgroundImage[i];
       canviiRef.current[i].width = bkgdImg.width;
       canviiRef.current[i].height = bkgdImg.height;
       let sendingCtx = canviiRef.current[i].getContext('2d');
-
       canvasState.ctx.drawImage(bkgdImg, 0, 0, bkgdImg.width, bkgdImg.height);
       dispatch({ type: SAVE, payload: { page: i, ctx: sendingCtx, backgroundImage: bkgdImg } });
     }
@@ -199,9 +192,7 @@ export default function ActiveMeeting({ socket,
     });
 
     socket.on('changingPage', data => {
-      console.log('trying to change page');
-      if (data.user.id !== user.id) { //Don't need to change the owner too
-        console.log(`Changing page to ${data.page}`, data.page)
+      if (data.user.id !== user.id) { //Owner's page change is handled already
         setPage(data.page);
       }
     });
@@ -216,9 +207,8 @@ export default function ActiveMeeting({ socket,
 
   useEffect(() => {
     if (socketOpen) {
-      console.log('requesting note save');
       socket.emit('saveDebouncedNotes', { user: user, meetingId: meetingId, notes: debouncedNotes });
-      setSaving(false);
+      setSaving(false); //spinner
     }
   }, [socket, socketOpen, debouncedNotes, user, meetingId])
 
@@ -239,23 +229,17 @@ export default function ActiveMeeting({ socket,
           let colourId = null;
 
           if (canvasState.color[liveUser.id]) {
-
             const colour = canvasState.color[liveUser.id];
-
-            console.log(colour);
 
             if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
               colourId = 'one';
             }
-
             if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
               colourId = 'two';
             }
-
             if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
               colourId = 'three';
             }
-
             if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
               colourId = 'four';
             }
