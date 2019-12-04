@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
+
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
 import CanvasDrawer from './CanvasDrawer';
 import reducer, { SAVE } from "../../reducers/canvasReducer";
+
 import './ActiveMeeting.scss';
 import './ActiveMeeting.scss';
+
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';

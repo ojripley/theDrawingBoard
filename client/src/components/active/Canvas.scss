@@ -2,27 +2,14 @@
 
 #drawCanvas {
   position: absolute;
-  // top: 0;
-  // left: 0;
   background: transparent;
   z-index: 2;
 }
 
 #image {
   position: absolute;
-  // top: 0;
-  // left: 0;
   z-index: 1;
 }
-
-// .landscape {
-//   width: 100%;
-//   height: auto;
-// }
-// .portrait {
-//   width: auto;
-//   height: 100%;
-// }
 
 #canvas-container {
   display: flex;
