@@ -19,16 +19,13 @@ export default function Attendee(props) {
 
   const handleChange = event => {
 
-    console.log('request attendance change');
     let attendance = '';
     if (event.target.value === 'accepted') {
       attendance = 'accepted';
-      // setRsvp('Accepted');
     }
 
     if (event.target.value === 'declined') {
       attendance = 'declined';
-      // setRsvp('Declined');
     }
 
     setRsvp(attendance);
@@ -39,7 +36,6 @@ export default function Attendee(props) {
   useEffect(() => {
     if (props.socket.open) {
       props.socket.on('attendanceChange', (data) => {
-        console.log('successful attendence status change');
       });
     }
 
