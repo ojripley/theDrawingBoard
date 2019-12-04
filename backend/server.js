@@ -434,8 +434,11 @@ io.on('connection', (client) => {
 
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
-              notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
-              if (activeUsers[id] && id !== meeting.owner_id) {
+
+              if (id !== meeting.owner_id) {
+                notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
+              }
+              if (activeUsers[id]) {
                 activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
