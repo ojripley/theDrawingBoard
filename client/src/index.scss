@@ -4,17 +4,17 @@ body {
     "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: contain; //prevents page from refreshing when user scrolls up
+  overscroll-behavior: none; //prevents page from refreshing when user scrolls up
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
-  color: #36363E;
+  color: #36363e;
   scrollbar-width: none;
 }
 html {
   height: 100%;
   overflow-x: hidden;
-  color: #36363E;
+  color: #36363e;
 }
 
 code {
@@ -22,7 +22,7 @@ code {
 }
 
 textarea {
-  font-family: 'Roboto', "Helvetica", "Arial", sans-serif;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 400;
   font-size: 0.875rem;
 }

@@ -1,11 +1,11 @@
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
-const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 const SET_POINTER = "SET_POINTER";
 const SAVE = "SAVE";
+const DRAW_PIXEL = "DRAW_PIXEL";
 
 export default function reducer(state, action) {
 
@@ -16,27 +16,63 @@ export default function reducer(state, action) {
         pixelArrays: action.payload
       }
     }
-    case SET_PIXEL: {
+    case DRAW_PIXEL: {
+      let userId = action.payload.user.id;
+      const w = state.ctx.canvas.width;
+      const h = state.ctx.canvas.height;
+      if (!state.color[userId]) return { ...state }; //early exit in case of a race condition where user draws before their color is assigned
 
-      if (state.pixelArrays[action.payload.page][action.payload.user]) {
+      let col = `rgb(${state.color[userId].r},${state.color[userId].g},${state.color[userId].b},1)`
+      let highlightCol = `rgb(${state.color[userId].r},${state.color[userId].g},${state.color[userId].b},0.1)`
+      state.ctx.lineJoin = "round";
+
+      let userPixels = state.pixelArrays[action.payload.page][userId];
+      if (userPixels) {
+
+        let prevPixel = userPixels[userPixels.length - 1];
+
+        state.ctx.beginPath(); //start drawing a single line
+        if (action.payload.pixel.tool === "highlighter") {
+          state.ctx.lineCap = 'butt';
+          state.ctx.strokeStyle = highlightCol;
+        } else {
+          state.ctx.lineCap = 'round';
+          state.ctx.strokeStyle = col;
+        }
+        state.ctx.lineWidth = action.payload.pixel.strokeWidth || 1;
+
+        if (action.payload.pixel.dragging && prevPixel) { //if we're in dragging mode, use the last pixel
+          state.ctx.moveTo(prevPixel.x * w, prevPixel.y * h);
+        } else { //else use the current pixel, offset by 1px to the left
+          state.ctx.moveTo(action.payload.pixel.x * w, action.payload.pixel.y * h - 1);
+        }
+        state.ctx.lineTo(action.payload.pixel.x * w, action.payload.pixel.y * h);//draw a line from point mentioned above to the current pixel
+        state.ctx.stroke();//draw the line
+        state.ctx.closePath();//end the line
+      }
+
+      //Adds the pixel to the state:
+      if (state.pixelArrays[action.payload.page][userId]) {
+
         return {
           ...state,
           pixelArrays: {
             ...state.pixelArrays,
             [action.payload.page]: {
               ...state.pixelArrays[action.payload.page],
-              [action.payload.user]: [...state.pixelArrays[action.payload.page][action.payload.user], action.payload.pixel]
+              [userId]: [...state.pixelArrays[action.payload.page][userId], action.payload.pixel]
             }
           }
         }
       } else { //if first pixel for user
+
         return {
           ...state,
           pixelArrays: {
             ...state.pixelArrays,
             [action.payload.page]: {
               ...state.pixelArrays[action.payload.page],
-              [action.payload.user]: [action.payload.pixel]
+              [userId]: [action.payload.pixel]
             }
           }
         }
@@ -53,6 +89,7 @@ export default function reducer(state, action) {
         }
       };
     case REDRAW: {
+      //Redraws the entire canvas
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); //Clears canvas
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;
@@ -166,7 +203,6 @@ export default function reducer(state, action) {
 export {
   ADD_USER,
   SET_INITIAL_PIXELS,
-  SET_PIXEL,
   SET_CTX,
   REDRAW,
   SET_POINTER,
