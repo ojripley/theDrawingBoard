@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 
-import './Notification.scss';
-
 import { makeStyles } from '@material-ui/styles';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';

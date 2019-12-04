@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 
 import Notification from './Notification';
-import { makeStyles } from '@material-ui/core/styles';
 
+import './Notifications.scss';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
