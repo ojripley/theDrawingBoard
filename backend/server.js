@@ -51,7 +51,7 @@ app.use(cors());
 // 'dev' = Concise output colored by response status for development use.
 // The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
 app.use(morgan('dev'));
-const key = "zb2WtnmaQvF5s9Xdpmae5LxZrHznHXLQ"; //secret
+const key = process.env.ENCRYPTION_KEY; //secret
 
 function encrypt(text, iv) {
   let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -135,15 +135,15 @@ setInterval(() => {
     .catch(error => {
       handleError(error, client);
     });
-  }, 60000);
+}, 60000);
 
 
 
-  ///////////////////
-  // SOCKET EVENTS //
-  ///////////////////
+///////////////////
+// SOCKET EVENTS //
+///////////////////
 
-  // socket events
+// socket events
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
