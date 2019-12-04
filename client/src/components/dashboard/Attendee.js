@@ -34,17 +34,6 @@ export default function Attendee(props) {
     props.socket.emit('changeAttendance', { user: props.user, meetingId: props.meetingId, rsvp: attendance });
   };
 
-  useEffect(() => {
-    if (props.socket.open) {
-      props.socket.on('attendanceChange', (data) => {
-      });
-    }
-
-    return () => {
-      props.socket.off('attendanceChange');
-    }
-  });
-
   return (
     <FormControl className={classes.formControl}>
       <InputLabel id="demo-simple-select-helper-label">RSVP</InputLabel>
