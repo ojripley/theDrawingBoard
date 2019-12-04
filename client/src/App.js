@@ -368,7 +368,6 @@ export default function App() {
                 initialNotes={meetingNotes}
                 setMeetingNotes={setMeetingNotes}
                 setInMeeting={setInMeeting}
-                inMeeting={inMeeting}
                 setMeetingId={setMeetingId}
                 imageLoaded={imageLoaded}
                 setImageLoaded={setImageLoaded}

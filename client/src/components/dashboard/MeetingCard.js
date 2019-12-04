@@ -133,10 +133,7 @@ export default function MeetingCard({
         setMeetingNotes(data.notes);
         setInitialPage(res.initialPage);
 
-        console.log('setting live users', res.liveUsers);
-
         for (let liveUser in res.liveUsers) {
-          console.log('the user:', liveUser);
 
           const liveUserId = 'theDrawingBoard' + res.liveUsers[liveUser].id;
 
