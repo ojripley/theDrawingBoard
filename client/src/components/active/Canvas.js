@@ -86,7 +86,7 @@ export default function Canvas({ backgroundImage,
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
-          dispatch({ type: DRAW_PIXEL, payload: { pixel: data.pixel, page: page, user: user } });
+          dispatch({ type: DRAW_PIXEL, payload: { pixel: data.pixel, page: page, user: data.user } });
 
         }
       });
