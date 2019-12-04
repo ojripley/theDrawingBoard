@@ -220,7 +220,6 @@ io.on('connection', (client) => {
         } else {
           handleError({ type: 'login', msg: 'Email and/or password is incorrect, try again!' }, client);
         }
-        console.log('sending response');
         if (authenticateAttempt.id) {
           const iv = crypto.randomBytes(16);
 
@@ -330,7 +329,6 @@ io.on('connection', (client) => {
       if (name.search(/\.pdf$/ig) !== -1) {
         fs.writeFileSync(`meeting_files/${id}/${name}`, file)
         let pdfImage = new PDFImage(`meeting_files/${id}/${name}`);
-        console.log()
         try {
           fullImagePath = await pdfImage.convertFile();
           //Regex below converts strings like 'meeting_files/1/sample-0.png' to 'sample-0.png'
@@ -360,7 +358,6 @@ io.on('connection', (client) => {
       let id = res[0].id;
       fs.mkdir(`meeting_files/${id}`, async () => {
         let files = await saveImages(data.files, id);
-        console.log('Received these files:', files)
         client.emit('newMeeting', res[0]);
         await db.updateMeetingLinksAndStatusById(id, files, data.status);
         const promiseArray = [];
