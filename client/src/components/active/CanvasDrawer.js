@@ -196,7 +196,7 @@ export default function CanvasDrawer(props) {
         badgeContent={unreadMessages}
         showZero={false}
       />
-      {props.showButtons && <Button
+      {props.showButtons && !openDrawer && <Button
         variant='contained'
         color='primary'
         className={classes.button}
