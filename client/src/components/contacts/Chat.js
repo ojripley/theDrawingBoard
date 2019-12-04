@@ -112,7 +112,7 @@ export default function Chat(props) {
         setMessages(msgs);
       });
     }
-  }, []);
+  }, [props.recipient, props.socket, props.socketOpen, props.user]);
 
   useEffect(() => {
     if (props.socketOpen) {
