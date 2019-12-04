@@ -27,26 +27,29 @@ export default function reducer(state, action) {
       state.ctx.lineJoin = "round";
 
       let userPixels = state.pixelArrays[action.payload.page][userId];
-      let prevPixel = userPixels[userPixels.length - 1];
+      if (userPixels) {
 
-      state.ctx.beginPath(); //start drawing a single line
-      if (action.payload.pixel.tool === "highlighter") {
-        state.ctx.lineCap = 'butt';
-        state.ctx.strokeStyle = highlightCol;
-      } else {
-        state.ctx.lineCap = 'round';
-        state.ctx.strokeStyle = col;
-      }
-      state.ctx.lineWidth = action.payload.pixel.strokeWidth || 1;
+        let prevPixel = userPixels[userPixels.length - 1];
 
-      if (action.payload.pixel.dragging && prevPixel) { //if we're in dragging mode, use the last pixel
-        state.ctx.moveTo(prevPixel.x * w, prevPixel.y * h);
-      } else { //else use the current pixel, offset by 1px to the left
-        state.ctx.moveTo(action.payload.pixel.x * w, action.payload.pixel.y * h - 1);
+        state.ctx.beginPath(); //start drawing a single line
+        if (action.payload.pixel.tool === "highlighter") {
+          state.ctx.lineCap = 'butt';
+          state.ctx.strokeStyle = highlightCol;
+        } else {
+          state.ctx.lineCap = 'round';
+          state.ctx.strokeStyle = col;
+        }
+        state.ctx.lineWidth = action.payload.pixel.strokeWidth || 1;
+
+        if (action.payload.pixel.dragging && prevPixel) { //if we're in dragging mode, use the last pixel
+          state.ctx.moveTo(prevPixel.x * w, prevPixel.y * h);
+        } else { //else use the current pixel, offset by 1px to the left
+          state.ctx.moveTo(action.payload.pixel.x * w, action.payload.pixel.y * h - 1);
+        }
+        state.ctx.lineTo(action.payload.pixel.x * w, action.payload.pixel.y * h);//draw a line from point mentioned above to the current pixel
+        state.ctx.stroke();//draw the line
+        state.ctx.closePath();//end the line
       }
-      state.ctx.lineTo(action.payload.pixel.x * w, action.payload.pixel.y * h);//draw a line from point mentioned above to the current pixel
-      state.ctx.stroke();//draw the line
-      state.ctx.closePath();//end the line
 
 
       if (state.pixelArrays[action.payload.page][userId]) {
