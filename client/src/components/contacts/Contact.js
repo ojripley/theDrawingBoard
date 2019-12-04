@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
-
+import './Contacts.scss';
 import Card from '@material-ui/core/Card';
 import PersonIcon from '@material-ui/icons/Person';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-
-
-import './Contacts.scss';
 
 
 export default function Contact(props) {
@@ -82,7 +79,6 @@ export default function Contact(props) {
           DM
         </Button>}
       </div>
-
     </Card>
   );
 }

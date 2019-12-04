@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-
 import Contact from './Contact';
 import Chat from './Chat';
 import useDebounce from "../../hooks/useDebounce";
-
-import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+
 const useStyles = makeStyles(theme => ({
   textField: {
     flexBasis: '100%',
@@ -21,18 +20,15 @@ const useStyles = makeStyles(theme => ({
 
 export default function Contacts(props) {
   const classes = useStyles();
-
   const [searchTerm, setSearchTerm] = useState('');
   const [contactsList, setContactsList] = useState([]);
   const [globalSearch, setGlobalSearch] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 100);
   const [viewChat, setViewChat] = useState(0);
 
-
   useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
   }, []);
-
 
   const handleSearchTermChange = event => {
     setSearchTerm(event.target.value);
@@ -52,23 +48,14 @@ export default function Contacts(props) {
 
   useEffect(() => {
     props.socket.off('relationChanged');
-
-    return () => {
-      // setContactsList([]);
-    }
   }, [globalSearch, props.socket]);
 
   useEffect(() => {
-    console.log(debouncedSearchTerm);
-    // socket check
     if (props.socketOpen) {
       if (globalSearch) {
-
         // emit global search
         props.socket.emit('fetchContactsGlobal', { username: debouncedSearchTerm, user: props.user });
         props.socket.on('contactsGlobal', (data) => {
-          console.log('recieved all users:')
-          console.log(data);
           setContactsList(data);
         });
 
@@ -79,8 +66,6 @@ export default function Contacts(props) {
         // emit contact search
         props.socket.emit('fetchContactsByUserId', { id: props.user.id, username: debouncedSearchTerm });
         props.socket.on('contactsByUserId', (data) => {
-          console.log('recieved contacts:')
-          console.log(data);
           setContactsList(data);
         });
 
@@ -95,8 +80,6 @@ export default function Contacts(props) {
 
   const contacts = contactsList.map(friend => {
     if (friend.username !== props.user.username) {
-      console.log(friend.username, friend.id);
-      console.log(friend);
       return (<Contact
         key={friend.id}
         contact={friend}
@@ -113,7 +96,7 @@ export default function Contacts(props) {
     <>
       {viewChat !== 0 ? (<Chat
         user={props.user}
-        recipient={contactsList.find(friend=>friend.id===viewChat)}
+        recipient={contactsList.find(friend => friend.id === viewChat)}
         recipientId={viewChat}
         socket={props.socket}
         socketOpen={props.socketOpen}
@@ -149,7 +132,5 @@ export default function Contacts(props) {
         </>)
       }
     </>
-
-
   );
 }
