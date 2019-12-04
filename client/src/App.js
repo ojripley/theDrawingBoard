@@ -1,12 +1,11 @@
+// react
 import React, { useState, useEffect } from 'react';
-import './App.scss';
 import ReactNotification from 'react-notifications-component'
-import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
-import { store } from 'react-notifications-component';
-import Peer from 'peerjs';
 
-import theme from './theme/muiTheme';
-import ThemeProvider from '@material-ui/styles/ThemeProvider';
+// apis
+import Peer from 'peerjs';
+import { store } from 'react-notifications-component';
+import 'react-notifications-component/dist/theme.css' // SASS files are located in react-notifications-component/dist/scss
 
 // COMPONENTS
 import TabBar from './components/TabBar';
@@ -20,8 +19,12 @@ import History from './components/history/History';
 import Login from './components/login/Login';
 import Error from './components/Error';
 
-//Custom hooks
-import { useSocket } from './hooks/useSocket'
+// style
+import './App.scss';
+
+// mui
+import theme from './theme/muiTheme';
+import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
 // top level modes
 export default function App() {
@@ -53,7 +56,6 @@ export default function App() {
   const [usersInMeeting, setUsersInMeeting] = useState({});
 
   // webrtc state
-
   const [peer, setPeer] = useState(null);
   const [streams, setStreams] = useState({});
   const [calls, setCalls] = useState({});
@@ -198,7 +200,6 @@ export default function App() {
 
         navigator.mediaDevices.getUserMedia({ video: false, audio: true })
           .then((stream) => {
-            console.log('got stream');
             calls[newCall.newPeer].answer(stream);
             calls[newCall.newPeer].on('stream', (incomingStream) => {
 
@@ -246,7 +247,6 @@ export default function App() {
       const streamElements = document.querySelectorAll('audio');
 
       for (let el of streamElements) {
-        console.log(el);
         el.parentNode.removeChild(el);
       }
     }
@@ -265,9 +265,6 @@ export default function App() {
         // this will trigger the userChips to rerender
         setUsersInMeeting({ ...tempUsersInMeeting });
 
-        // this is for cleaning up stream for the disconnected user
-        console.log('closing stream');
-
         //  call cleanup
         const tempStreams = streams;
         const tempCalls = calls;
@@ -278,9 +275,6 @@ export default function App() {
         setStreams(tempStreams);
         setCalls(tempCalls);
 
-        console.log('streams', streams);
-        console.log('calls', calls);
-
         setNewCall({
           newPeer: null,
           isCaller: false
@@ -289,7 +283,6 @@ export default function App() {
         const peerStream = document.querySelectorAll(`#stream${liveUserId}`);
 
         for (let el of peerStream) {
-          console.log(el);
           el.parentNode.removeChild(el);
         }
       });
@@ -307,14 +300,11 @@ export default function App() {
       }
 
       socket.on('allNotifications', data => {
-        console.log(data);
-
         setNotificationList(data);
       });
 
       socket.on('notify', data => {
         if (!inMeeting && !loading) {
-          console.log("Setting notification");
           setNotificationList(prev => [data, ...prev]);
           store.addNotification({
             title: `${data.type}`,
@@ -334,7 +324,6 @@ export default function App() {
       })
 
       socket.on('cookieResponse', data => {
-        console.log('received cookie response');
         setLoading(false);
         setUser(data);
         setMode(DASHBOARD)

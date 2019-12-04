@@ -1,9 +1,12 @@
+// react
 import React, { useState, useEffect } from 'react';
 
+// custom components
+import useDebounce from "../../hooks/useDebounce";
 import Contact from './Contact';
 import Chat from './Chat';
-import useDebounce from "../../hooks/useDebounce";
 
+// mui
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
