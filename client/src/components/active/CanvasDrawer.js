@@ -180,13 +180,14 @@ export default function CanvasDrawer(props) {
       {props.showButtons && !openDrawer && <Button
         variant='contained'
         color='primary'
+        size='small'
         className={classes.button}
         onClick={() => {
           setUnreadMessages(0);
           setOpenDrawer(true);
         }}
       >
-        Open Tools
+        Tools
       </Button>}
 
       <Drawer
@@ -290,6 +291,7 @@ export default function CanvasDrawer(props) {
               <Button
                 variant='contained'
                 color='secondary'
+                size='small'
                 className={classes.endButton}
                 onClick={props.loadSpinner}
               >
