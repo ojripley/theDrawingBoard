@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
+
 import './Notification.scss';
+
 import { makeStyles } from '@material-ui/styles';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -16,17 +18,27 @@ export default function Contact(props) {
 
   const classes = useStyles();
 
+  const time = new Date(props.timestamp).toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  });
+
   useEffect(() => { //jumps to top of page on mount
     window.scrollTo(0, 0)
   }, []);
 
+  // Removes individual notifications
   const dismissNotification = function(e) {
     e.stopPropagation(); //Prevents default card actions
-    //Remove the element
-    props.socket.emit('dismissNotification', { id: props.id }); //props.user?
+    props.socket.emit('dismissNotification', { id: props.id });
     props.onRemove(props.id);
   };
 
+  // Redirect users on click to the corresponding tab
   const handleClick = () => {
     if (props.type === 'contact' || props.type === 'dm') {
       props.setMode("CONTACTS");
@@ -34,11 +46,7 @@ export default function Contact(props) {
       props.setInitialExpandedMeeting(`panel${props.meetingId}`);
       props.setMode("DASHBOARD");
     }
-  }
-
-  // console.log(props.timestamp)
-  // const timeElapsed = Math.round(Date.now() - new Date(props.timestamp) / (1000 * 60));
-  // console.log('timeElapsed:', timeElapsed)
+  };
 
   return (
     <ListItem
@@ -48,7 +56,7 @@ export default function Contact(props) {
       <ListItemText
         primary={props.title}
         secondary={
-          <React.Fragment>
+          <>
             <Typography
               variant="body2"
               className={classes.inline}
@@ -57,15 +65,8 @@ export default function Contact(props) {
               {props.message}
             </Typography>
             <br />
-            {`Received on ${new Date(props.timestamp).toLocaleString('en-US', {
-              weekday: 'short',
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })}`}
-          </React.Fragment>
+            Received on {time}
+          </>
         }
       />
       <CloseIcon onClick={dismissNotification}></CloseIcon>
