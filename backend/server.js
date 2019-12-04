@@ -26,7 +26,6 @@ const { handleError } = require('./functions/handleError');
 // import helper objects
 const { ActiveUsers } = require('./objects/activeUsers');
 const { Authenticator } = require('./objects/authenticator');
-const { reset } = require('./db/resetdb');
 const { ActiveMeetings } = require('./objects/activeMeetings');
 
 // instantiate objects
@@ -42,7 +41,6 @@ db.clearToHistory()
   .catch(error => {
     console.log(error);
   });
-// reset(); // resets and seeds the database on server restart || ONLY UNCOMMENT DURING LOCALHOST TESTING
 
 // CORS
 app.use(cors());
