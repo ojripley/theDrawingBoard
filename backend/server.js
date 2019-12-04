@@ -248,8 +248,10 @@ io.on('connection', (client) => {
   });
 
   client.on('addClick', data => {
-    activeMeetings[data.meetingId].userPixels[data.page][data.user.id].push(data.pixel);
-    io.to(data.meetingId).emit('drawClick', data); //pass message along
+    if (data.meetingId && activeMeetings[data.meetingId] && data.user.id) {
+      activeMeetings[data.meetingId].userPixels[data.page][data.user.id].push(data.pixel);
+      io.to(data.meetingId).emit('drawClick', data); //pass message along
+    }
   });
 
   client.on('setPointer', data => {
