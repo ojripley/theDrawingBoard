@@ -7,7 +7,8 @@ import Peer from 'peerjs';
 import { store } from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css' // SASS files are located in react-notifications-component/dist/scss
 
-// COMPONENTS
+// components
+import useSocket from './hooks/useSocket';
 import TabBar from './components/TabBar';
 import NavBar from './components/NavBar';
 import Loading from './components/Loading';
