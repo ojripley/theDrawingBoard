@@ -65,6 +65,12 @@ export default function App() {
     isCaller: false
   });
 
+  // clean up errors whenever mode changes
+  useEffect(() => {
+    setError(null)
+    setLoginError(null);
+  }, [mode]);
+
   // top level error listener
   useEffect(() => {
     if (socketOpen) {

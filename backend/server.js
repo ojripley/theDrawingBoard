@@ -147,6 +147,7 @@ io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
+  // log emits from the user
   client.on('msg', (data) => {
     console.log(data);
   });
