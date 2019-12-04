@@ -4,7 +4,6 @@ import { useTheme } from '@material-ui/styles';
 import Button from '@material-ui/core/Button';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -12,25 +11,31 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import MobileStepper from '@material-ui/core/MobileStepper';
 
-
 export default function DetailedHistory(props) {
 
-  console.log('props for details', props);
-
-  const notesRef = useRef(null);
   const theme = useTheme();
+  const notesRef = useRef(null);
 
   const [notes, setNotes] = useState('');
   const [images, setImages] = useState([]);
-
   const [viewPage, setViewPage] = useState(0);
+
   const maxPages = images.length;
+  const time = new Date(props.meeting.start_time).toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  });
 
   useEffect(() => {
     if (props.socketOpen) {
+
+      // fetch personal notes and group images from server
       props.socket.emit('fetchNotes', { user: props.user, meetingId: props.meeting.id, link_to_initial_files: props.meeting.link_to_initial_files });
       props.socket.on('notesFetched', res => {
-        console.log('on notes', res)
         setNotes(res.usersMeetings.notes);
         setImages(res.images);
       });
@@ -40,7 +45,6 @@ export default function DetailedHistory(props) {
   }, [props.socket, props.meeting.id, props.user, props.meeting.link_to_final_doc, props.socketOpen]);
 
   const copyToClipboard = () => {
-    console.log(notesRef.current.value)
     notesRef.current.select();
     document.execCommand('copy');
   };
@@ -53,12 +57,6 @@ export default function DetailedHistory(props) {
     }
   };
 
-  const time = props.meeting.start_time;
-
-  // const displayImages = images.map((image, index) => (
-  //   <img key={index} className='meeting-image' src={image} alt='meeting-notes' />
-  // ));
-
   return (
     <div id='detailed-history-container'>
       <div id='page-header'>
@@ -69,15 +67,7 @@ export default function DetailedHistory(props) {
         <Divider />
       </div>
 
-      <Typography className='detailed-date' variant='button'>{new Date(time).toLocaleString('en-US', {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })}
-      </Typography>
+      <Typography className='detailed-date' variant='button'>{time}</Typography>
 
       {images.length === 0 ? <CircularProgress className='history-spinner' color='secondary' /> :
         <>

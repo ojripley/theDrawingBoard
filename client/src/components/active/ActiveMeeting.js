@@ -1,26 +1,18 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import Canvas from './Canvas';
 import useDebounce from '../../hooks/useDebounce';
-
+import CanvasDrawer from './CanvasDrawer';
+import reducer, { SAVE } from "../../reducers/canvasReducer";
+import './ActiveMeeting.scss';
+import './ActiveMeeting.scss';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import CanvasDrawer from './CanvasDrawer';
-import './ActiveMeeting.scss';
-
-import './ActiveMeeting.scss';
-
-import reducer, {
-  SAVE
-} from "../../reducers/canvasReducer";
-
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
-    // flexDirection: 'row',
-    // justifyContent: 'center'
   },
   extendedIcon: {
     marginRight: theme.spacing(1),
@@ -66,7 +58,6 @@ export default function ActiveMeeting({ socket,
   user,
   meetingId,
   setInMeeting,
-  inMeeting,
   ownerId,
   setMeetingId,
   setMode,
@@ -82,26 +73,19 @@ export default function ActiveMeeting({ socket,
   initialPage
 }) {
 
-
   const classes = useStyles();
-
   const [userChips, setUserChips] = useState(null);
-
   const [meetingNotes, setMeetingNotes] = useState(initialNotes || '');
   const [writeMode, setWriteMode] = useState(false);
   const [saving, setSaving] = useState(true);
   const debouncedNotes = useDebounce(meetingNotes, 400);
-
   const [tool, setTool] = useState("pen");
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [highlighting, setHighlighting] = useState(false);
   const [pointing, setPointing] = useState(false);
   const [showButtons, setShowButtons] = useState(true);
-
   const [page, setPage] = useState(initialPage || 0);
   const canviiRef = useRef([]);
-  console.log(initialPage);
-
   const [canvasState, dispatch] = useReducer(reducer, {
     pixelArrays: { ...initialPixels },
     ctx: {},
@@ -109,11 +93,9 @@ export default function ActiveMeeting({ socket,
     pointers: {},
     finishedSaving: Array(backgroundImage.length)
   });
-
   const textareaRef = useRef(null);
 
   const handleInput = (e) => {
-    console.log(e.target.value)
     setMeetingNotes(e.target.value);
     setSaving(true);
   }
@@ -136,17 +118,18 @@ export default function ActiveMeeting({ socket,
     }
   }, [imageLoaded, backgroundImage, backgroundImage.length]);
 
+  //These canvases are not displayed to the user, but are used by the owner when creating images of the markedup documents
+  //canviiRef is an array of references to each canvas, we need a canvas for each page in the meeting
   const canvii = backgroundImage.map((image, index) => {
     return <canvas key={index} className="sendingCanvas" ref={el => canviiRef.current[index] = el}></canvas>
   });
+
   const endMeeting = () => {
     for (let i in backgroundImage) {
-      console.log("working on", i);
       let bkgdImg = backgroundImage[i];
-      canviiRef.current[i].width = bkgdImg.width;
+      canviiRef.current[i].width = bkgdImg.width;  //Use the original dimensions of each image when saving
       canviiRef.current[i].height = bkgdImg.height;
       let sendingCtx = canviiRef.current[i].getContext('2d');
-
       canvasState.ctx.drawImage(bkgdImg, 0, 0, bkgdImg.width, bkgdImg.height);
       dispatch({ type: SAVE, payload: { page: i, ctx: sendingCtx, backgroundImage: bkgdImg } });
     }
@@ -154,7 +137,6 @@ export default function ActiveMeeting({ socket,
   }
 
   useEffect(() => {
-
     let countSaved = canvasState.finishedSaving.reduce((accumulator, current) => {
       if (current) {
         return accumulator + 1;
@@ -163,12 +145,11 @@ export default function ActiveMeeting({ socket,
       }
     }, 0);
 
-    if (countSaved === backgroundImage.length) {
-
-      socket.emit('endMeeting', {
+    if (countSaved === backgroundImage.length) {  //Done saving all the images
+      socket.emit('endMeeting', { //Inform all other clients to leave the meeting and send their notes
         meetingId: meetingId,
         endTime: new Date(Date.now()),
-        image: canvasState.finishedSaving
+        image: canvasState.finishedSaving //Array of images to be sent to server
       })
     }
   }, [canvasState.finishedSaving, meetingId, socket, backgroundImage, canvasState.ctx.canvas])
@@ -181,7 +162,6 @@ export default function ActiveMeeting({ socket,
   };
 
   useEffect(() => {
-
     socket.on('loadTheSpinnerPls', () => {
       setLoading(true);
     });
@@ -192,7 +172,7 @@ export default function ActiveMeeting({ socket,
       socket.emit('notes', { user: user, meetingId: meetingId, notes: meetingNotes, meetingName: res.meetingName });
     });
 
-    socket.on('concludedMeetingId', res => {
+    socket.on('concludedMeetingId', () => {
       setInMeeting(false);
       setMeetingId(null);
       setBackgroundImage(new Image());
@@ -200,9 +180,7 @@ export default function ActiveMeeting({ socket,
     });
 
     socket.on('changingPage', data => {
-      console.log('trying to change page');
-      if (data.user.id !== user.id) { //Don't need to change the owner too
-        console.log(`Changing page to ${data.page}`, data.page)
+      if (data.user.id !== user.id) { //Owner's page change is handled already
         setPage(data.page);
       }
     });
@@ -217,9 +195,8 @@ export default function ActiveMeeting({ socket,
 
   useEffect(() => {
     if (socketOpen) {
-      console.log('requesting note save');
       socket.emit('saveDebouncedNotes', { user: user, meetingId: meetingId, notes: debouncedNotes });
-      setSaving(false);
+      setSaving(false); //spinner
     }
   }, [socket, socketOpen, debouncedNotes, user, meetingId])
 
@@ -229,34 +206,26 @@ export default function ActiveMeeting({ socket,
     }
   }, [writeMode]);
 
-
-
   useEffect(() => {
-
     if (usersInMeeting) {
+      //Loop through all active users in the meetign and display their chip in the right color
       const tempUserChips = Object.keys(usersInMeeting).map((key) => {
         if (usersInMeeting[key]) {
           const liveUser = usersInMeeting[key];
           let colourId = null;
 
           if (canvasState.color[liveUser.id]) {
-
             const colour = canvasState.color[liveUser.id];
-
-            console.log(colour);
 
             if (colour.r === 0 && colour.g === 0 && colour.b === 255) {
               colourId = 'one';
             }
-
             if (colour.r === 255 && colour.g === 0 && colour.b === 0) {
               colourId = 'two';
             }
-
             if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
               colourId = 'three';
             }
-
             if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
               colourId = 'four';
             }
@@ -273,10 +242,7 @@ export default function ActiveMeeting({ socket,
       });
       setUserChips(tempUserChips);
     }
-
-
   }, [usersInMeeting]);
-
 
   return (
     <>

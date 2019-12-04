@@ -104,8 +104,11 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-  // let [loadingCounter,] = useState(0);
+
   let loadingCounter = 0;
+
+  const date = new Date(startTime);
+
   const handleChange = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
@@ -119,8 +122,6 @@ export default function MeetingCard({
     setLoading(true);
   }
 
-  const date = new Date(startTime);
-
   useEffect(() => {
     if (socketOpen) {
 
@@ -132,10 +133,7 @@ export default function MeetingCard({
         setMeetingNotes(data.notes);
         setInitialPage(res.initialPage);
 
-        console.log('setting live users', res.liveUsers);
-
         for (let liveUser in res.liveUsers) {
-          console.log('the user:', liveUser);
 
           const liveUserId = 'theDrawingBoard' + res.liveUsers[liveUser].id;
 
@@ -143,43 +141,36 @@ export default function MeetingCard({
             ...prev,
             [liveUserId]: res.liveUsers[liveUser]
           }));
-        }
-
-        // console.log('the users already in the meeting are:', usersInMeeting);
-
-        // setUsersInMeeting(tempLiveUsers);
+        };
 
         setPixelColor(res['colorMapping']);
-        if (data.images) {//if image
-          console.log("there is an image");
+        if (data.images) { //if image
+
           setBackgroundImage(Array(data.images.length)); //initialize array of proper length to access later
-          console.log('data.pixels:', data.pixels);
-          setInitialPixels(data.pixels);//assuming server is sending us array of pixel
+          setInitialPixels(data.pixels); //assuming server is sending us array of pixel
+
           for (let i in data.images) {
+
             let myImage = new Image();
+
             myImage.onload = () => {
-              console.log(data.images);
-              console.log(`Updating background image ${i}`);
+
               setBackgroundImage(prev => {
                 loadingCounter++;
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
+
                 if (loadingCounter === data.images.length) {
-                  console.log(`Setting Loading to true`);
                   setLoading(false);
-                  console.log(`Setting imageLoaded to true`);
                   setImageLoaded(true);
-                  console.log(`Setting inMeeting to true`);
                   setInMeeting(true);
                 }
                 return prev;
               });
 
-              console.log("received these pixels", data.pixels)
             };
             myImage.src = data.images[i];
           }
         }
-
       })
     }
     return () => {
@@ -189,12 +180,10 @@ export default function MeetingCard({
   }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
 
   useEffect(() => {
-    console.log('id of meeting', id);
     if (id) {
       socket.on(`meetingStarted${id}`, res => {
         if (id === res.meetingId) {
           setActiveMeeting(true);
-          console.log('meeting started');
         }
       });
     }

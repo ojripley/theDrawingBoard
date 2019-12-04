@@ -85,6 +85,12 @@ const theme = createMuiTheme({
         paddingLeft: 0,
         paddingRight: 0
       }
+    },
+    MuiMenuItem: {
+      gutters: {
+        paddingLeft: '1em',
+        paddingRight: '1em'
+      }
     }
   }
 });

@@ -8,17 +8,13 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Form from './Form';
 
 export default function FormDialog(props) {
-  const [open, setOpen] = useState(false);
 
+  const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [meetingName, setMeetingName] = useState('');
   const [meetingDesc, setMeetingDesc] = useState('');
   const [files, setFiles] = useState({});
-
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
 
   const handleClose = () => {
     setOpen(false);
@@ -38,9 +34,9 @@ export default function FormDialog(props) {
   }, [props.socketOpen, props.socket, setSelectedContacts]);
 
   const handleSubmit = () => {
-    console.log('files on submit:', files)
+
     let filesObject = {};
-    // let nameArray = {};
+
     for (let i = 0; i < files.length; i++) {
       let theFile = files.item(i);
       filesObject[theFile.name] = theFile;

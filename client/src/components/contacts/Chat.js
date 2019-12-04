@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef }from 'react';
-
+import React, { useEffect, useState, useRef } from 'react';
+import './Chat.scss';
+import Message from '../Message';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
@@ -7,10 +8,6 @@ import ListItem from '@material-ui/core/ListItem';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-
-import './Chat.scss';
-
-import Message from '../Message';
 
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
@@ -46,13 +43,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Chat(props) {
-  console.log('props', props);
   const classes = useStyles();
-
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [unreadMessages, setUnreadMessages] = useState(0);
-
   const textareaRef = useRef(null);
   const messagesDisplayRef = useRef(null);
 
@@ -71,10 +64,8 @@ export default function Chat(props) {
   const handleMessageSend = () => {
     if (message.trim().length > 0) {
       if (props.socketOpen) {
-        console.log('props', props);
-        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim()});
+        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim() });
       }
-      console.log('unreadMessages for sender:', unreadMessages);
       setMessage('');
     }
   };
@@ -94,13 +85,14 @@ export default function Chat(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchDms', {user: props.user, recipientId: props.recipient.id});
+      props.socket.emit('fetchDms', { user: props.user, recipientId: props.recipient.id });
 
-      // goog luck figuring this one out
+
       props.socket.on('DmsFetched', (data) => {
         const mesgs = data;
         const msgs = [];
 
+        //Maps each message to either self (user) or friend (sender) by comparing user ids
         for (let message of mesgs) {
           const msg = {};
           msg.msg = message.msg;
@@ -122,15 +114,9 @@ export default function Chat(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
+
       props.socket.on('dm', (data) => {
-
         setMessages(prev => [...prev, data]);
-
-        setUnreadMessages(prev => {
-          console.log('prev:', prev);
-          return ++prev;
-        });
-        console.log('unreadMessages for recipient:', unreadMessages)
         if (messagesDisplayRef.current) {
           scrollToBottom();
         }
@@ -140,7 +126,7 @@ export default function Chat(props) {
         props.socket.off('dm');
       }
     }
-  }, [messages, props.socket, props.socketOpen, unreadMessages]);
+  }, [messages, props.socket, props.socketOpen]);
 
 
   const msgs = messages.map((message) => {
@@ -154,7 +140,6 @@ export default function Chat(props) {
       />
     )
   });
-
 
   return (
     <>

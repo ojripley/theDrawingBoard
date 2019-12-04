@@ -7,10 +7,9 @@ import Peer from 'peerjs';
 import { store } from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css' // SASS files are located in react-notifications-component/dist/scss
 
-// Components
-import { useSocket } from './hooks/useSocket'
-import TabBar from './TabBar';
-import NavBar from './NavBar';
+// COMPONENTS
+import TabBar from './components/TabBar';
+import NavBar from './components/NavBar';
 import Loading from './components/Loading';
 import ActiveMeeting from './components/active/ActiveMeeting';
 import Notifications from './components/notifications/Notifications';
@@ -57,6 +56,7 @@ export default function App() {
   const [usersInMeeting, setUsersInMeeting] = useState({});
 
   // webrtc state
+
   const [peer, setPeer] = useState(null);
   const [streams, setStreams] = useState({});
   const [calls, setCalls] = useState({});
@@ -371,7 +371,6 @@ export default function App() {
                 initialNotes={meetingNotes}
                 setMeetingNotes={setMeetingNotes}
                 setInMeeting={setInMeeting}
-                inMeeting={inMeeting}
                 setMeetingId={setMeetingId}
                 imageLoaded={imageLoaded}
                 setImageLoaded={setImageLoaded}
