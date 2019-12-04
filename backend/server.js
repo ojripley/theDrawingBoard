@@ -389,18 +389,7 @@ io.on('connection', (client) => {
     }
   });
 
-  client.on('insertUsersMeeting', data => {
-    db.insertUsersMeeting(data.userId, data.meetingId)
-      .then(() => {
-        client.emit('invitedUsers');
-      })
-      .catch(error => {
-        handleError(error, client);
-      });
-  });
-
   client.on('startMeeting', (data) => {
-
     db.updateMeetingActiveState(data.id, true)
       .then(() => { // meeting status has been updated
 
