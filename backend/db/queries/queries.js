@@ -175,7 +175,6 @@ const insertUser = function(username, email, password) {
     RETURNING *;
   `, vars)
     .then(res => {
-      console.log(res)
       return res.rows;
     })
     .catch(error => {
@@ -471,7 +470,6 @@ const fetchStartedMeetings = function() {
     AND active = false
     AND status = 'scheduled';
   `).then(res => {
-    console.log('res.rows', res.rows)
     return res.rows;
   }).catch(error => {
     throw error;
