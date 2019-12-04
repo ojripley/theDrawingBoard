@@ -308,7 +308,7 @@ export default function App() {
         if (!inMeeting && !loading) {
           setNotificationList(prev => [data, ...prev]);
           store.addNotification({
-            title: `${data.type}`,
+            title: `${data.title}`,
             message: `${data.msg}`,
             type: "custom",
             insert: "top",
