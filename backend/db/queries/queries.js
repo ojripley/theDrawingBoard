@@ -125,8 +125,6 @@ const fetchMeetingById = function(meeting_id) {
     });
 };
 
-
-
 const fetchUsersMeetingsByIds = function(user_id, meeting_id) {
   const vars = [user_id, meeting_id];
 
