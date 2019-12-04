@@ -44,13 +44,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Chat(props) {
-  console.log('props', props);
   const classes = useStyles();
-
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [unreadMessages, setUnreadMessages] = useState(0);
-
   const textareaRef = useRef(null);
   const messagesDisplayRef = useRef(null);
 
@@ -72,7 +68,6 @@ export default function Chat(props) {
         console.log('props', props);
         props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim(), time: new Date(Date.now()) });
       }
-      console.log('unreadMessages for sender:', unreadMessages);
       setMessage('');
     }
   };
@@ -97,13 +92,11 @@ export default function Chat(props) {
       props.socket.on('DmsFetched', (data) => {
         const msgs = [];
 
-        console.log('data', data);
-
         for (let message of data) {
           const msg = {};
           msg.msg = message.msg;
           msg.time = message.time;
-          console.log('who is sender', message.user_id, props.user.id);
+
           if (message.user_id === props.user.id) {
 
             msg.sender = props.recipient;
@@ -126,11 +119,6 @@ export default function Chat(props) {
 
         setMessages(prev => [...prev, data]);
 
-        setUnreadMessages(prev => {
-          console.log('prev:', prev);
-          return ++prev;
-        });
-        console.log('unreadMessages for recipient:', unreadMessages)
         if (messagesDisplayRef.current) {
           scrollToBottom();
         }
@@ -140,7 +128,7 @@ export default function Chat(props) {
         props.socket.off('dm');
       }
     }
-  }, [messages, props.socket, props.socketOpen, unreadMessages]);
+  }, [messages, props.socket, props.socketOpen]);
 
 
   const msgs = messages.map((message) => {
@@ -154,7 +142,6 @@ export default function Chat(props) {
       />
     )
   });
-
 
   return (
     <>
