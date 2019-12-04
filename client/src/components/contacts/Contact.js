@@ -28,7 +28,6 @@ export default function Contact(props) {
     }
 
     if (relationStatus === 'pending') {
-      ;
       props.socket.emit('changeRelation', { user: props.user, contactId: props.contact.id, relation: 'accepted' });
     }
 
