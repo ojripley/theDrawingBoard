@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+
 import './Contacts.scss';
+
 import Card from '@material-ui/core/Card';
 import PersonIcon from '@material-ui/icons/Person';
 import Button from '@material-ui/core/Button';

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import './Chat.scss';
+
 import Message from '../Message';
+import './Chat.scss';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
