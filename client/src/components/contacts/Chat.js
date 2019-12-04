@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef }from 'react';
-
+import React, { useEffect, useState, useRef } from 'react';
+import './Chat.scss';
+import Message from '../Message';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
@@ -8,28 +9,15 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
-import './Chat.scss';
-
-import Message from '../Message';
 
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
     backgroundColor: 'rgba(245,240,235, 0.85)'
-    // backgroundColor: theme.palette.primary.light
   },
   list: {
     width: '40vw',
     minWidth: 280,
   },
-  // center: {
-  //   display: 'flex',
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   position: 'relative',
-  //   zIndex: 2,
-  //   width: '100%',
-  // },
   textareaAutosize: {
     resize: 'none',
     width: '85%',
@@ -67,7 +55,6 @@ export default function Chat(props) {
   const messagesDisplayRef = useRef(null);
 
   const scrollToBottom = () => {
-    // messagesDisplayRef.current.scrollTop = messagesDisplayRef.current.scrollHeight;
     messagesDisplayRef.current.scrollTo({
       top: messagesDisplayRef.current.scrollHeight,
       left: 0,
@@ -83,7 +70,7 @@ export default function Chat(props) {
     if (message.trim().length > 0) {
       if (props.socketOpen) {
         console.log('props', props);
-        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim(), time: new Date(Date.now())});
+        props.socket.emit('sendDm', { user: props.user, recipientId: props.recipient.id, msg: message.trim(), time: new Date(Date.now()) });
       }
       console.log('unreadMessages for sender:', unreadMessages);
       setMessage('');
@@ -105,14 +92,13 @@ export default function Chat(props) {
 
   useEffect(() => {
     if (props.socketOpen) {
-      props.socket.emit('fetchDms', {user: props.user, recipientId: props.recipient.id});
+      props.socket.emit('fetchDms', { user: props.user, recipientId: props.recipient.id });
 
       props.socket.on('DmsFetched', (data) => {
         const msgs = [];
 
         console.log('data', data);
 
-        // goog luck figuring this one out
         for (let message of data) {
           const msg = {};
           msg.msg = message.msg;
