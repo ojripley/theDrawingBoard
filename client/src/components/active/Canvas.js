@@ -3,10 +3,10 @@ import './Canvas.scss';
 
 const ADD_USER = "ADD_USER";
 const SET_INITIAL_PIXELS = "SET_INITIAL_PIXELS";
-const SET_PIXEL = "SET_PIXEL";
 const SET_CTX = "SET_CTX";
 const REDRAW = "REDRAW";
 const SET_POINTER = "SET_POINTER";
+const DRAW_PIXEL = "DRAW_PIXEL";
 
 export default function Canvas({ backgroundImage,
   imageLoaded,
@@ -86,8 +86,8 @@ export default function Canvas({ backgroundImage,
     if (socketOpen) {
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
-          dispatch({ type: SET_PIXEL, payload: { user: data.user.id, pixel: data.pixel, page: page } });
-          dispatch({ type: REDRAW, payload: { page: page } });
+          dispatch({ type: DRAW_PIXEL, payload: { pixel: data.pixel, page: page, user: user } });
+
         }
       });
 
@@ -148,8 +148,7 @@ export default function Canvas({ backgroundImage,
         tool: tool
       };
       mapToRelativeUnits(pixel);
-      dispatch({ type: SET_PIXEL, payload: { user: user.id, pixel: pixel, page: page } });
-      dispatch({ type: REDRAW, payload: { page: page } });
+      dispatch({ type: DRAW_PIXEL, payload: { pixel: pixel, page: page, user: user } });
       socket.emit('addClick', { user: user, pixel: pixel, meetingId: meetingId, page: page });
     }
   };
