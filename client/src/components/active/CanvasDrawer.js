@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 
 import Message from '../Message';
 
+import './CanvasDrawer.scss';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
@@ -13,9 +15,7 @@ import Slider from '@material-ui/core/Slider';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import Badge from '@material-ui/core/Badge'
-
-import './CanvasDrawer.scss';
-import { Typography } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles(theme => ({
   drawerContainer: {
