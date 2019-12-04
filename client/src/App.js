@@ -317,7 +317,7 @@ export default function App() {
           console.log("Setting notification");
           setNotificationList(prev => [data, ...prev]);
           store.addNotification({
-            title: `${data.type}`,
+            title: `${data.title}`,
             message: `${data.msg}`,
             type: "custom",
             insert: "top",
