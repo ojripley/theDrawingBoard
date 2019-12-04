@@ -51,7 +51,7 @@ export default function reducer(state, action) {
         state.ctx.closePath();//end the line
       }
 
-
+      //Adds the pixel to the state:
       if (state.pixelArrays[action.payload.page][userId]) {
 
         return {
@@ -89,6 +89,7 @@ export default function reducer(state, action) {
         }
       };
     case REDRAW: {
+      //Redraws the entire canvas
       state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height); //Clears canvas
       const w = state.ctx.canvas.width;
       const h = state.ctx.canvas.height;

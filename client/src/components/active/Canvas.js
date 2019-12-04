@@ -87,14 +87,13 @@ export default function Canvas({ backgroundImage,
       socket.on('drawClick', data => {
         if (user.id !== data.user.id) {
           dispatch({ type: DRAW_PIXEL, payload: { pixel: data.pixel, page: page, user: data.user } });
-
         }
       });
 
       socket.on('setPointer', data => {
         if (user.id !== data.user.id) {
           dispatch({ type: SET_POINTER, payload: { user: data.user.id, pixel: data.pixel } });
-          dispatch({ type: REDRAW, payload: { page: page } });
+          dispatch({ type: REDRAW, payload: { page: page } }); //redraw entire screen & redraw
         }
       });
 
