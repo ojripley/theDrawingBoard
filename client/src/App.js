@@ -1,14 +1,14 @@
+// react
 import React, { useState, useEffect } from 'react';
-import './App.scss';
 import ReactNotification from 'react-notifications-component'
-import 'react-notifications-component/dist/theme.css' //SASS files are located in react-notifications-component/dist/scss
-import { store } from 'react-notifications-component';
-import Peer from 'peerjs';
 
-import theme from './theme/muiTheme';
-import ThemeProvider from '@material-ui/styles/ThemeProvider';
+// apis
+import Peer from 'peerjs';
+import { store } from 'react-notifications-component';
+import 'react-notifications-component/dist/theme.css' // SASS files are located in react-notifications-component/dist/scss
 
 // Components
+import { useSocket } from './hooks/useSocket'
 import TabBar from './TabBar';
 import NavBar from './NavBar';
 import Loading from './components/Loading';
@@ -20,8 +20,12 @@ import History from './components/history/History';
 import Login from './components/login/Login';
 import Error from './components/Error';
 
-//Custom hooks
-import { useSocket } from './hooks/useSocket'
+// style
+import './App.scss';
+
+// mui
+import theme from './theme/muiTheme';
+import ThemeProvider from '@material-ui/styles/ThemeProvider';
 
 // top level modes
 export default function App() {
