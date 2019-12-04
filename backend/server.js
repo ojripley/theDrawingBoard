@@ -376,7 +376,7 @@ io.on('connection', (client) => {
 
         for (let contactId of res[0].attendee_ids) {
           notify(contactId, { title: 'New Meeting Invite', type: 'meeting', msg: `You have been invited to the meeting '${res[0].name}! Please RSVP`, meetingId: res[0].id, ownerId: res[0].owner_id });
-          if (activeUsers[contactId]) {
+          if (activeUsers[contactId] && contactId !== res[0].owner_id) {
             activeUsers[contactId].socket.emit('itWorkedThereforeIPray', res[0]);
           }
         }
@@ -434,7 +434,7 @@ io.on('connection', (client) => {
             // send the meeting to all users who are logged in && invited to that meeting
             for (let id of attendeeIds) {
               notify(id, { title: 'Meeting Started', type: 'meeting', msg: `Meeting '${meeting.name}' has started!`, meetingId: meeting.id, ownerId: meeting.owner_id });
-              if (activeUsers[id]) {
+              if (activeUsers[id] && id !== meeting.owner_id) {
                 activeUsers[id].socket.emit(`meetingStarted${meeting.id}`, { meetingId: meeting.id, ownerId: meeting.owner_id });
               }
             }
