@@ -104,8 +104,7 @@ export default function MeetingCard({
   const classes = useStyles();
 
   const [activeMeeting, setActiveMeeting] = useState(active);
-
-  let loadingCounter = 0;
+  const [loadingCounter, setLoadingCounter] = useState(0);
 
   const date = new Date(startTime);
 
@@ -156,14 +155,17 @@ export default function MeetingCard({
             myImage.onload = () => {
 
               setBackgroundImage(prev => {
-                loadingCounter++;
                 prev[i] = myImage; //sets the image in the proper index (maintaining order)
 
-                if (loadingCounter === data.images.length) {
-                  setLoading(false);
-                  setImageLoaded(true);
-                  setInMeeting(true);
-                }
+                setLoadingCounter(previousCount => {
+                  if (++previousCount === data.images.length) {
+                    setLoading(false);
+                    setImageLoaded(true);
+                    setInMeeting(true);
+                  }
+                  return previousCount;
+                })
+
                 return prev;
               });
 
@@ -177,7 +179,7 @@ export default function MeetingCard({
       socket.off(`enteredMeeting${id}`);
     };
 
-  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes]);
+  }, [socket, socketOpen, setInMeeting, setMeetingId, setOwnerId, setBackgroundImage, setImageLoaded, setInitialPixels, setMeetingNotes, id, setUsersInMeeting, setInitialPage, setLoading, loadingCounter, setPixelColor]);
 
   useEffect(() => {
     if (id) {
