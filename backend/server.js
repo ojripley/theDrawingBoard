@@ -143,7 +143,6 @@ setInterval(() => {
 // SOCKET EVENTS //
 ///////////////////
 
-// socket events
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
