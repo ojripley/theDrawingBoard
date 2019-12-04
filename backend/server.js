@@ -135,23 +135,25 @@ setInterval(() => {
     .catch(error => {
       handleError(error, client);
     });
-}, 60000);
+  }, 60000);
 
 
 
-///////////////////
-// SOCKET EVENTS //
-///////////////////
+  ///////////////////
+  // SOCKET EVENTS //
+  ///////////////////
 
-// socket events
+  // socket events
 io.on('connection', (client) => {
   console.log('new client has connected');
   client.emit('msg', "there's a snake in my boot!");
 
+  client.on('msg', (data) => {
+    console.log(data);
+  });
 
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
-
 
   //Checks cookie
   client.on('checkCookie', (cookie) => {
@@ -257,9 +259,6 @@ io.on('connection', (client) => {
     io.to(data.meetingId).emit('setPointer', data); //pass message along
   });
 
-  client.on('msg', (data) => {
-    console.log(data);
-  });
 
   client.on('changePage', data => {
     activeMeetings[data.meetingId].initialPage = data.page;
