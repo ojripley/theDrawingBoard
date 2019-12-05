@@ -130,6 +130,7 @@ export default function App() {
 
       // listen for new users joining
       if (socketOpen && !newCall.newPeer) {
+        socket.off('newParticipant'); // mom says you gotta clean up before you make another mess
         socket.on('newParticipant', (data) => {
           const liveUserId = 'theDrawingBoard' + data.user.id;
           setUsersInMeeting(prev => ({
