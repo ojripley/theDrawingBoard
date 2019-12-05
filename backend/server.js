@@ -482,7 +482,8 @@ io.on('connection', (client) => {
         client.join(data.meetingId);
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
 
-        client.on('everythingLoaded', () => {
+        client.on(`everythingLoaded${data.meetingId}`, (data2) => {
+          console.log(data2.user.username, 'says everything is loaded, emitting to room');
           io.to(data.meetingId).emit('newParticipant', { user: data.user });
         });
 

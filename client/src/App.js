@@ -131,6 +131,9 @@ export default function App() {
       // listen for new users joining
       if (socketOpen && !newCall.newPeer) {
         socket.on('newParticipant', (data) => {
+          console.log('new user has entered', data.user.username);
+          console.log('my calls at the moment are ', calls);
+          console.log('my streams at the moment are ', streams);
           const liveUserId = 'theDrawingBoard' + data.user.id;
           setUsersInMeeting(prev => ({
             ...prev,
