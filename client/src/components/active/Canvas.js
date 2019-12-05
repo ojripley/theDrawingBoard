@@ -81,6 +81,18 @@ export default function Canvas({ backgroundImage,
     return pixel;
   }
 
+  useEffect(() => {
+    if (socketOpen) {
+      socket.on('addUserAndColor', data => {
+        dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
+      });
+
+      return () => {
+        socket.off('addUserAndColor');
+      }
+    }
+  }, [socket, socketOpen, imageLoaded]);
+
   //Events coming from server trigger redrawing of canvas
   useEffect(() => {
     if (socketOpen) {
@@ -102,15 +114,16 @@ export default function Canvas({ backgroundImage,
         dispatch({ type: REDRAW, payload: { page: page } });
       });
 
-      socket.on('addUserAndColor', data => {
-        dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
-      });
+
+
+      // HERERERERERER
+
+
     }
     return () => {
       socket.off('drawClick');
       socket.off('setPointer');
       socket.off('redraw');
-      socket.off('addUserAndColor');
     };
 
   }, [socket, socketOpen, user.id, dispatch, page]);
