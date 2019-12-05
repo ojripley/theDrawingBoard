@@ -484,7 +484,7 @@ io.on('connection', (client) => {
 
         client.on(`everythingLoaded${data.meetingId}`, () => {
           io.to(data.meetingId).emit('newParticipant', { user: data.user });
-          socket.off(`everythingLoaded${data.meetingId}`);
+          client.off(`everythingLoaded${data.meetingId}`);
         });
 
       }).catch(err => {
