@@ -229,7 +229,7 @@ export default function ActiveMeeting({ socket,
             if (colour.r === 0 && colour.g === 255 && colour.b === 0) {
               colourId = 'three';
             }
-            if (colour.r === 255 && colour.g === 0 && colour.b === 155) {
+            if (colour.r === 222 && colour.g === 70 && colour.b === 242) {
               colourId = 'four';
             }
           }
