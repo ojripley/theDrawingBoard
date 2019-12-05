@@ -163,7 +163,8 @@ export default function MeetingCard({
                     setImageLoaded(true);
                     setInMeeting(true);
                     // setTimeout(() => {
-                      socket.emit('everythingLoaded');
+                      socket.emit(`everythingLoaded${id}`, {user: user});
+                      console.log('everything loaded');
                     // }, 3000);
                   }
                   return previousCount;
