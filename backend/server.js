@@ -482,14 +482,14 @@ io.on('connection', (client) => {
         client.join(data.meetingId);
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
 
-        client.on(`everythingLoaded${data.meetingId}`, () => {
-          io.to(data.meetingId).emit('newParticipant', { user: data.user });
-          client.off(`everythingLoaded${data.meetingId}`);
-        });
 
       }).catch(err => {
         handleError(err, client);
       });
+  });
+
+  client.on('everythingLoaded', (data) => {
+    io.to(data.meetingId).emit('newParticipant', { user: data.user });
   });
 
   client.on('saveDebouncedNotes', (data) => {
@@ -499,7 +499,7 @@ io.on('connection', (client) => {
   // handle the end meeting event
   client.on('savingMeeting', data => {
     io.to(data.meetingId).emit('loadTheSpinnerPls');
-  })
+  });
 
   client.on('endMeeting', (data) => {
 
