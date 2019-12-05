@@ -245,7 +245,7 @@ export default function ActiveMeeting({ socket,
       });
       setUserChips(tempUserChips);
     }
-  }, [usersInMeeting]);
+  }, [usersInMeeting, imageLoaded, pixelColor, canvasState.color]);
 
   return (
     <>
