@@ -481,7 +481,11 @@ io.on('connection', (client) => {
 
         client.join(data.meetingId);
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
-        io.to(data.meetingId).emit('newParticipant', { user: data.user });
+
+        client.on('everythingLoaded', (data) => {
+          io.to(data.meetingId).emit('newParticipant', { user: data.user });
+        });
+
       }).catch(err => {
         handleError(err, client);
       });

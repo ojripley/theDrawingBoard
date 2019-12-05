@@ -161,9 +161,10 @@ export default function MeetingCard({
                   if (++previousCount === data.images.length) {
                     setLoading(false);
                     setImageLoaded(true);
+                    setInMeeting(true);
                     setTimeout(() => {
-                      setInMeeting(true);
-                    }, 1000);
+                      socket.emit('everythingLoaded');
+                    }, 3000);
                   }
                   return previousCount;
                 })
