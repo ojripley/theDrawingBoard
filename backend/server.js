@@ -482,8 +482,9 @@ io.on('connection', (client) => {
         client.join(data.meetingId);
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
 
-        client.on(`everythingLoaded${data.meetingId}`, (data2) => {
+        client.on(`everythingLoaded${data.meetingId}`, () => {
           io.to(data.meetingId).emit('newParticipant', { user: data.user });
+          socket.off(`everythingLoaded${data.meetingId}`);
         });
 
       }).catch(err => {
