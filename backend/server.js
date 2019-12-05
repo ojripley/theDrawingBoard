@@ -482,7 +482,7 @@ io.on('connection', (client) => {
         client.join(data.meetingId);
         io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
 
-        client.on('everythingLoaded', (data) => {
+        client.on('everythingLoaded', () => {
           io.to(data.meetingId).emit('newParticipant', { user: data.user });
         });
 
