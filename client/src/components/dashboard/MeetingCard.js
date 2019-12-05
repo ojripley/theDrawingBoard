@@ -162,7 +162,7 @@ export default function MeetingCard({
                     setLoading(false);
                     setImageLoaded(true);
                     setInMeeting(true);
-                    socket.emit(`everythingLoaded${id}`, {user: user});
+                    socket.emit('everythingLoaded', { user: user, meetingId: id });
                   }
                   return previousCount;
                 })

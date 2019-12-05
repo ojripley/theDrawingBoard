@@ -102,9 +102,13 @@ export default function Canvas({ backgroundImage,
         dispatch({ type: REDRAW, payload: { page: page } });
       });
 
+
+
       socket.on('addUserAndColor', data => {
         dispatch({ type: ADD_USER, payload: { user: data.user.id, color: data.color } });
       });
+
+
     }
     return () => {
       socket.off('drawClick');

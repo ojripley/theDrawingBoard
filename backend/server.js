@@ -480,15 +480,16 @@ io.on('connection', (client) => {
         client.emit(`enteredMeeting${meetingDetails.id}`, { meeting: meetingDetails, notes: res[0].notes, pixels: meetingDetails.userPixels, images: images });
 
         client.join(data.meetingId);
-        io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
-
-        client.on(`everythingLoaded${data.meetingId}`, (data2) => {
-          io.to(data.meetingId).emit('newParticipant', { user: data.user });
-        });
 
       }).catch(err => {
         handleError(err, client);
       });
+    });
+
+    client.on('everythingLoaded', (data) => {
+      io.to(data.meetingId).emit('newParticipant', { user: data.user });
+      const col = activeMeetings[data.meetingId].colorMapping[data.user.id];
+      io.to(data.meetingId).emit('addUserAndColor', { user: data.user, color: col });
   });
 
   client.on('saveDebouncedNotes', (data) => {
@@ -498,7 +499,7 @@ io.on('connection', (client) => {
   // handle the end meeting event
   client.on('savingMeeting', data => {
     io.to(data.meetingId).emit('loadTheSpinnerPls');
-  })
+  });
 
   client.on('endMeeting', (data) => {
 
