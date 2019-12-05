@@ -171,24 +171,26 @@ export default function CanvasDrawer(props) {
 
   return (
     <>
-      <Badge
+      {props.showButtons && !openDrawer && <>
+        <Badge
         className='message-badge'
         color="secondary"
         badgeContent={unreadMessages}
         showZero={false}
-      />
-      {props.showButtons && !openDrawer && <Button
-        variant='contained'
-        color='primary'
-        size='small'
-        className={classes.button}
-        onClick={() => {
-          setUnreadMessages(0);
-          setOpenDrawer(true);
-        }}
-      >
-        Tools
-      </Button>}
+        />
+        <Button
+          variant='contained'
+          color='primary'
+          size='small'
+          className={classes.button}
+          onClick={() => {
+            setUnreadMessages(0);
+            setOpenDrawer(true);
+          }}
+        >
+          Tools
+        </Button>
+      </>}
 
       <Drawer
         classes={{ paper: classes.drawerContainer }}
