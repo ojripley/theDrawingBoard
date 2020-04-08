@@ -56,8 +56,8 @@ export default function Chat(props) {
       top: messagesDisplayRef.current.scrollHeight,
       left: 0,
       behavior: 'smooth'
-    })
-  }
+    });
+  };
 
   const handleMessage = event => {
     setMessage(event.target.value);

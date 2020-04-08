@@ -153,7 +153,7 @@ io.on('connection', (client) => {
   let cookieString = ""; //This will grab the clients session cookie should it exist
   let ivString = ""; //This will grab the clients session cookie should it exist
 
-  //Checks cookie
+  // Checks cookie
   client.on('checkCookie', (cookie) => {
 
     if (cookie) {
